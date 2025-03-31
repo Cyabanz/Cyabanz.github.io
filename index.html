@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Vertical Navbar</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg">
+        <div></div>
+        <div></div>
+    </div>
+
+    <nav class="vertical-nav">
+        <a href="#" class="nav-item" data-tooltip="Home"><i class="bx bx-home"></i></a>
+        <a href="#" class="nav-item" data-tooltip="Games"><i class="bx bx-game"></i></a>
+        <a href="#" class="nav-item" data-tooltip="Apps"><i class="bx bx-grid-alt"></i></a>
+        <a href="#" class="nav-item" data-tooltip="Settings"><i class="bx bx-cog"></i></a>
+    </nav>
+</body>
+</html>
+
+<style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .fusion-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 60px;
+    color: white;
+    text-shadow:  
+      0 0 10px rgba(255, 255, 255, 0.8),  
+      0 0 20px rgba(255, 255, 255, 0.6),  
+      4px 4px 10px rgba(0, 0, 0, 0.7); 
+    text-align: center;
+  }
+
+  .changing-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    color: white;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    text-align: center;
+    margin-top: 5px; /* Ensures space between texts */
+    height: 30px; /* Prevents movement by keeping the height fixed */
+  }
+</style>
+
+<div class="container">
+  <div class="fusion-text">FUSION</div>
+  <div class="changing-text" id="changingText"></div>
+</div>
+
+<script>
+  const messages = ["Innovate", "Create", "Inspire", "Transform"];
+  let index = 0;
+
+  function changeText() {
+    document.getElementById("changingText").innerText = messages[index];
+    index = (index + 1) % messages.length;
+  }
+
+  setInterval(changeText, 2000); // Change text every 2 seconds
+  changeText(); // Initialize first text
+</script>
