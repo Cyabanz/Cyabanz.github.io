@@ -101,7 +101,7 @@ body {
     height: 150px;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-    overflow: hidden; /* Ensures no image overflow */
+    overflow: hidden;
     background-color: #252525;
     display: flex;
     justify-content: center;
@@ -115,13 +115,15 @@ body {
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
 }
 
-/* Image inside the box */
+/* Image styling - FULL COVERAGE */
 .box-container img {
+    position: absolute; /* Forces the image to fill the container */
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures the image fully covers the container */
+    object-fit: cover; /* Ensures full coverage */
     object-position: center; /* Centers the image */
-    border-radius: 0; /* Ensures full coverage with no gaps */
 }
 
 /* Game name label - hidden by default */
@@ -145,3 +147,4 @@ body {
 .box-container:hover .game-name {
     opacity: 1;
 }
+
