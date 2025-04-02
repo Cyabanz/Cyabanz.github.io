@@ -144,3 +144,11 @@ body {
 .box-container:hover .game-name {
     opacity: 1;
 }
+
+/* Image inside the box */
+.box-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures image covers the entire box without stretching */
+    border-radius: 12px; /* Keeps the rounded corners */
+}
