@@ -2,7 +2,7 @@
   "games": [
     {
       "name": "Game 1",
-      "image": "https://help.learningmath.infinityfreeapp.com/images/games/fortnite.jpg",
+      "image": "",
       "description": "Description of Game 1",
       "link": "https://example.com/game1"
     },
