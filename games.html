@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Site with Search Bar</title>
-    <link rel="stylesheet" href="games.css">
     <script>
         // Function to fetch JSON data
         async function fetchData() {
@@ -21,8 +20,11 @@
                 const gameCard = document.createElement('div');
                 gameCard.classList.add('box-container');
                 gameCard.innerHTML = `
-                    <img src="${game.image}" alt="${game.name}">
+                    <a href="${game.link}" target="_blank" class="game-link">
+                        <img src="${game.image}" alt="${game.name}">
+                    </a>
                     <div class="game-name">${game.name}</div>
+                    <div class="game-description">${game.description}</div>
                 `;
                 container.appendChild(gameCard);
             });
