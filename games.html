@@ -21,7 +21,9 @@
                 const gameCard = document.createElement('div');
                 gameCard.classList.add('box-container');
                 gameCard.innerHTML = `
-                    <img src="${game.image}" alt="${game.name}">
+                    <a href="${game.link}" target="_blank">
+                        <img src="${game.image}" alt="${game.name}">
+                    </a>
                     <div class="game-name">${game.name}</div>
                 `;
                 container.appendChild(gameCard);
@@ -68,3 +70,4 @@
 
 </body>
 </html>
+
