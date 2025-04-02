@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Site with Search Bar</title>
     <link rel="stylesheet" href="games.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
+
     <script>
         // Function to fetch JSON data
         async function fetchData() {
@@ -35,10 +37,18 @@
             return games.filter(game => game.name.toLowerCase().includes(searchTerm.toLowerCase()));
         }
 
+        // Function to filter games based on category
+        function filterGamesByCategory(games, category) {
+            if (category === "All") {
+                return games; // Show all games if "All" is selected
+            }
+            return games.filter(game => game.category === category);
+        }
+
         // Event listener for search input
         document.addEventListener('DOMContentLoaded', async () => {
             const data = await fetchData(); // Fetch JSON data
-            const games = data.games; // Get the list of games
+            let games = data.games; // Get the list of games
 
             // Display all games initially
             displayGames(games);
@@ -50,17 +60,42 @@
                 const filteredGames = filterGames(games, searchTerm); // Filter games based on the search term
                 displayGames(filteredGames); // Display the filtered games
             });
+
+            // Event listener for category dropdown
+            document.querySelectorAll(".dropdown li").forEach(item => {
+                item.addEventListener("click", () => {
+                    const category = item.textContent; // Get selected category
+                    const filteredGames = filterGamesByCategory(games, category);
+                    displayGames(filteredGames); // Display games of selected category
+                });
+            });
         });
+
+        // Toggle dropdown menu
+        function toggleDropdown() {
+            let dropdown = document.querySelector(".dropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
     </script>
 </head>
 <body>
 
-    <!-- Search Bar -->
+    <!-- Search Bar with Category Dropdown -->
     <div class="search-container">
         <input type="text" class="search-input" placeholder="Search games..." id="searchInput">
-        <button class="search-btn">
+        <button class="search-btn" onclick="toggleDropdown()">
             <i class="bx bx-search"></i>
         </button>
+        <div class="dropdown">
+            <ul>
+                <li>All</li>
+                <li>Action</li>
+                <li>Sports</li>
+                <li>Puzzles</li>
+                <li>Multiplayer</li>
+                <li>2 Player</li>
+            </ul>
+        </div>
     </div>
 
     <!-- Container for Games -->
@@ -71,4 +106,3 @@
 </body>
 </html>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
