@@ -37,12 +37,12 @@
             return games.filter(game => game.name.toLowerCase().includes(searchTerm.toLowerCase()));
         }
 
-        // Function to filter games based on category
+        // Function to filter games based on categories
         function filterGamesByCategory(games, category) {
             if (category === "All") {
                 return games; // Show all games if "All" is selected
             }
-            return games.filter(game => game.category === category);
+            return games.filter(game => game.categories.includes(category));
         }
 
         // Event listener for search input
@@ -105,4 +105,5 @@
 
 </body>
 </html>
+
 
