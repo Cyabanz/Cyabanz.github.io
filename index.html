@@ -20,54 +20,48 @@
         <a href="#" class="nav-item" data-tooltip="Apps"><i class="bx bx-grid-alt"></i></a>
         <a href="#" class="nav-item" data-tooltip="Settings"><i class="bx bx-cog"></i></a>
     </nav>
+
+    <!-- Game Container -->
+    <div id="gamesContainer" class="container">
+        <!-- Game Cards will be inserted here by JavaScript -->
+    </div>
+
+    <script>
+        // Fetching JSON data
+        async function fetchData() {
+            const response = await fetch('data.json');  // Adjust the path to your actual JSON file
+            const data = await response.json();
+            return data;
+        }
+
+        // Function to display the games
+        function displayGames(games) {
+            const container = document.getElementById('gamesContainer');
+            container.innerHTML = '';  // Clear previous content
+
+            games.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.classList.add('box-container');
+                gameCard.innerHTML = `
+                    <a href="${game.link}" target="_blank" class="game-link">
+                        <img src="${game.image}" alt="${game.name}">
+                    </a>
+                    <div class="game-name">${game.name}</div>
+                    <div class="game-description">${game.description}</div>
+                `;
+                container.appendChild(gameCard);
+            });
+        }
+
+        // Event listener for DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            const data = await fetchData();  // Fetch data from JSON
+            const games = data.games;  // Extract games array
+
+            // Display all games
+            displayGames(games);
+        });
+    </script>
 </body>
 </html>
 
-<style>
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
-
-  .fusion-text {
-    font-family: 'Poppins', sans-serif;
-    font-size: 60px;
-    color: white;
-    text-shadow:  
-      0 0 10px rgba(255, 255, 255, 0.8),  
-      0 0 20px rgba(255, 255, 255, 0.6),  
-      4px 4px 10px rgba(0, 0, 0, 0.7); 
-    text-align: center;
-  }
-
-  .changing-text {
-    font-family: 'Poppins', sans-serif;
-    font-size: 24px;
-    color: white;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
-    text-align: center;
-    margin-top: 5px; /* Ensures space between texts */
-    height: 30px; /* Prevents movement by keeping the height fixed */
-  }
-</style>
-
-<div class="container">
-  <div class="fusion-text">FUSION</div>
-  <div class="changing-text" id="changingText"></div>
-</div>
-
-<script>
-  const messages = ["Innovate", "Create", "Inspire", "Transform"];
-  let index = 0;
-
-  function changeText() {
-    document.getElementById("changingText").innerText = messages[index];
-    index = (index + 1) % messages.length;
-  }
-
-  setInterval(changeText, 2000); // Change text every 2 seconds
-  changeText(); // Initialize first text
-</script>
