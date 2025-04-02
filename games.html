@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Site with Search Bar</title>
+    <link rel="stylesheet" href="games.css">
+    <script>
+        // Function to fetch JSON data
+        async function fetchData() {
+            const response = await fetch('data.json'); // Fetch data from the external JSON file
+            const data = await response.json(); // Parse the JSON data
+            return data;
+        }
+
+        // Function to display the games
+        function displayGames(games) {
+            const container = document.getElementById('gamesContainer');
+            container.innerHTML = ''; // Clear the container
+            games.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.classList.add('box-container');
+                gameCard.innerHTML = `
+                    <img src="${game.image}" alt="${game.name}">
+                    <div class="game-name">${game.name}</div>
+                `;
+                container.appendChild(gameCard);
+            });
+        }
+
+        // Function to filter games based on search input
+        function filterGames(games, searchTerm) {
+            return games.filter(game => game.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+
+        // Event listener for search input
+        document.addEventListener('DOMContentLoaded', async () => {
+            const data = await fetchData(); // Fetch JSON data
+            const games = data.games; // Get the list of games
+
+            // Display all games initially
+            displayGames(games);
+
+            // Add event listener to search bar
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value; // Get the current search term
+                const filteredGames = filterGames(games, searchTerm); // Filter games based on the search term
+                displayGames(filteredGames); // Display the filtered games
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search games..." id="searchInput">
+        <button class="search-btn">
+            <i class="bx bx-search"></i>
+        </button>
+    </div>
+
+    <!-- Container for Games -->
+    <div class="container" id="gamesContainer">
+        <!-- Game Cards will be dynamically inserted here -->
+    </div>
+
+</body>
+</html>
