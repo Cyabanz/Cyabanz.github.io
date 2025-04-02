@@ -101,7 +101,7 @@ body {
     height: 150px;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-    overflow: hidden;
+    overflow: hidden; /* Ensures no image overflow */
     background-color: #252525;
     display: flex;
     justify-content: center;
@@ -119,8 +119,9 @@ body {
 .box-container img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
+    object-fit: cover; /* Ensures the image fully covers the container */
+    object-position: center; /* Centers the image */
+    border-radius: 0; /* Ensures full coverage with no gaps */
 }
 
 /* Game name label - hidden by default */
@@ -143,12 +144,4 @@ body {
 /* Show game name on hover */
 .box-container:hover .game-name {
     opacity: 1;
-}
-
-/* Image inside the box */
-.box-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Ensures image covers the entire box without stretching */
-    border-radius: 12px; /* Keeps the rounded corners */
 }
