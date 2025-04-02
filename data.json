@@ -4,31 +4,36 @@
       "name": "Game 1",
       "image": "IMG_0680.jpeg",
       "description": "Description of Game 1",
-      "link": "https://example.com/game1"
+      "link": "https://example.com/game1",
+      "categories": ["Action", "Sports"]
     },
     {
       "name": "Game 2",
       "image": "path_to_image2.jpg",
       "description": "Description of Game 2",
-      "link": "https://example.com/game2"
+      "link": "https://example.com/game2",
+      "categories": ["Action", "Puzzles"]
     },
     {
       "name": "Game 3",
       "image": "path_to_image3.jpg",
       "description": "Description of Game 3",
-      "link": "https://example.com/game3"
+      "link": "https://example.com/game3",
+      "categories": ["Multiplayer", "2 Player"]
     },
     {
       "name": "Game 4",
       "image": "path_to_image4.jpg",
       "description": "Description of Game 4",
-      "link": "https://example.com/game4"
+      "link": "https://example.com/game4",
+      "categories": ["Sports"]
     },
     {
       "name": "Game 5",
       "image": "path_to_image5.jpg",
       "description": "Description of Game 5",
-      "link": "https://example.com/game5"
+      "link": "https://example.com/game5",
+      "categories": ["Action", "Multiplayer"]
     }
   ]
 }
