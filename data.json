@@ -1,0 +1,34 @@
+{
+  "games": [
+    {
+      "name": "Game 1",
+      "image": "path_to_image1.jpg",
+      "description": "Description of Game 1",
+      "link": "https://example.com/game1"
+    },
+    {
+      "name": "Game 2",
+      "image": "path_to_image2.jpg",
+      "description": "Description of Game 2",
+      "link": "https://example.com/game2"
+    },
+    {
+      "name": "Game 3",
+      "image": "path_to_image3.jpg",
+      "description": "Description of Game 3",
+      "link": "https://example.com/game3"
+    },
+    {
+      "name": "Game 4",
+      "image": "path_to_image4.jpg",
+      "description": "Description of Game 4",
+      "link": "https://example.com/game4"
+    },
+    {
+      "name": "Game 5",
+      "image": "path_to_image5.jpg",
+      "description": "Description of Game 5",
+      "link": "https://example.com/game5"
+    }
+  ]
+}
