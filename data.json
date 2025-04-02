@@ -2,21 +2,27 @@
   "games": [
     {
       "name": "Game 1",
-      "image": "https://via.placeholder.com/250x150",
-      "description": "Description of Game 1",
-      "link": "https://example.com/game1"
+      "image": {
+        "url": "https://via.placeholder.com/250x150",
+        "link": "https://example.com/game1"
+      },
+      "description": "Description of Game 1"
     },
     {
       "name": "Game 2",
-      "image": "https://via.placeholder.com/250x150",
-      "description": "Description of Game 2",
-      "link": "https://example.com/game2"
+      "image": {
+        "url": "https://via.placeholder.com/250x150",
+        "link": "https://example.com/game2"
+      },
+      "description": "Description of Game 2"
     },
     {
       "name": "Game 3",
-      "image": "https://via.placeholder.com/250x150",
-      "description": "Description of Game 3",
-      "link": "https://example.com/game3"
+      "image": {
+        "url": "https://via.placeholder.com/250x150",
+        "link": "https://example.com/game3"
+      },
+      "description": "Description of Game 3"
     }
   ]
 }
