@@ -1,24 +1,37 @@
+/* Full-page styling */
+body {
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
+    align-items: center;     /* Centers content vertically */
+    flex-direction: column;  /* Stack the content vertically */
+    height: 100vh;
+    background-color: #121212; /* Dark background for contrast */
+    margin: 0;
+    font-family: "Inter", sans-serif;
+}
+
 /* Search container */
 .search-container {
     position: relative;
-    width: 300px; /* Adjust width for a clean fit */
+    width: 300px; /* Adjust width */
     display: flex;
     align-items: center;
+    justify-content: center; /* Centers the search bar contents horizontally */
     margin-bottom: 20px;
 }
 
 /* Search input styling */
 .search-input {
     flex: 1;
-    height: 45px;
-    padding: 10px 15px;
+    height: 55px; /* Increased height */
+    padding: 12px 18px;
     border: none;
     border-radius: 50px;
     outline: none;
-    font-size: 14px;
+    font-size: 16px; /* Slightly bigger text */
     background-color: #222; /* Matches button */
     color: #fff;
-    box-shadow: 0 0 8px rgba(0, 162, 255, 0.8);
+    box-shadow: 0 0 10px rgba(0, 162, 255, 0.8);
     transition: box-shadow 0.3s ease-in-out, background 0.5s ease-in-out;
 }
 
@@ -40,7 +53,7 @@
 
 /* Glowing effect on focus */
 .search-input:focus {
-    box-shadow: 0 0 12px rgba(0, 162, 255, 1);
+    box-shadow: 0 0 14px rgba(0, 162, 255, 1);
 }
 
 /* Search button merged with input */
@@ -48,12 +61,11 @@
     position: absolute;
     right: 0;
     top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 45px;
+    transform: translateY(-50%); /* Centers button vertically */
+    width: 55px; /* Adjust width */
+    height: 55px; /* Same as input height */
     border: none;
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px;
+    border-radius: 50px;
     background-color: #222;
     color: #fff;
     display: flex;
@@ -70,5 +82,6 @@
 
 /* Boxicon styling */
 .search-btn i {
-    font-size: 18px;
+    font-size: 22px; /* Icon size */
 }
+
