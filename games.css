@@ -1,16 +1,4 @@
 /* Full-page styling */
-body {
-    display: flex;
-    justify-content: center; /* Centers content */
-    align-items: center;
-    flex-direction: column; /* Stack the content vertically */
-    height: 100vh;
-    background-color: #121212; /* Dark background for contrast */
-    margin: 0;
-    font-family: "Inter", sans-serif;
-}
-
-/* Make sure body doesn't force everything to center */
 html, body {
     height: 100%;
     font-family: "Inter", sans-serif;
@@ -24,7 +12,7 @@ html, body {
 /* Ensure the search bar is positioned correctly */
 .search-container {
     position: relative;
-    width: 300px;
+    width: 300px; /* Prevents stretching */
     display: flex;
     align-items: center;
     margin-top: 100px; /* Adjusts space to avoid overlap */
@@ -32,10 +20,10 @@ html, body {
     z-index: 10; /* Ensures it stays above other elements */
 }
 
-
 /* Search input styling */
 .search-input {
     flex: 1;
+    min-width: 0; /* Prevents stretching */
     height: 45px;
     padding: 10px 15px;
     border: none;
@@ -69,7 +57,7 @@ html, body {
     box-shadow: 0 0 12px rgba(0, 162, 255, 1);
 }
 
-/* Search button merged with input */
+/* Search button styling */
 .search-btn {
     position: absolute;
     right: 0;
@@ -98,6 +86,7 @@ html, body {
 .search-btn i {
     font-size: 18px;
 }
+
 
 /* Cards container */
 .container {
