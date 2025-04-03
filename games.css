@@ -152,8 +152,8 @@ body {
 .dropdown {
     position: fixed;
     top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /* Perfect centering */
+    right: 10px; /* Position closer to the right */
+    transform: translateY(-50%); /* Center vertically */
     background: #222;
     width: 180px;
     border-radius: 12px; /* Rounded rectangle */
@@ -209,4 +209,3 @@ body {
 .dropdown.active {
     animation: fadeInDown 0.3s ease-in-out;
 }
-
