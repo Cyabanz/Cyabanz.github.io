@@ -222,8 +222,10 @@ body {
     transform: translateY(-50%);
     backdrop-filter: blur(10px);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    z-index: 1000; /* Ensures it is above other content */
 }
 
+/* Nav item styling */
 .nav-item {
     position: relative;
     text-decoration: none;
@@ -233,6 +235,7 @@ body {
     display: inline-block;
 }
 
+/* Hover effect for nav items */
 .nav-item:hover {
     transform: scale(1.1);
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
@@ -258,6 +261,7 @@ body {
     backdrop-filter: blur(5px);
 }
 
+/* Tooltip visibility on hover */
 .nav-item:hover::after {
     opacity: 1;
     visibility: visible;
@@ -269,6 +273,7 @@ body {
     transition: transform 0.5s;
 }
 
+/* Rotating icon on click */
 .nav-item:active i {
     transform: rotateY(180deg);
 }
