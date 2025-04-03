@@ -12,7 +12,8 @@ html, body {
 /* Ensure the search bar is positioned correctly */
 .search-container {
     position: relative;
-    width: 300px; /* Prevents stretching */
+    width: 300px !important; /* Forces width to prevent stretching */
+    max-width: 300px !important;
     display: flex;
     align-items: center;
     margin-top: 100px; /* Adjusts space to avoid overlap */
@@ -23,7 +24,9 @@ html, body {
 /* Search input styling */
 .search-input {
     flex: 1;
-    min-width: 0; /* Prevents stretching */
+    width: 100%; /* Ensures it fits within container */
+    max-width: 300px; /* Prevents stretching */
+    min-width: 0;
     height: 45px;
     padding: 10px 15px;
     border: none;
@@ -34,22 +37,6 @@ html, body {
     color: #fff;
     box-shadow: 0 0 8px rgba(0, 162, 255, 0.8);
     transition: box-shadow 0.3s ease-in-out, background 0.5s ease-in-out;
-}
-
-/* Shine effect */
-.search-input::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s ease-in-out;
-}
-
-.search-input:focus::before {
-    left: 100%;
 }
 
 /* Glowing effect on focus */
