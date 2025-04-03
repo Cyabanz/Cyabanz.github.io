@@ -10,14 +10,28 @@ body {
     font-family: "Inter", sans-serif;
 }
 
-/* Search container */
+/* Make sure body doesn't force everything to center */
+html, body {
+    height: 100%;
+    font-family: "Inter", sans-serif;
+    background-color: #121212;
+    margin: 0;
+    display: flex;
+    flex-direction: column; /* Ensures elements stack correctly */
+    align-items: center;
+}
+
+/* Ensure the search bar is positioned correctly */
 .search-container {
     position: relative;
-    width: 300px; /* Adjust width for a clean fit */
+    width: 300px;
     display: flex;
     align-items: center;
+    margin-top: 100px; /* Adjusts space to avoid overlap */
     margin-bottom: 20px;
+    z-index: 10; /* Ensures it stays above other elements */
 }
+
 
 /* Search input styling */
 .search-input {
