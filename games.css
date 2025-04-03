@@ -148,3 +148,63 @@ body {
     opacity: 1;
 }
 
+/* Dropdown styling */
+.dropdown {
+    position: fixed;
+    top: 10%; /* Position near the top */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust to be perfectly centered */
+    background: #222;
+    width: 180px;
+    border-radius: 12px; /* Rounded rectangle */
+    box-shadow: 0 0 10px rgba(0, 162, 255, 0.8); /* Glow effect */
+    display: none;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Show dropdown when active */
+.dropdown.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Dropdown list styling */
+.dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown li {
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+    text-shadow: 0 0 8px rgba(0, 162, 255, 0.8); /* Glow effect around text */
+}
+
+/* Hover effect */
+.dropdown li:hover {
+    background: rgba(0, 162, 255, 0.2);
+    text-shadow: 0 0 12px rgba(0, 162, 255, 1); /* Stronger glow on hover */
+}
+
+/* Smooth dropdown transition */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.dropdown.active {
+    animation: fadeInDown 0.3s ease-in-out;
+}
