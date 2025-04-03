@@ -151,9 +151,9 @@ body {
 /* Dropdown styling */
 .dropdown {
     position: fixed;
-    top: 10%; /* Position near the top */
+    top: 50%; /* Center vertically */
     left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Adjust to be perfectly centered */
+    transform: translate(-50%, -50%); /* Perfect centering */
     background: #222;
     width: 180px;
     border-radius: 12px; /* Rounded rectangle */
@@ -197,11 +197,11 @@ body {
 @keyframes fadeInDown {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(-20px);
+        transform: translate(-50%, -60%);
     }
     to {
         opacity: 1;
-        transform: translateX(-50%) translateY(0);
+        transform: translate(-50%, -50%);
     }
 }
 
