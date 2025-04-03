@@ -1,32 +1,27 @@
 /* Full-page styling */
-html, body {
-    height: 100%;
-    font-family: "Inter", sans-serif;
-    background-color: #121212;
-    margin: 0;
+body {
     display: flex;
-    flex-direction: column; /* Ensures elements stack correctly */
+    justify-content: center; /* Centers content */
     align-items: center;
+    flex-direction: column; /* Stack the content vertically */
+    height: 100vh;
+    background-color: #121212; /* Dark background for contrast */
+    margin: 0;
+    font-family: "Inter", sans-serif;
 }
 
-/* Ensure the search bar is positioned correctly */
+/* Search container */
 .search-container {
     position: relative;
-    width: 300px !important; /* Forces width to prevent stretching */
-    max-width: 300px !important;
+    width: 300px; /* Adjust width for a clean fit */
     display: flex;
     align-items: center;
-    margin-top: 100px; /* Adjusts space to avoid overlap */
     margin-bottom: 20px;
-    z-index: 10; /* Ensures it stays above other elements */
 }
 
 /* Search input styling */
 .search-input {
     flex: 1;
-    width: 100%; /* Ensures it fits within container */
-    max-width: 300px; /* Prevents stretching */
-    min-width: 0;
     height: 45px;
     padding: 10px 15px;
     border: none;
@@ -39,12 +34,28 @@ html, body {
     transition: box-shadow 0.3s ease-in-out, background 0.5s ease-in-out;
 }
 
+/* Shine effect */
+.search-input::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease-in-out;
+}
+
+.search-input:focus::before {
+    left: 100%;
+}
+
 /* Glowing effect on focus */
 .search-input:focus {
     box-shadow: 0 0 12px rgba(0, 162, 255, 1);
 }
 
-/* Search button styling */
+/* Search button merged with input */
 .search-btn {
     position: absolute;
     right: 0;
@@ -73,7 +84,6 @@ html, body {
 .search-btn i {
     font-size: 18px;
 }
-
 
 /* Cards container */
 .container {
@@ -195,5 +205,7 @@ html, body {
         transform: translateY(0); /* End at normal position */
     }
 }
+
+
 
 
