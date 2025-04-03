@@ -74,8 +74,16 @@
         // Toggle dropdown menu
         function toggleDropdown() {
             let dropdown = document.querySelector(".dropdown");
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            dropdown.classList.toggle('active');
         }
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            const dropdown = document.querySelector('.dropdown');
+            if (!dropdown.contains(event.target) && !event.target.matches('.search-btn')) {
+                dropdown.classList.remove('active');
+            }
+        });
     </script>
 </head>
 <body>
@@ -105,5 +113,6 @@
 
 </body>
 </html>
+
 
 
