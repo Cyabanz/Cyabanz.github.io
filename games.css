@@ -152,20 +152,25 @@ body {
 .dropdown {
     position: absolute;
     top: 40px; /* Adjusts dropdown's vertical position */
-    left: calc(50% + 20px); /* Centers the dropdown but shifts it a little to the right */
+    left: calc(50% + 50px); /* Moves the dropdown more to the right */
     transform: translateX(-50%); /* Ensures perfect centering */
     width: 200px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     display: none; /* Hidden by default */
+    transition: all 0.3s ease-in-out;
+    animation: fadeInDown 0.3s ease-in-out;
+    opacity: 0; /* Start with opacity 0 */
 }
 
 /* Show dropdown when active */
 .dropdown.active {
     display: block;
+    opacity: 1; /* Make the dropdown visible */
+    box-shadow: 0 0 15px rgba(0, 162, 255, 0.8); /* Glowing effect */
 }
 
 /* Dropdown list styling */
@@ -177,13 +182,29 @@ body {
 
 /* Dropdown list item */
 .dropdown li {
-    padding: 10px;
+    padding: 12px;
     cursor: pointer;
     font-size: 14px;
+    color: #fff;
+    transition: background 0.3s, text-shadow 0.3s;
 }
 
 /* Hover effect */
 .dropdown li:hover {
-    background-color: #f1f1f1;
+    background-color: rgba(0, 162, 255, 0.2);
+    text-shadow: 0 0 10px rgba(0, 162, 255, 1); /* Glowing effect on hover */
 }
+
+/* Smooth dropdown transition */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
 
