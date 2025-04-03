@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Site with Search Bar</title>
+    <link rel="stylesheet" href="games.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            scroll-behavior: smooth;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Glowing background */
+        .bg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .bg > div {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 100em;
+            opacity: 0.6;
+            box-shadow: 
+                inset 0 0 4em 3em rgba(238, 200, 175, 0.2),
+                inset 0 0 2em 0.4em rgba(238, 200, 175, 0.2),
+                0 0 0.1em 0.1em rgba(238, 200, 175, 0.2),
+                0 0 1em 0.4em rgba(238, 200, 175, 0.3);
+        }
+
+        .bg > div:nth-child(1) {
+            translate: 0 -70%;
+            animation: onloadbgt 1s ease-in-out forwards;
+        }
+
+        .bg > div:nth-child(2) {
+            translate: 0 70%;
+            animation: onloadbgb 1s ease-in-out forwards;
+        }
+
+        @keyframes onloadbgt {
+            0% { translate: 0 -70%; opacity: 0.3; }
+            100% { translate: 0 -64%; opacity: 0.8; }
+        }
+
+        @keyframes onloadbgb {
+            0% { translate: 0 70%; opacity: 0.3; }
+            100% { translate: 0 64%; opacity: 0.8; }
+        }
+
+        /* Navbar Styling */
+        .vertical-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            width: 50px;
+            align-items: center;
+            position: fixed;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-item {
+            position: relative;
+            text-decoration: none;
+            font-size: 26px;
+            color: white;
+            transition: transform 0.3s, filter 0.3s;
+            display: inline-block;
+        }
+
+        .nav-item:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+        }
+
+        /* Tooltip Styling */
+        .nav-item::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-item:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Flip Animation on Click */
+        .nav-item i {
+            display: inline-block;
+            transition: transform 0.5s;
+        }
+
+        .nav-item:active i {
+            transform: rotateY(180deg);
+        }
+
+        /* Search Bar and Dropdown */
+        .search-container {
+            position: relative;
+            width: 80%;
+            margin: 20px 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            display: none;
+            margin-top: 5px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .dropdown.active {
+            display: block;
+        }
+
+        .dropdown li {
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+
+        .dropdown li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Game Container */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            width: 80%;
+            margin: 20px;
+        }
+
+        .box-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .box-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .game-name {
+            margin-top: 10px;
+            font-size: 18px;
+            color: white;
+        }
+    </style>
+    <script>
+        // Function to fetch JSON data
+        async function fetchData() {
+            const response = await fetch('data.json'); // Fetch data from the external JSON file
+            const data = await response.json(); // Parse the JSON data
+            return data;
+        }
+
+        // Function to display the games
+        function displayGames(games) {
+            const container = document.getElementById('gamesContainer');
+            container.innerHTML = ''; // Clear the container
+            games.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.classList.add('box-container');
+                gameCard.innerHTML = `
+                    <a href="${game.link}" target="_blank">
+                        <img src="${game.image}" alt="${game.name}">
+                    </a>
+                    <div class="game-name">${game.name}</div>
+                `;
+                container.appendChild(gameCard);
+            });
+        }
+
+        // Function to filter games based on search input
+        function filterGames(games, searchTerm) {
+            return games.filter(game => game.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+
+        // Function to filter games based on categories
+        function filterGamesByCategory(games, category) {
+            if (category === "All") {
+                return games; // Show all games if "All" is selected
+            }
+            return games.filter(game => game.categories.includes(category));
+        }
+
+        // Event listener for search input
+        document.addEventListener('DOMContentLoaded', async () => {
+            const data = await fetchData(); // Fetch JSON data
+            let games = data.games; // Get the list of games
+
+            // Display all games initially
+            displayGames(games);
+
+            // Add event listener to search bar
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value; // Get the current search term
+                const filteredGames = filterGames(games, searchTerm); // Filter games based on the search term
+                displayGames(filteredGames); // Display the filtered games
+            });
+
+            // Event listener for category dropdown
+            document.querySelectorAll(".dropdown li").forEach(item => {
+                item.addEventListener("click", () => {
+                    const selectedCategory = item.textContent;
+                    const filteredGames = filterGamesByCategory(games, selectedCategory);
+                    displayGames(filteredGames);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Background Effect -->
+    <div class="bg">
+        <div></div>
+        <div></div>
+    </div>
+
+    <!-- Navbar -->
+    <div class="vertical-nav">
+        <a href="#" class="nav-item" data-tooltip="Home"><i class="bx bx-home"></i></a>
+        <a href="#" class="nav-item" data-tooltip="Refresh"><i class="bx bx-refresh"></i></a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search games..." />
+        <button class="search-btn"><i class="bx bx-search"></i></button>
+        <ul class="dropdown">
+            <li>All</li>
+            <li>Action</li>
+            <li>Adventure</li>
+            <li>Puzzle</li>
+        </ul>
+    </div>
+
+    <!-- Games Display -->
+    <div class="container" id="gamesContainer"></div>
+</body>
+</html>
