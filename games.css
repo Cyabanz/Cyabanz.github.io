@@ -150,62 +150,40 @@ body {
 
 /* Dropdown styling */
 .dropdown {
-    position: fixed;
-    top: 50%; /* Center vertically */
-    right: 10px; /* Position closer to the right */
-    transform: translateY(-50%); /* Center vertically */
-    background: #222;
-    width: 180px;
-    border-radius: 12px; /* Rounded rectangle */
-    box-shadow: 0 0 10px rgba(0, 162, 255, 0.8); /* Glow effect */
-    display: none;
-    overflow: hidden;
-    transition: all 0.3s ease-in-out;
-    z-index: 999; /* Ensures dropdown is on top of other elements */
+    position: absolute;
+    top: 40px; /* Adjusts dropdown's vertical position */
+    left: calc(50% + 20px); /* Centers the dropdown but shifts it a little to the right */
+    transform: translateX(-50%); /* Ensures perfect centering */
+    width: 200px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none; /* Hidden by default */
 }
 
 /* Show dropdown when active */
 .dropdown.active {
     display: block;
-    opacity: 1;
 }
 
 /* Dropdown list styling */
 .dropdown ul {
-    list-style: none;
+    list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
+/* Dropdown list item */
 .dropdown li {
-    padding: 12px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #fff;
+    padding: 10px;
     cursor: pointer;
-    transition: background 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
-    text-shadow: 0 0 8px rgba(0, 162, 255, 0.8); /* Glow effect around text */
+    font-size: 14px;
 }
 
 /* Hover effect */
 .dropdown li:hover {
-    background: rgba(0, 162, 255, 0.2);
-    text-shadow: 0 0 12px rgba(0, 162, 255, 1); /* Stronger glow on hover */
+    background-color: #f1f1f1;
 }
 
-/* Smooth dropdown transition */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -60%);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-    }
-}
-
-.dropdown.active {
-    animation: fadeInDown 0.3s ease-in-out;
-}
