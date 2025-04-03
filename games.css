@@ -13,7 +13,8 @@ body {
 /* Search container */
 .search-container {
     position: relative;
-    width: 300px; /* Adjust width for a clean fit */
+    width: 300px; /* Fixed width */
+    max-width: 100%; /* Prevents overflow */
     display: flex;
     align-items: center;
     margin-bottom: 20px;
@@ -21,7 +22,8 @@ body {
 
 /* Search input styling */
 .search-input {
-    flex: 1;
+    width: 100%; /* Ensures the input fills the container */
+    max-width: 250px; /* Prevents excessive growth */
     height: 45px;
     padding: 10px 15px;
     border: none;
@@ -222,6 +224,7 @@ body {
     transform: translateY(-50%);
     backdrop-filter: blur(10px);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    z-index: 1000; /* Keeps it above other elements */
 }
 
 .nav-item {
@@ -274,7 +277,8 @@ body {
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
