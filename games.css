@@ -161,6 +161,7 @@ body {
     display: none;
     overflow: hidden;
     transition: all 0.3s ease-in-out;
+    z-index: 999; /* Ensures dropdown is on top of other elements */
 }
 
 /* Show dropdown when active */
@@ -208,3 +209,4 @@ body {
 .dropdown.active {
     animation: fadeInDown 0.3s ease-in-out;
 }
+
