@@ -161,15 +161,14 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     display: none; /* Hidden by default */
-    transition: all 0.3s ease-in-out;
-    animation: fadeInDown 0.3s ease-in-out;
     opacity: 0; /* Start with opacity 0 */
+    animation: fadeInDown 0.4s ease-out forwards; /* Animation for dropdown appearance */
 }
 
 /* Show dropdown when active */
 .dropdown.active {
     display: block;
-    opacity: 1; /* Make the dropdown visible */
+    animation: fadeInDown 0.4s ease-out forwards; /* Trigger the animation */
     box-shadow: 0 0 15px rgba(0, 162, 255, 0.8); /* Glowing effect */
 }
 
@@ -199,12 +198,11 @@ body {
 @keyframes fadeInDown {
     from {
         opacity: 0;
-        transform: translate(-50%, -60%);
+        transform: translateY(-20px); /* Start slightly above */
     }
     to {
         opacity: 1;
-        transform: translate(-50%, -50%);
+        transform: translateY(0); /* End at normal position */
     }
 }
-
 
