@@ -13,8 +13,7 @@ body {
 /* Search container */
 .search-container {
     position: relative;
-    width: 300px; /* Fixed width */
-    max-width: 100%; /* Prevents overflow */
+    width: 300px; /* Adjust width for a clean fit */
     display: flex;
     align-items: center;
     margin-bottom: 20px;
@@ -22,8 +21,7 @@ body {
 
 /* Search input styling */
 .search-input {
-    width: 100%; /* Ensures the input fills the container */
-    max-width: 250px; /* Prevents excessive growth */
+    flex: 1;
     height: 45px;
     padding: 10px 15px;
     border: none;
@@ -206,79 +204,5 @@ body {
         opacity: 1;
         transform: translateY(0); /* End at normal position */
     }
-}
-
-/* Navbar Styling */
-.vertical-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 12px;
-    border-radius: 8px;
-    width: 50px;
-    align-items: center;
-    position: fixed;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    z-index: 1000; /* Keeps it above other elements */
-}
-
-.nav-item {
-    position: relative;
-    text-decoration: none;
-    font-size: 26px;
-    color: white;
-    transition: transform 0.3s, filter 0.3s;
-    display: inline-block;
-}
-
-.nav-item:hover {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-}
-
-/* Tooltip Styling */
-.nav-item::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    font-family: 'Poppins', sans-serif;
-    padding: 6px 12px;
-    border-radius: 5px;
-    font-size: 14px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease-in-out;
-    backdrop-filter: blur(5px);
-}
-
-.nav-item:hover::after {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Flip Animation on Click */
-.nav-item i {
-    display: inline-block;
-    transition: transform 0.5s;
-}
-
-.nav-item:active i {
-    transform: rotateY(180deg);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
 }
 
