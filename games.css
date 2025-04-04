@@ -206,4 +206,104 @@ body {
     }
 }
 
+/* Ensure the whole page has a dark background */
+body {
+    background-color: #121212; /* Dark mode */
+    color: white;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
 
+/* Hamburger Menu */
+.menu-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 30px;
+    color: #0ff; /* Bright cyan */
+    cursor: pointer;
+    z-index: 1100;
+    transition: transform 0.3s ease-in-out;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Vertical Navbar */
+.vertical-nav {
+    position: fixed;
+    left: -70px; /* Hidden by default */
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #222; /* Dark background */
+    border-radius: 12px;
+    padding: 10px 0;
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    transition: left 0.4s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Show navbar when active */
+.vertical-nav.active {
+    left: 10px;
+}
+
+/* Navigation List */
+.vertical-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Nav Items */
+.vertical-nav ul li {
+    position: relative;
+    margin: 10px 0;
+}
+
+/* Nav Links */
+.vertical-nav ul li a {
+    text-decoration: none;
+    color: #0ff; /* Bright cyan */
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* Glow Effect on Hover */
+.vertical-nav ul li a:hover {
+    background-color: #333;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    left: 60px;
+    background-color: #333;
+    color: #0ff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateX(-10px);
+}
+
+/* Show Tooltip on Hover */
+.vertical-nav ul li a:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
