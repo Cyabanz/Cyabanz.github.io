@@ -93,13 +93,8 @@ particlesJS("particles-js", {
       "repulse": {
         "distance": 200,
         "duration": 0.4
-      },
-      "push": {
-        "particles_nb": 4
-      },
-      "remove": {
-        "particles_nb": 2
       }
+      // "push" and "remove" modes are no longer needed
     }
   },
   "retina_detect": true
