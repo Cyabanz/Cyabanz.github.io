@@ -74,6 +74,9 @@ particlesJS("particles-js", {
         "enable": true,
         "mode": "bubble"
       },
+      "onclick": {
+        "enable": false
+      },
       "resize": true
     },
     "modes": {
@@ -94,7 +97,6 @@ particlesJS("particles-js", {
         "distance": 200,
         "duration": 0.4
       }
-      // "push" and "remove" modes are no longer needed
     }
   },
   "retina_detect": true
