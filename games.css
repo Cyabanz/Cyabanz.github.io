@@ -10,6 +10,81 @@ body {
     font-family: "Inter", sans-serif;
 }
 
+/* Search container */
+.search-container {
+    position: relative;
+    width: 300px; /* Adjust width for a clean fit */
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Search input styling */
+.search-input {
+    flex: 1;
+    height: 45px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 50px;
+    outline: none;
+    font-size: 14px;
+    background-color: #222; /* Matches button */
+    color: #fff;
+    box-shadow: 0 0 8px rgba(0, 162, 255, 0.8);
+    transition: box-shadow 0.3s ease-in-out, background 0.5s ease-in-out;
+}
+
+/* Shine effect */
+.search-input::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease-in-out;
+}
+
+.search-input:focus::before {
+    left: 100%;
+}
+
+/* Glowing effect on focus */
+.search-input:focus {
+    box-shadow: 0 0 12px rgba(0, 162, 255, 1);
+}
+
+/* Search button merged with input */
+.search-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 45px;
+    border: none;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    background-color: #222;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s ease-in-out;
+}
+
+/* Button hover effect */
+.search-btn:hover {
+    background-color: #333;
+}
+
+/* Boxicon styling */
+.search-btn i {
+    font-size: 18px;
+}
+
 /* Cards container */
 .container {
     display: flex;
@@ -231,79 +306,4 @@ body {
     opacity: 1;
     visibility: visible;
     transform: translateX(0);
-}
-
-/* ---- reset ---- */
-
-body {
-  margin: 0;
-  background-color: #070825;
-}
-
-canvas {
-  display: block;
-  vertical-align: bottom;
-}
-
-
-/* ---- particles.js container ---- */
-
-#particles-js {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Base */
-html, body {
-  height: 100%;
-  font-family: 'Poppins', sans-serif;
-  background: #;
-  color: white;
-  overflow: hidden;
-}
-
-/* Background */
-#particles-js {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-}
-
-.shooting-star {
-  position: fixed;
-  top: -10px;
-  left: -100px;
-  width: 2px;
-  height: 80px;
-  background: linear-gradient(white, transparent);
-  transform: rotate(45deg);
-  opacity: 0.8;
-  animation: shoot 5s infinite ease-in-out;
-  z-index: 0;
-}
-
-@keyframes shoot {
-  0% {
-    transform: translate(-200px, -200px) rotate(45deg);
-    opacity: 0;
-  }
-  20% {
-    transform: translate(500px, 500px) rotate(45deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(1000px, 1000px) rotate(45deg);
-    opacity: 0;
-  }
 }
