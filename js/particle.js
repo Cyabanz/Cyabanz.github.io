@@ -75,7 +75,8 @@ particlesJS("particles-js", {
         "mode": "bubble"
       },
       "onclick": {
-        "enable": false
+        "enable": false,
+        "mode": []  // explicitly make mode an empty array
       },
       "resize": true
     },
@@ -101,3 +102,4 @@ particlesJS("particles-js", {
   },
   "retina_detect": true
 });
+
