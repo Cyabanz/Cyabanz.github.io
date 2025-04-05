@@ -12,78 +12,80 @@ body {
 
 /* Search container */
 .search-container {
-    position: relative;
-    width: 300px; /* Adjust width for a clean fit */
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+    position: relative !important;
+    width: 300px !important; /* Adjust width for a clean fit */
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 20px !important;
 }
 
 /* Search input styling */
 .search-input {
-    flex: 1;
-    height: 45px;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 50px;
-    outline: none;
-    font-size: 14px;
-    background-color: #222; /* Matches button */
-    color: #fff;
-    box-shadow: 0 0 8px rgba(0, 162, 255, 0.8);
-    transition: box-shadow 0.3s ease-in-out, background 0.5s ease-in-out;
+    flex: 1 !important;
+    height: 45px !important;
+    padding: 10px 15px !important;
+    border: none !important;
+    border-radius: 50px !important;
+    outline: none !important;
+    font-size: 14px !important;
+    background-color: #222 !important; /* Matches button */
+    color: #fff !important;
+    box-shadow: 0 0 8px rgba(0, 162, 255, 0.8) !important;
+    transition: box-shadow 0.3s ease-in-out, background 0.5s ease-in-out !important;
 }
 
 /* Shine effect */
 .search-input::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s ease-in-out;
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 200% !important;
+    height: 100% !important;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
+    transition: left 0.6s ease-in-out !important;
 }
 
 .search-input:focus::before {
-    left: 100%;
+    left: 100% !important;
 }
 
 /* Glowing effect on focus */
 .search-input:focus {
-    box-shadow: 0 0 12px rgba(0, 162, 255, 1);
+    box-shadow: 0 0 12px rgba(0, 162, 255, 1) !important;
 }
 
 /* Search button merged with input */
 .search-btn {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 45px;
-    border: none;
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px;
-    background-color: #222;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s ease-in-out;
+    position: absolute !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 50px !important;
+    height: 45px !important;
+    border: none !important;
+    border-top-right-radius: 50px !important;
+    border-bottom-right-radius: 50px !important;
+    background-color: #222 !important;
+    color: #fff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: background 0.3s, box-shadow 0.3s ease-in-out !important;
 }
 
 /* Button hover effect */
 .search-btn:hover {
-    background-color: #333;
+    background-color: #333 !important;
 }
 
 /* Boxicon styling */
 .search-btn i {
-    font-size: 18px;
+    font-size: 18px !important;
 }
+
+
 
 /* Cards container */
 .container {
