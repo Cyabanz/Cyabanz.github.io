@@ -308,3 +308,95 @@ body {
     transform: translateX(0);
 }
 
+/* ---- reset ---- */
+
+body {
+  margin: 0;
+  background-color: #070825;
+}
+
+canvas {
+  display: block;
+  vertical-align: bottom;
+}
+
+
+/* ---- particles.js container ---- */
+
+#particles-js {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Base */
+html, body {
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background: #;
+  color: white;
+  overflow: hidden;
+}
+
+/* Background */
+#particles-js {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+
+.shooting-star {
+  position: fixed;
+  top: -10px;
+  left: -100px;
+  width: 2px;
+  height: 80px;
+  background: linear-gradient(white, transparent);
+  transform: rotate(45deg);
+  opacity: 0.8;
+  animation: shoot 5s infinite ease-in-out;
+  z-index: 0;
+}
+
+@keyframes shoot {
+  0% {
+    transform: translate(-200px, -200px) rotate(45deg);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(500px, 500px) rotate(45deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(1000px, 1000px) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+/* Content */
+.page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.page-content h1 {
+  font-size: 80px;
+  color: #fff;
+  text-shadow: 0 0 20px #0ff;
+}
