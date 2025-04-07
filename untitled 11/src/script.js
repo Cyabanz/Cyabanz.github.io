@@ -11,6 +11,15 @@ const games = [
     },
     {
         id: 2,
+        title: "Bullet Force",
+        category: "action",
+        staticImg: "https://via.placeholder.com/300x200/333/fff?text=Bullet+Force",
+        gifImg: "https://via.placeholder.com/300x200/555/fff?text=GIF+Preview",
+        banner: "hot",
+        url: "#bullet-force"
+    },
+    {
+        id: 3,
         title: "Cut the Rope",
         category: "puzzle",
         staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Cut+the+Rope",
@@ -19,7 +28,7 @@ const games = [
         url: "#cut-the-rope"
     },
     {
-        id: 3,
+        id: 4,
         title: "Basketball Stars",
         category: "sports",
         staticImg: "https://via.placeholder.com/300x200/2196F3/fff?text=Basketball+Stars",
@@ -28,7 +37,7 @@ const games = [
         url: "#basketball-stars"
     },
     {
-        id: 4,
+        id: 5,
         title: "Agar.io",
         category: "io",
         staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Agar.io",
@@ -37,7 +46,7 @@ const games = [
         url: "#agar-io"
     },
     {
-        id: 5,
+        id: 6,
         title: "Slither.io",
         category: "io",
         staticImg: "https://via.placeholder.com/300x200/9C27B0/fff?text=Slither.io",
@@ -45,7 +54,7 @@ const games = [
         url: "#slither-io"
     },
     {
-        id: 6,
+        id: 7,
         title: "Zombie Derby",
         category: "action",
         staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Zombie+Derby",
@@ -54,7 +63,7 @@ const games = [
         url: "#zombie-derby"
     },
     {
-        id: 7,
+        id: 8,
         title: "Sudoku",
         category: "puzzle",
         staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Sudoku",
@@ -62,7 +71,7 @@ const games = [
         url: "#sudoku"
     },
     {
-        id: 8,
+        id: 9,
         title: "Soccer Skills",
         category: "sports",
         staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Soccer+Skills",
@@ -71,7 +80,7 @@ const games = [
         url: "#soccer-skills"
     },
     {
-        id: 9,
+        id: 10,
         title: "Tank Wars",
         category: "action",
         staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Tank+Wars",
@@ -79,7 +88,7 @@ const games = [
         url: "#tank-wars"
     },
     {
-        id: 10,
+        id: 11,
         title: "2048",
         category: "puzzle",
         staticImg: "https://via.placeholder.com/300x200/00BCD4/fff?text=2048",
