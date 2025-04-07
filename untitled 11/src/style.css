@@ -1,0 +1,260 @@
+/* Base Styles */
+:root {
+    --primary: #4285F4;
+    --hot: #FF5722;
+    --new: #4CAF50;
+    --popular: #9C27B0;
+    --dark: #2d3748;
+    --light: #f7fafc;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f5f7fa;
+    padding: 20px;
+}
+
+.container {
+    max-width: 100%;
+    padding: 0 20px;
+}
+
+/* Search Bar */
+.search-container {
+    position: relative;
+    margin-bottom: 20px;
+    width: 60%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-container i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+#searchInput:focus {
+    outline: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+}
+
+/* Category Tabs */
+.category-tabs {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 15px 0;
+    margin-bottom: 20px;
+    scrollbar-width: none;
+}
+
+.category-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.tab-btn i {
+    font-size: 18px;
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.tab-btn:hover:not(.active) {
+    background: #e0e0e0;
+}
+
+/* Horizontal Game Grid Container */
+.game-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    scrollbar-width: none;
+}
+
+.game-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.horizontal-game-grid {
+    display: inline-flex;
+    gap: 10px;
+    padding-right: 20px; /* Prevents last game from touching edge */
+}
+
+.game-card {
+    flex: 0 0 180px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    position: relative;
+    height: 180px;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.game-link {
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    text-decoration: none;
+}
+
+.thumbnail-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.game-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.game-thumbnail.gif {
+    display: none;
+}
+
+.game-card:hover .game-thumbnail.gif {
+    display: block;
+}
+
+.game-card:hover .game-thumbnail.static {
+    display: none;
+}
+
+/* Game Title (Bottom left on hover) */
+.game-title {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.game-card:hover .game-title {
+    opacity: 1;
+}
+
+/* Ribbon Banners */
+.ribbon {
+    position: absolute;
+    right: -5px;
+    top: 15px;
+    width: 80px;
+    padding: 5px 0;
+    background: var(--hot);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transform: rotate(45deg);
+    right: -25px;
+    top: 20px;
+    width: 100px;
+}
+
+.ribbon.hot {
+    background: var(--hot);
+}
+
+.ribbon.new {
+    background: var(--new);
+}
+
+.ribbon.popular {
+    background: var(--popular);
+}
+
+.ribbon i {
+    font-size: 12px;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: rotate(45deg) scale(1); }
+    50% { transform: rotate(45deg) scale(1.05); }
+    100% { transform: rotate(45deg) scale(1); }
+}
+
+.pulse {
+    animation: pulse 1.5s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .game-card {
+        flex: 0 0 150px;
+        height: 150px;
+    }
+    
+    .search-container {
+        width: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-card {
+        flex: 0 0 130px;
+        height: 130px;
+    }
+    
+    .search-container {
+        width: 100%;
+        max-width: none;
+    }
+}
