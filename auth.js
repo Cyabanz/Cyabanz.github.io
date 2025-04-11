@@ -1,19 +1,38 @@
-// Replace with your Firebase config
+// Firebase v9+ modular imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
+import { 
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+
+// Your Firebase config
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "", // Leave empty - we're not using Storage
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+  authDomain: "fusioncya-cc20a.firebaseapp.com",
+  databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+  projectId: "fusioncya-cc20a",
+  storageBucket: "fusioncya-cc20a.firebasestorage.app",
+  messagingSenderId: "765164293111",
+  appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+  measurementId: "G-4DT52P7MPB"
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Initialize services
-const auth = firebase.auth();
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
 
 // DOM Elements
 const signInButton = document.getElementById('signInButton');
@@ -30,56 +49,58 @@ const updateProfilePicBtn = document.getElementById('update-profile-pic-btn');
 const profilePicPreview = document.getElementById('profile-pic-preview');
 
 // Auth State Listener
-auth.onAuthStateChanged(user => {
+onAuthStateChanged(auth, (user) => {
     if (user) {
-        // User signed in
         updateUIForUser(user);
         loadUserData(user.uid);
     } else {
-        // User signed out
         updateUIForGuest();
     }
 });
 
 // Google Sign-In
-signInButton.addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .then((result) => {
-            if (result.additionalUserInfo.isNewUser) {
-                createUserDocument(result.user);
-            }
-        })
-        .catch((error) => {
-            console.error('Sign in error:', error);
-            alert('Sign in failed. Please try again.');
-        });
+signInButton.addEventListener('click', async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        if (result._tokenResponse.isNewUser) {
+            await createUserDocument(result.user);
+        }
+    } catch (error) {
+        console.error('Sign in error:', error);
+        alert('Sign in failed: ' + error.message);
+    }
 });
 
 // Sign Out
 signOutButton.addEventListener('click', () => {
-    auth.signOut();
+    signOut(auth).catch(error => {
+        console.error('Sign out error:', error);
+    });
 });
 
 // Update Username
-updateUsernameBtn.addEventListener('click', () => {
+updateUsernameBtn.addEventListener('click', async () => {
     const newUsername = newUsernameInput.value.trim();
     if (newUsername.length < 3) {
         alert('Username must be at least 3 characters');
         return;
     }
 
-    const userId = auth.currentUser.uid;
-    db.collection('users').doc(userId).update({
-        username: newUsername
-    }).then(() => {
+    try {
+        const userId = auth.currentUser.uid;
+        const userRef = doc(db, 'users', userId);
+        await updateDoc(userRef, {
+            username: newUsername
+        });
+        
         usernameDisplay.textContent = newUsername;
         dashboardUsername.textContent = newUsername;
         newUsernameInput.value = '';
         alert('Username updated!');
-    }).catch(error => {
+    } catch (error) {
         console.error('Error updating username:', error);
-    });
+        alert('Update failed: ' + error.message);
+    }
 });
 
 // Profile Picture Upload
@@ -87,7 +108,6 @@ profilePicUpload.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Check file size (500KB max)
     if (file.size > 500 * 1024) {
         alert('Image must be smaller than 500KB');
         return;
@@ -100,30 +120,34 @@ profilePicUpload.addEventListener('change', (e) => {
     reader.readAsDataURL(file);
 });
 
-updateProfilePicBtn.addEventListener('click', () => {
+updateProfilePicBtn.addEventListener('click', async () => {
     const file = profilePicUpload.files[0];
     if (!file) {
         alert('Please select an image first');
         return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const base64Image = event.target.result;
-        const userId = auth.currentUser.uid;
-
-        db.collection('users').doc(userId).update({
-            photoBase64: base64Image
-        }).then(() => {
+    try {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const base64Image = event.target.result;
+            const userId = auth.currentUser.uid;
+            const userRef = doc(db, 'users', userId);
+            
+            await updateDoc(userRef, {
+                photoBase64: base64Image
+            });
+            
             profilePic.src = base64Image;
             profilePicPreview.src = base64Image;
             profilePicUpload.value = '';
             alert('Profile picture updated!');
-        }).catch(error => {
-            console.error('Error saving image:', error);
-        });
-    };
-    reader.readAsDataURL(file);
+        };
+        reader.readAsDataURL(file);
+    } catch (error) {
+        console.error('Error saving image:', error);
+        alert('Upload failed: ' + error.message);
+    }
 });
 
 // Helper Functions
@@ -133,7 +157,6 @@ function updateUIForUser(user) {
     usernameDisplay.textContent = user.displayName || 'User';
     dashboardUsername.textContent = user.displayName || 'User';
     
-    // Use Google photo by default
     if (user.photoURL) {
         profilePic.src = user.photoURL;
         profilePicPreview.src = user.photoURL;
@@ -145,40 +168,43 @@ function updateUIForGuest() {
     dashboardView.style.display = 'none';
     usernameDisplay.textContent = 'Guest';
     profilePic.src = 'https://via.placeholder.com/40';
+    profilePicPreview.src = 'https://via.placeholder.com/150';
 }
 
-function createUserDocument(user) {
-    const userData = {
-        uid: user.uid,
-        email: user.email,
-        username: user.displayName || `user${user.uid.substring(0, 4)}`,
-        photoBase64: user.photoURL || '',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    return db.collection('users').doc(user.uid).set(userData);
-}
-
-function loadUserData(userId) {
-    db.collection('users').doc(userId).get()
-        .then(doc => {
-            if (doc.exists) {
-                const userData = doc.data();
-                
-                // Update username
-                if (userData.username) {
-                    usernameDisplay.textContent = userData.username;
-                    dashboardUsername.textContent = userData.username;
-                }
-                
-                // Update profile picture (prioritize Base64 over Google photo)
-                if (userData.photoBase64) {
-                    profilePic.src = userData.photoBase64;
-                    profilePicPreview.src = userData.photoBase64;
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error loading user data:', error);
+async function createUserDocument(user) {
+    try {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+            uid: user.uid,
+            email: user.email,
+            username: user.displayName || `user${user.uid.substring(0, 4)}`,
+            photoBase64: user.photoURL || '',
+            createdAt: serverTimestamp()
         });
+    } catch (error) {
+        console.error('Error creating user document:', error);
+    }
+}
+
+async function loadUserData(userId) {
+    try {
+        const userRef = doc(db, 'users', userId);
+        const docSnap = await getDoc(userRef);
+        
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            
+            if (userData.username) {
+                usernameDisplay.textContent = userData.username;
+                dashboardUsername.textContent = userData.username;
+            }
+            
+            if (userData.photoBase64) {
+                profilePic.src = userData.photoBase64;
+                profilePicPreview.src = userData.photoBase64;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading user data:', error);
+    }
 }
