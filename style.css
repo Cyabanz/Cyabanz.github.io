@@ -1,139 +1,295 @@
-/* Base Styles */
+/* Modern CSS Reset */
+:root {
+  --primary: #4361ee;
+  --primary-light: #4895ef;
+  --secondary: #3f37c9;
+  --dark: #1b263b;
+  --light: #f8f9fa;
+  --success: #4cc9f0;
+  --danger: #f72585;
+  --warning: #f8961e;
+  --gray: #adb5bd;
+  --gray-light: #e9ecef;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f9fa;
-    color: #333;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  background-color: #f5f7ff;
+  color: var(--dark);
+  min-height: 100vh;
 }
 
+/* Modern Header */
 header {
-    background-color: #4285f4;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: flex-end;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-/* User Info */
 .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
 }
 
 #username-display {
-    color: white;
-    font-weight: 600;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease;
 }
 
-/* Buttons */
-.btn {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
+.profile-pic:hover {
+  transform: scale(1.1);
 }
 
-.google-btn {
-    background: white;
-    color: #4285f4;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 24px;
-    font-size: 1rem;
+/* Main Container */
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
-.google-btn img {
-    width: 18px;
-    height: 18px;
+/* Login View */
+#login-view {
+  text-align: center;
+  padding: 4rem 2rem;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.btn:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+#login-view h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: var(--dark);
+  font-weight: 700;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.sign-out-btn {
-    background: #dc3545;
-    color: white;
-    margin-top: 2rem;
-    width: 100%;
+/* Dashboard View */
+#dashboard-view {
+  display: none;
+  animation: fadeIn 0.5s ease;
 }
 
-/* Forms */
+.dashboard-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dashboard-content h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--dark);
+}
+
+.dashboard-content p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: var(--gray);
+}
+
+/* Account Actions */
+.account-actions {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  border: 1px solid var(--gray-light);
+}
+
+.account-actions h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--dark);
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.account-actions h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  border-radius: 3px;
+}
+
+/* Form Elements */
 .form-group {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--dark);
 }
 
 .form-group input[type="text"],
 .form-group input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-light);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
-/* Profile Picture Preview */
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn {
+  background: white;
+  color: var(--dark);
+  border: 1px solid var(--gray-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn:hover {
+  background: #f8f9fa;
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.sign-out-btn {
+  background: var(--danger);
+  color: white;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.sign-out-btn:hover {
+  background: #e5177b;
+}
+
+/* Profile Picture Section */
 .profile-pic-preview {
-    margin: 1rem 0;
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
 }
 
 #profile-pic-preview {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #eee;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--gray-light);
+  transition: all 0.3s ease;
+}
+
+#profile-pic-preview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .file-info {
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gray);
+  margin-top: 0.5rem;
+  text-align: center;
 }
 
-/* Views */
-#login-view {
-    text-align: center;
-    padding: 2rem;
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-#dashboard-view {
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 12px;
+  }
+
+  header {
     padding: 1rem;
+  }
+
+  #login-view h1 {
+    font-size: 2rem;
+  }
+
+  .account-actions {
+    padding: 1.5rem;
+  }
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-    .container {
-        padding: 1rem;
-        margin: 1rem;
-    }
+@media (max-width: 480px) {
+  .user-info {
+    gap: 0.75rem;
+  }
+
+  #username-display {
+    font-size: 0.875rem;
+  }
+
+  .profile-pic {
+    width: 36px;
+    height: 36px;
+  }
+
+  .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
 }
