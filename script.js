@@ -1,4 +1,3 @@
-// Complete Game Data - All Categories and Games Included
 const gamesData = [
     {
         id: "popular",
