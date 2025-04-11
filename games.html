@@ -3,154 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Site with Search Bar</title>
-    <link rel="stylesheet" href="games.css">
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
-
-    <script>
-        // Function to fetch JSON data
-        async function fetchData() {
-            const response = await fetch('data.json'); // Fetch data from the external JSON file
-            const data = await response.json(); // Parse the JSON data
-            return data;
-        }
-
-        // Function to display the games
-        function displayGames(games) {
-            const container = document.getElementById('gamesContainer');
-            container.innerHTML = ''; // Clear the container
-            games.forEach(game => {
-                const gameCard = document.createElement('div');
-                gameCard.classList.add('box-container');
-                gameCard.innerHTML = `
-                    <a href="${game.link}" target="_blank">
-                        <img src="${game.image}" alt="${game.name}">
-                    </a>
-                    <div class="game-name">${game.name}</div>
-                `;
-                container.appendChild(gameCard);
-            });
-        }
-
-        // Function to filter games based on search input
-        function filterGames(games, searchTerm) {
-            return games.filter(game => game.name.toLowerCase().includes(searchTerm.toLowerCase()));
-        }
-
-        // Function to filter games based on categories
-        function filterGamesByCategory(games, category) {
-            if (category === "All") {
-                return games; // Show all games if "All" is selected
-            }
-            return games.filter(game => game.categories.includes(category));
-        }
-
-        // Event listener for search input
-        document.addEventListener('DOMContentLoaded', async () => {
-            const data = await fetchData(); // Fetch JSON data
-            let games = data.games; // Get the list of games
-
-            // Display all games initially
-            displayGames(games);
-
-            // Add event listener to search bar
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', () => {
-                const searchTerm = searchInput.value; // Get the current search term
-                const filteredGames = filterGames(games, searchTerm); // Filter games based on the search term
-                displayGames(filteredGames); // Display the filtered games
-            });
-
-            // Event listener for category dropdown
-            document.querySelectorAll(".dropdown li").forEach(item => {
-                item.addEventListener("click", () => {
-                    const category = item.textContent; // Get selected category
-                    const filteredGames = filterGamesByCategory(games, category);
-                    displayGames(filteredGames); // Display games of selected category
-                });
-            });
-        });
-
-        // Toggle dropdown menu
-        function toggleDropdown() {
-            let dropdown = document.querySelector(".dropdown");
-            dropdown.classList.toggle('active');
-        }
-
-        // Close dropdown if clicked outside
-        document.addEventListener('click', (event) => {
-            const dropdown = document.querySelector('.dropdown');
-            if (!dropdown.contains(event.target) && !event.target.matches('.search-btn')) {
-                dropdown.classList.remove('active');
-            }
-        });
-    </script>
+    <title>GameHub - CrazyGames Clone</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="container">
+        <!-- Pinned Games Row (initially hidden) -->
+        <div class="game-row pinned-games-row" style="display: none;">
+            <h3 class="row-title">
+                <i class='bx bxs-bookmark-alt'></i> Pinned Games
+                <span class="clear-pins" title="Clear all pinned games">
+                    <i class='bx bx-trash'></i>
+                </span>
+            </h3>
+            <div class="game-scroll-container">
+                <div class="horizontal-game-grid" id="pinnedGamesContainer"></div>
+            </div>
+        </div>
 
-    <!-- Search Bar with Category Dropdown -->
-    <div class="search-container">
-        <input type="text" class="search-input" placeholder="Search games..." id="searchInput">
-        <button class="search-btn" onclick="toggleDropdown()">
-            <i class="bx bx-search"></i>
-        </button>
-        <div class="dropdown">
-            <ul>
-                <li>All</li>
-                <li>Action</li>
-                <li>Sports</li>
-                <li>Puzzles</li>
-                <li>Multiplayer</li>
-                <li>2 Player</li>
-            </ul>
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class='bx bx-search'></i>
+            <input type="text" id="searchInput" placeholder="Search games...">
+        </div>
+
+        <!-- Horizontal Category Tabs -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all">
+                <i class='bx bx-game'></i> All Games
+            </button>
+            <button class="tab-btn" data-category="action">
+                <i class='bx bx-run'></i> Action
+            </button>
+            <button class="tab-btn" data-category="puzzle">
+                <i class='bx bx-puzzle'></i> Puzzle
+            </button>
+            <button class="tab-btn" data-category="sports">
+                <i class='bx bx-football'></i> Sports
+            </button>
+            <button class="tab-btn" data-category="io">
+                <i class='bx bx-globe'></i> .IO
+            </button>
+        </div>
+
+        <!-- Game Rows Container -->
+        <div class="games-rows-container" id="gamesContainer">
+            <!-- Rows will be generated by JavaScript -->
         </div>
     </div>
 
-    <!-- Container for Games -->
-    <div class="container" id="gamesContainer">
-        <!-- Game Cards will be dynamically inserted here -->
-    </div>
+    <!-- Hamburger Menu -->
+    <button class="hamburger">
+        <i class='bx bx-menu'></i>
+    </button>
 
-    <div class="menu-toggle" onclick="toggleNav()">
-    <i class="bx bx-menu"></i>
-</div>
+    <!-- Vertical Navbar -->
+    <nav class="navbar closed">
+        <div class="nav-container">
+            <a href="#" class="nav-link" data-glow-color="#4fc3f7">
+                <i class='bx bx-home'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ff6e40">
+                <i class='bx bx-search'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#9575cd">
+                <i class='bx bx-heart'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#64dd17">
+                <i class='bx bx-user'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ffd600">
+                <i class='bx bx-cog'></i>
+            </a>
+            <div class="glow-effect"></div>
+        </div>
+    </nav>
 
-<nav class="vertical-nav">
-    <ul>
-        <li>
-            <a href="index.html">
-                <i class="bx bx-home"></i>
-                <span class="tooltip">Home</span>
-            </a>
-        </li>
-        <li>
-            <a href="games.html">
-                <i class="bx bx-joystick"></i>
-                <span class="tooltip">Games</span>
-            </a>
-        </li>
-        <li>
-            <a href="favorites.html">
-                <i class="bx bx-star"></i>
-                <span class="tooltip">Favorites</span>
-            </a>
-        </li>
-        <li>
-            <a href="account.html">
-                <i class="bx bx-user"></i>
-                <span class="tooltip">Account</span>
-            </a>
-        </li>
-    </ul>
-</nav>
-
-<script>
-    function toggleNav() {
-        let nav = document.querySelector(".vertical-nav");
-        nav.classList.toggle("active");
-    }
-</script>
-
-<div id="particles-js"></div>
-<script src="js/particle.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
