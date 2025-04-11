@@ -566,17 +566,101 @@ const hamburger = document.querySelector('.hamburger');
 const navbar = document.querySelector('.navbar');
 const navLinks = document.querySelectorAll('.nav-link');
 const glowEffect = document.querySelector('.glow-effect');
+const favoriteGamesContainer = document.getElementById('favoriteGamesContainer');
+const favoriteGamesRow = document.querySelector('.favorite-games-row');
 
 // State Management
 let currentCategory = 'all';
 let currentSearchTerm = '';
+let currentUser = null;
+
+// Initialize Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+    authDomain: "fusioncya-cc20a.firebaseapp.com",
+    databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+    projectId: "fusioncya-cc20a",
+    storageBucket: "fusioncya-cc20a.appspot.com",
+    messagingSenderId: "765164293111",
+    appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+    measurementId: "G-4DT52P7MPB"
+};
+
+// Initialize Firebase (only if not already initialized)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // Initialize Application
 function init() {
     loadPinnedGames();
+    setupAuthListener();
     renderAllGameRows();
     setupEventListeners();
     setupNavbar();
+}
+
+// Auth State Listener
+function setupAuthListener() {
+    auth.onAuthStateChanged(user => {
+        currentUser = user;
+        if (user) {
+            loadFavoriteGames(user.uid);
+        } else {
+            hideFavoriteGamesRow();
+        }
+    });
+}
+
+// Load favorite games from Firebase
+function loadFavoriteGames(userId) {
+    db.collection('users').doc(userId).get()
+        .then(doc => {
+            if (doc.exists) {
+                const favorites = doc.data().favorites || [];
+                if (favorites.length > 0) {
+                    showFavoriteGamesRow();
+                    renderFavoriteGames(favorites);
+                } else {
+                    hideFavoriteGamesRow();
+                }
+            }
+        })
+        .catch(error => {
+            console.error("Error loading favorites:", error);
+        });
+}
+
+// Show/hide favorite games row
+function showFavoriteGamesRow() {
+    favoriteGamesRow.style.display = 'block';
+    setTimeout(() => {
+        favoriteGamesRow.style.opacity = '1';
+        favoriteGamesRow.style.transform = 'translateY(0)';
+    }, 10);
+}
+
+function hideFavoriteGamesRow() {
+    favoriteGamesRow.style.opacity = '0';
+    favoriteGamesRow.style.transform = 'translateY(-10px)';
+    setTimeout(() => {
+        favoriteGamesRow.style.display = 'none';
+    }, 300);
+}
+
+// Render favorite games
+function renderFavoriteGames(favoriteGameIds) {
+    favoriteGamesContainer.innerHTML = '';
+    
+    favoriteGameIds.forEach(gameId => {
+        const game = findGameById(gameId);
+        if (game) {
+            const gameCard = createGameCard(game, false, true);
+            favoriteGamesContainer.appendChild(gameCard);
+        }
+    });
 }
 
 // Load pinned games from localStorage
@@ -638,14 +722,17 @@ function findGameById(id) {
 }
 
 // Create a game card element
-function createGameCard(game, isPinned = false) {
+function createGameCard(game, isPinned = false, isFavorite = false) {
     const card = document.createElement('div');
-    card.className = `game-card ${isPinned ? 'pinned-highlight' : ''}`;
+    card.className = `game-card ${isPinned ? 'pinned-highlight' : ''} ${isFavorite ? 'favorite-highlight' : ''}`;
     card.dataset.category = game.category;
     card.dataset.id = game.id;
     
     const pinBtn = createPinButton(game.id, isPinned);
+    const favBtn = createFavoriteButton(game.id, isFavorite);
+    
     card.appendChild(pinBtn);
+    card.appendChild(favBtn);
     
     card.innerHTML += `
         <a href="${game.url}" class="game-link">
@@ -672,6 +759,19 @@ function createPinButton(gameId, isPinned = false) {
         togglePinGame(gameId, pinBtn.closest('.game-card'));
     };
     return pinBtn;
+}
+
+// Create favorite button
+function createFavoriteButton(gameId, isFavorite = false) {
+    const favBtn = document.createElement('button');
+    favBtn.className = `fav-btn ${isFavorite ? 'favorited' : ''}`;
+    favBtn.innerHTML = `<i class="bx ${isFavorite ? 'bxs-heart' : 'bx-heart'}"></i>`;
+    favBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFavoriteGame(gameId, favBtn.closest('.game-card'));
+    };
+    return favBtn;
 }
 
 // Create banner element
@@ -735,6 +835,74 @@ function togglePinGame(gameId, cardElement = null) {
     if (pinnedGames.length === 0) {
         hidePinnedGamesRow();
     }
+}
+
+// Toggle favorite status
+function toggleFavoriteGame(gameId, cardElement = null) {
+    if (!currentUser) {
+        alert('Please sign in to save favorites');
+        return;
+    }
+
+    const userId = currentUser.uid;
+    const userRef = db.collection('users').doc(userId);
+    
+    userRef.get().then(doc => {
+        const favorites = doc.exists ? (doc.data().favorites || []) : [];
+        const isFavorite = favorites.includes(gameId);
+        
+        if (isFavorite) {
+            // Remove from favorites
+            userRef.update({
+                favorites: firebase.firestore.FieldValue.arrayRemove(gameId)
+            }).then(() => {
+                // Update UI
+                if (cardElement) {
+                    cardElement.classList.remove('favorite-highlight');
+                    const btn = cardElement.querySelector('.fav-btn');
+                    if (btn) {
+                        btn.classList.remove('favorited');
+                        btn.innerHTML = '<i class="bx bx-heart"></i>';
+                    }
+                }
+                
+                // Remove from favorites container if exists
+                const favCard = favoriteGamesContainer.querySelector(`.game-card[data-id="${gameId}"]`);
+                if (favCard) favCard.remove();
+                
+                // Hide row if no more favorites
+                if (favoriteGamesContainer.children.length === 0) {
+                    hideFavoriteGamesRow();
+                }
+            });
+        } else {
+            // Add to favorites
+            userRef.set({
+                favorites: firebase.firestore.FieldValue.arrayUnion(gameId)
+            }, { merge: true }).then(() => {
+                // Update UI
+                if (cardElement) {
+                    cardElement.classList.add('favorite-highlight');
+                    const btn = cardElement.querySelector('.fav-btn');
+                    if (btn) {
+                        btn.classList.add('favorited');
+                        btn.innerHTML = '<i class="bx bxs-heart"></i>';
+                    }
+                }
+                
+                // Add to favorites container
+                const game = findGameById(gameId);
+                if (game) {
+                    const gameCard = createGameCard(game, false, true);
+                    favoriteGamesContainer.appendChild(gameCard);
+                    showFavoriteGamesRow();
+                }
+            });
+        }
+    }).catch(error => {
+        console.error("Error updating favorites:", error);
+        alert("Failed to update favorites");
+    });
 }
 
 // Clear all pinned games
@@ -807,11 +975,29 @@ function renderAllGameRows(filterCategory = 'all', searchTerm = '') {
 // Generate HTML for game cards
 function generateGameCardsHTML(games) {
     const pinnedGames = getPinnedGames();
+    let favoriteGames = [];
+    
+    if (currentUser) {
+        // This would be better asynchronously loaded, but simplified for example
+        const userRef = db.collection('users').doc(currentUser.uid);
+        userRef.get().then(doc => {
+            if (doc.exists) {
+                favoriteGames = doc.data().favorites || [];
+            }
+        });
+    }
     
     return games.map(game => `
-        <div class="game-card ${pinnedGames.includes(game.id) ? 'pinned-highlight' : ''}" data-category="${game.category}" data-id="${game.id}">
+        <div class="game-card 
+            ${pinnedGames.includes(game.id) ? 'pinned-highlight' : ''} 
+            ${favoriteGames.includes(game.id) ? 'favorite-highlight' : ''}" 
+            data-category="${game.category}" 
+            data-id="${game.id}">
             <button class="pin-btn ${pinnedGames.includes(game.id) ? 'pinned' : ''}">
                 <i class="bx ${pinnedGames.includes(game.id) ? 'bxs-bookmark' : 'bx-bookmark'}"></i>
+            </button>
+            <button class="fav-btn ${favoriteGames.includes(game.id) ? 'favorited' : ''}">
+                <i class="bx ${favoriteGames.includes(game.id) ? 'bxs-heart' : 'bx-heart'}"></i>
             </button>
             <a href="${game.url}" class="game-link">
                 <div class="thumbnail-container">
@@ -834,6 +1020,16 @@ function addGameCardEventListeners() {
             const gameCard = this.closest('.game-card');
             const gameId = parseInt(gameCard.dataset.id);
             togglePinGame(gameId, gameCard);
+        });
+    });
+    
+    document.querySelectorAll('.fav-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const gameCard = this.closest('.game-card');
+            const gameId = parseInt(gameCard.dataset.id);
+            toggleFavoriteGame(gameId, gameCard);
         });
     });
 }
