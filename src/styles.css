@@ -1,54 +1,204 @@
-/* Favorites Page Specific Styles */
-#favoritesContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
-    padding: 10px;
+/* ===== FAVORITES PAGE STYLES ===== */
+/* Base Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
 }
 
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+#username-display {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+#profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
+
+/* Favorites Section */
+.favorites-section {
+    position: relative;
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.row-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary);
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.row-title i {
+    font-size: 24px;
+}
+
+.clear-pins {
+    margin-left: auto;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.3s;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    background: none;
+    border: none;
+    font-size: 20px;
+}
+
+.clear-pins:hover {
+    color: var(--hot);
+    background: rgba(255, 87, 34, 0.1);
+    transform: scale(1.1);
+}
+
+/* Favorites Grid */
+#favoritesContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 10px 0;
+}
+
+/* Game Card Styles */
 .game-card {
     position: relative;
-    border-radius: 8px;
+    background: white;
+    border-radius: 12px;
     overflow: hidden;
-    background: #2a2a2a;
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 200px;
 }
 
 .game-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.game-link {
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+}
+
+.thumbnail-container {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
 }
 
 .game-thumbnail {
     width: 100%;
-    height: 120px;
+    height: 100%;
     object-fit: cover;
-    display: block;
+    transition: transform 0.3s ease;
+}
+
+.game-card:hover .game-thumbnail {
+    transform: scale(1.05);
 }
 
 .game-title {
-    padding: 8px;
-    font-size: 14px;
-    color: white;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+/* Remove Button */
 .remove-favorite-btn {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0,0,0,0.7);
-    border: none;
-    color: white;
+    top: 10px;
+    right: 10px;
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    cursor: pointer;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    color: #666;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 2;
 }
 
-/* For the sign-in prompt */
+.remove-favorite-btn:hover {
+    color: var(--hot);
+    transform: scale(1.1);
+    background: rgba(255, 87, 34, 0.1);
+}
+
+/* Ribbon Banners */
+.ribbon {
+    position: absolute;
+    top: 10px;
+    left: -5px;
+    padding: 4px 15px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    z-index: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.ribbon.hot {
+    background: var(--hot);
+}
+
+.ribbon.new {
+    background: var(--new);
+}
+
+.ribbon.popular {
+    background: var(--popular);
+}
+
+.ribbon i {
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+/* Sign In Prompt */
 .sign-in-prompt {
     display: flex;
     flex-direction: column;
@@ -57,11 +207,126 @@
     grid-column: 1 / -1;
     padding: 40px;
     text-align: center;
-    color: white;
+    color: var(--dark);
 }
 
 .sign-in-prompt i {
     font-size: 50px;
     margin-bottom: 20px;
-    color: #9575cd;
+    color: var(--primary);
+}
+
+.sign-in-prompt h3 {
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* Back Button */
+.back-to-games {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.btn-glow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 30px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+}
+
+.btn-glow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(66, 133, 244, 0.6);
+}
+
+/* Empty State */
+.no-favorites {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--dark);
+    font-size: 16px;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.game-card {
+    animation: slideIn 0.4s ease-out;
+}
+
+/* Color Variables */
+:root {
+    --primary: #4285F4;
+    --hot: #FF5722;
+    --new: #4CAF50;
+    --popular: #9C27B0;
+    --dark: #2d3748;
+    --light: #f7fafc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #favoritesContainer {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .game-card {
+        height: 180px;
+    }
+    
+    .thumbnail-container {
+        height: 120px;
+    }
+    
+    .row-title {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    #favoritesContainer {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 15px;
+    }
+    
+    .game-card {
+        height: 160px;
+    }
+    
+    .thumbnail-container {
+        height: 110px;
+    }
+    
+    .game-title {
+        font-size: 14px;
+        padding: 8px;
+    }
+    
+    .row-title {
+        font-size: 18px;
+    }
+    
+    .user-info {
+        padding: 8px 15px;
+    }
 }
