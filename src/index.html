@@ -6,14 +6,21 @@
     <title>GameHub - CrazyGames Clone</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
+    <!-- Auth Container (will be populated by JavaScript) -->
+    <div id="auth-container" class="auth-container"></div>
+
     <div class="container">
         <!-- Pinned Games Row (initially hidden) -->
         <div class="game-row pinned-games-row" style="display: none;">
             <h3 class="row-title">
-                <i class='bx bxs-bookmark-alt'></i> Pinned Games
-                <span class="clear-pins" title="Clear all pinned games">
+                <i class='bx bxs-bookmark-alt'></i> Favorite Games
+                <span class="clear-pins" title="Clear all favorite games">
                     <i class='bx bx-trash'></i>
                 </span>
             </h3>

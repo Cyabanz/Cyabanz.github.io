@@ -1,4 +1,22 @@
-// Complete Game Data - All Categories and Games Included
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+  authDomain: "fusioncya-cc20a.firebaseapp.com",
+  databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+  projectId: "fusioncya-cc20a",
+  storageBucket: "fusioncya-cc20a.appspot.com",
+  messagingSenderId: "765164293111",
+  appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+  measurementId: "G-4DT52P7MPB"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
+
+// Your existing game data remains exactly the same
 const gamesData = [
     {
         id: "popular",
@@ -555,6 +573,7 @@ const gamesData = [
     }
 ];
 
+
 // DOM Elements
 const gamesContainer = document.getElementById('gamesContainer');
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -566,36 +585,119 @@ const hamburger = document.querySelector('.hamburger');
 const navbar = document.querySelector('.navbar');
 const navLinks = document.querySelectorAll('.nav-link');
 const glowEffect = document.querySelector('.glow-effect');
+const authContainer = document.createElement('div');
+authContainer.id = 'auth-container';
+document.body.prepend(authContainer);
 
 // State Management
 let currentCategory = 'all';
 let currentSearchTerm = '';
+let currentUser = null;
 
 // Initialize Application
 function init() {
+    setupAuthUI();
+    setupAuthListeners();
     loadPinnedGames();
     renderAllGameRows();
     setupEventListeners();
     setupNavbar();
 }
 
-// Load pinned games from localStorage
+// Auth UI Setup
+function setupAuthUI() {
+    authContainer.className = 'auth-container';
+    authContainer.innerHTML = `
+        <button id="signInBtn" class="auth-btn">
+            <i class='bx bx-log-in'></i> Sign In
+        </button>
+        <div id="userProfile" class="user-profile" style="display:none">
+            <img id="userAvatar" class="user-avatar">
+            <span id="userName" class="user-name"></span>
+            <button id="signOutBtn" class="auth-btn">
+                <i class='bx bx-log-out'></i>
+            </button>
+        </div>
+    `;
+}
+
+// Auth State Listener
+function setupAuthListeners() {
+    auth.onAuthStateChanged(user => {
+        currentUser = user;
+        const signInBtn = document.getElementById('signInBtn');
+        const signOutBtn = document.getElementById('signOutBtn');
+        const userProfile = document.getElementById('userProfile');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+
+        if (user) {
+            // User is signed in
+            signInBtn.style.display = 'none';
+            userProfile.style.display = 'flex';
+            userAvatar.src = user.photoURL || 'https://via.placeholder.com/40';
+            userName.textContent = user.displayName || 'User';
+            
+            // Create user document if it doesn't exist
+            db.collection('users').doc(user.uid).set({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            // Load favorites from Firebase
+            loadPinnedGames();
+        } else {
+            // User is signed out
+            signInBtn.style.display = 'block';
+            userProfile.style.display = 'none';
+            
+            // Clear any displayed favorites
+            pinnedGamesContainer.innerHTML = '';
+            hidePinnedGamesRow();
+        }
+    });
+
+    // Sign in button
+    document.getElementById('signInBtn')?.addEventListener('click', () => {
+        auth.signInWithPopup(provider).catch(error => {
+            console.error("Sign in error:", error);
+            alert("Sign in failed: " + error.message);
+        });
+    });
+
+    // Sign out button
+    document.getElementById('signOutBtn')?.addEventListener('click', () => {
+        auth.signOut().catch(error => {
+            console.error("Sign out error:", error);
+        });
+    });
+}
+
+// Load pinned/favorite games
 function loadPinnedGames() {
-    const pinnedGames = getPinnedGames();
-    if (pinnedGames.length > 0) {
-        showPinnedGamesRow();
-        renderPinnedGames(pinnedGames);
-    }
-}
+    if (!currentUser) return;
 
-// Get pinned games from storage
-function getPinnedGames() {
-    return JSON.parse(localStorage.getItem('pinnedGames')) || [];
-}
-
-// Save pinned games to storage
-function savePinnedGames(pinnedGames) {
-    localStorage.setItem('pinnedGames', JSON.stringify(pinnedGames));
+    db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            if (doc.exists) {
+                const userData = doc.data();
+                const favorites = userData.favoriteGames || [];
+                
+                if (favorites.length > 0) {
+                    showPinnedGamesRow();
+                    renderPinnedGames(favorites);
+                } else {
+                    hidePinnedGamesRow();
+                }
+            }
+        })
+        .catch(error => {
+            console.error("Error loading favorites:", error);
+            hidePinnedGamesRow();
+        });
 }
 
 // Show/hide pinned games row
@@ -686,73 +788,126 @@ function createBannerElement(bannerType) {
 
 // Toggle pin status of a game
 function togglePinGame(gameId, cardElement = null) {
-    let pinnedGames = getPinnedGames();
-    const isPinned = pinnedGames.includes(gameId);
-    
-    if (isPinned) {
-        // Unpin the game
-        pinnedGames = pinnedGames.filter(id => id !== gameId);
-        savePinnedGames(pinnedGames);
-        
-        // Remove from pinned container if exists
-        const pinnedCard = pinnedGamesContainer.querySelector(`.game-card[data-id="${gameId}"]`);
-        if (pinnedCard) pinnedCard.remove();
-        
-        // Update the original card if provided
-        if (cardElement) {
-            cardElement.classList.remove('pinned-highlight');
-            const btn = cardElement.querySelector('.pin-btn');
-            if (btn) {
-                btn.classList.remove('pinned');
-                btn.innerHTML = '<i class="bx bx-bookmark"></i>';
-            }
-        }
-    } else {
-        // Pin the game
-        pinnedGames.unshift(gameId);
-        savePinnedGames(pinnedGames);
-        
-        // Add to pinned container
-        const game = findGameById(gameId);
-        if (game) {
-            const gameCard = createGameCard(game, true);
-            pinnedGamesContainer.prepend(gameCard);
-            showPinnedGamesRow();
-        }
-        
-        // Update the original card if provided
-        if (cardElement) {
-            cardElement.classList.add('pinned-highlight');
-            const btn = cardElement.querySelector('.pin-btn');
-            if (btn) {
-                btn.classList.add('pinned');
-                btn.innerHTML = '<i class="bx bxs-bookmark"></i>';
-            }
-        }
+    if (!currentUser) {
+        showSignInPrompt();
+        return;
     }
+
+    db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            let pinnedGames = doc.exists ? (doc.data().favoriteGames || []) : [];
+            const isPinned = pinnedGames.includes(gameId);
+            
+            if (isPinned) {
+                // Unpin the game
+                pinnedGames = pinnedGames.filter(id => id !== gameId);
+                
+                // Remove from pinned container
+                const pinnedCard = pinnedGamesContainer.querySelector(`.game-card[data-id="${gameId}"]`);
+                if (pinnedCard) pinnedCard.remove();
+                
+                // Update the original card if provided
+                if (cardElement) {
+                    cardElement.classList.remove('pinned-highlight');
+                    const btn = cardElement.querySelector('.pin-btn');
+                    if (btn) {
+                        btn.classList.remove('pinned');
+                        btn.innerHTML = '<i class="bx bx-bookmark"></i>';
+                    }
+                }
+            } else {
+                // Pin the game
+                pinnedGames.unshift(gameId);
+                
+                // Add to pinned container
+                const game = findGameById(gameId);
+                if (game) {
+                    const gameCard = createGameCard(game, true);
+                    pinnedGamesContainer.prepend(gameCard);
+                    showPinnedGamesRow();
+                }
+                
+                // Update the original card if provided
+                if (cardElement) {
+                    cardElement.classList.add('pinned-highlight');
+                    const btn = cardElement.querySelector('.pin-btn');
+                    if (btn) {
+                        btn.classList.add('pinned');
+                        btn.innerHTML = '<i class="bx bxs-bookmark"></i>';
+                    }
+                }
+            }
+            
+            // Save to Firebase
+            return db.collection('users').doc(currentUser.uid).set({
+                favoriteGames: pinnedGames
+            }, { merge: true });
+        })
+        .then(() => {
+            // Hide pinned row if no more pinned games
+            if (pinnedGamesContainer.children.length === 0) {
+                hidePinnedGamesRow();
+            }
+        })
+        .catch(error => {
+            console.error("Error toggling favorite:", error);
+            alert("Failed to update favorites. Please try again.");
+        });
+}
+
+// Show sign in prompt
+function showSignInPrompt() {
+    const prompt = document.createElement('div');
+    prompt.className = 'sign-in-prompt';
+    prompt.innerHTML = `
+        <div class="prompt-content">
+            <h3>Sign In Required</h3>
+            <p>You need to sign in to save favorite games across all your devices.</p>
+            <div class="prompt-buttons">
+                <button id="cancelPrompt" class="prompt-btn cancel">Maybe Later</button>
+                <button id="signInPrompt" class="prompt-btn confirm">Sign In Now</button>
+            </div>
+        </div>
+    `;
     
-    // Hide pinned row if no more pinned games
-    if (pinnedGames.length === 0) {
-        hidePinnedGamesRow();
-    }
+    document.body.appendChild(prompt);
+    
+    document.getElementById('signInPrompt').addEventListener('click', () => {
+        auth.signInWithPopup(provider);
+        prompt.remove();
+    });
+    
+    document.getElementById('cancelPrompt').addEventListener('click', () => {
+        prompt.remove();
+    });
 }
 
 // Clear all pinned games
 function clearAllPinnedGames() {
-    if (pinnedGamesContainer.children.length > 0 && confirm('Are you sure you want to clear all pinned games?')) {
-        localStorage.removeItem('pinnedGames');
-        pinnedGamesContainer.innerHTML = '';
-        hidePinnedGamesRow();
-        
-        // Update all pin buttons
-        document.querySelectorAll('.pin-btn').forEach(btn => {
-            btn.classList.remove('pinned');
-            btn.innerHTML = '<i class="bx bx-bookmark"></i>';
-        });
-        
-        // Remove highlight from all game cards
-        document.querySelectorAll('.game-card').forEach(card => {
-            card.classList.remove('pinned-highlight');
+    if (!currentUser) return;
+    
+    if (pinnedGamesContainer.children.length > 0 && confirm('Are you sure you want to clear all favorite games?')) {
+        db.collection('users').doc(currentUser.uid).update({
+            favoriteGames: []
+        })
+        .then(() => {
+            pinnedGamesContainer.innerHTML = '';
+            hidePinnedGamesRow();
+            
+            // Update all pin buttons
+            document.querySelectorAll('.pin-btn').forEach(btn => {
+                btn.classList.remove('pinned');
+                btn.innerHTML = '<i class="bx bx-bookmark"></i>';
+            });
+            
+            // Remove highlight from all game cards
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.classList.remove('pinned-highlight');
+            });
+        })
+        .catch(error => {
+            console.error("Error clearing favorites:", error);
+            alert("Failed to clear favorites. Please try again.");
         });
     }
 }
@@ -765,26 +920,22 @@ function renderAllGameRows(filterCategory = 'all', searchTerm = '') {
     gamesContainer.innerHTML = '';
     
     gamesData.forEach(row => {
-        // Skip Popular/New rows when filtering by specific category
         if (filterCategory !== 'all' && ['popular', 'new'].includes(row.id)) {
             return;
         }
         
-        // For category rows, only show if matching the filter or showing all
         if (['action', 'puzzle', 'sports', 'io'].includes(row.id)) {
             if (filterCategory !== 'all' && row.id !== filterCategory) {
                 return;
             }
         }
 
-        // Filter games for this row
         const filteredGames = row.games.filter(game => {
             const matchesCategory = filterCategory === 'all' || game.category === filterCategory;
             const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase());
             return matchesCategory && matchesSearch;
         });
         
-        // Only create row if there are games to show
         if (filteredGames.length > 0) {
             const rowHTML = `
                 <div class="game-row">
@@ -800,29 +951,69 @@ function renderAllGameRows(filterCategory = 'all', searchTerm = '') {
         }
     });
     
-    // Add event listeners to newly created game cards
     addGameCardEventListeners();
 }
 
 // Generate HTML for game cards
 function generateGameCardsHTML(games) {
-    const pinnedGames = getPinnedGames();
-    
-    return games.map(game => `
-        <div class="game-card ${pinnedGames.includes(game.id) ? 'pinned-highlight' : ''}" data-category="${game.category}" data-id="${game.id}">
-            <button class="pin-btn ${pinnedGames.includes(game.id) ? 'pinned' : ''}">
-                <i class="bx ${pinnedGames.includes(game.id) ? 'bxs-bookmark' : 'bx-bookmark'}"></i>
-            </button>
-            <a href="${game.url}" class="game-link">
-                <div class="thumbnail-container">
-                    ${game.banner ? createBannerElement(game.banner) : ''}
-                    <img src="${game.staticImg}" class="game-thumbnail static" alt="${game.title}">
-                    <img src="${game.gifImg}" class="game-thumbnail gif" alt="${game.title} GIF">
+    // For non-signed-in users, show all games as unpinned
+    if (!currentUser) {
+        return games.map(game => `
+            <div class="game-card" data-category="${game.category}" data-id="${game.id}">
+                <button class="pin-btn" disabled>
+                    <i class="bx bx-bookmark"></i>
+                </button>
+                <a href="${game.url}" class="game-link">
+                    <div class="thumbnail-container">
+                        ${game.banner ? createBannerElement(game.banner) : ''}
+                        <img src="${game.staticImg}" class="game-thumbnail static" alt="${game.title}">
+                        <img src="${game.gifImg}" class="game-thumbnail gif" alt="${game.title} GIF">
+                    </div>
+                    <div class="game-title">${game.title}</div>
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // For signed-in users, check their favorites
+    return db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            const pinnedGames = doc.exists ? (doc.data().favoriteGames || []) : [];
+            
+            return games.map(game => `
+                <div class="game-card ${pinnedGames.includes(game.id) ? 'pinned-highlight' : ''}" data-category="${game.category}" data-id="${game.id}">
+                    <button class="pin-btn ${pinnedGames.includes(game.id) ? 'pinned' : ''}">
+                        <i class="bx ${pinnedGames.includes(game.id) ? 'bxs-bookmark' : 'bx-bookmark'}"></i>
+                    </button>
+                    <a href="${game.url}" class="game-link">
+                        <div class="thumbnail-container">
+                            ${game.banner ? createBannerElement(game.banner) : ''}
+                            <img src="${game.staticImg}" class="game-thumbnail static" alt="${game.title}">
+                            <img src="${game.gifImg}" class="game-thumbnail gif" alt="${game.title} GIF">
+                        </div>
+                        <div class="game-title">${game.title}</div>
+                    </a>
                 </div>
-                <div class="game-title">${game.title}</div>
-            </a>
-        </div>
-    `).join('');
+            `).join('');
+        })
+        .catch(error => {
+            console.error("Error checking favorites:", error);
+            return games.map(game => `
+                <div class="game-card" data-category="${game.category}" data-id="${game.id}">
+                    <button class="pin-btn">
+                        <i class="bx bx-bookmark"></i>
+                    </button>
+                    <a href="${game.url}" class="game-link">
+                        <div class="thumbnail-container">
+                            ${game.banner ? createBannerElement(game.banner) : ''}
+                            <img src="${game.staticImg}" class="game-thumbnail static" alt="${game.title}">
+                            <img src="${game.gifImg}" class="game-thumbnail gif" alt="${game.title} GIF">
+                        </div>
+                        <div class="game-title">${game.title}</div>
+                    </a>
+                </div>
+            `).join('');
+        });
 }
 
 // Add event listeners to game cards
@@ -850,15 +1041,11 @@ function getBannerIcon(type) {
 
 // Set up navbar functionality
 function setupNavbar() {
-    // Set initial active link
     navLinks[0].classList.add('active');
     updateGlowEffect(navLinks[0]);
 
-    // Toggle navbar visibility
     hamburger.addEventListener('click', function() {
         navbar.classList.toggle('closed');
-        
-        // Change hamburger icon
         const icon = this.querySelector('i');
         if (navbar.classList.contains('closed')) {
             icon.classList.replace('bx-menu', 'bx-menu-alt-right');
@@ -867,22 +1054,14 @@ function setupNavbar() {
         }
     });
 
-    // Set up nav links
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // Remove active class from all links
             navLinks.forEach(l => l.classList.remove('active'));
-            
-            // Add active class to clicked link
             this.classList.add('active');
-            
-            // Update glow effect
             updateGlowEffect(this);
         });
 
-        // Hover effect
         link.addEventListener('mouseenter', function() {
             if (!this.classList.contains('active')) {
                 updateGlowEffect(this, true);
@@ -901,13 +1080,10 @@ function setupNavbar() {
 // Update navbar glow effect
 function updateGlowEffect(element, isHover = false) {
     if (!element) return;
-    
     const linkRect = element.getBoundingClientRect();
     const containerRect = element.parentElement.getBoundingClientRect();
-    
     const glowColor = element.getAttribute('data-glow-color') || '#4fc3f7';
     const y = linkRect.top - containerRect.top;
-    
     glowEffect.style.top = `${y}px`;
     glowEffect.style.backgroundColor = glowColor;
     glowEffect.style.opacity = isHover ? '0.7' : '0.5';
@@ -915,7 +1091,6 @@ function updateGlowEffect(element, isHover = false) {
 
 // Set up all event listeners
 function setupEventListeners() {
-    // Category tabs
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             tabBtns.forEach(b => b.classList.remove('active'));
@@ -925,13 +1100,11 @@ function setupEventListeners() {
         });
     });
     
-    // Search input
     searchInput.addEventListener('input', () => {
         const activeCategory = document.querySelector('.tab-btn.active').dataset.category;
         renderAllGameRows(activeCategory, searchInput.value);
     });
     
-    // Clear pins button
     clearPinsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         clearAllPinnedGames();
