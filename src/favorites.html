@@ -32,14 +32,35 @@
                 </span>
             </h3>
             <div class="game-scroll-container">
-                <div class="horizontal-game-grid" id="favoritesContainer">
-                    <!-- Game items will be inserted here by JavaScript -->
+                <div class="favorites-list" id="favoritesContainer">
+                    <!-- Example favorite items (will be populated by JS) -->
+                    <div class="favorite-game-item">
+                        <span class="game-title">Cut the Rope</span>
+                        <button class="remove-favorite-btn" title="Remove from favorites">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                    <div class="favorite-game-item">
+                        <span class="game-title">Agar.io</span>
+                        <button class="remove-favorite-btn" title="Remove from favorites">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Sign in prompt (hidden by default) -->
                     <div class="sign-in-prompt" style="display: none;">
                         <i class='bx bx-log-in-circle'></i>
                         <h3>Sign in to view your favorites</h3>
                         <button id="signInButton" class="btn-glow">
                             <i class='bx bxl-google'></i> Sign In with Google
                         </button>
+                    </div>
+                    
+                    <!-- No favorites message (hidden by default) -->
+                    <div class="no-favorites" style="display: none;">
+                        <i class='bx bx-bookmark-alt'></i>
+                        <h3>No favorite games yet</h3>
+                        <p>Save your favorite games to see them here</p>
                     </div>
                 </div>
             </div>
