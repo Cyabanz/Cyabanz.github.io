@@ -193,3 +193,61 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 });
+
+// ======================
+// Favorites System
+// ======================
+
+// Get user's favorites
+async function getFavorites(userId) {
+  try {
+    const docRef = doc(db, "users", userId);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data().favorites?.games || [] : [];
+  } catch (error) {
+    console.error("Error getting favorites:", error);
+    return [];
+  }
+}
+
+// Add to favorites
+async function addFavorite(userId, gameId) {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, {
+    "favorites.games": arrayUnion(gameId),
+    "favorites.lastUpdated": serverTimestamp()
+  });
+}
+
+// Remove from favorites
+async function removeFavorite(userId, gameId) {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, {
+    "favorites.games": arrayRemove(gameId),
+    "favorites.lastUpdated": serverTimestamp()
+  });
+}
+
+// Toggle favorite status
+async function toggleFavorite(gameId) {
+  if (!auth.currentUser) return showLoginPrompt();
+  
+  const userId = auth.currentUser.uid;
+  const favorites = await getFavorites(userId);
+  
+  if (favorites.includes(gameId)) {
+    await removeFavorite(userId, gameId);
+  } else {
+    await addFavorite(userId, gameId);
+  }
+}
+
+// Setup real-time listener
+function setupFavoritesListener(userId) {
+  const userRef = doc(db, "users", userId);
+  
+  onSnapshot(userRef, (doc) => {
+    const favorites = doc.data()?.favorites?.games || [];
+    updateFavoritesUI(favorites);
+  });
+}
