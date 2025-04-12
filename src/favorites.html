@@ -12,8 +12,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Auth Container (will be populated by JavaScript) -->
-    <div id="auth-container" class="auth-container"></div>
+    <!-- Profile Header from your profile system -->
+    <header>
+        <div class="user-info">
+            <span id="username-display">Guest</span>
+            <div id="profile-pic-container">
+                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+            </div>
+        </div>
+    </header>
 
     <div class="container">
         <!-- Favorite Games Section -->
@@ -30,8 +37,8 @@
                     <div class="sign-in-prompt" style="display: none;">
                         <i class='bx bx-log-in-circle'></i>
                         <h3>Sign in to view your favorites</h3>
-                        <button onclick="location.href='games.html'" class="btn-glow">
-                            Sign In
+                        <button id="signInButton" class="btn-glow">
+                            <i class='bx bxl-google'></i> Sign In with Google
                         </button>
                     </div>
                 </div>
@@ -63,7 +70,7 @@
             <a href="favorites.html" class="nav-link active" data-glow-color="#9575cd">
                 <i class='bx bx-heart'></i>
             </a>
-            <a href="#" class="nav-link" data-glow-color="#64dd17">
+            <a href="profile.html" class="nav-link" data-glow-color="#64dd17">
                 <i class='bx bx-user'></i>
             </a>
             <a href="#" class="nav-link" data-glow-color="#ffd600">
@@ -73,9 +80,8 @@
         </div>
     </nav>
 
-    <script src="script.js"></script>
     <script>
-        // Firebase Configuration
+        // Firebase Configuration (MUST MATCH YOUR PROFILE SYSTEM)
         const firebaseConfig = {
             apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
             authDomain: "fusioncya-cc20a.firebaseapp.com",
@@ -93,26 +99,15 @@
         const db = firebase.firestore();
         const provider = new firebase.auth.GoogleAuthProvider();
 
-        // Game Data (simplified for this example)
-        const gamesData = [
-            {
-                id: 1,
-                title: "Bullet Force",
-                category: "action",
-                staticImg: "https://via.placeholder.com/300x200/333/fff?text=Bullet+Force",
-                gifImg: "https://via.placeholder.com/300x200/555/fff?text=GIF+Preview",
-                banner: "hot",
-                url: "https://example.com"
-            },
-            // Add more games as needed
-        ];
+        // Game Data (should match your games.html)
+        const gamesData = [ /* Your full games data array */ ];
 
         // Load user favorites
         function loadUserFavorites(userId) {
             db.collection('users').doc(userId).collection('favorites').get()
                 .then((querySnapshot) => {
                     const favoritesContainer = document.getElementById('favoritesContainer');
-                    favoritesContainer.innerHTML = ''; // Clear previous content
+                    favoritesContainer.innerHTML = '';
                     
                     if (querySnapshot.empty) {
                         favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
@@ -214,13 +209,65 @@
                 });
         }
 
+        // Sign in handler (matches your profile system)
+        function handleSignIn() {
+            auth.signInWithPopup(provider)
+                .then(function(result) {
+                    if (result.additionalUserInfo.isNewUser) {
+                        return createUserDocument(result.user);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Sign in error:', error);
+                    alert('Sign in failed: ' + error.message);
+                });
+        }
+
+        // Create user document (matches your profile system)
+        function createUserDocument(user) {
+            return db.collection('users').doc(user.uid).set({
+                uid: user.uid,
+                email: user.email,
+                username: user.displayName || 'user' + user.uid.substring(0, 4),
+                photoBase64: user.photoURL || '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .catch(function(error) {
+                console.error('Error creating user document:', error);
+            });
+        }
+
+        // Update UI for logged in user (matches your profile system)
+        function updateUIForUser(user) {
+            const signInPrompt = document.querySelector('.sign-in-prompt');
+            if (signInPrompt) signInPrompt.style.display = 'none';
+            
+            document.getElementById('username-display').textContent = user.displayName || 'User';
+            
+            if (user.photoURL) {
+                document.getElementById('profile-pic').src = user.photoURL;
+            }
+            
+            // Load favorites for this user
+            loadUserFavorites(user.uid);
+        }
+
+        // Update UI for guest (matches your profile system)
+        function updateUIForGuest() {
+            const signInPrompt = document.querySelector('.sign-in-prompt');
+            if (signInPrompt) signInPrompt.style.display = 'block';
+            
+            document.getElementById('username-display').textContent = 'Guest';
+            document.getElementById('profile-pic').src = 'https://via.placeholder.com/40';
+            
+            // Clear favorites display
+            document.getElementById('favoritesContainer').innerHTML = '';
+        }
+
         // Initialize when auth is ready
         auth.onAuthStateChanged(function(user) {
-            const signInPrompt = document.querySelector('.sign-in-prompt');
-            
             if (user) {
-                signInPrompt.style.display = 'none';
-                loadUserFavorites(user.uid);
+                updateUIForUser(user);
                 
                 // Add event listener to clear favorites button
                 document.querySelector('.clear-pins').addEventListener('click', function(e) {
@@ -230,10 +277,12 @@
                     }
                 });
             } else {
-                signInPrompt.style.display = 'block';
-                document.getElementById('favoritesContainer').innerHTML = '';
+                updateUIForGuest();
             }
         });
+
+        // Add sign in button event listener
+        document.getElementById('signInButton')?.addEventListener('click', handleSignIn);
     </script>
 </body>
 </html>
