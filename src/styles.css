@@ -1,51 +1,52 @@
 /* ===== FAVORITES PAGE STYLES ===== */
-/* Base Container */
+/* Main Container */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    position: relative;
+    padding-left: 80px; /* Account for navbar */
 }
 
 /* Header Styles */
 header {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 30px;
+    padding: 15px 0;
+    margin-bottom: 20px;
 }
 
 .user-info {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
-    padding: 10px 20px;
+    padding: 8px 15px;
     border-radius: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 #username-display {
     font-weight: 600;
-    color: var(--primary);
+    color: #333;
 }
 
-#profile-pic {
+.profile-pic {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid white;
+    border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
-/* Favorites Section */
-.favorites-section {
+/* Favorite Games Section */
+.game-row {
     position: relative;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     border-radius: 12px;
-    padding: 25px;
+    padding: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
@@ -53,13 +54,13 @@ header {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--primary);
+    color: #4285F4;
     font-size: 22px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .row-title i {
-    font-size: 24px;
+    font-size: 26px;
 }
 
 .clear-pins {
@@ -70,37 +71,45 @@ header {
     padding: 5px;
     border-radius: 50%;
     display: flex;
-    background: none;
-    border: none;
-    font-size: 20px;
 }
 
 .clear-pins:hover {
-    color: var(--hot);
+    color: #FF5722;
     background: rgba(255, 87, 34, 0.1);
     transform: scale(1.1);
 }
 
-/* Favorites Grid */
-#favoritesContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
-    padding: 10px 0;
+/* Game Grid Container */
+.game-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    scrollbar-width: none;
 }
 
-/* Game Card Styles */
-.game-card {
+.game-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.horizontal-game-grid {
+    display: inline-flex;
+    gap: 20px;
+    padding-right: 20px;
+}
+
+/* Favorite Game Cards */
+.favorite-game-card {
     position: relative;
+    flex: 0 0 200px;
     background: white;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-    height: 200px;
+    height: 220px;
 }
 
-.game-card:hover {
+.favorite-game-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
@@ -109,14 +118,14 @@ header {
     display: block;
     height: 100%;
     width: 100%;
+    position: relative;
     text-decoration: none;
 }
 
 .thumbnail-container {
     position: relative;
     width: 100%;
-    height: 140px;
-    overflow: hidden;
+    height: 100%;
 }
 
 .game-thumbnail {
@@ -126,76 +135,47 @@ header {
     transition: transform 0.3s ease;
 }
 
-.game-card:hover .game-thumbnail {
+.favorite-game-card:hover .game-thumbnail {
     transform: scale(1.05);
 }
 
 .game-title {
-    padding: 12px;
-    font-size: 15px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 15px 10px;
+    color: white;
+    font-size: 16px;
     font-weight: 600;
-    color: var(--dark);
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* Remove Button */
+/* Remove Favorite Button */
 .remove-favorite-btn {
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
     background: rgba(255, 255, 255, 0.9);
-    border: none;
-    color: #666;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    z-index: 3;
+    border: none;
+    color: #666;
     transition: all 0.3s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .remove-favorite-btn:hover {
-    color: var(--hot);
+    color: #EA4335;
+    background: rgba(234, 67, 53, 0.1);
     transform: scale(1.1);
-    background: rgba(255, 87, 34, 0.1);
-}
-
-/* Ribbon Banners */
-.ribbon {
-    position: absolute;
-    top: 10px;
-    left: -5px;
-    padding: 4px 15px;
-    font-size: 11px;
-    font-weight: bold;
-    color: white;
-    text-transform: uppercase;
-    z-index: 1;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.ribbon.hot {
-    background: var(--hot);
-}
-
-.ribbon.new {
-    background: var(--new);
-}
-
-.ribbon.popular {
-    background: var(--popular);
-}
-
-.ribbon i {
-    font-size: 12px;
-    margin-right: 5px;
 }
 
 /* Sign In Prompt */
@@ -204,21 +184,28 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    grid-column: 1 / -1;
+    gap: 20px;
     padding: 40px;
     text-align: center;
-    color: var(--dark);
 }
 
 .sign-in-prompt i {
-    font-size: 50px;
-    margin-bottom: 20px;
-    color: var(--primary);
+    font-size: 48px;
+    color: #4285F4;
 }
 
 .sign-in-prompt h3 {
-    margin-bottom: 20px;
-    font-weight: 500;
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+/* No Favorites Message */
+.no-favorites {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 18px;
 }
 
 /* Back Button */
@@ -227,75 +214,15 @@ header {
     margin-top: 30px;
 }
 
-.btn-glow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 30px;
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
-}
-
-.btn-glow:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(66, 133, 244, 0.6);
-}
-
-/* Empty State */
-.no-favorites {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 40px;
-    color: var(--dark);
-    font-size: 16px;
-}
-
-/* Animations */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.game-card {
-    animation: slideIn 0.4s ease-out;
-}
-
-/* Color Variables */
-:root {
-    --primary: #4285F4;
-    --hot: #FF5722;
-    --new: #4CAF50;
-    --popular: #9C27B0;
-    --dark: #2d3748;
-    --light: #f7fafc;
-}
-
-/* Responsive Design */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-    #favoritesContainer {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    .container {
+        padding-left: 20px;
     }
     
-    .game-card {
+    .favorite-game-card {
+        flex: 0 0 160px;
         height: 180px;
-    }
-    
-    .thumbnail-container {
-        height: 120px;
     }
     
     .row-title {
@@ -304,29 +231,34 @@ header {
 }
 
 @media (max-width: 480px) {
-    #favoritesContainer {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 15px;
-    }
-    
-    .game-card {
+    .favorite-game-card {
+        flex: 0 0 140px;
         height: 160px;
-    }
-    
-    .thumbnail-container {
-        height: 110px;
-    }
-    
-    .game-title {
-        font-size: 14px;
-        padding: 8px;
     }
     
     .row-title {
         font-size: 18px;
     }
     
-    .user-info {
-        padding: 8px 15px;
+    .game-title {
+        font-size: 14px;
+        padding: 10px 8px;
     }
 }
+
+/* Animation for favorites */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.favorite-game-card {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Delay animations for each card */
+.favorite-game-card:nth-child(1) { animation-delay: 0.1s; }
+.favorite-game-card:nth-child(2) { animation-delay: 0.2s; }
+.favorite-game-card:nth-child(3) { animation-delay: 0.3s; }
+.favorite-game-card:nth-child(4) { animation-delay: 0.4s; }
+.favorite-game-card:nth-child(5) { animation-delay: 0.5s; }
