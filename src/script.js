@@ -633,8 +633,11 @@ function loadUserFavorites(userId) {
             querySnapshot.forEach((doc) => {
                 userFavorites.push(doc.data().gameId);
             });
-            updateFavoritesUI();
-            if (favoritesContainer) renderFavorites();
+            if (favoritesContainer) {
+                renderFavorites();
+            } else {
+                updateFavoritesUI();
+            }
         })
         .catch((error) => {
             console.error('Error loading favorites:', error);
@@ -785,7 +788,7 @@ function findGameById(id) {
     return null;
 }
 
-// Create a game card element
+// Keep this original function for regular game cards
 function createGameCard(game, isPinned = false) {
     const card = document.createElement('div');
     card.className = `game-card ${isPinned ? 'pinned-highlight' : ''}`;
@@ -805,6 +808,38 @@ function createGameCard(game, isPinned = false) {
             <div class="game-title">${game.title}</div>
         </a>
     `;
+    
+    return card;
+}
+
+// Keep this modified version for favorites page cards
+function createFavoriteGameCard(game) {
+    const card = document.createElement('div');
+    card.className = 'favorite-game-card';
+    card.dataset.id = game.id;
+    
+    card.innerHTML = `
+        <a href="${game.url}" class="game-link">
+            <div class="thumbnail-container">
+                ${game.banner ? createBannerElement(game.banner) : ''}
+                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+            </div>
+            <div class="game-title">${game.title}</div>
+        </a>
+        <button class="remove-favorite-btn">
+            <i class="bx bx-trash"></i>
+        </button>
+    `;
+    
+    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFavorite(game.id).then(() => {
+            card.remove();
+            if (!favoritesContainer.children.length) {
+                favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+            }
+        });
+    });
     
     return card;
 }
