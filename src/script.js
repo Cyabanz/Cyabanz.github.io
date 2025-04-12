@@ -26,8 +26,8 @@ const gamesData = [
                 id: 1,
                 title: "Bullet Force",
                 category: "action",
-                staticImg: "https://via.placeholder.com/300x200/333/fff?text=Bullet+Force",
-                gifImg: "https://via.placeholder.com/300x200/555/fff?text=GIF+Preview",
+                staticImg: "https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png",
+                gifImg: "https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png",
                 banner: "hot",
                 url: "https://example.com"
             },
