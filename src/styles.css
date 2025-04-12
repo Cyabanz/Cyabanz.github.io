@@ -173,26 +173,6 @@ header {
     background: var(--new);
 }
 
-/* Remove Favorite Button */
-.remove-favorite-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(255,255,255,0.95);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 3;
-    border: none;
-    color: #666;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
 /* Back Button - Centered & Modern */
 .back-to-games {
     text-align: center;
