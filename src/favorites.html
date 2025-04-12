@@ -6,14 +6,13 @@
     <title>GameHub - Favorite Games</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="style.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Profile Header from your profile system -->
+    <!-- Profile Header -->
     <header>
         <div class="user-info">
             <span id="username-display">Guest</span>
@@ -34,7 +33,6 @@
             </h3>
             <div class="game-scroll-container">
                 <div class="horizontal-game-grid" id="favoritesContainer">
-                    <!-- Favorites will be loaded here -->
                     <div class="sign-in-prompt" style="display: none;">
                         <i class='bx bx-log-in-circle'></i>
                         <h3>Sign in to view your favorites</h3>
@@ -81,211 +79,7 @@
         </div>
     </nav>
 
-    <script>
-        // Firebase Configuration (MUST MATCH YOUR PROFILE SYSTEM)
-        const firebaseConfig = {
-            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
-            authDomain: "fusioncya-cc20a.firebaseapp.com",
-            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
-            projectId: "fusioncya-cc20a",
-            storageBucket: "fusioncya-cc20a.appspot.com",
-            messagingSenderId: "765164293111",
-            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
-            measurementId: "G-4DT52P7MPB"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const provider = new firebase.auth.GoogleAuthProvider();
-
-        // Game Data (should match your games.html)
-        const gamesData = [ /* Your full games data array */ ];
-
-        // Load user favorites
-        function loadUserFavorites(userId) {
-            db.collection('users').doc(userId).collection('favorites').get()
-                .then((querySnapshot) => {
-                    const favoritesContainer = document.getElementById('favoritesContainer');
-                    favoritesContainer.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const gameId = doc.data().gameId;
-                        const game = findGameById(gameId);
-                        if (game) {
-                            const gameCard = createFavoriteGameCard(game);
-                            favoritesContainer.appendChild(gameCard);
-                        }
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error loading favorites:', error);
-                });
-        }
-
-        // Find game by ID
-        function findGameById(id) {
-            for (const row of gamesData) {
-                const game = row.games.find(g => g.id === id);
-                if (game) return game;
-            }
-            return null;
-        }
-
-        // Create favorite game card
-        function createFavoriteGameCard(game) {
-            const card = document.createElement('div');
-            card.className = 'game-card';
-            card.dataset.id = game.id;
-            
-            card.innerHTML = `
-                <a href="${game.url}" class="game-link">
-                    <div class="thumbnail-container">
-                        ${game.banner ? `<div class="ribbon ${game.banner} ${game.banner === 'hot' ? 'pulse' : ''}">
-                            <i class='bx ${getBannerIcon(game.banner)}'></i>
-                            ${game.banner.toUpperCase()}
-                        </div>` : ''}
-                        <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
-                    </div>
-                    <div class="game-title">${game.title}</div>
-                </a>
-                <button class="remove-favorite-btn">
-                    <i class="bx bx-trash"></i>
-                </button>
-            `;
-            
-            card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
-                e.preventDefault();
-                removeFavorite(game.id);
-            });
-            
-            return card;
-        }
-
-        // Get banner icon
-        function getBannerIcon(type) {
-            const icons = {
-                hot: 'bx bx-hot',
-                new: 'bx bx-star',
-                popular: 'bx bx-trending-up'
-            };
-            return icons[type] || 'bx bx-info-circle';
-        }
-
-        // Remove favorite
-        function removeFavorite(gameId) {
-            const userId = auth.currentUser.uid;
-            db.collection('users').doc(userId).collection('favorites').doc(String(gameId)).delete()
-                .then(() => {
-                    loadUserFavorites(userId);
-                })
-                .catch((error) => {
-                    console.error('Error removing favorite:', error);
-                });
-        }
-
-        // Clear all favorites
-        function clearAllFavorites() {
-            const userId = auth.currentUser.uid;
-            const batch = db.batch();
-            
-            db.collection('users').doc(userId).collection('favorites').get()
-                .then(querySnapshot => {
-                    querySnapshot.forEach(doc => {
-                        batch.delete(doc.ref);
-                    });
-                    return batch.commit();
-                })
-                .then(() => {
-                    document.getElementById('favoritesContainer').innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
-                })
-                .catch(error => {
-                    console.error('Error clearing favorites:', error);
-                });
-        }
-
-        // Sign in handler (matches your profile system)
-        function handleSignIn() {
-            auth.signInWithPopup(provider)
-                .then(function(result) {
-                    if (result.additionalUserInfo.isNewUser) {
-                        return createUserDocument(result.user);
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Sign in error:', error);
-                    alert('Sign in failed: ' + error.message);
-                });
-        }
-
-        // Create user document (matches your profile system)
-        function createUserDocument(user) {
-            return db.collection('users').doc(user.uid).set({
-                uid: user.uid,
-                email: user.email,
-                username: user.displayName || 'user' + user.uid.substring(0, 4),
-                photoBase64: user.photoURL || '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .catch(function(error) {
-                console.error('Error creating user document:', error);
-            });
-        }
-
-        // Update UI for logged in user (matches your profile system)
-        function updateUIForUser(user) {
-            const signInPrompt = document.querySelector('.sign-in-prompt');
-            if (signInPrompt) signInPrompt.style.display = 'none';
-            
-            document.getElementById('username-display').textContent = user.displayName || 'User';
-            
-            if (user.photoURL) {
-                document.getElementById('profile-pic').src = user.photoURL;
-            }
-            
-            // Load favorites for this user
-            loadUserFavorites(user.uid);
-        }
-
-        // Update UI for guest (matches your profile system)
-        function updateUIForGuest() {
-            const signInPrompt = document.querySelector('.sign-in-prompt');
-            if (signInPrompt) signInPrompt.style.display = 'block';
-            
-            document.getElementById('username-display').textContent = 'Guest';
-            document.getElementById('profile-pic').src = 'https://via.placeholder.com/40';
-            
-            // Clear favorites display
-            document.getElementById('favoritesContainer').innerHTML = '';
-        }
-
-        // Initialize when auth is ready
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
-                updateUIForUser(user);
-                
-                // Add event listener to clear favorites button
-                document.querySelector('.clear-pins').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    if (confirm('Are you sure you want to clear all favorites?')) {
-                        clearAllFavorites();
-                    }
-                });
-            } else {
-                updateUIForGuest();
-            }
-        });
-
-        // Add sign in button event listener
-        document.getElementById('signInButton')?.addEventListener('click', handleSignIn);
-    </script>
+    <script src="script.js"></script>
+    <script src="favorites.js"></script>
 </body>
 </html>
-
-<script src="script.js"></script>
