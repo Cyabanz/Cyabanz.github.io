@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - Favorite Games</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Profile Header -->
+    <header>
+        <div class="user-info">
+            <span id="username-display">Guest</span>
+            <div id="profile-pic-container">
+                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Favorite Games Section -->
+        <div class="favorites-section">
+            <h3 class="row-title">
+                <i class='bx bxs-bookmark-alt'></i> My Favorite Games
+                <span class="clear-pins" title="Clear all favorite games">
+                    <i class='bx bx-trash'></i>
+                </span>
+            </h3>
+            <div class="favorites-grid" id="favoritesContainer">
+                <!-- Will be populated by JavaScript -->
+                <div class="sign-in-prompt" style="display: none;">
+                    <i class='bx bx-log-in-circle'></i>
+                    <h3>Sign in to view your favorites</h3>
+                    <button id="signInButton" class="btn-glow">
+                        <i class='bx bxl-google'></i> Sign In with Google
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="back-to-games">
+            <a href="games.html" class="btn-glow">
+                <i class='bx bx-arrow-back'></i> Back to All Games
+            </a>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <button class="hamburger">
+        <i class='bx bx-menu'></i>
+    </button>
+    
+    <nav class="navbar closed">
+        <div class="nav-container">
+            <a href="games.html" class="nav-link" data-glow-color="#4fc3f7">
+                <i class='bx bx-home'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ff6e40">
+                <i class='bx bx-search'></i>
+            </a>
+            <a href="favorites.html" class="nav-link active" data-glow-color="#9575cd">
+                <i class='bx bx-heart'></i>
+            </a>
+            <a href="profile.html" class="nav-link" data-glow-color="#64dd17">
+                <i class='bx bx-user'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ffd600">
+                <i class='bx bx-cog'></i>
+            </a>
+            <div class="glow-effect"></div>
+        </div>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>
