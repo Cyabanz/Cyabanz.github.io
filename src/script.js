@@ -1229,10 +1229,10 @@ function createFavoriteGameCard(game) {
             </div>
             <div class="game-title">${game.title}</div>
         </a>
-        <button class="remove-favorite-btn">
-            
-        </button>
     `;
+    
+    return card;
+}
     
     card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
         e.preventDefault();
