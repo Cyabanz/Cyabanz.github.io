@@ -113,7 +113,6 @@ header {
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
 }
 
 .favorite-game-card:hover {
@@ -148,12 +147,14 @@ header {
     transform: scale(1.05);
 }
 
+/* Game Title Container with Trash Can */
 .game-title-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 14px;
     background: white;
+    position: relative;
 }
 
 .game-title {
@@ -163,6 +164,7 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-right: 10px;
     flex-grow: 1;
 }
 
@@ -194,17 +196,17 @@ header {
     background: var(--new);
 }
 
-/* Remove Favorite Button - Inside title container */
+/* Remove Favorite Button - Next to Title */
 .remove-favorite-btn {
     background: transparent;
     border: none;
-    color: #999;
+    color: #aaa;
     cursor: pointer;
     font-size: 18px;
-    margin-left: 10px;
-    padding: 4px;
+    padding: 0 4px;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 .remove-favorite-btn:hover {
@@ -366,7 +368,6 @@ header {
     
     .remove-favorite-btn {
         font-size: 15px;
-        margin-left: 8px;
     }
 }
 
