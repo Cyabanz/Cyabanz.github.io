@@ -193,12 +193,6 @@ header {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.remove-favorite-btn:hover {
-    color: var(--hot);
-    transform: scale(1.1);
-    background: rgba(234,67,53,0.1);
-}
-
 /* Back Button - Centered & Modern */
 .back-to-games {
     text-align: center;
