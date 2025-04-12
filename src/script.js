@@ -691,7 +691,6 @@ function updateFavoritesUI() {
     });
 }
 
-// Render favorites page
 function renderFavorites() {
     if (!userFavorites.length) {
         favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
@@ -725,6 +724,19 @@ function createFavoriteGameCard(game) {
             <i class="bx bx-trash"></i>
         </button>
     `;
+    
+    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFavorite(game.id).then(() => {
+            card.remove();
+            if (!favoritesContainer.children.length) {
+                favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+            }
+        });
+    });
+    
+    return card;
+}
     
     card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
         e.preventDefault();
