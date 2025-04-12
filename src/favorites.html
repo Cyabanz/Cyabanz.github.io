@@ -75,90 +75,165 @@
 
     <script src="script.js"></script>
     <script>
-        // Initialize when auth is ready
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
-                loadUserFavorites(user.uid);
-                document.querySelector('.sign-in-prompt').style.display = 'none';
-            } else {
-                document.querySelector('.sign-in-prompt').style.display = 'block';
-                document.getElementById('favoritesContainer').innerHTML = '';
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Game Data (simplified for this example)
+        const gamesData = [
+            {
+                id: 1,
+                title: "Bullet Force",
+                category: "action",
+                staticImg: "https://via.placeholder.com/300x200/333/fff?text=Bullet+Force",
+                gifImg: "https://via.placeholder.com/300x200/555/fff?text=GIF+Preview",
+                banner: "hot",
+                url: "https://example.com"
+            },
+            // Add more games as needed
+        ];
+
+        // Load user favorites
+        function loadUserFavorites(userId) {
+            db.collection('users').doc(userId).collection('favorites').get()
+                .then((querySnapshot) => {
+                    const favoritesContainer = document.getElementById('favoritesContainer');
+                    favoritesContainer.innerHTML = ''; // Clear previous content
+                    
+                    if (querySnapshot.empty) {
+                        favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const gameId = doc.data().gameId;
+                        const game = findGameById(gameId);
+                        if (game) {
+                            const gameCard = createFavoriteGameCard(game);
+                            favoritesContainer.appendChild(gameCard);
+                        }
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading favorites:', error);
+                });
+        }
+
+        // Find game by ID
+        function findGameById(id) {
+            for (const row of gamesData) {
+                const game = row.games.find(g => g.id === id);
+                if (game) return game;
             }
-        });
+            return null;
+        }
+
+        // Create favorite game card
+        function createFavoriteGameCard(game) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.dataset.id = game.id;
+            
+            card.innerHTML = `
+                <a href="${game.url}" class="game-link">
+                    <div class="thumbnail-container">
+                        ${game.banner ? `<div class="ribbon ${game.banner} ${game.banner === 'hot' ? 'pulse' : ''}">
+                            <i class='bx ${getBannerIcon(game.banner)}'></i>
+                            ${game.banner.toUpperCase()}
+                        </div>` : ''}
+                        <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+                    </div>
+                    <div class="game-title">${game.title}</div>
+                </a>
+                <button class="remove-favorite-btn">
+                    <i class="bx bx-trash"></i>
+                </button>
+            `;
+            
+            card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                removeFavorite(game.id);
+            });
+            
+            return card;
+        }
+
+        // Get banner icon
+        function getBannerIcon(type) {
+            const icons = {
+                hot: 'bx bx-hot',
+                new: 'bx bx-star',
+                popular: 'bx bx-trending-up'
+            };
+            return icons[type] || 'bx bx-info-circle';
+        }
+
+        // Remove favorite
+        function removeFavorite(gameId) {
+            const userId = auth.currentUser.uid;
+            db.collection('users').doc(userId).collection('favorites').doc(String(gameId)).delete()
+                .then(() => {
+                    loadUserFavorites(userId);
+                })
+                .catch((error) => {
+                    console.error('Error removing favorite:', error);
+                });
+        }
 
         // Clear all favorites
-        document.querySelector('.clear-pins').addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (confirm('Are you sure you want to clear all favorites?')) {
-                clearAllFavorites();
+        function clearAllFavorites() {
+            const userId = auth.currentUser.uid;
+            const batch = db.batch();
+            
+            db.collection('users').doc(userId).collection('favorites').get()
+                .then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    return batch.commit();
+                })
+                .then(() => {
+                    document.getElementById('favoritesContainer').innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+                })
+                .catch(error => {
+                    console.error('Error clearing favorites:', error);
+                });
+        }
+
+        // Initialize when auth is ready
+        auth.onAuthStateChanged(function(user) {
+            const signInPrompt = document.querySelector('.sign-in-prompt');
+            
+            if (user) {
+                signInPrompt.style.display = 'none';
+                loadUserFavorites(user.uid);
+                
+                // Add event listener to clear favorites button
+                document.querySelector('.clear-pins').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (confirm('Are you sure you want to clear all favorites?')) {
+                        clearAllFavorites();
+                    }
+                });
+            } else {
+                signInPrompt.style.display = 'block';
+                document.getElementById('favoritesContainer').innerHTML = '';
             }
         });
     </script>
 </body>
 </html>
-
-<script>
-  // Initialize Firebase first
-  const firebaseConfig = {
-    apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
-    authDomain: "fusioncya-cc20a.firebaseapp.com",
-    projectId: "fusioncya-cc20a",
-    storageBucket: "fusioncya-cc20a.appspot.com",
-    messagingSenderId: "765164293111",
-    appId: "1:765164293111:web:43e051c755c4690c0c3cf2"
-  };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  // Wait for DOM
-  document.addEventListener('DOMContentLoaded', function() {
-    auth.onAuthStateChanged(function(user) {
-      const container = document.getElementById('favoritesContainer');
-      if (!container) return;
-      
-      if (user) {
-        console.log("User signed in:", user.uid);
-        loadUserFavorites(user.uid);
-        document.querySelector('.sign-in-prompt').style.display = 'none';
-      } else {
-        console.log("No user signed in");
-        container.innerHTML = `
-          <div class="sign-in-prompt">
-            <i class='bx bx-log-in-circle'></i>
-            <h3>Sign in to view favorites</h3>
-            <button onclick="location.href='games.html'" class="btn-glow">
-              Sign In
-            </button>
-          </div>
-        `;
-      }
-    });
-
-    // Clear favorites handler
-    document.querySelector('.clear-pins')?.addEventListener('click', clearAllFavorites);
-  });
-
-  async function clearAllFavorites() {
-    if (!auth.currentUser || !confirm('Clear all favorites?')) return;
-    
-    try {
-      const snapshot = await db.collection('users')
-        .doc(auth.currentUser.uid)
-        .collection('favorites')
-        .get();
-      
-      const batch = db.batch();
-      snapshot.docs.forEach(doc => batch.delete(doc.ref));
-      await batch.commit();
-      
-      document.getElementById('favoritesContainer').innerHTML = 
-        '<p class="no-favorites">No favorites yet</p>';
-    } catch (error) {
-      console.error("Clear failed:", error);
-    }
-  }
-</script>
