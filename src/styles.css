@@ -1,115 +1,67 @@
-/* ===== Favorites Page Specific Styles ===== */
-.favorites-container {
-  padding: 20px;
+/* Favorites Page Specific Styles */
+#favoritesContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+    padding: 10px;
 }
 
-/* Favorite Game Cards */
-.favorite-game-card {
-  position: relative;
-  width: 180px;
-  height: 180px;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-  transition: all 0.3s;
-  margin: 10px;
-  display: inline-block;
+.game-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #2a2a2a;
+    transition: transform 0.3s ease;
 }
 
-.favorite-game-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+.game-card:hover {
+    transform: translateY(-5px);
 }
 
-.favorite-game-card .game-thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.game-thumbnail {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
 }
 
-.favorite-game-card .game-title {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+.game-title {
+    padding: 8px;
+    font-size: 14px;
+    color: white;
+    text-align: center;
 }
 
-/* Remove Favorite Button */
 .remove-favorite-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 3;
-  border: none;
-  color: #ff5252;
-  transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.remove-favorite-btn:hover {
-  transform: scale(1.1);
-  background: rgba(255, 87, 34, 0.2);
-}
-
-/* Empty State */
-.no-favorites {
-  text-align: center;
-  width: 100%;
-  color: #666;
-  font-size: 18px;
-  padding: 40px 0;
-  grid-column: 1 / -1;
-}
-
+/* For the sign-in prompt */
 .sign-in-prompt {
-  text-align: center;
-  padding: 40px 20px;
-  background: rgba(255,255,255,0.8);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+    color: white;
 }
 
 .sign-in-prompt i {
-  font-size: 50px;
-  color: var(--primary);
-  margin-bottom: 20px;
-}
-
-.sign-in-prompt h3 {
-  margin-bottom: 20px;
-  color: var(--text-color);
-}
-
-/* Back Button */
-.back-to-games {
-  text-align: center;
-  margin: 30px 0;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .favorite-game-card {
-    width: 150px;
-    height: 150px;
-  }
-}
-
-@media (max-width: 480px) {
-  .favorite-game-card {
-    width: 130px;
-    height: 130px;
-  }
+    font-size: 50px;
+    margin-bottom: 20px;
+    color: #9575cd;
 }
