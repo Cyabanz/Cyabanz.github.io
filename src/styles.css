@@ -66,10 +66,10 @@ header {
 
 /* Main Content Container */
 .container {
-    max-width: 1200px;
+    max-width: 600px;
     margin: 0 auto;
     padding: 90px 20px 40px;
-    padding-left: 80px; /* Account for navbar */
+    padding-left: 80px;
 }
 
 /* Favorite Games Section */
@@ -84,7 +84,6 @@ header {
     margin-bottom: 25px;
     padding-bottom: 8px;
     border-bottom: 2px solid var(--primary);
-    display: inline-block;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -102,120 +101,106 @@ header {
     transform: scale(1.1);
 }
 
-/* Game Grid Layout */
-.horizontal-game-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
+/* Favorites List Layout */
+.favorites-list {
     width: 100%;
 }
 
-.game-item-container {
+.favorite-game-item {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.favorite-game-card {
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
     background: white;
-    border-radius: 10px;
-    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 12px;
     box-shadow: var(--shadow);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    flex: 1;
+    transition: all 0.2s ease;
 }
 
-.favorite-game-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-
-.game-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-}
-
-.thumbnail-container {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9 aspect ratio */
-    overflow: hidden;
-}
-
-.game-thumbnail {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.favorite-game-card:hover .game-thumbnail {
-    transform: scale(1.05);
+.favorite-game-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
 }
 
 .game-title {
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 600;
-    text-align: center;
-    background: white;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--dark);
     margin: 0;
 }
 
-/* Remove Favorite Button - Positioned next to card */
 .remove-favorite-btn {
-    margin-top: 12px;
-    background: rgba(255,255,255,0.95);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    padding: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    border: none;
-    color: #666;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    flex-shrink: 0;
 }
 
 .remove-favorite-btn:hover {
     color: var(--hot);
-    transform: scale(1.1);
-    background: rgba(234,67,53,0.1);
+    transform: scale(1.2);
 }
 
-/* Status Ribbons */
-.ribbon {
-    position: absolute;
-    top: 15px;
-    right: -30px;
-    width: 110px;
-    padding: 5px 0;
-    color: white;
-    font-size: 11px;
-    font-weight: bold;
+/* Sign In Prompt */
+.sign-in-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 50px 20px;
     text-align: center;
-    text-transform: uppercase;
-    transform: rotate(45deg);
-    z-index: 2;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
 }
 
-.ribbon.hot {
-    background: var(--hot);
+.sign-in-prompt i {
+    font-size: 48px;
+    color: var(--primary);
 }
 
-.ribbon.popular {
-    background: var(--popular);
+.sign-in-prompt h3 {
+    color: var(--dark);
+    font-size: 20px;
+    margin: 0;
 }
 
-.ribbon.new {
-    background: var(--new);
+/* No Favorites Message */
+.no-favorites {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 40px 20px;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.no-favorites i {
+    font-size: 48px;
+    color: #ccc;
+}
+
+.no-favorites h3 {
+    color: var(--dark);
+    font-size: 20px;
+    margin: 0;
+}
+
+.no-favorites p {
+    color: #666;
+    margin: 0;
 }
 
 /* Back Button */
@@ -253,32 +238,6 @@ header {
     font-size: 18px;
 }
 
-/* Sign In Prompt */
-.sign-in-prompt {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    padding: 50px 20px;
-    text-align: center;
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 12px;
-    grid-column: 1 / -1;
-}
-
-.sign-in-prompt i {
-    font-size: 48px;
-    color: var(--primary);
-}
-
-.sign-in-prompt h3 {
-    color: var(--dark);
-    font-size: 20px;
-    margin: 0;
-}
-
 .btn-glow {
     background: var(--primary);
     color: white;
@@ -294,76 +253,6 @@ header {
 .btn-glow:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
-}
-
-/* No Favorites Message */
-.no-favorites {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-    font-size: 18px;
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 12px;
-    grid-column: 1 / -1;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        padding: 80px 15px 30px;
-        padding-left: 20px;
-    }
-    
-    .horizontal-game-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 15px;
-    }
-    
-    .row-title {
-        font-size: 24px;
-    }
-    
-    .game-title {
-        font-size: 14px;
-        padding: 12px;
-    }
-    
-    .back-to-games a {
-        padding: 12px 28px;
-    }
-}
-
-@media (max-width: 480px) {
-    header {
-        top: 15px;
-        right: 15px;
-    }
-    
-    .user-info {
-        padding: 6px 12px;
-    }
-    
-    .profile-pic {
-        width: 32px;
-        height: 32px;
-    }
-    
-    .horizontal-game-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 12px;
-    }
-    
-    .back-to-games a {
-        padding: 10px 24px;
-        font-size: 14px;
-    }
-    
-    .ribbon {
-        font-size: 10px;
-        width: 90px;
-        right: -25px;
-    }
 }
 
 /* Navbar Styles */
@@ -434,4 +323,49 @@ header {
     opacity: 0;
     transition: all 0.3s ease;
     z-index: -1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 80px 15px 30px;
+        padding-left: 20px;
+    }
+    
+    .row-title {
+        font-size: 24px;
+    }
+    
+    .back-to-games a {
+        padding: 12px 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        top: 15px;
+        right: 15px;
+    }
+    
+    .user-info {
+        padding: 6px 12px;
+    }
+    
+    .profile-pic {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .back-to-games a {
+        padding: 10px 24px;
+        font-size: 14px;
+    }
+    
+    .favorite-game-item {
+        padding: 12px 14px;
+    }
+    
+    .game-title {
+        font-size: 15px;
+    }
 }
