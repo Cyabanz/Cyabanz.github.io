@@ -633,11 +633,8 @@ function loadUserFavorites(userId) {
             querySnapshot.forEach((doc) => {
                 userFavorites.push(doc.data().gameId);
             });
-            if (favoritesContainer) {
-                renderFavorites();
-            } else {
-                updateFavoritesUI();
-            }
+            updateFavoritesUI();
+            if (favoritesContainer) renderFavorites();
         })
         .catch((error) => {
             console.error('Error loading favorites:', error);
@@ -694,6 +691,7 @@ function updateFavoritesUI() {
     });
 }
 
+// Render favorites page
 function renderFavorites() {
     if (!userFavorites.length) {
         favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
@@ -727,19 +725,6 @@ function createFavoriteGameCard(game) {
             <i class="bx bx-trash"></i>
         </button>
     `;
-    
-    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleFavorite(game.id).then(() => {
-            card.remove();
-            if (!favoritesContainer.children.length) {
-                favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
-            }
-        });
-    });
-    
-    return card;
-}
     
     card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
         e.preventDefault();
@@ -788,7 +773,7 @@ function findGameById(id) {
     return null;
 }
 
-// Keep this original function for regular game cards
+// Create a game card element
 function createGameCard(game, isPinned = false) {
     const card = document.createElement('div');
     card.className = `game-card ${isPinned ? 'pinned-highlight' : ''}`;
@@ -808,38 +793,6 @@ function createGameCard(game, isPinned = false) {
             <div class="game-title">${game.title}</div>
         </a>
     `;
-    
-    return card;
-}
-
-// Keep this modified version for favorites page cards
-function createFavoriteGameCard(game) {
-    const card = document.createElement('div');
-    card.className = 'favorite-game-card';
-    card.dataset.id = game.id;
-    
-    card.innerHTML = `
-        <a href="${game.url}" class="game-link">
-            <div class="thumbnail-container">
-                ${game.banner ? createBannerElement(game.banner) : ''}
-                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
-            </div>
-            <div class="game-title">${game.title}</div>
-        </a>
-        <button class="remove-favorite-btn">
-            <i class="bx bx-trash"></i>
-        </button>
-    `;
-    
-    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleFavorite(game.id).then(() => {
-            card.remove();
-            if (!favoritesContainer.children.length) {
-                favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
-            }
-        });
-    });
     
     return card;
 }
@@ -1242,3 +1195,85 @@ function loadUserData(userId) {
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', init);
+
+// Add these functions to your existing script.js
+
+/* Favorites Page Specific Functions */
+function renderFavorites() {
+    const favoritesContainer = document.getElementById('favoritesContainer');
+    if (!favoritesContainer) return; // Only run on favorites page
+    
+    if (!userFavorites.length) {
+        favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+        return;
+    }
+
+    favoritesContainer.innerHTML = '';
+    userFavorites.forEach(gameId => {
+        const game = findGameById(gameId);
+        if (game) {
+            const gameCard = createFavoriteGameCard(game, true);
+            favoritesContainer.appendChild(gameCard);
+        }
+    });
+}
+
+function createFavoriteGameCard(game) {
+    const card = document.createElement('div');
+    card.className = 'game-card pinned-highlight';
+    card.dataset.id = game.id;
+    
+    card.innerHTML = `
+        <a href="${game.url}" class="game-link">
+            <div class="thumbnail-container">
+                ${game.banner ? createBannerElement(game.banner) : ''}
+                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+            </div>
+            <div class="game-title">${game.title}</div>
+        </a>
+        <button class="remove-favorite-btn">
+            <i class="bx bx-trash"></i>
+        </button>
+    `;
+    
+    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFavorite(game.id, card);
+    });
+    
+    return card;
+}
+
+function setupFavoritesPage() {
+    const favoritesContainer = document.getElementById('favoritesContainer');
+    if (!favoritesContainer) return; // Only run on favorites page
+    
+    const clearPinsBtn = document.querySelector('.clear-pins');
+    if (clearPinsBtn) {
+        clearPinsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to clear all favorites?')) {
+                clearAllFavorites();
+            }
+        });
+    }
+    
+    renderFavorites();
+}
+
+// Modify your existing auth state handler to include favorites setup
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        currentUser = user;
+        updateUIForUser(user);
+        loadUserData(user.uid);
+        loadUserFavorites(user.uid).then(() => {
+            setupFavoritesPage(); // Initialize favorites page after loading
+        });
+    } else {
+        currentUser = null;
+        userFavorites = [];
+        updateUIForGuest();
+        setupFavoritesPage(); // Initialize favorites page for guest
+    }
+});
