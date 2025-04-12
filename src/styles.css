@@ -95,13 +95,6 @@ header {
     width: 100%;
 }
 
-/* New container for game card + remove button */
-.favorite-game-wrapper {
-    position: relative;
-    display: inline-block;
-    margin-right: 40px; /* Space for the remove button */
-}
-
 .favorite-game-card {
     background: white;
     border-radius: 10px;
@@ -109,6 +102,8 @@ header {
     box-shadow: var(--shadow);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .favorite-game-card:hover {
@@ -120,6 +115,7 @@ header {
     display: block;
     text-decoration: none;
     color: inherit;
+    flex-grow: 1;
 }
 
 .thumbnail-container {
@@ -143,13 +139,55 @@ header {
     transform: scale(1.05);
 }
 
+/* Game Title Container with Remove Button */
+.game-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: white;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
 .game-title {
-    padding: 14px;
     font-size: 15px;
     font-weight: 600;
-    text-align: center;
-    background: white;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
+    flex: 1;
+}
+
+/* Remove Favorite Button - Now inline with title */
+.remove-favorite-btn {
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.remove-favorite-btn:hover {
+    background: rgba(234,67,53,0.1);
+    color: var(--hot);
+}
+
+.remove-favorite-btn i {
+    font-size: 18px;
+    transition: transform 0.2s ease;
+}
+
+.remove-favorite-btn:hover i {
+    transform: scale(1.2);
 }
 
 /* Status Ribbons */
@@ -178,33 +216,6 @@ header {
 
 .ribbon.new {
     background: var(--new);
-}
-
-/* Remove Favorite Button - Positioned to the right of game card */
-.remove-favorite-btn {
-    position: absolute;
-    right: -40px; /* Position outside the card */
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.95);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 3;
-    border: none;
-    color: #666;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.remove-favorite-btn:hover {
-    color: var(--hot);
-    transform: translateY(-50%) scale(1.1);
-    background: rgba(234,67,53,0.1);
 }
 
 /* Back Button - Centered & Modern */
@@ -296,21 +307,19 @@ header {
     
     .game-title {
         font-size: 14px;
-        padding: 12px;
+    }
+    
+    .remove-favorite-btn {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .remove-favorite-btn i {
+        font-size: 16px;
     }
     
     .back-to-games a {
         padding: 12px 28px;
-    }
-    
-    .favorite-game-wrapper {
-        margin-right: 35px;
-    }
-    
-    .remove-favorite-btn {
-        right: -35px;
-        width: 28px;
-        height: 28px;
     }
 }
 
@@ -345,14 +354,16 @@ header {
         right: -25px;
     }
     
-    .favorite-game-wrapper {
-        margin-right: 30px;
+    .game-title {
+        font-size: 13px;
     }
     
     .remove-favorite-btn {
-        right: -30px;
-        width: 24px;
-        height: 24px;
-        font-size: 12px;
+        width: 22px;
+        height: 22px;
+    }
+    
+    .remove-favorite-btn i {
+        font-size: 14px;
     }
 }
