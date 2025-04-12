@@ -1,4 +1,107 @@
-/* ===== UPDATED FAVORITE GAME CARD WITH INLINE REMOVE BUTTON ===== */
+/* ===== MODERN FAVORITES PAGE - FULL STYLING ===== */
+:root {
+    --primary: #4285F4;
+    --hot: #EA4335;
+    --new: #34A853;
+    --popular: #9C27B0;
+    --dark: #333;
+    --light: #f5f5f5;
+    --shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* User Profile Section */
+header {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+}
+
+.user-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+#username-display {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 14px;
+}
+
+.profile-pic {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.8);
+    transition: transform 0.3s ease;
+}
+
+.user-info:hover .profile-pic {
+    transform: scale(1.1);
+}
+
+/* Main Content Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 90px 20px 40px;
+    padding-left: 80px; /* Account for navbar */
+}
+
+/* Favorite Games Section */
+.game-row {
+    margin-bottom: 40px;
+}
+
+.row-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 25px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+    display: inline-block;
+}
+
+/* Game Grid - Clean Layout */
+.horizontal-game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+/* New container for game card + remove button */
+.favorite-game-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-right: 40px; /* Space for the remove button */
+}
+
 .favorite-game-card {
     background: white;
     border-radius: 10px;
@@ -6,95 +109,19 @@
     box-shadow: var(--shadow);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     position: relative;
-    display: flex;
-    flex-direction: column;
+}
+
+.favorite-game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
 .game-link {
     display: block;
     text-decoration: none;
     color: inherit;
-    flex-grow: 1;
 }
 
-.game-info-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    background: white;
-    border-top: 1px solid rgba(0,0,0,0.05);
-}
-
-.game-title-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.game-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 12px;
-    flex: 1;
-}
-
-/* Modern Remove Button - Right Aligned */
-.remove-favorite-btn {
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 6px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #666;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.remove-favorite-btn:hover {
-    background: rgba(234,67,53,0.1);
-    color: var(--hot);
-    border-color: rgba(234,67,53,0.2);
-    transform: scale(1.1);
-}
-
-.remove-favorite-btn:active {
-    transform: scale(0.95);
-}
-
-/* Optional: Add a tooltip */
-.remove-favorite-btn::after {
-    content: "Remove";
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--dark);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    white-space: nowrap;
-}
-
-.remove-favorite-btn:hover::after {
-    opacity: 1;
-}
-
-/* Thumbnail and other existing styles remain the same */
 .thumbnail-container {
     position: relative;
     width: 100%;
@@ -116,12 +143,216 @@
     transform: scale(1.05);
 }
 
-/* Status Ribbons - Adjust position to account for new layout */
+.game-title {
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    background: white;
+    margin: 0;
+}
+
+/* Status Ribbons */
 .ribbon {
     position: absolute;
-    top: 12px;
-    right: -28px;
-    width: 100px;
-    padding: 4px 0;
-    font-size: 10px;
+    top: 15px;
+    right: -30px;
+    width: 110px;
+    padding: 5px 0;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    transform: rotate(45deg);
+    z-index: 2;
+}
+
+.ribbon.hot {
+    background: var(--hot);
+}
+
+.ribbon.popular {
+    background: var(--popular);
+}
+
+.ribbon.new {
+    background: var(--new);
+}
+
+/* Remove Favorite Button - Positioned to the right of game card */
+.remove-favorite-btn {
+    position: absolute;
+    right: -40px; /* Position outside the card */
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.95);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    border: none;
+    color: #666;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.remove-favorite-btn:hover {
+    color: var(--hot);
+    transform: translateY(-50%) scale(1.1);
+    background: rgba(234,67,53,0.1);
+}
+
+/* Back Button - Centered & Modern */
+.back-to-games {
+    text-align: center;
+    margin: 50px 0 30px;
+}
+
+.back-to-games a {
+    display: inline-flex;
+    align-items: center;
+    padding: 14px 32px;
+    background-color: var(--primary);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+    border: 2px solid transparent;
+}
+
+.back-to-games a:hover {
+    background-color: #3367d6;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+}
+
+.back-to-games a:active {
+    transform: translateY(0);
+}
+
+.back-to-games i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Sign In Prompt */
+.sign-in-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 50px 20px;
+    text-align: center;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+}
+
+.sign-in-prompt i {
+    font-size: 48px;
+    color: var(--primary);
+}
+
+.sign-in-prompt h3 {
+    color: var(--dark);
+    font-size: 20px;
+    margin: 0;
+}
+
+/* No Favorites Message */
+.no-favorites {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 18px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 80px 15px 30px;
+        padding-left: 20px;
+    }
+    
+    .horizontal-game-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .row-title {
+        font-size: 24px;
+    }
+    
+    .game-title {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .back-to-games a {
+        padding: 12px 28px;
+    }
+    
+    .favorite-game-wrapper {
+        margin-right: 35px;
+    }
+    
+    .remove-favorite-btn {
+        right: -35px;
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        top: 15px;
+        right: 15px;
+    }
+    
+    .user-info {
+        padding: 6px 12px;
+    }
+    
+    .profile-pic {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .horizontal-game-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 12px;
+    }
+    
+    .back-to-games a {
+        padding: 10px 24px;
+        font-size: 14px;
+    }
+    
+    .ribbon {
+        font-size: 10px;
+        width: 90px;
+        right: -25px;
+    }
+    
+    .favorite-game-wrapper {
+        margin-right: 30px;
+    }
+    
+    .remove-favorite-btn {
+        right: -30px;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
 }
