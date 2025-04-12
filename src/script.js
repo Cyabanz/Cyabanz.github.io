@@ -1232,7 +1232,7 @@ function createFavoriteGameCard(game) {
             <div class="game-title">${game.title}</div>
         </a>
         <button class="remove-favorite-btn">
-            <i class="bx bx-trash"></i>
+            
         </button>
     `;
     
