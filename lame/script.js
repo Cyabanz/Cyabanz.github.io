@@ -30,7 +30,7 @@ const gameId = "game1"; // Unique identifier for your game
 let likes = 0;
 let dislikes = 0;
 let userRating = null;
-let isProcessing = false; // To prevent rapid clicks
+let isProcessing = false;
 
 // Initialize the UI based on auth state
 auth.onAuthStateChanged(async (user) => {
@@ -42,8 +42,11 @@ auth.onAuthStateChanged(async (user) => {
         likeBtn.disabled = false;
         dislikeBtn.disabled = false;
         
-        // Load user's previous rating and game ratings
-        await loadUserRating(user.uid);
+        // Load both user rating and game ratings
+        await Promise.all([
+            loadUserRating(user.uid),
+            loadGameRatings()
+        ]);
     } else {
         // User is signed out
         usernameDisplay.textContent = "Guest";
@@ -51,10 +54,8 @@ auth.onAuthStateChanged(async (user) => {
         loginView.classList.remove('hidden');
         likeBtn.disabled = true;
         dislikeBtn.disabled = true;
+        await loadGameRatings();
     }
-    
-    // Always load the game ratings (visible to everyone)
-    await loadGameRatings();
     updateButtonStyles();
 });
 
@@ -66,7 +67,7 @@ signInButton.addEventListener('click', () => {
     });
 });
 
-// Like/Dislike functionality
+// Like functionality with proper permissions handling
 likeBtn.addEventListener('click', async () => {
     if (isProcessing) return;
     isProcessing = true;
@@ -81,11 +82,12 @@ likeBtn.addEventListener('click', async () => {
         const batch = db.batch();
         const userRatingRef = db.collection('gameRatings').doc(gameId)
                               .collection('userRatings').doc(user.uid);
+        const gameRef = db.collection('gameRatings').doc(gameId);
         
         if (userRating === 'like') {
             // Remove like
             batch.delete(userRatingRef);
-            batch.update(db.collection('gameRatings').doc(gameId), {
+            batch.update(gameRef, {
                 like: firebase.firestore.FieldValue.increment(-1),
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -94,12 +96,10 @@ likeBtn.addEventListener('click', async () => {
         } else {
             // Add like (and remove dislike if exists)
             if (userRating === 'dislike') {
-                batch.update(db.collection('gameRatings').doc(gameId), {
-                    dislike: firebase.firestore.FieldValue.increment(-1),
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                batch.update(gameRef, {
+                    dislike: firebase.firestore.FieldValue.increment(-1)
                 });
                 dislikes--;
-                dislikeCountEl.textContent = dislikes;
             }
             
             batch.set(userRatingRef, {
@@ -107,7 +107,7 @@ likeBtn.addEventListener('click', async () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
             
-            batch.update(db.collection('gameRatings').doc(gameId), {
+            batch.update(gameRef, {
                 like: firebase.firestore.FieldValue.increment(1),
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -117,16 +117,20 @@ likeBtn.addEventListener('click', async () => {
         }
         
         await batch.commit();
-        likeCountEl.textContent = likes;
-        dislikeCountEl.textContent = dislikes;
-        updateButtonStyles();
+        updateUI();
     } catch (error) {
         console.error("Error updating like:", error);
+        // Handle permission denied specifically
+        if (error.code === 'permission-denied') {
+            alert("You don't have permission to perform this action. Please sign in again.");
+            auth.signOut();
+        }
     } finally {
         isProcessing = false;
     }
 });
 
+// Dislike functionality
 dislikeBtn.addEventListener('click', async () => {
     if (isProcessing) return;
     isProcessing = true;
@@ -141,11 +145,12 @@ dislikeBtn.addEventListener('click', async () => {
         const batch = db.batch();
         const userRatingRef = db.collection('gameRatings').doc(gameId)
                               .collection('userRatings').doc(user.uid);
+        const gameRef = db.collection('gameRatings').doc(gameId);
         
         if (userRating === 'dislike') {
             // Remove dislike
             batch.delete(userRatingRef);
-            batch.update(db.collection('gameRatings').doc(gameId), {
+            batch.update(gameRef, {
                 dislike: firebase.firestore.FieldValue.increment(-1),
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -154,12 +159,10 @@ dislikeBtn.addEventListener('click', async () => {
         } else {
             // Add dislike (and remove like if exists)
             if (userRating === 'like') {
-                batch.update(db.collection('gameRatings').doc(gameId), {
-                    like: firebase.firestore.FieldValue.increment(-1),
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                batch.update(gameRef, {
+                    like: firebase.firestore.FieldValue.increment(-1)
                 });
                 likes--;
-                likeCountEl.textContent = likes;
             }
             
             batch.set(userRatingRef, {
@@ -167,7 +170,7 @@ dislikeBtn.addEventListener('click', async () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
             
-            batch.update(db.collection('gameRatings').doc(gameId), {
+            batch.update(gameRef, {
                 dislike: firebase.firestore.FieldValue.increment(1),
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -177,24 +180,15 @@ dislikeBtn.addEventListener('click', async () => {
         }
         
         await batch.commit();
-        likeCountEl.textContent = likes;
-        dislikeCountEl.textContent = dislikes;
-        updateButtonStyles();
+        updateUI();
     } catch (error) {
         console.error("Error updating dislike:", error);
+        if (error.code === 'permission-denied') {
+            alert("You don't have permission to perform this action. Please sign in again.");
+            auth.signOut();
+        }
     } finally {
         isProcessing = false;
-    }
-});
-
-// Fullscreen functionality
-fullscreenBtn.addEventListener('click', () => {
-    if (gameFrame.requestFullscreen) {
-        gameFrame.requestFullscreen();
-    } else if (gameFrame.webkitRequestFullscreen) {
-        gameFrame.webkitRequestFullscreen();
-    } else if (gameFrame.msRequestFullscreen) {
-        gameFrame.msRequestFullscreen();
     }
 });
 
@@ -219,8 +213,6 @@ async function loadGameRatings() {
         if (doc.exists) {
             likes = doc.data().like || 0;
             dislikes = doc.data().dislike || 0;
-            likeCountEl.textContent = likes;
-            dislikeCountEl.textContent = dislikes;
         } else {
             // Initialize if doesn't exist
             await db.collection('gameRatings').doc(gameId).set({
@@ -234,13 +226,28 @@ async function loadGameRatings() {
     }
 }
 
-function updateButtonStyles() {
-    likeBtn.classList.toggle('active', userRating === 'like');
-    dislikeBtn.classList.toggle('active', userRating === 'dislike');
+function updateUI() {
+    // Ensure counts never go negative
+    likes = Math.max(0, likes);
+    dislikes = Math.max(0, dislikes);
     
-    // Ensure counts never go negative (safety check)
-    if (likes < 0) likes = 0;
-    if (dislikes < 0) dislikes = 0;
+    // Update display
     likeCountEl.textContent = likes;
     dislikeCountEl.textContent = dislikes;
+    
+    // Update button states
+    updateButtonStyles();
+}
+
+function updateButtonStyles() {
+    // Clear all active states first
+    likeBtn.classList.remove('active', 'glow');
+    dislikeBtn.classList.remove('active', 'glow');
+    
+    // Set active state for current rating
+    if (userRating === 'like') {
+        likeBtn.classList.add('active', 'glow');
+    } else if (userRating === 'dislike') {
+        dislikeBtn.classList.add('active', 'glow');
+    }
 }
