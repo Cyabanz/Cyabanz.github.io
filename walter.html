@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Space Adventure Game</title>
+    <!-- Boxicons CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -53,21 +55,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
         }
         
         .control-btn:hover {
             background-color: #444;
         }
         
-        .game-canvas {
+        .control-btn.active {
+            background-color: #555;
+            box-shadow: 0 0 0 2px #4fc3f7;
+        }
+        
+        .bx {
+            font-size: 24px;
+        }
+        
+        .game-frame {
             width: 100%;
             height: 450px;
+            border: none;
             background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
         }
         
         .game-info {
@@ -110,9 +118,17 @@
             color: white;
         }
         
+        .like-btn.active {
+            background-color: #388e3c;
+        }
+        
         .dislike-btn {
             background-color: #f44336;
             color: white;
+        }
+        
+        .dislike-btn.active {
+            background-color: #d32f2f;
         }
         
         .rating-count {
@@ -145,6 +161,40 @@
             border-radius: 4px;
             font-family: monospace;
         }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .auth-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .signin-btn {
+            background-color: #4fc3f7;
+            color: #000;
+        }
+        
+        .signout-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        @media (max-width: 600px) {
+            .controls-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-frame {
+                height: 300px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -152,15 +202,19 @@
         <div class="game-header">
             <div class="game-title">Space Adventure</div>
             <div class="game-controls">
-                <button class="control-btn" title="Like">👍</button>
-                <button class="control-btn" title="Dislike">👎</button>
-                <button class="control-btn" title="Fullscreen">⛶</button>
+                <button class="control-btn" id="likeBtn" title="Like">
+                    <i class='bx bx-like'></i>
+                </button>
+                <button class="control-btn" id="dislikeBtn" title="Dislike">
+                    <i class='bx bx-dislike'></i>
+                </button>
+                <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+                    <i class='bx bx-fullscreen'></i>
+                </button>
             </div>
         </div>
         
-        <div class="game-canvas">
-            [GAME WILL BE RENDERED HERE]
-        </div>
+        <iframe src="https://example.com" class="game-frame" allowfullscreen></iframe>
         
         <div class="game-info">
             <div class="game-description">
@@ -200,16 +254,19 @@
             
             <div class="game-stats">
                 <div class="rating-container">
-                    <button id="likeBtn" class="rating-btn like-btn" disabled>
-                        <span>👍</span>
-                        <span id="likeCount" class="rating-count">0</span>
-                    </button>
-                    <button id="dislikeBtn" class="rating-btn dislike-btn" disabled>
-                        <span>👎</span>
-                        <span id="dislikeCount" class="rating-count">0</span>
-                    </button>
+                    <span id="likeCount" class="rating-count">0 likes</span>
+                    <span id="dislikeCount" class="rating-count">0 dislikes</span>
                 </div>
                 <div id="authMessage" class="auth-message">Sign in to rate this game</div>
+            </div>
+            
+            <div class="auth-buttons" id="authButtons" style="display: none;">
+                <button id="signinBtn" class="auth-btn signin-btn">
+                    <i class='bx bx-log-in'></i> Sign In
+                </button>
+                <button id="signoutBtn" class="auth-btn signout-btn">
+                    <i class='bx bx-log-out'></i> Sign Out
+                </button>
             </div>
         </div>
     </div>
@@ -247,6 +304,10 @@
         const likeCount = document.getElementById('likeCount');
         const dislikeCount = document.getElementById('dislikeCount');
         const authMessage = document.getElementById('authMessage');
+        const authButtons = document.getElementById('authButtons');
+        const signinBtn = document.getElementById('signinBtn');
+        const signoutBtn = document.getElementById('signoutBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
         
         // Track user's vote to prevent multiple votes
         let userVote = null;
@@ -261,6 +322,9 @@
                 likeBtn.disabled = false;
                 dislikeBtn.disabled = false;
                 authMessage.textContent = "Rate this game";
+                authButtons.style.display = 'flex';
+                signoutBtn.style.display = 'block';
+                signinBtn.style.display = 'none';
                 
                 // Check if user has already voted
                 database.ref(`userVotes/${gameId}/${user.uid}`).once('value')
@@ -279,14 +343,19 @@
                 likeBtn.disabled = true;
                 dislikeBtn.disabled = true;
                 authMessage.textContent = "Sign in to rate this game";
+                authButtons.style.display = 'flex';
+                signoutBtn.style.display = 'none';
+                signinBtn.style.display = 'block';
+                likeBtn.classList.remove('active');
+                dislikeBtn.classList.remove('active');
             }
         });
         
         // Listen for rating changes
         ratingsRef.on('value', (snapshot) => {
             const ratings = snapshot.val() || { likes: 0, dislikes: 0 };
-            likeCount.textContent = ratings.likes || 0;
-            dislikeCount.textContent = ratings.dislikes || 0;
+            likeCount.textContent = `${ratings.likes || 0} likes`;
+            dislikeCount.textContent = `${ratings.dislikes || 0} dislikes`;
         });
         
         // Handle like button click
@@ -372,16 +441,30 @@
         });
         
         // Fullscreen button functionality
-        document.querySelector('.control-btn[title="Fullscreen"]').addEventListener('click', () => {
-            const gameContainer = document.querySelector('.game-container');
+        fullscreenBtn.addEventListener('click', () => {
+            const iframe = document.querySelector('.game-frame');
             
-            if (!document.fullscreenElement) {
-                gameContainer.requestFullscreen().catch(err => {
-                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
+            if (iframe.requestFullscreen) {
+                iframe.requestFullscreen();
+            } else if (iframe.webkitRequestFullscreen) {
+                iframe.webkitRequestFullscreen();
+            } else if (iframe.msRequestFullscreen) {
+                iframe.msRequestFullscreen();
             }
+        });
+        
+        // Sign in button (using anonymous auth - you can change to other providers)
+        signinBtn.addEventListener('click', () => {
+            auth.signInAnonymously()
+                .catch(error => {
+                    console.error("Sign in error:", error);
+                    authMessage.textContent = "Sign in failed. Please try again.";
+                });
+        });
+        
+        // Sign out button
+        signoutBtn.addEventListener('click', () => {
+            auth.signOut();
         });
     </script>
 </body>
