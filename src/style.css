@@ -1038,3 +1038,107 @@ input:checked + .toggle-slider:before {
         margin-bottom: 0;
     }
 }
+
+/* Liked Games Page Styles */
+.page-title {
+    text-align: center;
+    margin: 20px 0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.clear-likes-btn {
+    display: block;
+    margin: 0 auto 20px;
+    padding: 8px 16px;
+    background: #ff4081;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.clear-likes-btn:hover {
+    background: #e91e63;
+    transform: scale(1.05);
+}
+
+.liked-games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Bottom Navigation */
+.bottom-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+.bottom-navbar .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.bottom-navbar .nav-link i {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.bottom-navbar .nav-link.active {
+    color: #ff4081;
+}
+
+/* Game Frame Styles */
+.game-frame-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1001;
+    display: none;
+}
+
+.game-frame-content {
+    width: 90%;
+    height: 90%;
+    margin: 2% auto;
+    background: #000;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.close-game-frame {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff4081;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 1002;
+}
