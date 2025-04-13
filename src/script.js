@@ -29,7 +29,7 @@ const gamesData = [
                 staticImg: "https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png",
                 gifImg: "https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png",
                 banner: "hot",
-                url: "https://example.com"
+                url: "walter.html"
             },
             {
                 id: 2,
