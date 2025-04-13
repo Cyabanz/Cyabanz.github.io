@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Viewer with Auth</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="user-info">
+            <span id="username-display">Guest</span>
+            <div id="profile-pic-container">
+                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="game-title">Awesome Game</h1>
+        
+        <div id="login-view" class="hidden">
+            <p class="auth-message">Please sign in to rate this game</p>
+            <button id="signInButton" class="btn google-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+                Sign in with Google
+            </button>
+        </div>
+        
+        <div class="game-frame-container">
+            <iframe id="gameFrame" class="game-iframe" src="https://example.com/game" allowfullscreen></iframe>
+        </div>
+        
+        <div class="controls">
+            <div class="button-group">
+                <button id="likeBtn" class="like-btn" disabled>
+                    <i class="fas fa-thumbs-up"></i>
+                    Like <span id="likeCount" class="counter">0</span>
+                </button>
+                <button id="dislikeBtn" class="dislike-btn" disabled>
+                    <i class="fas fa-thumbs-down"></i>
+                    Dislike <span id="dislikeCount" class="counter">0</span>
+                </button>
+            </div>
+            <button class="fullscreen-btn" id="fullscreenBtn">
+                <i class="fas fa-expand"></i>
+                Fullscreen
+            </button>
+        </div>
+        
+        <div class="game-controls-box">
+            <h3><i class="fas fa-gamepad"></i> Game Controls</h3>
+            <div class="controls-grid">
+                <div class="control-item">
+                    <span class="control-key">WASD</span>
+                    <span class="control-desc">Move character</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">Spacebar</span>
+                    <span class="control-desc">Jump</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">Left Click</span>
+                    <span class="control-desc">Shoot</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">E</span>
+                    <span class="control-desc">Special ability</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">P/ESC</span>
+                    <span class="control-desc">Pause game</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
