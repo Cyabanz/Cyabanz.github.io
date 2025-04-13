@@ -1,11 +1,11 @@
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
-    authDomain: "fusioncya-cc20a.firebaseapp.com",
-    projectId: "fusioncya-cc20a",
-    storageBucket: "fusioncya-cc20a.firebasestorage.app",
-    messagingSenderId: "765164293111",
-    appId: "1:765164293111:web:43e051c755c4690c0c3cf2"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
 };
 
 // Initialize Firebase
@@ -26,10 +26,10 @@ const profilePic = document.getElementById('profile-pic');
 const loginView = document.getElementById('login-view');
 
 // Game rating data
-let gameId = "game1"; // Unique identifier for your game
+const gameId = "game1"; // Unique identifier for your game
 let likes = 0;
 let dislikes = 0;
-let userRating = null; // 'like' or 'dislike'
+let userRating = null;
 
 // Initialize the UI based on auth state
 auth.onAuthStateChanged(user => {
@@ -41,7 +41,7 @@ auth.onAuthStateChanged(user => {
         likeBtn.disabled = false;
         dislikeBtn.disabled = false;
         
-        // Load user's previous rating
+        // Load user's previous rating and game ratings
         loadUserRating(user.uid);
     } else {
         // User is signed out
@@ -52,7 +52,7 @@ auth.onAuthStateChanged(user => {
         dislikeBtn.disabled = true;
     }
     
-    // Always load the game ratings
+    // Always load the game ratings (visible to everyone)
     loadGameRatings();
 });
 
@@ -65,56 +65,66 @@ signInButton.addEventListener('click', () => {
 });
 
 // Like/Dislike functionality
-likeBtn.addEventListener('click', () => {
+likeBtn.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) return;
     
-    if (userRating === 'like') {
-        // Remove like
-        removeRating(user.uid);
-        userRating = null;
-        likes--;
-        likeBtn.classList.remove('active');
-    } else {
-        // Add like (and remove dislike if exists)
-        if (userRating === 'dislike') {
-            dislikes--;
-            dislikeCountEl.textContent = dislikes;
-            dislikeBtn.classList.remove('active');
+    try {
+        if (userRating === 'like') {
+            // Remove like
+            await removeRating(user.uid);
+            likes--;
+            userRating = null;
+            likeBtn.classList.remove('active');
+        } else {
+            // Add like (and remove dislike if exists)
+            if (userRating === 'dislike') {
+                dislikes--;
+                dislikeCountEl.textContent = dislikes;
+                dislikeBtn.classList.remove('active');
+            }
+            await setRating(user.uid, 'like');
+            likes++;
+            userRating = 'like';
+            likeBtn.classList.add('active');
         }
-        setRating(user.uid, 'like');
-        userRating = 'like';
-        likes++;
-        likeBtn.classList.add('active');
+        
+        likeCountEl.textContent = likes;
+        await updateGameRatings();
+    } catch (error) {
+        console.error("Error updating like:", error);
     }
-    
-    likeCountEl.textContent = likes;
 });
 
-dislikeBtn.addEventListener('click', () => {
+dislikeBtn.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) return;
     
-    if (userRating === 'dislike') {
-        // Remove dislike
-        removeRating(user.uid);
-        userRating = null;
-        dislikes--;
-        dislikeBtn.classList.remove('active');
-    } else {
-        // Add dislike (and remove like if exists)
-        if (userRating === 'like') {
-            likes--;
-            likeCountEl.textContent = likes;
-            likeBtn.classList.remove('active');
+    try {
+        if (userRating === 'dislike') {
+            // Remove dislike
+            await removeRating(user.uid);
+            dislikes--;
+            userRating = null;
+            dislikeBtn.classList.remove('active');
+        } else {
+            // Add dislike (and remove like if exists)
+            if (userRating === 'like') {
+                likes--;
+                likeCountEl.textContent = likes;
+                likeBtn.classList.remove('active');
+            }
+            await setRating(user.uid, 'dislike');
+            dislikes++;
+            userRating = 'dislike';
+            dislikeBtn.classList.add('active');
         }
-        setRating(user.uid, 'dislike');
-        userRating = 'dislike';
-        dislikes++;
-        dislikeBtn.classList.add('active');
+        
+        dislikeCountEl.textContent = dislikes;
+        await updateGameRatings();
+    } catch (error) {
+        console.error("Error updating dislike:", error);
     }
-    
-    dislikeCountEl.textContent = dislikes;
 });
 
 // Fullscreen functionality
@@ -129,55 +139,71 @@ fullscreenBtn.addEventListener('click', () => {
 });
 
 // Firestore functions
-function setRating(userId, rating) {
-    db.collection('gameRatings').doc(gameId).collection('userRatings').doc(userId).set({
+async function setRating(userId, rating) {
+    const batch = db.batch();
+    
+    // Set user's rating
+    const userRatingRef = db.collection('gameRatings').doc(gameId)
+                          .collection('userRatings').doc(userId);
+    batch.set(userRatingRef, {
         rating: rating,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
     
-    // Update the game's total ratings
-    const updateData = {};
-    updateData[rating] = firebase.firestore.FieldValue.increment(1);
-    if (userRating && userRating !== rating) {
-        updateData[userRating] = firebase.firestore.FieldValue.increment(-1);
+    await batch.commit();
+}
+
+async function removeRating(userId) {
+    await db.collection('gameRatings').doc(gameId)
+           .collection('userRatings').doc(userId).delete();
+}
+
+async function updateGameRatings() {
+    // Count all likes/dislikes
+    const likesSnapshot = await db.collection('gameRatings').doc(gameId)
+                                .collection('userRatings')
+                                .where('rating', '==', 'like').get();
+    
+    const dislikesSnapshot = await db.collection('gameRatings').doc(gameId)
+                                   .collection('userRatings')
+                                   .where('rating', '==', 'dislike').get();
+    
+    // Update main document with counts
+    await db.collection('gameRatings').doc(gameId).set({
+        like: likesSnapshot.size,
+        dislike: dislikesSnapshot.size,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+}
+
+async function loadUserRating(userId) {
+    const doc = await db.collection('gameRatings').doc(gameId)
+                      .collection('userRatings').doc(userId).get();
+    
+    if (doc.exists) {
+        userRating = doc.data().rating;
+        if (userRating === 'like') {
+            likeBtn.classList.add('active');
+        } else if (userRating === 'dislike') {
+            dislikeBtn.classList.add('active');
+        }
     }
-    
-    db.collection('gameRatings').doc(gameId).set(updateData, { merge: true });
 }
 
-function removeRating(userId) {
-    db.collection('gameRatings').doc(gameId).collection('userRatings').doc(userId).delete();
+async function loadGameRatings() {
+    const doc = await db.collection('gameRatings').doc(gameId).get();
     
-    // Update the game's total ratings
-    const updateData = {};
-    updateData[userRating] = firebase.firestore.FieldValue.increment(-1);
-    
-    db.collection('gameRatings').doc(gameId).set(updateData, { merge: true });
-}
-
-function loadUserRating(userId) {
-    db.collection('gameRatings').doc(gameId).collection('userRatings').doc(userId).get()
-        .then(doc => {
-            if (doc.exists) {
-                userRating = doc.data().rating;
-                if (userRating === 'like') {
-                    likeBtn.classList.add('active');
-                } else if (userRating === 'dislike') {
-                    dislikeBtn.classList.add('active');
-                }
-            }
+    if (doc.exists) {
+        likes = doc.data().like || 0;
+        dislikes = doc.data().dislike || 0;
+        likeCountEl.textContent = likes;
+        dislikeCountEl.textContent = dislikes;
+    } else {
+        // Initialize if doesn't exist
+        await db.collection('gameRatings').doc(gameId).set({
+            like: 0,
+            dislike: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-}
-
-function loadGameRatings() {
-    db.collection('gameRatings').doc(gameId).get()
-        .then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                likes = data.like || 0;
-                dislikes = data.dislike || 0;
-                likeCountEl.textContent = likes;
-                dislikeCountEl.textContent = dislikes;
-            }
-        });
+    }
 }
