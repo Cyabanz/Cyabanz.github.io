@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Adventure Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 2px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .game-header {
+            background-color: #1a1a1a;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+        
+        .game-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: #444;
+        }
+        
+        .game-canvas {
+            width: 100%;
+            height: 450px;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .game-info {
+            background-color: #1a1a1a;
+            padding: 15px;
+        }
+        
+        .game-description {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+        }
+        
+        .rating-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .rating-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .like-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .dislike-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .rating-count {
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        
+        .auth-message {
+            font-size: 14px;
+            color: #ff9800;
+            margin-top: 5px;
+        }
+        
+        .controls-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .key {
+            background-color: #333;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-title">Space Adventure</div>
+            <div class="game-controls">
+                <button class="control-btn" title="Like">👍</button>
+                <button class="control-btn" title="Dislike">👎</button>
+                <button class="control-btn" title="Fullscreen">⛶</button>
+            </div>
+        </div>
+        
+        <div class="game-canvas">
+            [GAME WILL BE RENDERED HERE]
+        </div>
+        
+        <div class="game-info">
+            <div class="game-description">
+                <h3>About the Game</h3>
+                <p>Space Adventure is an action-packed shooter where you pilot a spaceship through dangerous asteroid fields and enemy fleets. Collect power-ups, upgrade your ship, and survive as long as you can in this endless space odyssey!</p>
+            </div>
+            
+            <div class="game-controls-info">
+                <h3>Controls</h3>
+                <div class="controls-list">
+                    <div class="control-item">
+                        <span class="key">W</span>
+                        <span>Move Up</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">A</span>
+                        <span>Move Left</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">S</span>
+                        <span>Move Down</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">D</span>
+                        <span>Move Right</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">SPACE</span>
+                        <span>Shoot</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">P</span>
+                        <span>Pause Game</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-stats">
+                <div class="rating-container">
+                    <button id="likeBtn" class="rating-btn like-btn" disabled>
+                        <span>👍</span>
+                        <span id="likeCount" class="rating-count">0</span>
+                    </button>
+                    <button id="dislikeBtn" class="rating-btn dislike-btn" disabled>
+                        <span>👎</span>
+                        <span id="dislikeCount" class="rating-count">0</span>
+                    </button>
+                </div>
+                <div id="authMessage" class="auth-message">Sign in to rate this game</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.firebasestorage.app",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        // Reference to the game ratings in the database
+        const gameId = "space_adventure"; // Unique identifier for your game
+        const ratingsRef = database.ref(`gameRatings/${gameId}`);
+        
+        // DOM elements
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const likeCount = document.getElementById('likeCount');
+        const dislikeCount = document.getElementById('dislikeCount');
+        const authMessage = document.getElementById('authMessage');
+        
+        // Track user's vote to prevent multiple votes
+        let userVote = null;
+        let currentUser = null;
+        
+        // Listen for authentication state changes
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            
+            if (user) {
+                // User is signed in
+                likeBtn.disabled = false;
+                dislikeBtn.disabled = false;
+                authMessage.textContent = "Rate this game";
+                
+                // Check if user has already voted
+                database.ref(`userVotes/${gameId}/${user.uid}`).once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            userVote = snapshot.val();
+                            if (userVote === 'like') {
+                                likeBtn.classList.add('active');
+                            } else if (userVote === 'dislike') {
+                                dislikeBtn.classList.add('active');
+                            }
+                        }
+                    });
+            } else {
+                // User is signed out
+                likeBtn.disabled = true;
+                dislikeBtn.disabled = true;
+                authMessage.textContent = "Sign in to rate this game";
+            }
+        });
+        
+        // Listen for rating changes
+        ratingsRef.on('value', (snapshot) => {
+            const ratings = snapshot.val() || { likes: 0, dislikes: 0 };
+            likeCount.textContent = ratings.likes || 0;
+            dislikeCount.textContent = ratings.dislikes || 0;
+        });
+        
+        // Handle like button click
+        likeBtn.addEventListener('click', () => {
+            if (!currentUser) return;
+            
+            const userId = currentUser.uid;
+            const userVoteRef = database.ref(`userVotes/${gameId}/${userId}`);
+            
+            if (userVote === 'like') {
+                // User is removing their like
+                ratingsRef.transaction(current => {
+                    return { 
+                        likes: (current?.likes || 0) - 1,
+                        dislikes: current?.dislikes || 0
+                    };
+                });
+                userVoteRef.remove();
+                userVote = null;
+                likeBtn.classList.remove('active');
+            } else {
+                // User is adding/changing to like
+                ratingsRef.transaction(current => {
+                    const update = { 
+                        likes: (current?.likes || 0) + 1,
+                        dislikes: current?.dislikes || 0
+                    };
+                    
+                    // If user previously disliked, remove that dislike
+                    if (userVote === 'dislike') {
+                        update.dislikes = Math.max(0, (current?.dislikes || 0) - 1);
+                        dislikeBtn.classList.remove('active');
+                    }
+                    
+                    return update;
+                });
+                
+                userVoteRef.set('like');
+                userVote = 'like';
+                likeBtn.classList.add('active');
+            }
+        });
+        
+        // Handle dislike button click
+        dislikeBtn.addEventListener('click', () => {
+            if (!currentUser) return;
+            
+            const userId = currentUser.uid;
+            const userVoteRef = database.ref(`userVotes/${gameId}/${userId}`);
+            
+            if (userVote === 'dislike') {
+                // User is removing their dislike
+                ratingsRef.transaction(current => {
+                    return { 
+                        likes: current?.likes || 0,
+                        dislikes: (current?.dislikes || 0) - 1
+                    };
+                });
+                userVoteRef.remove();
+                userVote = null;
+                dislikeBtn.classList.remove('active');
+            } else {
+                // User is adding/changing to dislike
+                ratingsRef.transaction(current => {
+                    const update = { 
+                        likes: current?.likes || 0,
+                        dislikes: (current?.dislikes || 0) + 1
+                    };
+                    
+                    // If user previously liked, remove that like
+                    if (userVote === 'like') {
+                        update.likes = Math.max(0, (current?.likes || 0) - 1);
+                        likeBtn.classList.remove('active');
+                    }
+                    
+                    return update;
+                });
+                
+                userVoteRef.set('dislike');
+                userVote = 'dislike';
+                dislikeBtn.classList.add('active');
+            }
+        });
+        
+        // Fullscreen button functionality
+        document.querySelector('.control-btn[title="Fullscreen"]').addEventListener('click', () => {
+            const gameContainer = document.querySelector('.game-container');
+            
+            if (!document.fullscreenElement) {
+                gameContainer.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
