@@ -42,7 +42,7 @@ auth.onAuthStateChanged(async (user) => {
         likeBtn.disabled = false;
         dislikeBtn.disabled = false;
         
-        // Load both user rating and game ratings
+        // Load user's previous rating and game ratings
         await Promise.all([
             loadUserRating(user.uid),
             loadGameRatings()
@@ -54,7 +54,7 @@ auth.onAuthStateChanged(async (user) => {
         loginView.classList.remove('hidden');
         likeBtn.disabled = true;
         dislikeBtn.disabled = true;
-        await loadGameRatings();
+        await loadGameRatings(); // Still load counts for display
     }
     updateButtonStyles();
 });
@@ -67,21 +67,15 @@ signInButton.addEventListener('click', () => {
     });
 });
 
-// Like functionality with proper permissions handling
+// Like functionality
 likeBtn.addEventListener('click', async () => {
-    if (isProcessing) return;
+    if (isProcessing || !auth.currentUser) return;
     isProcessing = true;
-    
-    const user = auth.currentUser;
-    if (!user) {
-        isProcessing = false;
-        return;
-    }
     
     try {
         const batch = db.batch();
         const userRatingRef = db.collection('gameRatings').doc(gameId)
-                              .collection('userRatings').doc(user.uid);
+                              .collection('userRatings').doc(auth.currentUser.uid);
         const gameRef = db.collection('gameRatings').doc(gameId);
         
         if (userRating === 'like') {
@@ -120,10 +114,8 @@ likeBtn.addEventListener('click', async () => {
         updateUI();
     } catch (error) {
         console.error("Error updating like:", error);
-        // Handle permission denied specifically
         if (error.code === 'permission-denied') {
-            alert("You don't have permission to perform this action. Please sign in again.");
-            auth.signOut();
+            alert("Please sign in to rate this game");
         }
     } finally {
         isProcessing = false;
@@ -132,19 +124,13 @@ likeBtn.addEventListener('click', async () => {
 
 // Dislike functionality
 dislikeBtn.addEventListener('click', async () => {
-    if (isProcessing) return;
+    if (isProcessing || !auth.currentUser) return;
     isProcessing = true;
-    
-    const user = auth.currentUser;
-    if (!user) {
-        isProcessing = false;
-        return;
-    }
     
     try {
         const batch = db.batch();
         const userRatingRef = db.collection('gameRatings').doc(gameId)
-                              .collection('userRatings').doc(user.uid);
+                              .collection('userRatings').doc(auth.currentUser.uid);
         const gameRef = db.collection('gameRatings').doc(gameId);
         
         if (userRating === 'dislike') {
@@ -184,8 +170,7 @@ dislikeBtn.addEventListener('click', async () => {
     } catch (error) {
         console.error("Error updating dislike:", error);
         if (error.code === 'permission-denied') {
-            alert("You don't have permission to perform this action. Please sign in again.");
-            auth.signOut();
+            alert("Please sign in to rate this game");
         }
     } finally {
         isProcessing = false;
@@ -221,6 +206,7 @@ async function loadGameRatings() {
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
+        updateUI();
     } catch (error) {
         console.error("Error loading game ratings:", error);
     }
@@ -251,3 +237,14 @@ function updateButtonStyles() {
         dislikeBtn.classList.add('active', 'glow');
     }
 }
+
+// Fullscreen functionality
+fullscreenBtn.addEventListener('click', () => {
+    if (gameFrame.requestFullscreen) {
+        gameFrame.requestFullscreen();
+    } else if (gameFrame.webkitRequestFullscreen) {
+        gameFrame.webkitRequestFullscreen();
+    } else if (gameFrame.msRequestFullscreen) {
+        gameFrame.msRequestFullscreen();
+    }
+});
