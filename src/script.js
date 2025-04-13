@@ -29,7 +29,7 @@ const gamesData = [
                 staticImg: "https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png",
                 gifImg: "https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png",
                 banner: "hot",
-                url: "walter.html"
+                url: "https://example.com"
             },
             {
                 id: 2,
@@ -1278,74 +1278,3 @@ auth.onAuthStateChanged(function(user) {
     }
 });
 
-// Track recent games in localStorage
-const RECENT_GAMES_KEY = 'recentGames';
-const MAX_RECENT_GAMES = 10;
-
-// Function to add a game to recent games
-function addToRecentGames(game) {
-    if (!game || !game.id) return;
-    
-    let recentGames = JSON.parse(localStorage.getItem(RECENT_GAMES_KEY)) || [];
-    
-    // Remove if already exists
-    recentGames = recentGames.filter(g => g.id !== game.id);
-    
-    // Add to beginning of array
-    recentGames.unshift({
-        id: game.id,
-        title: game.title,
-        staticImg: game.staticImg,
-        url: game.url,
-        timestamp: new Date().getTime()
-    });
-    
-    // Limit to max number of games
-    if (recentGames.length > MAX_RECENT_GAMES) {
-        recentGames = recentGames.slice(0, MAX_RECENT_GAMES);
-    }
-    
-    localStorage.setItem(RECENT_GAMES_KEY, JSON.stringify(recentGames));
-}
-
-// Function to get recent games
-function getRecentGames() {
-    return JSON.parse(localStorage.getItem(RECENT_GAMES_KEY)) || [];
-}
-
-// Function to clear recent games
-function clearRecentGames() {
-    localStorage.removeItem(RECENT_GAMES_KEY);
-}
-
-// Modify the openGameFrame function to track recent games
-function openGameFrame(gameUrl, game) {
-    const iframe = document.getElementById('gameFrame');
-    iframe.src = gameUrl;
-    gameFrameContainer.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-    
-    // Add to recent games
-    if (game) {
-        addToRecentGames(game);
-    }
-}
-
-// Modify game card click handlers to pass game data
-document.addEventListener('DOMContentLoaded', function() {
-    // For dynamically created game cards
-    document.addEventListener('click', function(e) {
-        const gameLink = e.target.closest('.game-link');
-        if (gameLink) {
-            e.preventDefault();
-            const gameCard = gameLink.closest('.game-card');
-            if (gameCard) {
-                const gameId = parseInt(gameCard.dataset.id);
-                const game = findGameById(gameId);
-                if (game) {
-                    openGameFrame(game.url, game);
-                }
-            }
-        }
-    });
-});
