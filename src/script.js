@@ -1278,280 +1278,74 @@ auth.onAuthStateChanged(function(user) {
     }
 });
 
-// Add this to your existing script.js
+// Track recent games in localStorage
+const RECENT_GAMES_KEY = 'recentGames';
+const MAX_RECENT_GAMES = 10;
 
-// Game Frame Elements
-const gameFrameContainer = document.createElement('div');
-gameFrameContainer.className = 'game-frame-container';
-gameFrameContainer.innerHTML = `
-    <button class="close-game-frame">
-        <i class='bx bx-x'></i>
-    </button>
-    <div class="game-frame-content">
-        <iframe id="gameFrame" frameborder="0" allowfullscreen></iframe>
-    </div>
-`;
-document.body.appendChild(gameFrameContainer);
+// Function to add a game to recent games
+function addToRecentGames(game) {
+    if (!game || !game.id) return;
+    
+    let recentGames = JSON.parse(localStorage.getItem(RECENT_GAMES_KEY)) || [];
+    
+    // Remove if already exists
+    recentGames = recentGames.filter(g => g.id !== game.id);
+    
+    // Add to beginning of array
+    recentGames.unshift({
+        id: game.id,
+        title: game.title,
+        staticImg: game.staticImg,
+        url: game.url,
+        timestamp: new Date().getTime()
+    });
+    
+    // Limit to max number of games
+    if (recentGames.length > MAX_RECENT_GAMES) {
+        recentGames = recentGames.slice(0, MAX_RECENT_GAMES);
+    }
+    
+    localStorage.setItem(RECENT_GAMES_KEY, JSON.stringify(recentGames));
+}
 
-// Function to open game in frame
-function openGameFrame(gameUrl) {
+// Function to get recent games
+function getRecentGames() {
+    return JSON.parse(localStorage.getItem(RECENT_GAMES_KEY)) || [];
+}
+
+// Function to clear recent games
+function clearRecentGames() {
+    localStorage.removeItem(RECENT_GAMES_KEY);
+}
+
+// Modify the openGameFrame function to track recent games
+function openGameFrame(gameUrl, game) {
     const iframe = document.getElementById('gameFrame');
     iframe.src = gameUrl;
     gameFrameContainer.style.display = 'block';
     document.body.style.overflow = 'hidden';
-}
-
-// Close game frame
-document.querySelector('.close-game-frame').addEventListener('click', () => {
-    const iframe = document.getElementById('gameFrame');
-    iframe.src = '';
-    gameFrameContainer.style.display = 'none';
-    document.body.style.overflow = 'auto';
-});
-
-// Modify game card creation to use frame
-function createGameCard(game, isPinned = false) {
-    const card = document.createElement('div');
-    card.className = `game-card ${isPinned ? 'pinned-highlight' : ''}`;
-    card.dataset.category = game.category;
-    card.dataset.id = game.id;
     
-    const pinBtn = createPinButton(game.id, isPinned);
-    card.appendChild(pinBtn);
-    
-    const likeContainer = document.createElement('div');
-    likeContainer.className = 'like-container';
-    
-    const likeBtn = document.createElement('button');
-    likeBtn.className = 'like-btn';
-    likeBtn.innerHTML = '<i class="bx bx-heart"></i>';
-    
-    const likeCount = document.createElement('span');
-    likeCount.className = 'like-count';
-    likeCount.textContent = '0';
-    
-    likeContainer.appendChild(likeBtn);
-    likeContainer.appendChild(likeCount);
-    
-    card.innerHTML += `
-        <div class="game-link" data-url="${game.url}">
-            <div class="thumbnail-container">
-                ${game.banner ? createBannerElement(game.banner) : ''}
-                <img src="${game.staticImg}" class="game-thumbnail static" alt="${game.title}">
-                <img src="${game.gifImg}" class="game-thumbnail gif" alt="${game.title} GIF">
-            </div>
-            <div class="game-title">${game.title}</div>
-        </div>
-    `;
-    
-    card.appendChild(likeContainer);
-    
-    // Add click event to open game in frame
-    card.querySelector('.game-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        openGameFrame(game.url);
-    });
-    
-    loadLikeData(game.id, likeBtn, likeCount);
-    
-    likeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        handleLikeClick(game.id, likeBtn, likeCount);
-    });
-    
-    return card;
-}
-
-// Function to render liked games page
-function renderLikedGamesPage() {
-    const likedGamesContainer = document.getElementById('likedGamesContainer');
-    const clearLikesBtn = document.querySelector('.clear-likes-btn');
-    
-    if (!likedGamesContainer) return; // Only run on liked.html
-    
-    // Clear all likes button
-    if (clearLikesBtn) {
-        clearLikesBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all your liked games?')) {
-                clearAllLikes();
-            }
-        });
+    // Add to recent games
+    if (game) {
+        addToRecentGames(game);
     }
-    
-    if (!currentUser) {
-        likedGamesContainer.innerHTML = `
-            <div class="no-likes-message">
-                <p>Please sign in to view your liked games</p>
-                <button class="sign-in-prompt">Sign In</button>
-            </div>
-        `;
-        
-        const signInBtn = document.querySelector('.sign-in-prompt');
-        if (signInBtn) {
-            signInBtn.addEventListener('click', () => {
-                auth.signInWithPopup(provider);
-            });
+}
+
+// Modify game card click handlers to pass game data
+document.addEventListener('DOMContentLoaded', function() {
+    // For dynamically created game cards
+    document.addEventListener('click', function(e) {
+        const gameLink = e.target.closest('.game-link');
+        if (gameLink) {
+            e.preventDefault();
+            const gameCard = gameLink.closest('.game-card');
+            if (gameCard) {
+                const gameId = parseInt(gameCard.dataset.id);
+                const game = findGameById(gameId);
+                if (game) {
+                    openGameFrame(game.url, game);
+                }
+            }
         }
-        return;
-    }
-    
-    // Get all games the user has liked
-    db.collectionGroup('likes')
-        .where('userId', '==', currentUser.uid)
-        .get()
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                likedGamesContainer.innerHTML = '<p class="no-likes-message">You have not liked any games yet</p>';
-                return;
-            }
-            
-            likedGamesContainer.innerHTML = '';
-            const gamePromises = [];
-            
-            querySnapshot.forEach((doc) => {
-                const gameId = parseInt(doc.ref.parent.parent.id);
-                gamePromises.push(
-                    db.collection('games').doc(String(gameId)).get()
-                );
-            });
-            
-            Promise.all(gamePromises).then((gameDocs) => {
-                gameDocs.forEach((gameDoc) => {
-                    if (gameDoc.exists) {
-                        const gameData = gameDoc.data();
-                        const game = findGameById(gameData.id) || {
-                            id: gameData.id,
-                            title: gameData.title,
-                            staticImg: 'https://via.placeholder.com/150',
-                            gifImg: 'https://via.placeholder.com/150',
-                            url: '#'
-                        };
-                        
-                        const gameCard = createLikedGameCard(game);
-                        likedGamesContainer.appendChild(gameCard);
-                    }
-                });
-            });
-        })
-        .catch((error) => {
-            console.error('Error getting liked games:', error);
-            likedGamesContainer.innerHTML = '<p class="error-message">Error loading liked games</p>';
-        });
-}
-
-function createLikedGameCard(game) {
-    const card = document.createElement('div');
-    card.className = 'liked-game-card';
-    card.dataset.id = game.id;
-    
-    card.innerHTML = `
-        <div class="game-link" data-url="${game.url}">
-            <div class="thumbnail-container">
-                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
-            </div>
-            <div class="game-title">${game.title}</div>
-        </div>
-        <button class="unlike-btn">
-            <i class='bx bxs-heart'></i>
-        </button>
-    `;
-    
-    // Add click event to open game in frame
-    card.querySelector('.game-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        openGameFrame(game.url);
     });
-    
-    // Unlike button
-    card.querySelector('.unlike-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        unlikeGame(game.id).then(() => {
-            card.remove();
-            const likedGamesContainer = document.getElementById('likedGamesContainer');
-            if (likedGamesContainer.children.length === 0) {
-                likedGamesContainer.innerHTML = '<p class="no-likes-message">You have not liked any games yet</p>';
-            }
-        });
-    });
-    
-    return card;
-}
-
-function clearAllLikes() {
-    if (!currentUser) return;
-    
-    db.collectionGroup('likes')
-        .where('userId', '==', currentUser.uid)
-        .get()
-        .then((querySnapshot) => {
-            const batch = db.batch();
-            const gameUpdates = {};
-            
-            querySnapshot.forEach((doc) => {
-                batch.delete(doc.ref);
-                const gameId = doc.ref.parent.parent.id;
-                gameUpdates[gameId] = firebase.firestore.FieldValue.increment(-1);
-            });
-            
-            // Update all game like counts
-            Object.keys(gameUpdates).forEach((gameId) => {
-                const gameRef = db.collection('games').doc(gameId);
-                batch.update(gameRef, { likeCount: gameUpdates[gameId] });
-            });
-            
-            return batch.commit();
-        })
-        .then(() => {
-            const likedGamesContainer = document.getElementById('likedGamesContainer');
-            likedGamesContainer.innerHTML = '<p class="no-likes-message">You have not liked any games yet</p>';
-            
-            // Update like buttons on main page
-            document.querySelectorAll('.like-btn').forEach(btn => {
-                btn.classList.remove('liked');
-                btn.innerHTML = '<i class="bx bx-heart"></i>';
-            });
-            
-            document.querySelectorAll('.like-count').forEach(count => {
-                count.textContent = '0';
-            });
-        })
-        .catch((error) => {
-            console.error('Error clearing likes:', error);
-        });
-}
-
-// Update auth state listener to handle liked page
-auth.onAuthStateChanged(function(user) {
-    if (user) {
-        currentUser = user;
-        updateUIForUser(user);
-        loadUserData(user.uid);
-        loadUserFavorites(user.uid);
-        
-        // Load initial like data
-        document.querySelectorAll('.game-card').forEach(card => {
-            const gameId = parseInt(card.dataset.id);
-            const likeBtn = card.querySelector('.like-btn');
-            const likeCount = card.querySelector('.like-count');
-            if (likeBtn && likeCount) loadLikeData(gameId, likeBtn, likeCount);
-        });
-        
-        // Render liked games page if we're on that page
-        renderLikedGamesPage();
-    } else {
-        currentUser = null;
-        userFavorites = [];
-        updateUIForGuest();
-        
-        // Reset like buttons for guests
-        document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.classList.remove('liked');
-            btn.innerHTML = '<i class="bx bx-heart"></i>';
-        });
-        
-        // Render liked games page (will show sign in prompt)
-        renderLikedGamesPage();
-    }
 });
