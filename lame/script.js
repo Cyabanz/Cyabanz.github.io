@@ -3,7 +3,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
     authDomain: "fusioncya-cc20a.firebaseapp.com",
     projectId: "fusioncya-cc20a",
-    storageBucket: "fusioncya-cc20a.firebasestorage.app",
+    storageBucket: "fusioncya-cc20a.appspot.com",
     messagingSenderId: "765164293111",
     appId: "1:765164293111:web:43e051c755c4690c0c3cf2"
 };
@@ -30,9 +30,10 @@ const gameId = "game1"; // Unique identifier for your game
 let likes = 0;
 let dislikes = 0;
 let userRating = null;
+let isProcessing = false; // To prevent rapid clicks
 
 // Initialize the UI based on auth state
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(async (user) => {
     if (user) {
         // User is signed in
         usernameDisplay.textContent = user.displayName || "User";
@@ -42,7 +43,7 @@ auth.onAuthStateChanged(user => {
         dislikeBtn.disabled = false;
         
         // Load user's previous rating and game ratings
-        loadUserRating(user.uid);
+        await loadUserRating(user.uid);
     } else {
         // User is signed out
         usernameDisplay.textContent = "Guest";
@@ -53,7 +54,8 @@ auth.onAuthStateChanged(user => {
     }
     
     // Always load the game ratings (visible to everyone)
-    loadGameRatings();
+    await loadGameRatings();
+    updateButtonStyles();
 });
 
 // Sign in handler
@@ -66,64 +68,122 @@ signInButton.addEventListener('click', () => {
 
 // Like/Dislike functionality
 likeBtn.addEventListener('click', async () => {
+    if (isProcessing) return;
+    isProcessing = true;
+    
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        isProcessing = false;
+        return;
+    }
     
     try {
+        const batch = db.batch();
+        const userRatingRef = db.collection('gameRatings').doc(gameId)
+                              .collection('userRatings').doc(user.uid);
+        
         if (userRating === 'like') {
             // Remove like
-            await removeRating(user.uid);
-            likes--;
+            batch.delete(userRatingRef);
+            batch.update(db.collection('gameRatings').doc(gameId), {
+                like: firebase.firestore.FieldValue.increment(-1),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
             userRating = null;
-            likeBtn.classList.remove('active');
+            likes--;
         } else {
             // Add like (and remove dislike if exists)
             if (userRating === 'dislike') {
+                batch.update(db.collection('gameRatings').doc(gameId), {
+                    dislike: firebase.firestore.FieldValue.increment(-1),
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 dislikes--;
                 dislikeCountEl.textContent = dislikes;
-                dislikeBtn.classList.remove('active');
             }
-            await setRating(user.uid, 'like');
-            likes++;
+            
+            batch.set(userRatingRef, {
+                rating: 'like',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            batch.update(db.collection('gameRatings').doc(gameId), {
+                like: firebase.firestore.FieldValue.increment(1),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
             userRating = 'like';
-            likeBtn.classList.add('active');
+            likes++;
         }
         
+        await batch.commit();
         likeCountEl.textContent = likes;
-        await updateGameRatings();
+        dislikeCountEl.textContent = dislikes;
+        updateButtonStyles();
     } catch (error) {
         console.error("Error updating like:", error);
+    } finally {
+        isProcessing = false;
     }
 });
 
 dislikeBtn.addEventListener('click', async () => {
+    if (isProcessing) return;
+    isProcessing = true;
+    
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        isProcessing = false;
+        return;
+    }
     
     try {
+        const batch = db.batch();
+        const userRatingRef = db.collection('gameRatings').doc(gameId)
+                              .collection('userRatings').doc(user.uid);
+        
         if (userRating === 'dislike') {
             // Remove dislike
-            await removeRating(user.uid);
-            dislikes--;
+            batch.delete(userRatingRef);
+            batch.update(db.collection('gameRatings').doc(gameId), {
+                dislike: firebase.firestore.FieldValue.increment(-1),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
             userRating = null;
-            dislikeBtn.classList.remove('active');
+            dislikes--;
         } else {
             // Add dislike (and remove like if exists)
             if (userRating === 'like') {
+                batch.update(db.collection('gameRatings').doc(gameId), {
+                    like: firebase.firestore.FieldValue.increment(-1),
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 likes--;
                 likeCountEl.textContent = likes;
-                likeBtn.classList.remove('active');
             }
-            await setRating(user.uid, 'dislike');
-            dislikes++;
+            
+            batch.set(userRatingRef, {
+                rating: 'dislike',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            batch.update(db.collection('gameRatings').doc(gameId), {
+                dislike: firebase.firestore.FieldValue.increment(1),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
             userRating = 'dislike';
-            dislikeBtn.classList.add('active');
+            dislikes++;
         }
         
+        await batch.commit();
+        likeCountEl.textContent = likes;
         dislikeCountEl.textContent = dislikes;
-        await updateGameRatings();
+        updateButtonStyles();
     } catch (error) {
         console.error("Error updating dislike:", error);
+    } finally {
+        isProcessing = false;
     }
 });
 
@@ -138,72 +198,49 @@ fullscreenBtn.addEventListener('click', () => {
     }
 });
 
-// Firestore functions
-async function setRating(userId, rating) {
-    const batch = db.batch();
-    
-    // Set user's rating
-    const userRatingRef = db.collection('gameRatings').doc(gameId)
-                          .collection('userRatings').doc(userId);
-    batch.set(userRatingRef, {
-        rating: rating,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    await batch.commit();
-}
-
-async function removeRating(userId) {
-    await db.collection('gameRatings').doc(gameId)
-           .collection('userRatings').doc(userId).delete();
-}
-
-async function updateGameRatings() {
-    // Count all likes/dislikes
-    const likesSnapshot = await db.collection('gameRatings').doc(gameId)
-                                .collection('userRatings')
-                                .where('rating', '==', 'like').get();
-    
-    const dislikesSnapshot = await db.collection('gameRatings').doc(gameId)
-                                   .collection('userRatings')
-                                   .where('rating', '==', 'dislike').get();
-    
-    // Update main document with counts
-    await db.collection('gameRatings').doc(gameId).set({
-        like: likesSnapshot.size,
-        dislike: dislikesSnapshot.size,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-}
-
+// Helper functions
 async function loadUserRating(userId) {
-    const doc = await db.collection('gameRatings').doc(gameId)
-                      .collection('userRatings').doc(userId).get();
-    
-    if (doc.exists) {
-        userRating = doc.data().rating;
-        if (userRating === 'like') {
-            likeBtn.classList.add('active');
-        } else if (userRating === 'dislike') {
-            dislikeBtn.classList.add('active');
+    try {
+        const doc = await db.collection('gameRatings').doc(gameId)
+                          .collection('userRatings').doc(userId).get();
+        
+        if (doc.exists) {
+            userRating = doc.data().rating;
         }
+    } catch (error) {
+        console.error("Error loading user rating:", error);
     }
 }
 
 async function loadGameRatings() {
-    const doc = await db.collection('gameRatings').doc(gameId).get();
-    
-    if (doc.exists) {
-        likes = doc.data().like || 0;
-        dislikes = doc.data().dislike || 0;
-        likeCountEl.textContent = likes;
-        dislikeCountEl.textContent = dislikes;
-    } else {
-        // Initialize if doesn't exist
-        await db.collection('gameRatings').doc(gameId).set({
-            like: 0,
-            dislike: 0,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    try {
+        const doc = await db.collection('gameRatings').doc(gameId).get();
+        
+        if (doc.exists) {
+            likes = doc.data().like || 0;
+            dislikes = doc.data().dislike || 0;
+            likeCountEl.textContent = likes;
+            dislikeCountEl.textContent = dislikes;
+        } else {
+            // Initialize if doesn't exist
+            await db.collection('gameRatings').doc(gameId).set({
+                like: 0,
+                dislike: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+    } catch (error) {
+        console.error("Error loading game ratings:", error);
     }
+}
+
+function updateButtonStyles() {
+    likeBtn.classList.toggle('active', userRating === 'like');
+    dislikeBtn.classList.toggle('active', userRating === 'dislike');
+    
+    // Ensure counts never go negative (safety check)
+    if (likes < 0) likes = 0;
+    if (dislikes < 0) dislikes = 0;
+    likeCountEl.textContent = likes;
+    dislikeCountEl.textContent = dislikes;
 }
