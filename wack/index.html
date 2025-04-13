@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Frame</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-frame-container">
+        <button class="close-game-frame">
+            <i class='bx bx-x'></i>
+        </button>
+        <div class="game-frame-content">
+            <iframe id="gameFrame" frameborder="0" allowfullscreen></iframe>
+            <div class="game-controls">
+                <div class="game-info">
+                    <div class="game-title" id="gameTitle">Game Title</div>
+                    <div class="game-description" id="gameDescription">Loading game description...</div>
+                    <div class="game-stats">
+                        <div class="game-stat">
+                            <i class='bx bx-like'></i>
+                            <span id="likeCount">0</span>
+                        </div>
+                        <div class="game-stat">
+                            <i class='bx bx-dislike'></i>
+                            <span id="dislikeCount">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="game-actions">
+                    <button class="action-btn like-btn" id="likeBtn">
+                        <i class='bx bx-like'></i>
+                        Like
+                    </button>
+                    <button class="action-btn dislike-btn" id="dislikeBtn">
+                        <i class='bx bx-dislike'></i>
+                        Dislike
+                    </button>
+                    <button class="action-btn fullscreen-btn" id="fullscreenBtn">
+                        <i class='bx bx-fullscreen'></i>
+                        Fullscreen
+                    </button>
+                </div>
+            </div>
+            <div class="controls-section">
+                <div class="controls-title">Controls</div>
+                <ul class="controls-list" id="controlsList">
+                    <li class="control-item"><i class='bx bx-right-arrow-alt'></i> Arrow keys to move</li>
+                    <li class="control-item"><i class='bx bx-space-bar'></i> Space to jump</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample game card to demonstrate the functionality -->
+    <div class="game-card" data-id="1" data-title="Bullet Force" 
+         data-description="An exciting first-person shooter game with multiple weapons and maps." 
+         data-controls="WASD: Move|Mouse: Aim|Left Click: Shoot|R: Reload">
+        <img src="https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png" class="game-thumbnail">
+        <div class="game-title">Bullet Force</div>
+        <button class="play-btn">Play Now</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
