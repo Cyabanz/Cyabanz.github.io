@@ -1278,3 +1278,148 @@ auth.onAuthStateChanged(function(user) {
     }
 });
 
+// Recent Games System (Signed-in users only)
+const recentGames = {
+    maxItems: 10, // Maximum number of recent games to store
+    
+    // Add a game to recent games (only if signed in)
+    add: function(gameId) {
+        if (!currentUser) return;
+        
+        db.collection('users').doc(currentUser.uid).get()
+            .then(doc => {
+                let recent = [];
+                if (doc.exists && doc.data().recentGames) {
+                    recent = doc.data().recentGames;
+                }
+                
+                // Remove if already exists
+                recent = recent.filter(id => id !== gameId);
+                
+                // Add to beginning
+                recent.unshift(gameId);
+                
+                // Trim to max items
+                if (recent.length > this.maxItems) {
+                    recent = recent.slice(0, this.maxItems);
+                }
+                
+                // Update Firebase
+                return db.collection('users').doc(currentUser.uid).update({
+                    recentGames: recent,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            })
+            .catch(error => {
+                console.error('Error updating recent games:', error);
+            });
+    },
+    
+    // Load recent games from Firebase
+    load: function() {
+        if (!currentUser) return Promise.resolve([]);
+        
+        return db.collection('users').doc(currentUser.uid).get()
+            .then(doc => {
+                if (doc.exists && doc.data().recentGames) {
+                    return doc.data().recentGames;
+                }
+                return [];
+            })
+            .catch(error => {
+                console.error('Error loading recent games:', error);
+                return [];
+            });
+    },
+    
+    // Render recent games
+    render: function(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (!currentUser) {
+            container.innerHTML = `
+                <div class="sign-in-prompt">
+                    <p>Sign in to track your recently played games</p>
+                    <button id="recentGamesSignIn" class="sign-in-btn">
+                        <i class="bx bxs-joystick"></i> Sign In
+                    </button>
+                </div>
+            `;
+            
+            // Add sign in button event listener
+            document.getElementById('recentGamesSignIn')?.addEventListener('click', () => {
+                auth.signInWithPopup(provider).catch(error => {
+                    console.error('Sign in error:', error);
+                });
+            });
+            
+            return;
+        }
+        
+        this.load().then(recent => {
+            if (recent.length === 0) {
+                container.innerHTML = '<p class="no-recent">No recently played games yet.</p>';
+                return;
+            }
+            
+            let html = '<div class="horizontal-game-grid">';
+            
+            recent.forEach(gameId => {
+                const game = findGameById(gameId);
+                if (game) {
+                    html += `
+                        <div class="game-card" data-id="${game.id}">
+                            <a href="${game.url}" class="game-link">
+                                <div class="thumbnail-container">
+                                    ${game.banner ? createBannerElement(game.banner) : ''}
+                                    <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+                                </div>
+                                <div class="game-title">${game.title}</div>
+                            </a>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        });
+    }
+};
+
+// Track game clicks to update recent games (only for signed-in users)
+document.addEventListener('click', function(e) {
+    const gameLink = e.target.closest('.game-link');
+    if (gameLink && currentUser) {
+        e.preventDefault();
+        const gameCard = gameLink.closest('.game-card');
+        if (gameCard) {
+            const gameId = parseInt(gameCard.dataset.id);
+            const game = findGameById(gameId);
+            if (game) {
+                // Add to recent games
+                recentGames.add(gameId);
+                
+                // Open game URL
+                window.open(game.url, '_blank');
+            }
+        }
+    }
+});
+
+// Update your auth state handler
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        currentUser = user;
+        updateUIForUser(user);
+        loadUserData(user.uid);
+        loadUserFavorites(user.uid);
+        recentGames.render('recentGamesContainer');
+    } else {
+        currentUser = null;
+        userFavorites = [];
+        updateUIForGuest();
+        recentGames.render('recentGamesContainer');
+    }
+});
