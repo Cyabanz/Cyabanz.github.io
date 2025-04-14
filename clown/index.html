@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Games - Fusion Games</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Recent Games</h1>
+            <div id="auth-status">
+                <div id="login-view">
+                    <button id="signInButton" class="btn btn-google">
+                        <i class='bx bxl-google'></i> Sign In with Google
+                    </button>
+                </div>
+                <div id="dashboard-view" style="display: none;">
+                    <div class="user-info">
+                        <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile">
+                        <span id="username-display">User</span>
+                    </div>
+                    <button id="signOutButton" class="btn btn-signout">
+                        <i class='bx bx-log-out'></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="recentGamesContainer">
+                <div class="login-prompt" id="loginPrompt">
+                    <h2>Please sign in to view your recent games</h2>
+                    <p>Your recently played games will appear here and sync across all your devices.</p>
+                    <button id="promptSignInButton" class="btn btn-google">
+                        <i class='bx bxl-google'></i> Sign In with Google
+                    </button>
+                </div>
+
+                <div id="recentGamesList" style="display: none;">
+                    <div class="game-row">
+                        <h3 class="row-title">Your Recent Games</h3>
+                        <div class="game-scroll-container">
+                            <div class="horizontal-game-grid" id="recent-games-grid"></div>
+                        </div>
+                    </div>
+                    <div class="no-recent-games" id="noRecentGames" style="display: none;">
+                        <p>You haven't played any games yet. Start playing and they'll appear here!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="recent.js"></script>
+</body>
+</html>
+
+   <script src="src/script.js"></script>
