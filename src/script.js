@@ -1423,3 +1423,88 @@ auth.onAuthStateChanged(function(user) {
         recentGames.render('recentGamesContainer');
     }
 });
+
+// Recent Games System (Signed-in only)
+const recentGames = {
+    maxItems: 15, // Stores up to 15 recent games
+    
+    // Add game to recent games
+    add: function(gameId) {
+        if (!currentUser) return;
+        
+        const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+        
+        db.collection('users').doc(currentUser.uid).get()
+            .then(doc => {
+                let recent = [];
+                if (doc.exists && doc.data().recentGames) {
+                    recent = doc.data().recentGames;
+                }
+                
+                // Remove if already exists
+                recent = recent.filter(item => item.gameId !== gameId);
+                
+                // Add to beginning
+                recent.unshift({
+                    gameId: gameId,
+                    timestamp: timestamp
+                });
+                
+                // Trim to max items
+                if (recent.length > this.maxItems) {
+                    recent = recent.slice(0, this.maxItems);
+                }
+                
+                // Update Firebase
+                return db.collection('users').doc(currentUser.uid).update({
+                    recentGames: recent
+                });
+            })
+            .catch(error => {
+                console.error('Error updating recent games:', error);
+            });
+    },
+    
+    // Format timestamp to relative time
+    formatTime: function(date) {
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) return 'just now';
+        
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+        
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+        
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+        
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+};
+
+// Update your existing game click handler
+document.addEventListener('click', function(e) {
+    const gameLink = e.target.closest('.game-link');
+    if (gameLink) {
+        e.preventDefault();
+        const gameCard = gameLink.closest('.game-card');
+        if (gameCard) {
+            const gameId = parseInt(gameCard.dataset.id);
+            const game = findGameById(gameId);
+            if (game) {
+                // Add to recent games
+                recentGames.add(gameId);
+                
+                // Open game URL
+                window.open(game.url, '_blank');
+            }
+        }
+    }
+});
