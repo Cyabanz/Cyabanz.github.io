@@ -604,7 +604,6 @@ let currentSearchTerm = '';
 let currentUser = null;
 let userFavorites = [];
 
-// Initialize Application
 function init() {
     setupEventListeners();
     setupNavbar();
@@ -617,6 +616,8 @@ function init() {
             updateUIForUser(user);
             loadUserData(user.uid);
             loadUserFavorites(user.uid);
+            // Add this line to load history when user logs in
+            loadUserHistory(user.uid);
         } else {
             currentUser = null;
             userFavorites = [];
@@ -905,6 +906,14 @@ function addGameCardEventListeners() {
             const gameCard = this.closest('.game-card');
             const gameId = parseInt(gameCard.dataset.id);
             togglePinGame(gameId, gameCard);
+        });
+    });
+
+    // Add click handler for game cards to record plays
+    document.querySelectorAll('.game-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const gameId = parseInt(this.dataset.id);
+            recordGamePlay(gameId);
         });
     });
 }
@@ -1315,4 +1324,21 @@ function setupGameCardClickEvents() {
             recordGamePlay(gameId);
         });
     });
+}
+
+// Load user's game history
+function loadUserHistory(userId) {
+    db.collection('users').doc(userId).collection('history')
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then((querySnapshot) => {
+            // You can store history items if needed
+            querySnapshot.forEach((doc) => {
+                const historyItem = doc.data();
+                // Do something with history items if needed
+            });
+        })
+        .catch((error) => {
+            console.error('Error loading history:', error);
+        });
 }
