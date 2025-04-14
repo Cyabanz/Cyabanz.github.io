@@ -604,6 +604,7 @@ let currentSearchTerm = '';
 let currentUser = null;
 let userFavorites = [];
 
+// Initialize Application
 function init() {
     setupEventListeners();
     setupNavbar();
@@ -616,8 +617,6 @@ function init() {
             updateUIForUser(user);
             loadUserData(user.uid);
             loadUserFavorites(user.uid);
-            // Add this line to load history when user logs in
-            loadUserHistory(user.uid);
         } else {
             currentUser = null;
             userFavorites = [];
@@ -906,14 +905,6 @@ function addGameCardEventListeners() {
             const gameCard = this.closest('.game-card');
             const gameId = parseInt(gameCard.dataset.id);
             togglePinGame(gameId, gameCard);
-        });
-    });
-
-    // Add click handler for game cards to record plays
-    document.querySelectorAll('.game-card').forEach(card => {
-        card.addEventListener('click', function() {
-            const gameId = parseInt(this.dataset.id);
-            recordGamePlay(gameId);
         });
     });
 }
@@ -1286,59 +1277,3 @@ auth.onAuthStateChanged(function(user) {
         setupFavoritesPage(); // Initialize favorites page for guest
     }
 });
-
-// Add this function to record game plays
-function recordGamePlay(gameId) {
-    if (!auth.currentUser) return; // Only log for logged-in users
-    
-    const userId = auth.currentUser.uid;
-    const historyRef = db.collection('users').doc(userId).collection('history');
-    
-    // Check if game already in history
-    historyRef.where('gameId', '==', gameId).get()
-        .then(querySnapshot => {
-            if (querySnapshot.empty) {
-                // Add new entry
-                return historyRef.add({
-                    gameId: gameId,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } else {
-                // Update timestamp of existing entry
-                const doc = querySnapshot.docs[0];
-                return doc.ref.update({
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
-        })
-        .catch(error => {
-            console.error("Error recording game play:", error);
-        });
-}
-
-// Modify your game card click handlers to record plays
-function setupGameCardClickEvents() {
-    document.querySelectorAll('.game-card').forEach(card => {
-        card.addEventListener('click', function() {
-            const gameId = parseInt(this.dataset.id);
-            recordGamePlay(gameId);
-        });
-    });
-}
-
-// Load user's game history
-function loadUserHistory(userId) {
-    db.collection('users').doc(userId).collection('history')
-        .orderBy('timestamp', 'desc')
-        .get()
-        .then((querySnapshot) => {
-            // You can store history items if needed
-            querySnapshot.forEach((doc) => {
-                const historyItem = doc.data();
-                // Do something with history items if needed
-            });
-        })
-        .catch((error) => {
-            console.error('Error loading history:', error);
-        });
-}
