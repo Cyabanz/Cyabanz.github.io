@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recently Played Games</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Recent Page Specific Styles */
+        .recent-page {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .recent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .recent-title {
+            font-size: 2rem;
+            color: #fff;
+            margin: 0;
+        }
+        
+        .clear-recent {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .clear-recent:hover {
+            background: rgba(255, 0, 0, 0.3);
+        }
+        
+        .recent-games-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+        }
+        
+        .recent-game-card {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .recent-game-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .recent-game-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+        
+        .recent-game-info {
+            flex: 1;
+        }
+        
+        .recent-game-title {
+            font-size: 1.2rem;
+            color: #fff;
+            margin: 0 0 5px 0;
+        }
+        
+        .recent-game-time {
+            font-size: 0.9rem;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+        }
+        
+        .recent-game-time i {
+            margin-right: 5px;
+        }
+        
+        .recent-game-play {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .recent-game-play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #9d50bb;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .sign-in-prompt {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        .sign-in-prompt h3 {
+            color: #ddd;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .sign-in-prompt p {
+            color: #aaa;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        
+        .sign-in-btn {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sign-in-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sign-in-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .no-recent {
+            text-align: center;
+            padding: 50px 20px;
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .recent-page {
+                padding: 15px;
+            }
+            
+            .recent-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .recent-game-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .recent-game-thumbnail {
+                margin-right: 0;
+                margin-bottom: 15px;
+                width: 100px;
+                height: 100px;
+            }
+            
+            .recent-game-info {
+                margin-bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .recent-title {
+                font-size: 1.5rem;
+            }
+            
+            .recent-games-container {
+                padding: 15px;
+            }
+            
+            .recent-game-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your navigation/header here -->
+    
+    <main class="recent-page">
+        <div class="recent-header">
+            <h1 class="recent-title">Recently Played</h1>
+            <button class="clear-recent" id="clearRecentBtn">
+                <i class='bx bx-trash'></i> Clear History
+            </button>
+        </div>
+        
+        <div class="recent-games-container" id="recentGamesContainer">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+    </main>
+    
+    <!-- Include your footer here -->
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+        
+        // DOM Elements
+        const recentGamesContainer = document.getElementById('recentGamesContainer');
+        const clearRecentBtn = document.getElementById('clearRecentBtn');
+        
+        // Recent Games System
+        const recentGames = {
+            maxItems: 15, // Increased to 15 as requested
+            
+            // Show loading state
+            showLoading: function() {
+                recentGamesContainer.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Loading your recent games...</p>
+                    </div>
+                `;
+            },
+            
+            // Show sign in prompt
+            showSignInPrompt: function() {
+                recentGamesContainer.innerHTML = `
+                    <div class="sign-in-prompt">
+                        <h3>Track Your Gaming History</h3>
+                        <p>Sign in to view and manage your recently played games across all devices</p>
+                        <button class="sign-in-btn" id="recentGamesSignIn">
+                            <i class="bx bxs-joystick"></i> Sign In With Google
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('recentGamesSignIn')?.addEventListener('click', () => {
+                    auth.signInWithPopup(provider).catch(error => {
+                        console.error('Sign in error:', error);
+                    });
+                });
+            },
+            
+            // Show empty state
+            showEmptyState: function() {
+                recentGamesContainer.innerHTML = `
+                    <div class="no-recent">
+                        <p>No recently played games yet.</p>
+                        <p>Start playing games and they'll appear here!</p>
+                    </div>
+                `;
+            },
+            
+            // Add a game to recent games
+            add: function(gameId) {
+                if (!auth.currentUser) return;
+                
+                const userId = auth.currentUser.uid;
+                const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                
+                db.collection('users').doc(userId).get()
+                    .then(doc => {
+                        let recent = [];
+                        if (doc.exists && doc.data().recentGames) {
+                            recent = doc.data().recentGames;
+                        }
+                        
+                        // Remove if already exists
+                        recent = recent.filter(item => item.gameId !== gameId);
+                        
+                        // Add to beginning
+                        recent.unshift({
+                            gameId: gameId,
+                            timestamp: timestamp
+                        });
+                        
+                        // Trim to max items
+                        if (recent.length > this.maxItems) {
+                            recent = recent.slice(0, this.maxItems);
+                        }
+                        
+                        // Update Firebase
+                        return db.collection('users').doc(userId).update({
+                            recentGames: recent
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error updating recent games:', error);
+                    });
+            },
+            
+            // Load recent games from Firebase
+            load: function() {
+                if (!auth.currentUser) return Promise.resolve([]);
+                
+                this.showLoading();
+                
+                return db.collection('users').doc(auth.currentUser.uid).get()
+                    .then(doc => {
+                        if (doc.exists && doc.data().recentGames) {
+                            return doc.data().recentGames;
+                        }
+                        return [];
+                    })
+                    .catch(error => {
+                        console.error('Error loading recent games:', error);
+                        return [];
+                    });
+            },
+            
+            // Clear all recent games
+            clearAll: function() {
+                if (!auth.currentUser) return;
+                
+                if (!confirm('Are you sure you want to clear all your recent game history? This cannot be undone.')) {
+                    return;
+                }
+                
+                this.showLoading();
+                
+                db.collection('users').doc(auth.currentUser.uid).update({
+                    recentGames: []
+                })
+                .then(() => {
+                    this.showEmptyState();
+                })
+                .catch(error => {
+                    console.error('Error clearing recent games:', error);
+                    alert('Failed to clear recent games. Please try again.');
+                });
+            },
+            
+            // Render recent games
+            render: function() {
+                if (!auth.currentUser) {
+                    this.showSignInPrompt();
+                    return;
+                }
+                
+                this.load().then(recent => {
+                    if (recent.length === 0) {
+                        this.showEmptyState();
+                        return;
+                    }
+                    
+                    let html = '';
+                    
+                    recent.forEach(item => {
+                        const game = findGameById(item.gameId);
+                        if (game) {
+                            const playedDate = item.timestamp?.toDate() || new Date();
+                            const formattedTime = this.formatTime(playedDate);
+                            
+                            html += `
+                                <div class="recent-game-card" data-id="${game.id}">
+                                    <img src="${game.staticImg}" class="recent-game-thumbnail" alt="${game.title}">
+                                    <div class="recent-game-info">
+                                        <h3 class="recent-game-title">${game.title}</h3>
+                                        <p class="recent-game-time">
+                                            <i class='bx bx-time-five'></i>
+                                            Played ${formattedTime}
+                                        </p>
+                                    </div>
+                                    <a href="${game.url}" class="recent-game-play">
+                                        <i class='bx bx-play'></i> Play Again
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    recentGamesContainer.innerHTML = html;
+                });
+            },
+            
+            // Format timestamp to relative time
+            formatTime: function(date) {
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - date) / 1000);
+                
+                if (diffInSeconds < 60) {
+                    return 'just now';
+                }
+                
+                const diffInMinutes = Math.floor(diffInSeconds / 60);
+                if (diffInMinutes < 60) {
+                    return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+                }
+                
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                if (diffInHours < 24) {
+                    return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+                }
+                
+                const diffInDays = Math.floor(diffInHours / 24);
+                if (diffInDays < 7) {
+                    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+                }
+                
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+        };
+        
+        // Helper function to find game by ID (mock implementation - replace with your actual games data)
+        function findGameById(id) {
+            // This is a mock implementation - replace with your actual games data lookup
+            return {
+                id: id,
+                title: `Game ${id}`,
+                staticImg: 'https://via.placeholder.com/150',
+                url: '#'
+            };
+        }
+        
+        // Initialize the page
+        function initRecentPage() {
+            // Set up clear button
+            clearRecentBtn.addEventListener('click', () => {
+                recentGames.clearAll();
+            });
+            
+            // Set up auth state listener
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    clearRecentBtn.style.display = 'block';
+                    recentGames.render();
+                } else {
+                    clearRecentBtn.style.display = 'none';
+                    recentGames.render();
+                }
+            });
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initRecentPage);
+    </script>
+</body>
+</html>
