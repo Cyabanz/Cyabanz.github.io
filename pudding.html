@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recently Played Games | Fusion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Recent Page Specific Styles */
+        .recent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .recent-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .clear-recent {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-recent:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .recent-games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .recent-game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .recent-game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .recent-game-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .recent-game-info {
+            padding: 12px;
+        }
+        
+        .recent-game-title {
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .recent-game-time {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .no-recent-games {
+            text-align: center;
+            padding: 50px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .recent-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #4fc3f7, #2196f3);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .recent-games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .recent-game-thumbnail {
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header/Navbar (same as your main page) -->
+    <header class="header">
+        <div class="logo">
+            <a href="index.html">Fusion</a>
+        </div>
+        <nav class="navbar">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="favorites.html" class="nav-link">Favorites</a>
+            <a href="recent.html" class="nav-link active">Recent</a>
+        </nav>
+        <div class="user-actions">
+            <div id="login-view">
+                <button id="signInButton" class="sign-in-btn">
+                    <i class='bx bx-log-in'></i> Sign In
+                </button>
+            </div>
+            <div id="dashboard-view" style="display: none;">
+                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                <span id="username-display" class="username">Guest</span>
+            </div>
+        </div>
+        <div class="hamburger">
+            <i class='bx bx-menu'></i>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="recent-header">
+                <h1 class="recent-title">Recently Played</h1>
+                <button class="clear-recent" id="clearRecentBtn">
+                    <i class='bx bx-trash'></i> Clear History
+                </button>
+            </div>
+            
+            <div id="recentGamesContainer">
+                <!-- Recent games will be loaded here -->
+                <div class="no-recent-games">
+                    <i class='bx bx-time' style="font-size: 40px; margin-bottom: 10px;"></i>
+                    <p>No recently played games found</p>
+                    <p class="sign-in-message" style="display: none;">Sign in to track your recently played games</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (same as your main page) -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">Fusion</div>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-social">
+                <a href="#"><i class='bx bxl-facebook'></i></a>
+                <a href="#"><i class='bx bxl-twitter'></i></a>
+                <a href="#"><i class='bx bxl-instagram'></i></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2023 Fusion. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Firebase and App Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script>
+        // Firebase Configuration (same as your main page)
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // DOM Elements
+        const recentGamesContainer = document.getElementById('recentGamesContainer');
+        const clearRecentBtn = document.getElementById('clearRecentBtn');
+        const signInButton = document.getElementById('signInButton');
+        const signInMessage = document.querySelector('.sign-in-message');
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const profilePic = document.getElementById('profile-pic');
+        const usernameDisplay = document.getElementById('username-display');
+
+        // State
+        let currentUser = null;
+        let recentGames = [];
+
+        // Initialize the page
+        function initRecentPage() {
+            setupEventListeners();
+            
+            auth.onAuthStateChanged(user => {
+                currentUser = user;
+                updateUIForAuthState(user);
+                
+                if (user) {
+                    loadRecentGames(user.uid);
+                } else {
+                    showNoRecentGames(true);
+                }
+            });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Clear recent games
+            clearRecentBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    alert('Please sign in to manage your recent games');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to clear all your recent games?')) {
+                    clearAllRecentGames();
+                }
+            });
+            
+            // Sign in button
+            if (signInButton) {
+                signInButton.addEventListener('click', () => {
+                    auth.signInWithPopup(provider)
+                        .catch(error => {
+                            console.error('Sign in error:', error);
+                            alert('Sign in failed: ' + error.message);
+                        });
+                });
+            }
+        }
+
+        // Update UI based on auth state
+        function updateUIForAuthState(user) {
+            if (user) {
+                // User is signed in
+                loginView.style.display = 'none';
+                dashboardView.style.display = 'flex';
+                usernameDisplay.textContent = user.displayName || 'User';
+                profilePic.src = user.photoURL || 'https://via.placeholder.com/40';
+                signInMessage.style.display = 'none';
+            } else {
+                // User is signed out
+                loginView.style.display = 'block';
+                dashboardView.style.display = 'none';
+                signInMessage.style.display = 'block';
+            }
+        }
+
+        // Load recent games from Firestore
+        async function loadRecentGames(userId) {
+            try {
+                const snapshot = await db.collection('users').doc(userId)
+                    .collection('recentGames')
+                    .orderBy('timestamp', 'desc')
+                    .limit(20)
+                    .get();
+                
+                recentGames = [];
+                snapshot.forEach(doc => {
+                    recentGames.push({
+                        id: doc.data().gameId,
+                        timestamp: doc.data().timestamp.toDate()
+                    });
+                });
+                
+                renderRecentGames();
+            } catch (error) {
+                console.error('Error loading recent games:', error);
+                showNoRecentGames(false);
+            }
+        }
+
+        // Render recent games to the page
+        function renderRecentGames() {
+            if (recentGames.length === 0) {
+                showNoRecentGames(false);
+                return;
+            }
+            
+            // You'll need to have access to your games data here
+            // For this example, I'll assume you have a findGameById function
+            recentGamesContainer.innerHTML = '';
+            
+            const gamesGrid = document.createElement('div');
+            gamesGrid.className = 'recent-games-grid';
+            
+            recentGames.forEach(recentGame => {
+                const game = findGameById(recentGame.id);
+                if (game) {
+                    const gameCard = createRecentGameCard(game, recentGame.timestamp);
+                    gamesGrid.appendChild(gameCard);
+                }
+            });
+            
+            recentGamesContainer.appendChild(gamesGrid);
+        }
+
+        // Create a recent game card element
+        function createRecentGameCard(game, timestamp) {
+            const card = document.createElement('div');
+            card.className = 'recent-game-card';
+            
+            const timeAgo = formatTimeAgo(timestamp);
+            
+            card.innerHTML = `
+                <a href="${game.url}" class="game-link">
+                    <div class="recent-badge">RECENT</div>
+                    <img src="${game.staticImg}" alt="${game.title}" class="recent-game-thumbnail">
+                    <div class="recent-game-info">
+                        <h3 class="recent-game-title">${game.title}</h3>
+                        <div class="recent-game-time">
+                            <i class='bx bx-time'></i> ${timeAgo}
+                        </div>
+                    </div>
+                </a>
+            `;
+            
+            return card;
+        }
+
+        // Format timestamp as "X time ago"
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            let interval = Math.floor(seconds / 31536000);
+            if (interval >= 1) return interval + " year" + (interval === 1 ? "" : "s") + " ago";
+            
+            interval = Math.floor(seconds / 2592000);
+            if (interval >= 1) return interval + " month" + (interval === 1 ? "" : "s") + " ago";
+            
+            interval = Math.floor(seconds / 86400);
+            if (interval >= 1) return interval + " day" + (interval === 1 ? "" : "s") + " ago";
+            
+            interval = Math.floor(seconds / 3600);
+            if (interval >= 1) return interval + " hour" + (interval === 1 ? "" : "s") + " ago";
+            
+            interval = Math.floor(seconds / 60);
+            if (interval >= 1) return interval + " minute" + (interval === 1 ? "" : "s") + " ago";
+            
+            return Math.floor(seconds) + " second" + (seconds === 1 ? "" : "s") + " ago";
+        }
+
+        // Clear all recent games
+        async function clearAllRecentGames() {
+            if (!currentUser) return;
+            
+            try {
+                const batch = db.batch();
+                const snapshot = await db.collection('users').doc(currentUser.uid)
+                    .collection('recentGames')
+                    .get();
+                
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                
+                await batch.commit();
+                recentGames = [];
+                showNoRecentGames(false);
+            } catch (error) {
+                console.error('Error clearing recent games:', error);
+                alert('Failed to clear recent games: ' + error.message);
+            }
+        }
+
+        // Show "no recent games" message
+        function showNoRecentGames(showSignInMessage) {
+            recentGamesContainer.innerHTML = `
+                <div class="no-recent-games">
+                    <i class='bx bx-time' style="font-size: 40px; margin-bottom: 10px;"></i>
+                    <p>No recently played games found</p>
+                    ${showSignInMessage ? '<p class="sign-in-message">Sign in to track your recently played games</p>' : ''}
+                </div>
+            `;
+        }
+
+        // Helper function to find game by ID (you should replace this with your actual implementation)
+        function findGameById(id) {
+            // This is a placeholder - you should implement this based on your games data
+            // It should return a game object with at least {id, title, staticImg, url}
+            return {
+                id: id,
+                title: "Game " + id,
+                staticImg: "https://via.placeholder.com/300x200?text=Game+" + id,
+                url: "#game-" + id
+            };
+        }
+
+        // Initialize the page when loaded
+        document.addEventListener('DOMContentLoaded', initRecentPage);
+    </script>
+</body>
+</html>
