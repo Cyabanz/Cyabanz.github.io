@@ -773,7 +773,7 @@ function findGameById(id) {
     return null;
 }
 
-// Create a game card element
+// Modify your existing game card creation function to include tracking
 function createGameCard(game, isPinned = false) {
     const card = document.createElement('div');
     card.className = `game-card ${isPinned ? 'pinned-highlight' : ''}`;
@@ -794,9 +794,92 @@ function createGameCard(game, isPinned = false) {
         </a>
     `;
     
+    // Add click event listener for tracking
+    const gameLink = card.querySelector('.game-link');
+    gameLink.addEventListener('click', function(e) {
+        // Prevent default if we're handling the navigation ourselves
+        e.preventDefault();
+        
+        // Track the game play if user is logged in
+        if (currentUser) {
+            trackGamePlay(game.id);
+        }
+        
+        // Handle the navigation
+        handleGameNavigation(game.url);
+    });
+    
     return card;
 }
 
+// New function to handle game navigation
+function handleGameNavigation(url) {
+    // Check if it's an external URL
+    if (url.startsWith('http')) {
+        // Open in new tab for external links
+        window.open(url, '_blank');
+    } else {
+        // Handle internal navigation
+        window.location.href = url;
+    }
+}
+
+// Enhanced trackGamePlay function
+function trackGamePlay(gameId) {
+    if (!currentUser) return;
+    
+    const userId = currentUser.uid;
+    const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+    
+    // Get current recent games
+    const userRef = db.collection('users').doc(userId);
+    
+    db.runTransaction((transaction) => {
+        return transaction.get(userRef).then((doc) => {
+            if (!doc.exists) {
+                throw "Document does not exist!";
+            }
+            
+            let recentGames = doc.data().recentGames || [];
+            
+            // Remove if game already exists in recent games
+            recentGames = recentGames.filter(g => g.gameId !== gameId);
+            
+            // Add new game to beginning of array
+            recentGames.unshift({
+                gameId: gameId,
+                timestamp: timestamp
+            });
+            
+            // Keep only the last 5 games
+            if (recentGames.length > 5) {
+                recentGames = recentGames.slice(0, 5);
+            }
+            
+            // Update in Firestore
+            transaction.update(userRef, { recentGames: recentGames });
+            
+            // Update local state
+            this.recentGames = recentGames;
+        });
+    }).catch((error) => {
+        console.error('Transaction failed: ', error);
+    });
+}
+
+// Update your existing pin button creation to prevent event bubbling
+function createPinButton(gameId, isPinned = false) {
+    const pinBtn = document.createElement('button');
+    pinBtn.className = `pin-btn ${isPinned ? 'pinned' : ''}`;
+    pinBtn.innerHTML = `<i class="bx ${isPinned ? 'bxs-bookmark' : 'bx-bookmark'}"></i>`;
+    pinBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        togglePinGame(gameId, pinBtn.closest('.game-card'));
+    };
+    return pinBtn;
+}
 // Create pin button element
 function createPinButton(gameId, isPinned = false) {
     const pinBtn = document.createElement('button');
