@@ -1278,3 +1278,41 @@ auth.onAuthStateChanged(function(user) {
     }
 });
 
+// Add this function to record game plays
+function recordGamePlay(gameId) {
+    if (!auth.currentUser) return; // Only log for logged-in users
+    
+    const userId = auth.currentUser.uid;
+    const historyRef = db.collection('users').doc(userId).collection('history');
+    
+    // Check if game already in history
+    historyRef.where('gameId', '==', gameId).get()
+        .then(querySnapshot => {
+            if (querySnapshot.empty) {
+                // Add new entry
+                return historyRef.add({
+                    gameId: gameId,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                // Update timestamp of existing entry
+                const doc = querySnapshot.docs[0];
+                return doc.ref.update({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error recording game play:", error);
+        });
+}
+
+// Modify your game card click handlers to record plays
+function setupGameCardClickEvents() {
+    document.querySelectorAll('.game-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const gameId = parseInt(this.dataset.id);
+            recordGamePlay(gameId);
+        });
+    });
+}
