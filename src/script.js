@@ -896,18 +896,25 @@ function generateGameCardsHTML(games) {
     `).join('');
 }
 
-// Add event listeners to game cards
-function addGameCardEventListeners() {
-    document.querySelectorAll('.pin-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const gameCard = this.closest('.game-card');
+// Update your existing game click handler
+document.addEventListener('click', function(e) {
+    const gameLink = e.target.closest('.game-link');
+    if (gameLink) {
+        e.preventDefault();
+        const gameCard = gameLink.closest('.game-card');
+        if (gameCard) {
             const gameId = parseInt(gameCard.dataset.id);
-            togglePinGame(gameId, gameCard);
-        });
-    });
-}
+            const game = findGameById(gameId);
+            if (game) {
+                // Add to recent games
+                recentGames.add(gameId);
+                
+                // Open game URL
+                window.open(game.url, '_blank');
+            }
+        }
+    }
+});
 
 // Set up navbar functionality
 function setupNavbar() {
