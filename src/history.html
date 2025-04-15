@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game History</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional styles specific to history page */
+        .history-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .clear-history {
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .clear-history:hover {
+            background-color: #ff6b81;
+        }
+        
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .history-item {
+            background-color: #2d3436;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .history-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .history-info {
+            padding: 15px;
+        }
+        
+        .history-game-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #f5f6fa;
+        }
+        
+        .history-time {
+            font-size: 12px;
+            color: #a4b0be;
+            display: flex;
+            align-items: center;
+        }
+        
+        .history-time i {
+            margin-right: 5px;
+        }
+        
+        .no-history {
+            text-align: center;
+            padding: 40px;
+            color: #a4b0be;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .history-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <div class="history-header">
+            <h2>Your Game History</h2>
+            <button class="clear-history" id="clearHistoryBtn">
+                <i class="bx bx-trash"></i> Clear All
+            </button>
+        </div>
+        
+        <div id="historyList">
+            <div class="no-history">
+                <p>No game history found. Play some games to see them here!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize Firebase with your existing config
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Load and display game history when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loadGameHistory(user.uid);
+                } else {
+                    document.getElementById('historyList').innerHTML = `
+                        <div class="no-history">
+                            <p>Please sign in to view your game history</p>
+                        </div>
+                    `;
+                    document.getElementById('clearHistoryBtn').style.display = 'none';
+                }
+            });
+
+            // Clear history button
+            document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all your game history? This cannot be undone.')) {
+                    const user = auth.currentUser;
+                    if (user) {
+                        clearGameHistory(user.uid);
+                    }
+                }
+            });
+        });
+
+        // Load game history from Firestore
+        function loadGameHistory(userId) {
+            db.collection('users').doc(userId).collection('history')
+                .orderBy('timestamp', 'desc')
+                .get()
+                .then(querySnapshot => {
+                    const historyList = document.getElementById('historyList');
+                    
+                    if (querySnapshot.empty) {
+                        historyList.innerHTML = `
+                            <div class="no-history">
+                                <p>No game history found. Play some games to see them here!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    historyList.innerHTML = '<div class="history-grid"></div>';
+                    const grid = historyList.querySelector('.history-grid');
+                    
+                    querySnapshot.forEach(doc => {
+                        const historyItem = doc.data();
+                        const game = findGameById(historyItem.gameId);
+                        
+                        if (game) {
+                            const historyElement = createHistoryElement(game, historyItem.timestamp);
+                            grid.appendChild(historyElement);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading game history:', error);
+                });
+        }
+
+        // Helper function to find game by ID (replicated from main script)
+        function findGameById(id) {
+            // This should match the gamesData structure from your main script
+            const allGames = [];
+            gamesData.forEach(category => {
+                allGames.push(...category.games);
+            });
+            return allGames.find(game => game.id === id);
+        }
+
+        // Create HTML element for a history item
+        function createHistoryElement(game, timestamp) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            const date = timestamp.toDate();
+            const formattedDate = date.toLocaleString();
+            
+            historyItem.innerHTML = `
+                <a href="${game.url}" class="game-link">
+                    <img src="${game.staticImg}" alt="${game.title}" class="history-thumbnail">
+                    <div class="history-info">
+                        <h3 class="history-game-title">${game.title}</h3>
+                        <div class="history-time">
+                            <i class="bx bx-time"></i>
+                            ${formattedDate}
+                        </div>
+                    </div>
+                </a>
+            `;
+            
+            return historyItem;
+        }
+
+        // Clear all game history
+        function clearGameHistory(userId) {
+            db.collection('users').doc(userId).collection('history').get()
+                .then(querySnapshot => {
+                    const batch = db.batch();
+                    querySnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    return batch.commit();
+                })
+                .then(() => {
+                    document.getElementById('historyList').innerHTML = `
+                        <div class="no-history">
+                            <p>Your game history has been cleared</p>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error clearing history:', error);
+                    alert('Failed to clear history. Please try again.');
+                });
+        }
+    </script>
+</body>
+</html>
