@@ -1277,3 +1277,51 @@ auth.onAuthStateChanged(function(user) {
         setupFavoritesPage(); // Initialize favorites page for guest
     }
 });
+
+// Add this to your existing script.js (at the bottom or with other Firebase functions)
+
+// Track when a game is played
+function trackGamePlay(gameId) {
+    if (!currentUser) return;
+    
+    const userId = currentUser.uid;
+    const historyRef = db.collection('users').doc(userId).collection('history').doc();
+    
+    historyRef.set({
+        gameId: gameId,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .catch(error => {
+        console.error('Error tracking game play:', error);
+    });
+}
+
+// Add game play tracking to game links
+function setupGamePlayTracking() {
+    document.addEventListener('click', function(e) {
+        // Check if a game link was clicked
+        const gameLink = e.target.closest('.game-link');
+        if (!gameLink) return;
+        
+        // Find the game card
+        const gameCard = gameLink.closest('.game-card');
+        if (!gameCard) return;
+        
+        // Get the game ID
+        const gameId = parseInt(gameCard.dataset.id);
+        if (!gameId) return;
+        
+        // Track the game play
+        trackGamePlay(gameId);
+    });
+}
+
+// Call this in your init function
+function init() {
+    setupEventListeners();
+    setupNavbar();
+    renderAllGameRows();
+    setupGamePlayTracking(); // Add this line
+    
+    // ... rest of your existing init code
+}
