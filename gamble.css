@@ -1,0 +1,230 @@
+/* ===== Base Styles ===== */
+:root {
+  --primary: #4ecca3;
+  --primary-dark: #3aa789;
+  --secondary: #4e54c8;
+  --danger: #e94560;
+  --danger-dark: #d13354;
+  --warning: #f6b93b;
+  --dark-bg: #121212;
+  --card-bg: #16213e;
+  --navbar-bg: #1a1a2e;
+  --text-light: #ffffff;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: var(--text-light);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  background-color: var(--navbar-bg);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary) !important;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--dark-bg);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-dark);
+  border-color: var(--danger-dark);
+  transform: translateY(-2px);
+}
+
+/* ===== Cards ===== */
+.card {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Wheel of Fortune ===== */
+.wheel-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  margin: 30px auto;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  border: 12px solid var(--navbar-bg);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+}
+
+.wheel-section {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  transform-origin: bottom right;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.wheel-section:nth-child(1) { background-color: var(--danger); transform: rotate(0deg) skewY(60deg); }
+.wheel-section:nth-child(2) { background-color: var(--warning); transform: rotate(90deg) skewY(60deg); }
+.wheel-section:nth-child(3) { background-color: var(--primary); transform: rotate(180deg) skewY(60deg); }
+.wheel-section:nth-child(4) { background-color: var(--secondary); transform: rotate(270deg) skewY(60deg); }
+
+.wheel-section div {
+  transform: skewY(-60deg) rotate(30deg);
+  width: 100px;
+  text-align: center;
+}
+
+.wheel-center {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: var(--navbar-bg);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  border: 4px solid var(--primary);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 40px solid var(--danger);
+  z-index: 5;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+}
+
+/* ===== Progress & Streak ===== */
+.streak-container {
+  background: linear-gradient(135deg, var(--navbar-bg), var(--card-bg));
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.progress {
+  height: 20px;
+  background-color: var(--dark-bg);
+  border-radius: 10px;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+/* ===== Tabs ===== */
+.nav-tabs {
+  border-bottom: 2px solid var(--navbar-bg);
+}
+
+.nav-tabs .nav-link {
+  color: var(--text-light);
+  background-color: var(--card-bg);
+  border: none;
+  margin-right: 5px;
+  border-radius: 8px 8px 0 0;
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: var(--primary);
+  color: var(--dark-bg);
+  font-weight: 600;
+  border-bottom: 3px solid var(--dark-bg);
+}
+
+/* ===== Animations ===== */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.reward-animation {
+  animation: pulse 1s infinite;
+  border: 4px solid var(--primary);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(30, 30, 60, 0.7);
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+  .wheel-container {
+    width: 280px;
+    height: 280px;
+  }
+  
+  .btn {
+    min-width: 100px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+}
