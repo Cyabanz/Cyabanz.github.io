@@ -16,6 +16,12 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
+// Enable Firestore persistence
+db.enablePersistence()
+  .catch((err) => {
+      console.error("Firestore persistence error:", err);
+  });
+
 // Game Data
 const ITEM_TYPES = {
     PET: 'pet',
@@ -38,50 +44,11 @@ const RARITY_COLORS = {
     [RARITIES.LEGENDARY]: '#fd7e14'
 };
 
-const RARITY_WEIGHTS = {
-    [RARITIES.COMMON]: 50,
-    [RARITIES.UNCOMMON]: 30,
-    [RARITIES.RARE]: 15,
-    [RARITIES.EPIC]: 4,
-    [RARITIES.LEGENDARY]: 1
-};
-
 const LOOTBOX_TIERS = {
     FREE: 'free',
     BRONZE: 'bronze',
     SILVER: 'silver',
     GOLD: 'gold'
-};
-
-const LOOTBOX_DROP_RATES = {
-    [LOOTBOX_TIERS.FREE]: {
-        [RARITIES.COMMON]: 60,
-        [RARITIES.UNCOMMON]: 30,
-        [RARITIES.RARE]: 10,
-        [RARITIES.EPIC]: 0,
-        [RARITIES.LEGENDARY]: 0
-    },
-    [LOOTBOX_TIERS.BRONZE]: {
-        [RARITIES.COMMON]: 50,
-        [RARITIES.UNCOMMON]: 35,
-        [RARITIES.RARE]: 13,
-        [RARITIES.EPIC]: 2,
-        [RARITIES.LEGENDARY]: 0
-    },
-    [LOOTBOX_TIERS.SILVER]: {
-        [RARITIES.COMMON]: 30,
-        [RARITIES.UNCOMMON]: 40,
-        [RARITIES.RARE]: 20,
-        [RARITIES.EPIC]: 9,
-        [RARITIES.LEGENDARY]: 1
-    },
-    [LOOTBOX_TIERS.GOLD]: {
-        [RARITIES.COMMON]: 10,
-        [RARITIES.UNCOMMON]: 25,
-        [RARITIES.RARE]: 35,
-        [RARITIES.EPIC]: 25,
-        [RARITIES.LEGENDARY]: 5
-    }
 };
 
 const LOOTBOX_PRICES = {
@@ -261,7 +228,7 @@ function createUserDocument(user) {
 }
 
 function loadUserData(userId) {
-    db.collection('users').doc(userId).onSnapshot(function(doc) {
+    const unsubscribe = db.collection('users').doc(userId).onSnapshot(function(doc) {
         if (doc.exists) {
             const data = doc.data();
             
@@ -286,6 +253,9 @@ function loadUserData(userId) {
     }, function(error) {
         console.error('Error loading user data:', error);
     });
+
+    // Return the unsubscribe function to clean up later if needed
+    return unsubscribe;
 }
 
 async function updateUserData() {
@@ -306,9 +276,10 @@ async function updateUserData() {
         }
         
         await db.collection('users').doc(currentUser.uid).update(updateData);
+        return true;
     } catch (error) {
         console.error('Error updating user data:', error);
-        throw error; // Re-throw to handle in calling functions
+        throw error;
     }
 }
 
@@ -408,48 +379,52 @@ function handleProfilePicUpload(e) {
 async function claimDailyReward() {
     if (!currentUser) return;
     
-    const now = new Date();
-    const lastLogin = userData.lastLogin;
-    let newStreak = userData.streak;
-    let coinsEarned = 50; // Base reward
-    
-    // Check if the user logged in yesterday to maintain streak
-    if (lastLogin) {
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        // Reset streak if it's been more than 1 day
-        if (now.toDateString() !== lastLogin.toDateString()) {
-            if (now.getDate() === lastLogin.getDate() + 1 && 
-                now.getMonth() === lastLogin.getMonth() && 
-                now.getFullYear() === lastLogin.getFullYear()) {
-                // Consecutive day
-                newStreak++;
-            } else {
-                // Broken streak
-                newStreak = 1;
-            }
-        } else {
-            // Already claimed today
-            alert('You already claimed your daily reward today!');
-            return;
-        }
-    } else {
-        // First time claiming
-        newStreak = 1;
-    }
-    
-    // Bonus coins based on streak (every 7 days)
-    const streakBonus = Math.floor(newStreak / 7) * 100;
-    coinsEarned += streakBonus;
-    
-    // Update user data
-    userData.coins += coinsEarned;
-    userData.streak = newStreak;
-    userData.lastLogin = now;
-    userData.freeBoxAvailable = true;
+    // Disable button to prevent double claiming
+    claimDailyBtn.disabled = true;
     
     try {
+        const now = new Date();
+        const lastLogin = userData.lastLogin;
+        let newStreak = userData.streak;
+        let coinsEarned = 50; // Base reward
+        
+        // Check if the user logged in yesterday to maintain streak
+        if (lastLogin) {
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            // Reset streak if it's been more than 1 day
+            if (now.toDateString() !== lastLogin.toDateString()) {
+                if (now.getDate() === lastLogin.getDate() + 1 && 
+                    now.getMonth() === lastLogin.getMonth() && 
+                    now.getFullYear() === lastLogin.getFullYear()) {
+                    // Consecutive day
+                    newStreak++;
+                } else {
+                    // Broken streak
+                    newStreak = 1;
+                }
+            } else {
+                // Already claimed today
+                alert('You already claimed your daily reward today!');
+                claimDailyBtn.disabled = false;
+                return;
+            }
+        } else {
+            // First time claiming
+            newStreak = 1;
+        }
+        
+        // Bonus coins based on streak (every 7 days)
+        const streakBonus = Math.floor(newStreak / 7) * 100;
+        coinsEarned += streakBonus;
+        
+        // Update user data
+        userData.coins += coinsEarned;
+        userData.streak = newStreak;
+        userData.lastLogin = now;
+        userData.freeBoxAvailable = true;
+        
         // Update database
         await updateUserData();
         
@@ -468,6 +443,8 @@ async function claimDailyReward() {
     } catch (error) {
         console.error('Error claiming daily reward:', error);
         alert('Failed to claim daily reward. Please try again.');
+    } finally {
+        claimDailyBtn.disabled = false;
     }
 }
 
@@ -531,19 +508,27 @@ function updateFreeBoxUI() {
 async function openLootBox(tier) {
     if (!currentUser) return;
     
-    // Check if it's a free box and if it's available
-    if (tier === LOOTBOX_TIERS.FREE && !userData.freeBoxAvailable) {
-        alert('You already opened your free box today!');
-        return;
-    }
+    const boxBtn = document.querySelector(`.open-lootbox-btn[data-tier="${tier}"]`);
+    if (!boxBtn) return;
     
-    // Check if user has enough coins for paid boxes
-    if (tier !== LOOTBOX_TIERS.FREE && userData.coins < LOOTBOX_PRICES[tier]) {
-        alert(`You need ${LOOTBOX_PRICES[tier]} coins to open this box!`);
-        return;
-    }
+    // Disable button to prevent double opening
+    boxBtn.disabled = true;
     
     try {
+        // Check if it's a free box and if it's available
+        if (tier === LOOTBOX_TIERS.FREE && !userData.freeBoxAvailable) {
+            alert('You already opened your free box today!');
+            boxBtn.disabled = false;
+            return;
+        }
+        
+        // Check if user has enough coins for paid boxes
+        if (tier !== LOOTBOX_TIERS.FREE && userData.coins < LOOTBOX_PRICES[tier]) {
+            alert(`You need ${LOOTBOX_PRICES[tier]} coins to open this box!`);
+            boxBtn.disabled = false;
+            return;
+        }
+        
         // Deduct coins for paid boxes
         if (tier !== LOOTBOX_TIERS.FREE) {
             userData.coins -= LOOTBOX_PRICES[tier];
@@ -574,19 +559,49 @@ async function openLootBox(tier) {
             setTimeout(() => {
                 boxElement.classList.remove('shake');
                 showReward(item);
+                boxBtn.disabled = false;
             }, 1000);
         } else {
             showReward(item);
+            boxBtn.disabled = false;
         }
     } catch (error) {
         console.error('Error opening loot box:', error);
         alert('Failed to open loot box. Please try again.');
+        boxBtn.disabled = false;
     }
 }
 
 function getRandomItemFromLootBox(tier) {
-    // Determine rarity based on drop rates
-    const rarity = getRandomRarity(tier);
+    // Simplified drop rates for demo purposes
+    let rarity;
+    const roll = Math.random() * 100;
+    
+    if (tier === LOOTBOX_TIERS.FREE) {
+        if (roll < 60) rarity = RARITIES.COMMON;
+        else if (roll < 90) rarity = RARITIES.UNCOMMON;
+        else rarity = RARITIES.RARE;
+    } 
+    else if (tier === LOOTBOX_TIERS.BRONZE) {
+        if (roll < 50) rarity = RARITIES.COMMON;
+        else if (roll < 85) rarity = RARITIES.UNCOMMON;
+        else if (roll < 98) rarity = RARITIES.RARE;
+        else rarity = RARITIES.EPIC;
+    }
+    else if (tier === LOOTBOX_TIERS.SILVER) {
+        if (roll < 30) rarity = RARITIES.COMMON;
+        else if (roll < 70) rarity = RARITIES.UNCOMMON;
+        else if (roll < 90) rarity = RARITIES.RARE;
+        else if (roll < 99) rarity = RARITIES.EPIC;
+        else rarity = RARITIES.LEGENDARY;
+    }
+    else if (tier === LOOTBOX_TIERS.GOLD) {
+        if (roll < 10) rarity = RARITIES.COMMON;
+        else if (roll < 35) rarity = RARITIES.UNCOMMON;
+        else if (roll < 70) rarity = RARITIES.RARE;
+        else if (roll < 95) rarity = RARITIES.EPIC;
+        else rarity = RARITIES.LEGENDARY;
+    }
     
     // Filter items by rarity
     let eligibleItems = [];
@@ -599,22 +614,6 @@ function getRandomItemFromLootBox(tier) {
     // Select a random item
     const randomIndex = Math.floor(Math.random() * eligibleItems.length);
     return eligibleItems[randomIndex];
-}
-
-function getRandomRarity(tier) {
-    const rates = LOOTBOX_DROP_RATES[tier];
-    const total = Object.values(rates).reduce((sum, rate) => sum + rate, 0);
-    const random = Math.random() * total;
-    
-    let cumulative = 0;
-    for (const [rarity, rate] of Object.entries(rates)) {
-        cumulative += rate;
-        if (random <= cumulative) {
-            return rarity;
-        }
-    }
-    
-    return RARITIES.COMMON; // fallback
 }
 
 function showReward(item) {
@@ -811,11 +810,6 @@ function confirmBuyItem(itemId) {
     const item = findItemInDatabase(itemId);
     if (!item) return;
     
-    if (userData.coins < item.value) {
-        alert(`You don't have enough coins to buy this item. You need ${item.value - userData.coins} more coins.`);
-        return;
-    }
-    
     confirmationModalTitle.textContent = 'Confirm Purchase';
     confirmationModalBody.innerHTML = `
         <p>Are you sure you want to buy <strong>${item.name}</strong> for ${item.value} coins?</p>
@@ -857,29 +851,53 @@ async function buyItem(itemId) {
     const item = findItemInDatabase(itemId);
     if (!item) return;
     
-    // Check if user has enough coins
-    if (userData.coins < item.value) {
-        alert(`You don't have enough coins to buy this item. You need ${item.value - userData.coins} more coins.`);
-        return;
-    }
-    
     try {
-        // Deduct coins
-        userData.coins -= item.value;
+        // Verify user has enough coins again (in case state changed)
+        if (userData.coins < item.value) {
+            throw new Error('Not enough coins');
+        }
         
-        // Add to inventory
-        userData.inventory.push({
-            id: item.id,
-            type: item.type,
-            obtainedAt: new Date()
+        // Use Firestore transaction to ensure atomic operation
+        await db.runTransaction(async (transaction) => {
+            const userRef = db.collection('users').doc(currentUser.uid);
+            const userDoc = await transaction.get(userRef);
+            
+            if (!userDoc.exists) {
+                throw new Error('User document does not exist');
+            }
+            
+            const currentCoins = userDoc.data().coins;
+            if (currentCoins < item.value) {
+                throw new Error('Not enough coins');
+            }
+            
+            // Update coins and inventory atomically
+            const newInventory = [...(userDoc.data().inventory || []), {
+                id: item.id,
+                type: item.type,
+                obtainedAt: new Date()
+            }];
+            
+            transaction.update(userRef, {
+                coins: currentCoins - item.value,
+                inventory: newInventory
+            });
+            
+            // Update local state
+            userData.coins = currentCoins - item.value;
+            userData.inventory = newInventory;
         });
         
-        // Update database and UI
-        await updateUserData();
+        // Update UI
+        updateUIWithUserData();
         alert(`You bought ${item.name} for ${item.value} coins!`);
     } catch (error) {
         console.error('Error buying item:', error);
-        alert('Failed to buy item. Please try again.');
+        if (error.message === 'Not enough coins') {
+            alert(`You don't have enough coins to buy this item. You need ${item.value - userData.coins} more coins.`);
+        } else {
+            alert('Failed to buy item. Please try again.');
+        }
     }
 }
 
