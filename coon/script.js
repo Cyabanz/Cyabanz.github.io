@@ -10,19 +10,23 @@ const firebaseConfig = {
     measurementId: "G-4DT52P7MPB"
 };
 
-// Initialize Firebase
+// Initialize Firebase with persistence
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-// Enable Firestore persistence
+// Enable Firestore offline persistence
 db.enablePersistence()
   .catch((err) => {
-      console.error("Firestore persistence error:", err);
+      if (err.code === 'failed-precondition') {
+          console.warn("Persistence enabled in another tab");
+      } else if (err.code === 'unimplemented') {
+          console.warn("Browser doesn't support all persistence features");
+      }
   });
 
-// Game Data
+// Game Constants
 const ITEM_TYPES = {
     PET: 'pet',
     KNIFE: 'knife'
@@ -87,118 +91,135 @@ let userData = {
 };
 
 // DOM Elements
-const signInButton = document.getElementById('signInButton');
-const signOutButton = document.getElementById('signOutButton');
-const usernameDisplay = document.getElementById('username-display');
-const profilePic = document.getElementById('profile-pic');
-const loginView = document.getElementById('login-view');
-const dashboardView = document.getElementById('dashboard-view');
-const dashboardUsername = document.getElementById('dashboard-username');
-const updateUsernameBtn = document.getElementById('update-username-btn');
-const newUsernameInput = document.getElementById('new-username');
-const profilePicUpload = document.getElementById('profile-pic-upload');
-const uploadProfilePicBtn = document.getElementById('upload-profile-pic-btn');
-const profilePicPreview = document.getElementById('profile-pic-preview');
-const coinBalance = document.getElementById('coin-balance');
-const claimDailyBtn = document.getElementById('claim-daily-btn');
-const currentStreak = document.getElementById('current-streak');
-const streakProgress = document.getElementById('streak-progress');
-const nextStreakReward = document.getElementById('next-streak-reward');
-const freeBoxTimer = document.getElementById('free-box-timer');
-const petsInventory = document.getElementById('pets-inventory');
-const knivesInventory = document.getElementById('knives-inventory');
-const shopPets = document.getElementById('shop-pets');
-const shopKnives = document.getElementById('shop-knives');
-const rewardModal = new bootstrap.Modal(document.getElementById('rewardModal'));
-const rewardImage = document.getElementById('reward-image');
-const rewardName = document.getElementById('reward-name');
-const rewardDescription = document.getElementById('reward-description');
-const rewardRarityBadge = document.getElementById('reward-rarity-badge');
-const sellRewardBtn = document.getElementById('sell-reward-btn');
-const sellPrice = document.getElementById('sell-price');
-const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-const confirmationModalTitle = document.getElementById('confirmationModalTitle');
-const confirmationModalBody = document.getElementById('confirmationModalBody');
-const confirmActionBtn = document.getElementById('confirmActionBtn');
+const elements = {
+    signInButton: document.getElementById('signInButton'),
+    signOutButton: document.getElementById('signOutButton'),
+    usernameDisplay: document.getElementById('username-display'),
+    profilePic: document.getElementById('profile-pic'),
+    loginView: document.getElementById('login-view'),
+    dashboardView: document.getElementById('dashboard-view'),
+    dashboardUsername: document.getElementById('dashboard-username'),
+    updateUsernameBtn: document.getElementById('update-username-btn'),
+    newUsernameInput: document.getElementById('new-username'),
+    profilePicUpload: document.getElementById('profile-pic-upload'),
+    uploadProfilePicBtn: document.getElementById('upload-profile-pic-btn'),
+    profilePicPreview: document.getElementById('profile-pic-preview'),
+    coinBalance: document.getElementById('coin-balance'),
+    claimDailyBtn: document.getElementById('claim-daily-btn'),
+    currentStreak: document.getElementById('current-streak'),
+    streakProgress: document.getElementById('streak-progress'),
+    nextStreakReward: document.getElementById('next-streak-reward'),
+    freeBoxTimer: document.getElementById('free-box-timer'),
+    petsInventory: document.getElementById('pets-inventory'),
+    knivesInventory: document.getElementById('knives-inventory'),
+    shopPets: document.getElementById('shop-pets'),
+    shopKnives: document.getElementById('shop-knives'),
+    rewardModal: new bootstrap.Modal(document.getElementById('rewardModal')),
+    rewardImage: document.getElementById('reward-image'),
+    rewardName: document.getElementById('reward-name'),
+    rewardDescription: document.getElementById('reward-description'),
+    rewardRarityBadge: document.getElementById('reward-rarity-badge'),
+    sellRewardBtn: document.getElementById('sell-reward-btn'),
+    sellPrice: document.getElementById('sell-price'),
+    confirmationModal: new bootstrap.Modal(document.getElementById('confirmationModal')),
+    confirmationModalTitle: document.getElementById('confirmationModalTitle'),
+    confirmationModalBody: document.getElementById('confirmationModalBody'),
+    confirmActionBtn: document.getElementById('confirmActionBtn')
+};
 
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Auth state listener
-    auth.onAuthStateChanged(function(user) {
-        if (user) {
-            currentUser = user;
-            updateUIForUser(user);
-            loadUserData(user.uid);
-            startFreeBoxTimer();
-        } else {
-            currentUser = null;
-            updateUIForGuest();
-        }
-    });
+// Initialize the app
+document.addEventListener('DOMContentLoaded', initApp);
 
-    // Event listeners
-    signInButton.addEventListener('click', signInWithGoogle);
-    signOutButton.addEventListener('click', signOut);
-    updateUsernameBtn.addEventListener('click', updateUsername);
-    uploadProfilePicBtn.addEventListener('click', () => profilePicUpload.click());
-    profilePicUpload.addEventListener('change', handleProfilePicUpload);
-    claimDailyBtn.addEventListener('click', claimDailyReward);
-    
-    // Loot box event delegation
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('open-lootbox-btn') || e.target.closest('.open-lootbox-btn')) {
-            const btn = e.target.classList.contains('open-lootbox-btn') ? e.target : e.target.closest('.open-lootbox-btn');
-            const tier = btn.dataset.tier;
-            openLootBox(tier);
-        }
-        
-        if (e.target.classList.contains('sell-item-btn') || e.target.closest('.sell-item-btn')) {
-            const btn = e.target.classList.contains('sell-item-btn') ? e.target : e.target.closest('.sell-item-btn');
-            const itemId = btn.dataset.itemId;
-            confirmSellItem(itemId);
-        }
-        
-        if (e.target.classList.contains('buy-item-btn') || e.target.closest('.buy-item-btn')) {
-            const btn = e.target.classList.contains('buy-item-btn') ? e.target : e.target.closest('.buy-item-btn');
-            const itemId = btn.dataset.itemId;
-            confirmBuyItem(itemId);
-        }
-    });
-    
-    // Reward modal sell button
-    sellRewardBtn.addEventListener('click', sellRewardItem);
-    
-    // Initialize shop
+function initApp() {
+    setupAuthListener();
+    setupEventListeners();
     initializeShop();
-});
+}
 
-// Auth Functions
-function signInWithGoogle() {
-    auth.signInWithPopup(provider)
-        .then(function(result) {
-            if (result.additionalUserInfo.isNewUser) {
-                return createUserDocument(result.user);
+function setupAuthListener() {
+    auth.onAuthStateChanged(async (user) => {
+        try {
+            if (user) {
+                currentUser = user;
+                updateUIForUser(user);
+                await loadUserData(user.uid);
+                startFreeBoxTimer();
+            } else {
+                currentUser = null;
+                updateUIForGuest();
             }
-        })
-        .catch(function(error) {
-            console.error('Sign in error:', error);
-            alert('Sign in failed: ' + error.message);
-        });
+        } catch (error) {
+            console.error("Auth state error:", error);
+            showError("Error initializing session. Please refresh.");
+        }
+    });
 }
 
-function signOut() {
-    auth.signOut()
-        .catch(function(error) {
-            console.error('Sign out error:', error);
-        });
+function setupEventListeners() {
+    elements.signInButton.addEventListener('click', signInWithGoogle);
+    elements.signOutButton.addEventListener('click', signOut);
+    elements.updateUsernameBtn.addEventListener('click', updateUsername);
+    elements.uploadProfilePicBtn.addEventListener('click', () => elements.profilePicUpload.click());
+    elements.profilePicUpload.addEventListener('change', handleProfilePicUpload);
+    elements.claimDailyBtn.addEventListener('click', claimDailyReward);
+    elements.sellRewardBtn.addEventListener('click', sellRewardItem);
+    
+    // Delegated event listeners
+    document.addEventListener('click', handleDelegatedEvents);
 }
 
-// User Document Functions
-function createUserDocument(user) {
+function handleDelegatedEvents(e) {
+    // Loot box opening
+    if (e.target.closest('.open-lootbox-btn')) {
+        const btn = e.target.closest('.open-lootbox-btn');
+        openLootBox(btn.dataset.tier);
+    }
+    
+    // Item selling
+    if (e.target.closest('.sell-item-btn')) {
+        const btn = e.target.closest('.sell-item-btn');
+        confirmSellItem(btn.dataset.itemId);
+    }
+    
+    // Item buying
+    if (e.target.closest('.buy-item-btn')) {
+        const btn = e.target.closest('.buy-item-btn');
+        confirmBuyItem(btn.dataset.itemId);
+    }
+}
+
+// Authentication Functions
+async function signInWithGoogle() {
+    try {
+        elements.signInButton.disabled = true;
+        const result = await auth.signInWithPopup(provider);
+        
+        if (result.additionalUserInfo.isNewUser) {
+            await createUserDocument(result.user);
+        }
+    } catch (error) {
+        console.error("Sign in error:", error);
+        showError(`Sign in failed: ${error.message}`);
+    } finally {
+        elements.signInButton.disabled = false;
+    }
+}
+
+async function signOut() {
+    try {
+        await auth.signOut();
+    } catch (error) {
+        console.error("Sign out error:", error);
+        showError("Failed to sign out");
+    }
+}
+
+// User Data Functions
+async function createUserDocument(user) {
     const userDoc = {
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName || 'User' + user.uid.substring(0, 4),
+        displayName: user.displayName || `User${user.uid.substring(0, 4)}`,
         photoURL: user.photoURL || '',
         coins: 100,
         streak: 0,
@@ -209,58 +230,45 @@ function createUserDocument(user) {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    return db.collection('users').doc(user.uid).set(userDoc)
-        .then(() => {
-            // Initialize local userData with the created document
-            userData = {
-                coins: userDoc.coins,
-                streak: userDoc.streak,
-                lastLogin: userDoc.lastLogin,
-                inventory: userDoc.inventory,
-                lootBoxesOpened: userDoc.lootBoxesOpened,
-                freeBoxAvailable: userDoc.freeBoxAvailable
-            };
-            updateUIWithUserData();
-        })
-        .catch(function(error) {
-            console.error('Error creating user document:', error);
-        });
+    try {
+        await db.collection('users').doc(user.uid).set(userDoc);
+        Object.assign(userData, userDoc);
+        updateUIWithUserData();
+    } catch (error) {
+        console.error("Error creating user:", error);
+        throw error;
+    }
 }
 
-function loadUserData(userId) {
-    const unsubscribe = db.collection('users').doc(userId).onSnapshot(function(doc) {
-        if (doc.exists) {
-            const data = doc.data();
-            
-            // Convert Firestore Timestamp to Date if it exists
-            const lastLogin = data.lastLogin ? data.lastLogin.toDate() : null;
-            
-            // Update local userData
-            userData = {
-                coins: data.coins || 0,
-                streak: data.streak || 0,
-                lastLogin: lastLogin,
-                inventory: data.inventory || [],
-                lootBoxesOpened: data.lootBoxesOpened || 0,
-                freeBoxAvailable: data.freeBoxAvailable !== undefined ? data.freeBoxAvailable : true
-            };
-            
-            updateUIWithUserData();
-            
-            // Check if we need to reset the free box
-            checkFreeBoxReset();
+async function loadUserData(userId) {
+    try {
+        const doc = await db.collection('users').doc(userId).get();
+        
+        if (!doc.exists) {
+            throw new Error("User document not found");
         }
-    }, function(error) {
-        console.error('Error loading user data:', error);
-    });
-
-    // Return the unsubscribe function to clean up later if needed
-    return unsubscribe;
+        
+        const data = doc.data();
+        userData = {
+            coins: data.coins || 0,
+            streak: data.streak || 0,
+            lastLogin: data.lastLogin?.toDate() || null,
+            inventory: data.inventory || [],
+            lootBoxesOpened: data.lootBoxesOpened || 0,
+            freeBoxAvailable: data.freeBoxAvailable ?? true
+        };
+        
+        updateUIWithUserData();
+        checkFreeBoxReset();
+    } catch (error) {
+        console.error("Error loading user data:", error);
+        throw error;
+    }
 }
 
 async function updateUserData() {
-    if (!currentUser) return;
-    
+    if (!currentUser) return false;
+
     try {
         const updateData = {
             coins: userData.coins,
@@ -270,7 +278,6 @@ async function updateUserData() {
             freeBoxAvailable: userData.freeBoxAvailable
         };
         
-        // Only update lastLogin if it exists to avoid overwriting with null
         if (userData.lastLogin) {
             updateData.lastLogin = firebase.firestore.Timestamp.fromDate(userData.lastLogin);
         }
@@ -278,41 +285,41 @@ async function updateUserData() {
         await db.collection('users').doc(currentUser.uid).update(updateData);
         return true;
     } catch (error) {
-        console.error('Error updating user data:', error);
+        console.error("Error updating user:", error);
         throw error;
     }
 }
 
 // UI Functions
 function updateUIForUser(user) {
-    loginView.style.display = 'none';
-    dashboardView.style.display = 'block';
-    usernameDisplay.textContent = user.displayName || 'User';
-    dashboardUsername.textContent = user.displayName || 'User';
+    elements.loginView.style.display = 'none';
+    elements.dashboardView.style.display = 'block';
+    elements.usernameDisplay.textContent = user.displayName || 'User';
+    elements.dashboardUsername.textContent = user.displayName || 'User';
     
     if (user.photoURL) {
-        profilePic.src = user.photoURL;
-        profilePicPreview.src = user.photoURL;
+        elements.profilePic.src = user.photoURL;
+        elements.profilePicPreview.src = user.photoURL;
     }
 }
 
 function updateUIForGuest() {
-    loginView.style.display = 'block';
-    dashboardView.style.display = 'none';
-    usernameDisplay.textContent = 'Guest';
-    profilePic.src = 'https://via.placeholder.com/40';
-    profilePicPreview.src = 'https://via.placeholder.com/150';
+    elements.loginView.style.display = 'block';
+    elements.dashboardView.style.display = 'none';
+    elements.usernameDisplay.textContent = 'Guest';
+    elements.profilePic.src = 'https://via.placeholder.com/40';
+    elements.profilePicPreview.src = 'https://via.placeholder.com/150';
 }
 
 function updateUIWithUserData() {
     // Update coin balance
-    coinBalance.textContent = userData.coins;
+    elements.coinBalance.textContent = userData.coins;
     
     // Update streak
-    currentStreak.textContent = userData.streak;
+    elements.currentStreak.textContent = userData.streak;
     const nextRewardDay = Math.min(7, userData.streak + 1);
-    nextStreakReward.textContent = nextRewardDay;
-    streakProgress.style.width = `${(userData.streak % 7) * (100 / 7)}%`;
+    elements.nextStreakReward.textContent = nextRewardDay;
+    elements.streakProgress.style.width = `${(userData.streak % 7) * (100 / 7)}%`;
     
     // Update inventory
     renderInventory();
@@ -321,105 +328,90 @@ function updateUIWithUserData() {
     updateFreeBoxUI();
 }
 
-function updateUsername() {
-    const newUsername = newUsernameInput.value.trim();
+async function updateUsername() {
+    const newUsername = elements.newUsernameInput.value.trim();
     if (newUsername.length < 3) {
-        alert('Username must be at least 3 characters');
+        showError('Username must be at least 3 characters');
         return;
     }
 
-    if (!currentUser) return;
-
-    db.collection('users').doc(currentUser.uid).update({
-        displayName: newUsername
-    })
-    .then(function() {
-        usernameDisplay.textContent = newUsername;
-        dashboardUsername.textContent = newUsername;
-        newUsernameInput.value = '';
-        alert('Username updated!');
-    })
-    .catch(function(error) {
-        console.error('Error updating username:', error);
-        alert('Update failed: ' + error.message);
-    });
+    try {
+        elements.updateUsernameBtn.disabled = true;
+        await db.collection('users').doc(currentUser.uid).update({
+            displayName: newUsername
+        });
+        
+        elements.usernameDisplay.textContent = newUsername;
+        elements.dashboardUsername.textContent = newUsername;
+        elements.newUsernameInput.value = '';
+        showSuccess('Username updated!');
+    } catch (error) {
+        console.error("Username update error:", error);
+        showError('Failed to update username');
+    } finally {
+        elements.updateUsernameBtn.disabled = false;
+    }
 }
 
-function handleProfilePicUpload(e) {
+async function handleProfilePicUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
     if (file.size > 500 * 1024) {
-        alert('Image must be smaller than 500KB');
+        showError('Image must be smaller than 500KB');
         return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        profilePicPreview.src = event.target.result;
+    try {
+        const reader = new FileReader();
+        const imageUrl = await new Promise((resolve, reject) => {
+            reader.onload = (event) => resolve(event.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        elements.profilePicPreview.src = imageUrl;
         
-        if (currentUser) {
-            db.collection('users').doc(currentUser.uid).update({
-                photoURL: event.target.result
-            })
-            .then(function() {
-                profilePic.src = event.target.result;
-                alert('Profile picture updated!');
-            })
-            .catch(function(error) {
-                console.error('Error saving image:', error);
-                alert('Upload failed: ' + error.message);
-            });
-        }
-    };
-    reader.readAsDataURL(file);
+        await db.collection('users').doc(currentUser.uid).update({
+            photoURL: imageUrl
+        });
+        
+        elements.profilePic.src = imageUrl;
+        showSuccess('Profile picture updated!');
+    } catch (error) {
+        console.error("Profile pic error:", error);
+        showError('Failed to update profile picture');
+    }
 }
 
 // Reward System Functions
 async function claimDailyReward() {
     if (!currentUser) return;
     
-    // Disable button to prevent double claiming
-    claimDailyBtn.disabled = true;
-    
     try {
+        elements.claimDailyBtn.disabled = true;
+        
         const now = new Date();
         const lastLogin = userData.lastLogin;
         let newStreak = userData.streak;
         let coinsEarned = 50; // Base reward
         
-        // Check if the user logged in yesterday to maintain streak
+        // Check streak
         if (lastLogin) {
-            const yesterday = new Date(now);
-            yesterday.setDate(yesterday.getDate() - 1);
-            
-            // Reset streak if it's been more than 1 day
-            if (now.toDateString() !== lastLogin.toDateString()) {
-                if (now.getDate() === lastLogin.getDate() + 1 && 
-                    now.getMonth() === lastLogin.getMonth() && 
-                    now.getFullYear() === lastLogin.getFullYear()) {
-                    // Consecutive day
-                    newStreak++;
-                } else {
-                    // Broken streak
-                    newStreak = 1;
-                }
-            } else {
-                // Already claimed today
-                alert('You already claimed your daily reward today!');
-                claimDailyBtn.disabled = false;
+            if (isSameDay(now, lastLogin)) {
+                showError('You already claimed your reward today!');
                 return;
             }
+            newStreak = isYesterday(lastLogin, now) ? newStreak + 1 : 1;
         } else {
-            // First time claiming
             newStreak = 1;
         }
         
-        // Bonus coins based on streak (every 7 days)
+        // Calculate bonus
         const streakBonus = Math.floor(newStreak / 7) * 100;
         coinsEarned += streakBonus;
         
-        // Update user data
+        // Update state
         userData.coins += coinsEarned;
         userData.streak = newStreak;
         userData.lastLogin = now;
@@ -427,24 +419,20 @@ async function claimDailyReward() {
         
         // Update database
         await updateUserData();
-        
-        // Update UI
         updateUIWithUserData();
         
-        // Show reward message
+        // Show rewards
         let message = `You earned ${coinsEarned} coins!`;
         if (streakBonus > 0) {
             message += ` (Including ${streakBonus} bonus coins for your ${newStreak}-day streak!)`;
         }
-        alert(message);
-        
-        // Also give a free loot box
-        alert('You also received a free loot box for today!');
+        showSuccess(message);
+        showSuccess('You received a free loot box for today!');
     } catch (error) {
-        console.error('Error claiming daily reward:', error);
-        alert('Failed to claim daily reward. Please try again.');
+        console.error("Daily reward error:", error);
+        showError('Failed to claim daily reward');
     } finally {
-        claimDailyBtn.disabled = false;
+        elements.claimDailyBtn.disabled = false;
     }
 }
 
@@ -455,42 +443,30 @@ function startFreeBoxTimer() {
 
 function updateFreeBoxTimer() {
     if (!userData.lastLogin) {
-        freeBoxTimer.textContent = '00:00:00';
+        elements.freeBoxTimer.textContent = '00:00:00';
         return;
     }
     
     const now = new Date();
-    const nextReset = new Date(userData.lastLogin);
-    nextReset.setDate(nextReset.getDate() + 1);
-    nextReset.setHours(0, 0, 0, 0);
+    const nextReset = getNextResetTime(userData.lastLogin);
     
     if (now >= nextReset) {
-        freeBoxTimer.textContent = '00:00:00';
+        elements.freeBoxTimer.textContent = '00:00:00';
         checkFreeBoxReset();
         return;
     }
     
     const diff = nextReset - now;
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    freeBoxTimer.textContent = 
-        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    elements.freeBoxTimer.textContent = formatTimeRemaining(diff);
 }
 
 function checkFreeBoxReset() {
     if (!userData.lastLogin) return;
     
     const now = new Date();
-    const lastLoginDate = new Date(userData.lastLogin);
-    
-    // Reset if it's a new day and the box hasn't been opened yet
-    if (now.toDateString() !== lastLoginDate.toDateString() && !userData.freeBoxAvailable) {
+    if (!isSameDay(now, userData.lastLogin) && !userData.freeBoxAvailable) {
         userData.freeBoxAvailable = true;
-        updateUserData().then(() => {
-            updateFreeBoxUI();
-        });
+        updateUserData().then(updateFreeBoxUI);
     }
 }
 
@@ -511,38 +487,31 @@ async function openLootBox(tier) {
     const boxBtn = document.querySelector(`.open-lootbox-btn[data-tier="${tier}"]`);
     if (!boxBtn) return;
     
-    // Disable button to prevent double opening
-    boxBtn.disabled = true;
-    
     try {
-        // Check if it's a free box and if it's available
+        boxBtn.disabled = true;
+        
+        // Validate
         if (tier === LOOTBOX_TIERS.FREE && !userData.freeBoxAvailable) {
-            alert('You already opened your free box today!');
-            boxBtn.disabled = false;
+            showError('You already opened your free box today!');
             return;
         }
         
-        // Check if user has enough coins for paid boxes
         if (tier !== LOOTBOX_TIERS.FREE && userData.coins < LOOTBOX_PRICES[tier]) {
-            alert(`You need ${LOOTBOX_PRICES[tier]} coins to open this box!`);
-            boxBtn.disabled = false;
+            showError(`You need ${LOOTBOX_PRICES[tier]} coins to open this box!`);
             return;
         }
         
-        // Deduct coins for paid boxes
+        // Deduct coins if paid box
         if (tier !== LOOTBOX_TIERS.FREE) {
             userData.coins -= LOOTBOX_PRICES[tier];
         } else {
             userData.freeBoxAvailable = false;
         }
         
-        // Increment opened boxes counter
         userData.lootBoxesOpened++;
         
-        // Get a random item
+        // Get random item
         const item = getRandomItemFromLootBox(tier);
-        
-        // Add to inventory
         userData.inventory.push({
             id: item.id,
             type: item.type,
@@ -552,87 +521,76 @@ async function openLootBox(tier) {
         // Update database
         await updateUserData();
         
-        // Animate the box opening
+        // Animate and show reward
         const boxElement = document.getElementById(`${tier}-box`);
         if (boxElement) {
             boxElement.classList.add('shake');
             setTimeout(() => {
                 boxElement.classList.remove('shake');
                 showReward(item);
-                boxBtn.disabled = false;
             }, 1000);
         } else {
             showReward(item);
-            boxBtn.disabled = false;
         }
     } catch (error) {
-        console.error('Error opening loot box:', error);
-        alert('Failed to open loot box. Please try again.');
+        console.error("Loot box error:", error);
+        showError('Failed to open loot box');
+    } finally {
         boxBtn.disabled = false;
     }
 }
 
 function getRandomItemFromLootBox(tier) {
-    // Simplified drop rates for demo purposes
-    let rarity;
+    const rarity = determineRarity(tier);
+    const eligibleItems = [...ITEMS_DATABASE[ITEM_TYPES.PET], ...ITEMS_DATABASE[ITEM_TYPES.KNIFE]]
+        .filter(item => item.rarity === rarity);
+    
+    return eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
+}
+
+function determineRarity(tier) {
     const roll = Math.random() * 100;
     
     if (tier === LOOTBOX_TIERS.FREE) {
-        if (roll < 60) rarity = RARITIES.COMMON;
-        else if (roll < 90) rarity = RARITIES.UNCOMMON;
-        else rarity = RARITIES.RARE;
+        if (roll < 60) return RARITIES.COMMON;
+        if (roll < 90) return RARITIES.UNCOMMON;
+        return RARITIES.RARE;
     } 
-    else if (tier === LOOTBOX_TIERS.BRONZE) {
-        if (roll < 50) rarity = RARITIES.COMMON;
-        else if (roll < 85) rarity = RARITIES.UNCOMMON;
-        else if (roll < 98) rarity = RARITIES.RARE;
-        else rarity = RARITIES.EPIC;
+    if (tier === LOOTBOX_TIERS.BRONZE) {
+        if (roll < 50) return RARITIES.COMMON;
+        if (roll < 85) return RARITIES.UNCOMMON;
+        if (roll < 98) return RARITIES.RARE;
+        return RARITIES.EPIC;
     }
-    else if (tier === LOOTBOX_TIERS.SILVER) {
-        if (roll < 30) rarity = RARITIES.COMMON;
-        else if (roll < 70) rarity = RARITIES.UNCOMMON;
-        else if (roll < 90) rarity = RARITIES.RARE;
-        else if (roll < 99) rarity = RARITIES.EPIC;
-        else rarity = RARITIES.LEGENDARY;
+    if (tier === LOOTBOX_TIERS.SILVER) {
+        if (roll < 30) return RARITIES.COMMON;
+        if (roll < 70) return RARITIES.UNCOMMON;
+        if (roll < 90) return RARITIES.RARE;
+        if (roll < 99) return RARITIES.EPIC;
+        return RARITIES.LEGENDARY;
     }
-    else if (tier === LOOTBOX_TIERS.GOLD) {
-        if (roll < 10) rarity = RARITIES.COMMON;
-        else if (roll < 35) rarity = RARITIES.UNCOMMON;
-        else if (roll < 70) rarity = RARITIES.RARE;
-        else if (roll < 95) rarity = RARITIES.EPIC;
-        else rarity = RARITIES.LEGENDARY;
+    if (tier === LOOTBOX_TIERS.GOLD) {
+        if (roll < 10) return RARITIES.COMMON;
+        if (roll < 35) return RARITIES.UNCOMMON;
+        if (roll < 70) return RARITIES.RARE;
+        if (roll < 95) return RARITIES.EPIC;
+        return RARITIES.LEGENDARY;
     }
-    
-    // Filter items by rarity
-    let eligibleItems = [];
-    for (const type of [ITEM_TYPES.PET, ITEM_TYPES.KNIFE]) {
-        eligibleItems = eligibleItems.concat(
-            ITEMS_DATABASE[type].filter(item => item.rarity === rarity)
-        );
-    }
-    
-    // Select a random item
-    const randomIndex = Math.floor(Math.random() * eligibleItems.length);
-    return eligibleItems[randomIndex];
+    return RARITIES.COMMON;
 }
 
 function showReward(item) {
-    // Set reward details
-    rewardImage.src = item.image;
-    rewardName.textContent = item.name;
-    rewardDescription.textContent = item.description;
+    elements.rewardImage.src = item.image;
+    elements.rewardName.textContent = item.name;
+    elements.rewardDescription.textContent = item.description;
     
-    // Set rarity badge
-    rewardRarityBadge.textContent = item.rarity.toUpperCase();
-    rewardRarityBadge.className = 'badge';
-    rewardRarityBadge.classList.add(`badge-${item.rarity}`);
+    elements.rewardRarityBadge.textContent = item.rarity.toUpperCase();
+    elements.rewardRarityBadge.className = `badge badge-${item.rarity}`;
     
-    // Set sell button
-    sellRewardBtn.style.display = 'block';
-    sellPrice.textContent = Math.floor(item.value * 0.7); // 70% of value when selling
-    sellRewardBtn.dataset.itemId = item.id;
+    elements.sellRewardBtn.style.display = 'block';
+    elements.sellPrice.textContent = Math.floor(item.value * 0.7);
+    elements.sellRewardBtn.dataset.itemId = item.id;
     
-    // Show confetti for rare or better items
     if (item.rarity !== RARITIES.COMMON && item.rarity !== RARITIES.UNCOMMON) {
         confetti({
             particleCount: 100,
@@ -641,22 +599,22 @@ function showReward(item) {
         });
     }
     
-    // Show the modal
-    rewardModal.show();
+    elements.rewardModal.show();
 }
 
 async function sellRewardItem() {
-    const itemId = sellRewardBtn.dataset.itemId;
+    const itemId = elements.sellRewardBtn.dataset.itemId;
     const item = findItemInDatabase(itemId);
     
     if (!item) return;
     
     try {
-        // Add coins (70% of item value)
-        userData.coins += Math.floor(item.value * 0.7);
+        // Calculate sell price
+        const sellPrice = Math.floor(item.value * 0.7);
+        userData.coins += sellPrice;
         
-        // Remove from inventory (find by ID and type)
-        const itemIndex = userData.inventory.findIndex(invItem => invItem.id === itemId);
+        // Remove from inventory
+        const itemIndex = userData.inventory.findIndex(i => i.id === itemId);
         if (itemIndex !== -1) {
             userData.inventory.splice(itemIndex, 1);
         }
@@ -665,11 +623,11 @@ async function sellRewardItem() {
         await updateUserData();
         
         // Update UI
-        rewardModal.hide();
-        alert(`You sold ${item.name} for ${Math.floor(item.value * 0.7)} coins!`);
+        elements.rewardModal.hide();
+        showSuccess(`Sold ${item.name} for ${sellPrice} coins!`);
     } catch (error) {
-        console.error('Error selling item:', error);
-        alert('Failed to sell item. Please try again.');
+        console.error("Sell error:", error);
+        showError('Failed to sell item');
     }
 }
 
@@ -680,69 +638,51 @@ function renderInventory() {
 }
 
 function renderPetsInventory() {
-    const pets = userData.inventory
-        .filter(item => item.type === ITEM_TYPES.PET)
-        .map(invItem => findItemInDatabase(invItem.id))
-        .filter(Boolean); // Remove undefined if item not found
-    
-    if (pets.length === 0) {
-        petsInventory.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                <p class="text-muted">No pets in your inventory yet</p>
-            </div>
-        `;
-        return;
-    }
-    
-    petsInventory.innerHTML = pets.map(pet => `
-        <div class="col-md-4 col-6">
-            <div class="inventory-item card">
-                <img src="${pet.image}" class="card-img-top item-image" alt="${pet.name}">
-                <div class="card-body item-details">
-                    <h5 class="card-title">${pet.name}</h5>
-                    <span class="badge badge-${pet.rarity}">${pet.rarity.toUpperCase()}</span>
-                    <p class="card-text mt-2">${pet.description}</p>
-                    <button class="btn btn-outline-danger w-100 sell-item-btn" data-item-id="${pet.id}">
-                        <i class="fas fa-coins me-1"></i>Sell for ${Math.floor(pet.value * 0.7)} coins
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
+    const pets = getInventoryItems(ITEM_TYPES.PET);
+    elements.petsInventory.innerHTML = pets.length ? 
+        pets.map(renderInventoryItem).join('') : 
+        renderEmptyInventory(ITEM_TYPES.PET);
 }
 
 function renderKnivesInventory() {
-    const knives = userData.inventory
-        .filter(item => item.type === ITEM_TYPES.KNIFE)
+    const knives = getInventoryItems(ITEM_TYPES.KNIFE);
+    elements.knivesInventory.innerHTML = knives.length ? 
+        knives.map(renderInventoryItem).join('') : 
+        renderEmptyInventory(ITEM_TYPES.KNIFE);
+}
+
+function getInventoryItems(type) {
+    return userData.inventory
+        .filter(item => item.type === type)
         .map(invItem => findItemInDatabase(invItem.id))
-        .filter(Boolean); // Remove undefined if item not found
-    
-    if (knives.length === 0) {
-        knivesInventory.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                <p class="text-muted">No knives in your inventory yet</p>
-            </div>
-        `;
-        return;
-    }
-    
-    knivesInventory.innerHTML = knives.map(knife => `
+        .filter(Boolean);
+}
+
+function renderInventoryItem(item) {
+    return `
         <div class="col-md-4 col-6">
             <div class="inventory-item card">
-                <img src="${knife.image}" class="card-img-top item-image" alt="${knife.name}">
+                <img src="${item.image}" class="card-img-top item-image" alt="${item.name}">
                 <div class="card-body item-details">
-                    <h5 class="card-title">${knife.name}</h5>
-                    <span class="badge badge-${knife.rarity}">${knife.rarity.toUpperCase()}</span>
-                    <p class="card-text mt-2">${knife.description}</p>
-                    <button class="btn btn-outline-danger w-100 sell-item-btn" data-item-id="${knife.id}">
-                        <i class="fas fa-coins me-1"></i>Sell for ${Math.floor(knife.value * 0.7)} coins
+                    <h5 class="card-title">${item.name}</h5>
+                    <span class="badge badge-${item.rarity}">${item.rarity.toUpperCase()}</span>
+                    <p class="card-text mt-2">${item.description}</p>
+                    <button class="btn btn-outline-danger w-100 sell-item-btn" data-item-id="${item.id}">
+                        <i class="fas fa-coins me-1"></i>Sell for ${Math.floor(item.value * 0.7)} coins
                     </button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+}
+
+function renderEmptyInventory(type) {
+    return `
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No ${type}s in your inventory yet</p>
+        </div>
+    `;
 }
 
 // Shop Functions
@@ -752,160 +692,177 @@ function initializeShop() {
 }
 
 function renderShopPets() {
-    shopPets.innerHTML = ITEMS_DATABASE[ITEM_TYPES.PET].map(pet => `
-        <div class="col-md-4 col-6">
-            <div class="shop-item card">
-                <img src="${pet.image}" class="card-img-top item-image" alt="${pet.name}">
-                <div class="card-body item-details">
-                    <h5 class="card-title">${pet.name}</h5>
-                    <span class="badge badge-${pet.rarity}">${pet.rarity.toUpperCase()}</span>
-                    <p class="card-text mt-2">${pet.description}</p>
-                    <button class="btn btn-primary w-100 buy-item-btn" data-item-id="${pet.id}">
-                        <i class="fas fa-shopping-cart me-1"></i>Buy for ${pet.value} coins
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
+    elements.shopPets.innerHTML = ITEMS_DATABASE[ITEM_TYPES.PET].map(renderShopItem).join('');
 }
 
 function renderShopKnives() {
-    shopKnives.innerHTML = ITEMS_DATABASE[ITEM_TYPES.KNIFE].map(knife => `
+    elements.shopKnives.innerHTML = ITEMS_DATABASE[ITEM_TYPES.KNIFE].map(renderShopItem).join('');
+}
+
+function renderShopItem(item) {
+    return `
         <div class="col-md-4 col-6">
             <div class="shop-item card">
-                <img src="${knife.image}" class="card-img-top item-image" alt="${knife.name}">
+                <img src="${item.image}" class="card-img-top item-image" alt="${item.name}">
                 <div class="card-body item-details">
-                    <h5 class="card-title">${knife.name}</h5>
-                    <span class="badge badge-${knife.rarity}">${knife.rarity.toUpperCase()}</span>
-                    <p class="card-text mt-2">${knife.description}</p>
-                    <button class="btn btn-primary w-100 buy-item-btn" data-item-id="${knife.id}">
-                        <i class="fas fa-shopping-cart me-1"></i>Buy for ${knife.value} coins
+                    <h5 class="card-title">${item.name}</h5>
+                    <span class="badge badge-${item.rarity}">${item.rarity.toUpperCase()}</span>
+                    <p class="card-text mt-2">${item.description}</p>
+                    <button class="btn btn-primary w-100 buy-item-btn" data-item-id="${item.id}">
+                        <i class="fas fa-shopping-cart me-1"></i>Buy for ${item.value} coins
                     </button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
 }
 
-// Confirmation Dialogs
+// Transaction Functions
 function confirmSellItem(itemId) {
     const item = findItemInDatabase(itemId);
     if (!item) return;
     
-    confirmationModalTitle.textContent = 'Confirm Sale';
-    confirmationModalBody.innerHTML = `
-        <p>Are you sure you want to sell <strong>${item.name}</strong> for ${Math.floor(item.value * 0.7)} coins?</p>
+    elements.confirmationModalTitle.textContent = 'Confirm Sale';
+    elements.confirmationModalBody.innerHTML = `
+        <p>Sell <strong>${item.name}</strong> for ${Math.floor(item.value * 0.7)} coins?</p>
         <p>This action cannot be undone.</p>
     `;
     
-    confirmActionBtn.onclick = function() {
+    elements.confirmActionBtn.onclick = () => {
         sellItem(itemId);
-        confirmationModal.hide();
+        elements.confirmationModal.hide();
     };
     
-    confirmationModal.show();
+    elements.confirmationModal.show();
 }
 
 function confirmBuyItem(itemId) {
     const item = findItemInDatabase(itemId);
     if (!item) return;
     
-    confirmationModalTitle.textContent = 'Confirm Purchase';
-    confirmationModalBody.innerHTML = `
-        <p>Are you sure you want to buy <strong>${item.name}</strong> for ${item.value} coins?</p>
-        <p>You will have ${userData.coins - item.value} coins remaining.</p>
+    if (userData.coins < item.value) {
+        showError(`You need ${item.value - userData.coins} more coins to buy this!`);
+        return;
+    }
+    
+    elements.confirmationModalTitle.textContent = 'Confirm Purchase';
+    elements.confirmationModalBody.innerHTML = `
+        <p>Buy <strong>${item.name}</strong> for ${item.value} coins?</p>
+        <p>You'll have ${userData.coins - item.value} coins remaining.</p>
     `;
     
-    confirmActionBtn.onclick = function() {
-        buyItem(itemId);
-        confirmationModal.hide();
+    elements.confirmActionBtn.onclick = async () => {
+        elements.confirmationModal.hide();
+        await buyItem(itemId);
     };
     
-    confirmationModal.show();
-}
-
-async function sellItem(itemId) {
-    const item = findItemInDatabase(itemId);
-    if (!item) return;
-    
-    try {
-        // Add coins (70% of item value)
-        userData.coins += Math.floor(item.value * 0.7);
-        
-        // Remove from inventory (find by ID and type)
-        const itemIndex = userData.inventory.findIndex(invItem => invItem.id === itemId);
-        if (itemIndex !== -1) {
-            userData.inventory.splice(itemIndex, 1);
-        }
-        
-        // Update database and UI
-        await updateUserData();
-        alert(`You sold ${item.name} for ${Math.floor(item.value * 0.7)} coins!`);
-    } catch (error) {
-        console.error('Error selling item:', error);
-        alert('Failed to sell item. Please try again.');
-    }
+    elements.confirmationModal.show();
 }
 
 async function buyItem(itemId) {
     const item = findItemInDatabase(itemId);
-    if (!item) return;
-    
+    if (!item) {
+        showError("Item not found");
+        return;
+    }
+
+    const buyButton = document.querySelector(`.buy-item-btn[data-item-id="${itemId}"]`);
+    if (buyButton) buyButton.disabled = true;
+
     try {
-        // Verify user has enough coins again (in case state changed)
+        // Verify funds locally first
         if (userData.coins < item.value) {
-            throw new Error('Not enough coins');
+            throw new Error(`Not enough coins. Need ${item.value - userData.coins} more.`);
         }
-        
-        // Use Firestore transaction to ensure atomic operation
+
+        // Use transaction for atomic operation
         await db.runTransaction(async (transaction) => {
             const userRef = db.collection('users').doc(currentUser.uid);
             const userDoc = await transaction.get(userRef);
-            
+
             if (!userDoc.exists) {
-                throw new Error('User document does not exist');
+                throw new Error("User not found");
             }
-            
+
             const currentCoins = userDoc.data().coins;
             if (currentCoins < item.value) {
-                throw new Error('Not enough coins');
+                throw new Error(`Not enough coins. You have ${currentCoins}, need ${item.value}`);
             }
-            
-            // Update coins and inventory atomically
-            const newInventory = [...(userDoc.data().inventory || []), {
+
+            // Create new inventory array
+            const newInventory = [...(userDoc.data().inventory || [])];
+            newInventory.push({
                 id: item.id,
                 type: item.type,
-                obtainedAt: new Date()
-            }];
-            
+                obtainedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Perform transaction
             transaction.update(userRef, {
-                coins: currentCoins - item.value,
+                coins: firebase.firestore.FieldValue.increment(-item.value),
                 inventory: newInventory
             });
-            
+
             // Update local state
-            userData.coins = currentCoins - item.value;
+            userData.coins -= item.value;
             userData.inventory = newInventory;
         });
-        
+
         // Update UI
         updateUIWithUserData();
-        alert(`You bought ${item.name} for ${item.value} coins!`);
+        showSuccess(`Purchased ${item.name}!`);
     } catch (error) {
-        console.error('Error buying item:', error);
-        if (error.message === 'Not enough coins') {
-            alert(`You don't have enough coins to buy this item. You need ${item.value - userData.coins} more coins.`);
+        console.error("Purchase error:", error);
+        
+        if (error.message.includes("Not enough coins")) {
+            showError(error.message);
         } else {
-            alert('Failed to buy item. Please try again.');
+            showError("Purchase failed. Please try again.");
         }
+
+        // Reload data to ensure sync
+        await loadUserData(currentUser.uid);
+    } finally {
+        if (buyButton) buyButton.disabled = false;
     }
 }
 
 // Helper Functions
 function findItemInDatabase(itemId) {
-    for (const type of [ITEM_TYPES.PET, ITEM_TYPES.KNIFE]) {
-        const foundItem = ITEMS_DATABASE[type].find(item => item.id === itemId);
-        if (foundItem) return foundItem;
-    }
-    return null;
+    return [...ITEMS_DATABASE[ITEM_TYPES.PET], ...ITEMS_DATABASE[ITEM_TYPES.KNIFE]]
+        .find(item => item.id === itemId);
+}
+
+function isSameDay(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+}
+
+function isYesterday(date, now) {
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    return isSameDay(date, yesterday);
+}
+
+function getNextResetTime(lastLogin) {
+    const nextReset = new Date(lastLogin);
+    nextReset.setDate(nextReset.getDate() + 1);
+    nextReset.setHours(0, 0, 0, 0);
+    return nextReset;
+}
+
+function formatTimeRemaining(ms) {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function showError(message) {
+    alert(`Error: ${message}`);
+}
+
+function showSuccess(message) {
+    alert(`Success: ${message}`);
 }
