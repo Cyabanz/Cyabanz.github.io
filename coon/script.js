@@ -243,6 +243,18 @@ function createUserDocument(user) {
     };
     
     return db.collection('users').doc(user.uid).set(userDoc)
+        .then(() => {
+            // Initialize local userData with the created document
+            userData = {
+                coins: userDoc.coins,
+                streak: userDoc.streak,
+                lastLogin: userDoc.lastLogin,
+                inventory: userDoc.inventory,
+                lootBoxesOpened: userDoc.lootBoxesOpened,
+                freeBoxAvailable: userDoc.freeBoxAvailable
+            };
+            updateUIWithUserData();
+        })
         .catch(function(error) {
             console.error('Error creating user document:', error);
         });
@@ -252,10 +264,15 @@ function loadUserData(userId) {
     db.collection('users').doc(userId).onSnapshot(function(doc) {
         if (doc.exists) {
             const data = doc.data();
+            
+            // Convert Firestore Timestamp to Date if it exists
+            const lastLogin = data.lastLogin ? data.lastLogin.toDate() : null;
+            
+            // Update local userData
             userData = {
                 coins: data.coins || 0,
                 streak: data.streak || 0,
-                lastLogin: data.lastLogin ? data.lastLogin.toDate() : null,
+                lastLogin: lastLogin,
                 inventory: data.inventory || [],
                 lootBoxesOpened: data.lootBoxesOpened || 0,
                 freeBoxAvailable: data.freeBoxAvailable !== undefined ? data.freeBoxAvailable : true
@@ -266,25 +283,33 @@ function loadUserData(userId) {
             // Check if we need to reset the free box
             checkFreeBoxReset();
         }
+    }, function(error) {
+        console.error('Error loading user data:', error);
     });
 }
 
-function updateUserData() {
+async function updateUserData() {
     if (!currentUser) return;
     
-    const updateData = {
-        coins: userData.coins,
-        streak: userData.streak,
-        lastLogin: userData.lastLogin ? firebase.firestore.Timestamp.fromDate(userData.lastLogin) : null,
-        inventory: userData.inventory,
-        lootBoxesOpened: userData.lootBoxesOpened,
-        freeBoxAvailable: userData.freeBoxAvailable
-    };
-    
-    return db.collection('users').doc(currentUser.uid).update(updateData)
-        .catch(function(error) {
-            console.error('Error updating user data:', error);
-        });
+    try {
+        const updateData = {
+            coins: userData.coins,
+            streak: userData.streak,
+            inventory: userData.inventory,
+            lootBoxesOpened: userData.lootBoxesOpened,
+            freeBoxAvailable: userData.freeBoxAvailable
+        };
+        
+        // Only update lastLogin if it exists to avoid overwriting with null
+        if (userData.lastLogin) {
+            updateData.lastLogin = firebase.firestore.Timestamp.fromDate(userData.lastLogin);
+        }
+        
+        await db.collection('users').doc(currentUser.uid).update(updateData);
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        throw error; // Re-throw to handle in calling functions
+    }
 }
 
 // UI Functions
@@ -380,7 +405,7 @@ function handleProfilePicUpload(e) {
 }
 
 // Reward System Functions
-function claimDailyReward() {
+async function claimDailyReward() {
     if (!currentUser) return;
     
     const now = new Date();
@@ -424,9 +449,13 @@ function claimDailyReward() {
     userData.lastLogin = now;
     userData.freeBoxAvailable = true;
     
-    // Update UI and database
-    updateUIWithUserData();
-    updateUserData().then(() => {
+    try {
+        // Update database
+        await updateUserData();
+        
+        // Update UI
+        updateUIWithUserData();
+        
         // Show reward message
         let message = `You earned ${coinsEarned} coins!`;
         if (streakBonus > 0) {
@@ -436,7 +465,10 @@ function claimDailyReward() {
         
         // Also give a free loot box
         alert('You also received a free loot box for today!');
-    });
+    } catch (error) {
+        console.error('Error claiming daily reward:', error);
+        alert('Failed to claim daily reward. Please try again.');
+    }
 }
 
 function startFreeBoxTimer() {
@@ -479,8 +511,9 @@ function checkFreeBoxReset() {
     // Reset if it's a new day and the box hasn't been opened yet
     if (now.toDateString() !== lastLoginDate.toDateString() && !userData.freeBoxAvailable) {
         userData.freeBoxAvailable = true;
-        updateUserData();
-        updateFreeBoxUI();
+        updateUserData().then(() => {
+            updateFreeBoxUI();
+        });
     }
 }
 
@@ -488,14 +521,14 @@ function updateFreeBoxUI() {
     const freeBoxBtn = document.querySelector('.open-lootbox-btn[data-tier="free"]');
     if (freeBoxBtn) {
         freeBoxBtn.disabled = !userData.freeBoxAvailable;
-        freeBoxBtn.textContent = userData.freeBoxAvailable ? 
+        freeBoxBtn.innerHTML = userData.freeBoxAvailable ? 
             '<i class="fas fa-box-open me-1"></i>Open Now' : 
             '<i class="fas fa-check me-1"></i>Claimed Today';
     }
 }
 
 // Loot Box Functions
-function openLootBox(tier) {
+async function openLootBox(tier) {
     if (!currentUser) return;
     
     // Check if it's a free box and if it's available
@@ -510,28 +543,30 @@ function openLootBox(tier) {
         return;
     }
     
-    // Deduct coins for paid boxes
-    if (tier !== LOOTBOX_TIERS.FREE) {
-        userData.coins -= LOOTBOX_PRICES[tier];
-    } else {
-        userData.freeBoxAvailable = false;
-    }
-    
-    // Increment opened boxes counter
-    userData.lootBoxesOpened++;
-    
-    // Get a random item
-    const item = getRandomItemFromLootBox(tier);
-    
-    // Add to inventory
-    userData.inventory.push({
-        id: item.id,
-        type: item.type,
-        obtainedAt: new Date()
-    });
-    
-    // Update database
-    updateUserData().then(() => {
+    try {
+        // Deduct coins for paid boxes
+        if (tier !== LOOTBOX_TIERS.FREE) {
+            userData.coins -= LOOTBOX_PRICES[tier];
+        } else {
+            userData.freeBoxAvailable = false;
+        }
+        
+        // Increment opened boxes counter
+        userData.lootBoxesOpened++;
+        
+        // Get a random item
+        const item = getRandomItemFromLootBox(tier);
+        
+        // Add to inventory
+        userData.inventory.push({
+            id: item.id,
+            type: item.type,
+            obtainedAt: new Date()
+        });
+        
+        // Update database
+        await updateUserData();
+        
         // Animate the box opening
         const boxElement = document.getElementById(`${tier}-box`);
         if (boxElement) {
@@ -543,7 +578,10 @@ function openLootBox(tier) {
         } else {
             showReward(item);
         }
-    });
+    } catch (error) {
+        console.error('Error opening loot box:', error);
+        alert('Failed to open loot box. Please try again.');
+    }
 }
 
 function getRandomItemFromLootBox(tier) {
@@ -608,26 +646,32 @@ function showReward(item) {
     rewardModal.show();
 }
 
-function sellRewardItem() {
+async function sellRewardItem() {
     const itemId = sellRewardBtn.dataset.itemId;
     const item = findItemInDatabase(itemId);
     
     if (!item) return;
     
-    // Add coins (70% of item value)
-    userData.coins += Math.floor(item.value * 0.7);
-    
-    // Remove from inventory (find by ID and type)
-    const itemIndex = userData.inventory.findIndex(invItem => invItem.id === itemId);
-    if (itemIndex !== -1) {
-        userData.inventory.splice(itemIndex, 1);
-    }
-    
-    // Update database
-    updateUserData().then(() => {
+    try {
+        // Add coins (70% of item value)
+        userData.coins += Math.floor(item.value * 0.7);
+        
+        // Remove from inventory (find by ID and type)
+        const itemIndex = userData.inventory.findIndex(invItem => invItem.id === itemId);
+        if (itemIndex !== -1) {
+            userData.inventory.splice(itemIndex, 1);
+        }
+        
+        // Update database
+        await updateUserData();
+        
+        // Update UI
         rewardModal.hide();
         alert(`You sold ${item.name} for ${Math.floor(item.value * 0.7)} coins!`);
-    });
+    } catch (error) {
+        console.error('Error selling item:', error);
+        alert('Failed to sell item. Please try again.');
+    }
 }
 
 // Inventory Functions
@@ -786,26 +830,30 @@ function confirmBuyItem(itemId) {
     confirmationModal.show();
 }
 
-function sellItem(itemId) {
+async function sellItem(itemId) {
     const item = findItemInDatabase(itemId);
     if (!item) return;
     
-    // Add coins (70% of item value)
-    userData.coins += Math.floor(item.value * 0.7);
-    
-    // Remove from inventory (find by ID and type)
-    const itemIndex = userData.inventory.findIndex(invItem => invItem.id === itemId);
-    if (itemIndex !== -1) {
-        userData.inventory.splice(itemIndex, 1);
-    }
-    
-    // Update database and UI
-    updateUserData().then(() => {
+    try {
+        // Add coins (70% of item value)
+        userData.coins += Math.floor(item.value * 0.7);
+        
+        // Remove from inventory (find by ID and type)
+        const itemIndex = userData.inventory.findIndex(invItem => invItem.id === itemId);
+        if (itemIndex !== -1) {
+            userData.inventory.splice(itemIndex, 1);
+        }
+        
+        // Update database and UI
+        await updateUserData();
         alert(`You sold ${item.name} for ${Math.floor(item.value * 0.7)} coins!`);
-    });
+    } catch (error) {
+        console.error('Error selling item:', error);
+        alert('Failed to sell item. Please try again.');
+    }
 }
 
-function buyItem(itemId) {
+async function buyItem(itemId) {
     const item = findItemInDatabase(itemId);
     if (!item) return;
     
@@ -815,20 +863,24 @@ function buyItem(itemId) {
         return;
     }
     
-    // Deduct coins
-    userData.coins -= item.value;
-    
-    // Add to inventory
-    userData.inventory.push({
-        id: item.id,
-        type: item.type,
-        obtainedAt: new Date()
-    });
-    
-    // Update database and UI
-    updateUserData().then(() => {
+    try {
+        // Deduct coins
+        userData.coins -= item.value;
+        
+        // Add to inventory
+        userData.inventory.push({
+            id: item.id,
+            type: item.type,
+            obtainedAt: new Date()
+        });
+        
+        // Update database and UI
+        await updateUserData();
         alert(`You bought ${item.name} for ${item.value} coins!`);
-    });
+    } catch (error) {
+        console.error('Error buying item:', error);
+        alert('Failed to buy item. Please try again.');
+    }
 }
 
 // Helper Functions
