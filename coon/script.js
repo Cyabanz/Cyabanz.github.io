@@ -108,7 +108,8 @@ let userData = {
   inventory: {
     pets: [],
     knives: []
-  }
+  },
+  lastFreeBox: null
 };
 
 // DOM Elements
@@ -123,6 +124,7 @@ const elements = {
   updateUsernameBtn: document.getElementById('update-username-btn'),
   newUsernameInput: document.getElementById('new-username'),
   profilePicUpload: document.getElementById('profile-pic-upload'),
+  uploadProfilePicBtn: document.getElementById('upload-profile-pic-btn'),
   updateProfilePicBtn: document.getElementById('update-profile-pic-btn'),
   profilePicPreview: document.getElementById('profile-pic-preview'),
   coinBalance: document.getElementById('coin-balance'),
@@ -212,45 +214,60 @@ async function createUserDocument(user) {
 }
 
 async function loadUserData(userId) {
-  const doc = await db.collection('users').doc(userId).get();
-  if (doc.exists) {
-    const data = doc.data();
-    userData = data;
-    
-    // Update UI
-    updateUI();
-    updateInventoryUI();
-    updateShopUI();
-    startFreeBoxTimer();
-    
-    // Check if daily reward can be claimed
-    checkDailyReward();
+  try {
+    const doc = await db.collection('users').doc(userId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      userData = data;
+      
+      // Update UI
+      updateUI();
+      updateInventoryUI();
+      updateShopUI();
+      startFreeBoxTimer();
+      
+      // Check if daily reward can be claimed
+      checkDailyReward();
+    }
+  } catch (error) {
+    console.error("Error loading user data:", error);
   }
 }
 
 async function updateUserData(data) {
-  await db.collection('users').doc(auth.currentUser.uid).update(data);
-  Object.assign(userData, data);
-  updateUI();
+  try {
+    await db.collection('users').doc(auth.currentUser.uid).update(data);
+    Object.assign(userData, data);
+    updateUI();
+  } catch (error) {
+    console.error("Error updating user data:", error);
+  }
 }
 
 async function addItemToInventory(item, type) {
-  const inventoryKey = `${type}Inventory`;
-  await db.collection('users').doc(auth.currentUser.uid).update({
-    [`inventory.${type}`]: firebase.firestore.FieldValue.arrayUnion(item)
-  });
-  
-  userData.inventory[type].push(item);
-  updateInventoryUI();
+  try {
+    await db.collection('users').doc(auth.currentUser.uid).update({
+      [`inventory.${type}`]: firebase.firestore.FieldValue.arrayUnion(item)
+    });
+    
+    userData.inventory[type].push(item);
+    updateInventoryUI();
+  } catch (error) {
+    console.error("Error adding item to inventory:", error);
+  }
 }
 
 async function removeItemFromInventory(item, type) {
-  await db.collection('users').doc(auth.currentUser.uid).update({
-    [`inventory.${type}`]: firebase.firestore.FieldValue.arrayRemove(item)
-  });
-  
-  userData.inventory[type] = userData.inventory[type].filter(i => i.id !== item.id);
-  updateInventoryUI();
+  try {
+    await db.collection('users').doc(auth.currentUser.uid).update({
+      [`inventory.${type}`]: firebase.firestore.FieldValue.arrayRemove(item)
+    });
+    
+    userData.inventory[type] = userData.inventory[type].filter(i => i.id !== item.id);
+    updateInventoryUI();
+  } catch (error) {
+    console.error("Error removing item from inventory:", error);
+  }
 }
 
 // Game Functions
@@ -669,6 +686,10 @@ function setupEventListeners() {
         console.error('Error updating username:', error);
         alert('Update failed: ' + error.message);
       });
+  });
+  
+  elements.uploadProfilePicBtn.addEventListener('click', () => {
+    elements.profilePicUpload.click();
   });
   
   elements.updateProfilePicBtn.addEventListener('click', () => {
