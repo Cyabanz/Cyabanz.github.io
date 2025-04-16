@@ -9,13 +9,29 @@
   --dark-bg: #121212;
   --card-bg: #16213e;
   --navbar-bg: #1a1a2e;
-  --text-light: #ffffff;
+  --text-light: #f8f9fa;
+  --text-muted: #adb5bd;
 }
 
 body {
   background-color: var(--dark-bg);
   color: var(--text-light);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+/* ===== Text Visibility Improvements ===== */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+p, span {
+  color: var(--text-light);
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
 }
 
 /* ===== Navbar ===== */
@@ -38,29 +54,29 @@ body {
   transition: all 0.3s ease;
   min-width: 120px;
   text-align: center;
+  border: none;
 }
 
 .btn-primary {
   background-color: var(--primary);
-  border-color: var(--primary);
   color: var(--dark-bg);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-danger {
   background-color: var(--danger);
-  border-color: var(--danger);
+  color: white;
 }
 
 .btn-danger:hover {
   background-color: var(--danger-dark);
-  border-color: var(--danger-dark);
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* ===== Cards ===== */
@@ -70,6 +86,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
 }
 
 .card:hover {
@@ -77,12 +94,106 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  color: var(--text-muted);
+}
+
+/* ===== Shop & Inventory Layout ===== */
+.shop-container, .inventory-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.shop-item, .inventory-item {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shop-item:hover, .inventory-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.item-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.item-details {
+  padding: 1.25rem;
+}
+
+.item-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
+.item-description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.item-price {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* ===== Badges ===== */
+.badge {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+  font-weight: 600;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-primary {
+  background-color: var(--secondary) !important;
+}
+
+.badge-success {
+  background-color: var(--primary) !important;
+  color: var(--dark-bg) !important;
+}
+
+.badge-warning {
+  background-color: var(--warning) !important;
+  color: var(--dark-bg) !important;
+}
+
+.badge-danger {
+  background-color: var(--danger) !important;
+}
+
 /* ===== Wheel of Fortune ===== */
 .wheel-container {
   position: relative;
   width: 320px;
   height: 320px;
-  margin: 30px auto;
+  margin: 2rem auto;
 }
 
 .wheel {
@@ -105,7 +216,7 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 1rem;
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   clip-path: polygon(0 0, 100% 0, 100% 100%);
@@ -122,56 +233,13 @@ body {
   text-align: center;
 }
 
-.wheel-center {
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  background: var(--navbar-bg);
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: white;
-  border: 4px solid var(--primary);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.wheel-pointer {
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 40px solid var(--danger);
-  z-index: 5;
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
-}
-
 /* ===== Progress & Streak ===== */
 .streak-container {
   background: linear-gradient(135deg, var(--navbar-bg), var(--card-bg));
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.progress {
-  height: 20px;
-  background-color: var(--dark-bg);
-  border-radius: 10px;
-}
-
-.progress-bar {
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
 }
 
 /* ===== Tabs ===== */
@@ -181,11 +249,11 @@ body {
 
 .nav-tabs .nav-link {
   color: var(--text-light);
-  background-color: var(--card-bg);
+  background-color: transparent;
   border: none;
-  margin-right: 5px;
+  margin-right: 0.5rem;
   border-radius: 8px 8px 0 0;
-  padding: 12px 20px;
+  padding: 0.75rem 1.5rem;
   transition: all 0.3s ease;
 }
 
@@ -193,7 +261,6 @@ body {
   background-color: var(--primary);
   color: var(--dark-bg);
   font-weight: 600;
-  border-bottom: 3px solid var(--dark-bg);
 }
 
 /* ===== Animations ===== */
@@ -205,9 +272,9 @@ body {
 
 .reward-animation {
   animation: pulse 1s infinite;
-  border: 4px solid var(--primary);
+  border: 2px solid var(--primary);
   border-radius: 12px;
-  padding: 10px;
+  padding: 1rem;
   background: rgba(30, 30, 60, 0.7);
 }
 
@@ -218,13 +285,12 @@ body {
     height: 280px;
   }
   
-  .btn {
-    min-width: 100px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
+  .shop-container, .inventory-container {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
   
-  .navbar-brand {
-    font-size: 1.2rem;
+  .btn {
+    min-width: 100px;
+    padding: 0.75rem 1rem;
   }
 }
