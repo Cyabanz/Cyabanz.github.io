@@ -1,0 +1,111 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+/* Streak Display */
+.streak-display {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Loot Box Images */
+.loot-box-img {
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.loot-box-img:hover {
+    transform: scale(1.05);
+}
+
+/* Inventory Items */
+.inventory-item, .shop-item {
+    margin-bottom: 1.5rem;
+    transition: all 0.3s;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.inventory-item:hover, .shop-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.item-image {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    padding: 10px;
+}
+
+.item-details {
+    padding: 15px;
+}
+
+/* Rarity Badges */
+.badge-common {
+    background-color: #6c757d;
+    color: white;
+}
+
+.badge-uncommon {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-rare {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-epic {
+    background-color: #6f42c1;
+    color: white;
+}
+
+.badge-legendary {
+    background-color: #fd7e14;
+    color: white;
+}
+
+/* Animations */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Reward Modal */
+#reward-image {
+    max-height: 200px;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Countdown Timer */
+.countdown-timer {
+    font-family: monospace;
+    font-size: 1.1rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .streak-display {
+        font-size: 1.2rem;
+    }
+    
+    .item-image {
+        height: 120px;
+    }
+}
