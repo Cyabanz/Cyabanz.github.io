@@ -65,6 +65,100 @@ body {
     margin-bottom: 2rem;
 }
 
+/* Buttons - Enhanced Visibility */
+.btn {
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white !important;
+}
+
+.btn-secondary:hover {
+    background-color: #6c757d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white !important;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: var(--text-dark) !important;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white !important;
+}
+
+.btn-success:hover {
+    background-color: #17a673;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: white !important;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-outline-danger {
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    background-color: transparent;
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--danger-color);
+    color: white !important;
+}
+
+/* Special buttons */
+.open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
+    font-size: 1.05rem;
+    padding: 0.6rem 1.25rem;
+    font-weight: 700;
+}
+
 #signInButton2 {
     padding: 0.75rem 2rem;
     font-size: 1.1rem;
@@ -266,45 +360,6 @@ body {
     background: var(--primary-color);
 }
 
-/* Buttons */
-.btn {
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.35rem;
-    transition: all 0.3s ease;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.btn-primary:hover {
-    background-color: #2e59d9;
-    border-color: #2653d4;
-}
-
-.btn-secondary {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
-}
-
-.btn-danger {
-    background-color: var(--danger-color);
-    border-color: var(--danger-color);
-}
-
-.btn-warning {
-    background-color: var(--warning-color);
-    border-color: var(--warning-color);
-    color: #fff;
-}
-
-.btn-success {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-}
-
 /* Badges */
 .badge {
     font-weight: 600;
@@ -489,5 +544,57 @@ p, span, div, a, button, input, label {
 
 .shop-item-card .card-body .btn {
     margin-top: auto;
+}
+
+/* Button Group Styling */
+.input-group .btn {
+    z-index: 1;
+}
+
+.btn-group .btn {
+    margin-right: 0;
+}
+
+/* Navbar Buttons */
+.navbar .btn {
+    margin-left: 0.5rem;
+}
+
+/* Tab Buttons */
+.nav-tabs .nav-link {
+    transition: all 0.3s ease;
+}
+
+/* Form Buttons */
+.form-control + .btn {
+    margin-left: 0.5rem;
+}
+
+/* Special button for profile picture */
+#upload-profile-pic-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+#update-profile-pic-btn {
+    margin-left: 0.5rem;
+}
+
+/* Button focus states */
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    outline: none;
+}
+
+/* Disabled buttons */
+.btn:disabled {
+    opacity: 0.65;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Button icons */
+.btn i {
+    margin-right: 0.5rem;
 }
 </style>
