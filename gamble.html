@@ -105,56 +105,225 @@
             </li>
         </ul>
 
-        <div class="tab-content" id="myTabContent">
-            <!-- Loot Boxes Tab -->
-            <div class="tab-pane fade show active" id="lootbox" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <img src="https://via.placeholder.com/200x150?text=Free+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
-                                <h4>Free Box</h4>
-                                <p>Open once every 24 hours</p>
-                                <p id="free-box-timer" class="text-muted">Ready!</p>
-                                <button class="btn btn-primary open-lootbox-btn" data-tier="free">Open Free Box</button>
+     <div class="tab-content" id="myTabContent">
+    <!-- Loot Boxes Tab -->
+    <div class="tab-pane fade show active" id="lootbox" role="tabpanel">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <img src="https://via.placeholder.com/200x150?text=Free+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                        <h4>Free Box</h4>
+                        <p>Open once every 24 hours</p>
+                        <p id="free-box-timer" class="text-muted">Ready!</p>
+                        <button class="btn btn-primary open-lootbox-btn" data-tier="free">Open Free Box</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <img src="https://via.placeholder.com/200x150?text=Bronze+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                        <h4>Bronze Box</h4>
+                        <p>Cost: 100 coins</p>
+                        <p>Better chances for rare items</p>
+                        <button class="btn btn-primary open-lootbox-btn" data-tier="bronze">Open Bronze Box</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <img src="https://via.placeholder.com/200x150?text=Silver+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                        <h4>Silver Box</h4>
+                        <p>Cost: 250 coins</p>
+                        <p>Good chances for epic items</p>
+                        <button class="btn btn-primary open-lootbox-btn" data-tier="silver">Open Silver Box</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <img src="https://via.placeholder.com/200x150?text=Gold+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                        <h4>Gold Box</h4>
+                        <p>Cost: 500 coins</p>
+                        <p>Chance for legendary items</p>
+                        <button class="btn btn-primary open-lootbox-btn" data-tier="gold">Open Gold Box</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shop Tab -->
+    <div class="tab-pane fade" id="shop" role="tabpanel">
+        <ul class="nav nav-tabs mb-4" id="shopTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pets-tab" data-bs-toggle="tab" data-bs-target="#shop-pets" type="button" role="tab">Pets</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="knives-tab" data-bs-toggle="tab" data-bs-target="#shop-knives" type="button" role="tab">Knives</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="shopTabContent">
+            <div class="tab-pane fade show active" id="shop-pets" role="tabpanel">
+                <div class="row" id="shop-pets-container">
+                    <!-- Pets will be loaded here -->
+                </div>
+            </div>
+            <div class="tab-pane fade" id="shop-knives" role="tabpanel">
+                <div class="row" id="shop-knives-container">
+                    <!-- Knives will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Tab -->
+    <div class="tab-pane fade" id="inventory" role="tabpanel">
+        <ul class="nav nav-tabs mb-4" id="inventoryTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="inventory-pets-tab" data-bs-toggle="tab" data-bs-target="#inventory-pets" type="button" role="tab">Pets</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="inventory-knives-tab" data-bs-toggle="tab" data-bs-target="#inventory-knives" type="button" role="tab">Knives</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="inventoryTabContent">
+            <div class="tab-pane fade show active" id="inventory-pets" role="tabpanel">
+                <div class="row" id="pets-inventory">
+                    <!-- Pets inventory will be loaded here -->
+                </div>
+            </div>
+            <div class="tab-pane fade" id="inventory-knives" role="tabpanel">
+                <div class="row" id="knives-inventory">
+                    <!-- Knives inventory will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gamble Tab -->
+    <div class="tab-pane fade" id="gamble" role="tabpanel">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-4">Wheel of Fortune</h3>
+                        <p>Spin the wheel to win coins or lose some!</p>
+                        
+                        <div class="wheel-container mb-4">
+                            <div class="wheel-pointer"></div>
+                            <div class="wheel" id="wheel">
+                                <!-- Wheel sections will be added dynamically -->
+                            </div>
+                            <div class="wheel-center">SPIN</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="bet-amount" class="form-label">Bet Amount (10-1000 coins)</label>
+                            <input type="range" class="form-range" id="bet-amount" min="10" max="1000" step="10" value="50">
+                            <div class="d-flex justify-content-between">
+                                <span>10</span>
+                                <span id="current-bet">50</span>
+                                <span>1000</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <img src="https://via.placeholder.com/200x150?text=Bronze+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
-                                <h4>Bronze Box</h4>
-                                <p>Cost: 100 coins</p>
-                                <p>Better chances for rare items</p>
-                                <button class="btn btn-primary open-lootbox-btn" data-tier="bronze">Open Bronze Box</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <img src="https://via.placeholder.com/200x150?text=Silver+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
-                                <h4>Silver Box</h4>
-                                <p>Cost: 250 coins</p>
-                                <p>Good chances for epic items</p>
-                                <button class="btn btn-primary open-lootbox-btn" data-tier="silver">Open Silver Box</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <img src="https://via.placeholder.com/200x150?text=Gold+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
-                                <h4>Gold Box</h4>
-                                <p>Cost: 500 coins</p>
-                                <p>Chance for legendary items</p>
-                                <button class="btn btn-primary open-lootbox-btn" data-tier="gold">Open Gold Box</button>
+                        
+                        <button id="spin-wheel-btn" class="btn btn-primary btn-lg">Spin for <span id="bet-amount-display">50</span> coins</button>
+                        
+                        <div class="mt-4">
+                            <h5>Possible Outcomes:</h5>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="badge bg-danger mb-2">Lose All</div>
+                                    <p>10% chance</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="badge bg-warning mb-2">Lose Half</div>
+                                    <p>20% chance</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="badge bg-success mb-2">Win 1x</div>
+                                    <p>40% chance</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="badge bg-primary mb-2">Win 2x</div>
+                                    <p>30% chance</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Blackjack Tab -->
+    <div class="tab-pane fade" id="blackjack" role="tabpanel">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-4">Blackjack</h3>
+                        <p>Try to beat the dealer without going over 21!</p>
+                        
+                        <div class="game-container mb-4">
+                            <div class="dealer-area mb-4">
+                                <h5>Dealer's Hand (<span id="dealer-score">?</span>)</h5>
+                                <div id="dealer-cards" class="cards-container"></div>
+                            </div>
+                            
+                            <div class="player-area">
+                                <h5>Your Hand (<span id="player-score">0</span>)</h5>
+                                <div id="player-cards" class="cards-container"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="blackjack-bet" class="form-label">Bet Amount (10-1000 coins)</label>
+                            <input type="range" class="form-range" id="blackjack-bet" min="10" max="1000" step="10" value="50">
+                            <div class="d-flex justify-content-between">
+                                <span>10</span>
+                                <span id="current-blackjack-bet">50</span>
+                                <span>1000</span>
+                            </div>
+                        </div>
+                        
+                        <div id="game-controls" class="d-none">
+                            <button id="hit-btn" class="btn btn-primary me-2">Hit</button>
+                            <button id="stand-btn" class="btn btn-warning me-2">Stand</button>
+                            <button id="double-btn" class="btn btn-success me-2">Double</button>
+                        </div>
+                        
+                        <button id="start-blackjack-btn" class="btn btn-primary btn-lg">Start Game for <span id="blackjack-bet-display">50</span> coins</button>
+                        
+                        <div class="mt-3" id="game-result"></div>
+                        
+                        <div class="mt-4">
+                            <h5>Payouts:</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="badge bg-success mb-2">Win</div>
+                                    <p>2x bet</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="badge bg-primary mb-2">Blackjack</div>
+                                    <p>2.5x bet</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="badge bg-info mb-2">Push</div>
+                                    <p>Return bet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Shop Tab -->
             <div class="tab-pane fade" id="shop" role="tabpanel">
