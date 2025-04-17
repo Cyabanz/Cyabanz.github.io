@@ -13,38 +13,29 @@ body {
     padding: 20px;
 }
 
-/* Navbar Styles */
-.navbar {
-    background-color: #16213e;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
-    padding: 12px 0;
-}
-
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.8rem;
-    color: #fff !important;
-}
-
-/* Profile Section - Fixed Alignment */
-.profile-section {
-    margin-bottom: 25px;
+/* Profile Section - Perfectly Aligned */
+.profile-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .profile-card {
     background: linear-gradient(135deg, #0f3460, #16213e);
     border-radius: 12px;
-    padding: 20px;
+    padding: 25px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    justify-content: center;
 }
 
 .profile-pic-container {
     margin-bottom: 20px;
+    text-align: center;
 }
 
 #profile-pic-preview {
@@ -61,52 +52,76 @@ body {
     font-weight: 600;
     margin-bottom: 20px;
     text-align: center;
+    width: 100%;
 }
 
-.profile-form-group {
+.profile-controls {
     width: 100%;
+}
+
+.input-group {
     margin-bottom: 15px;
 }
 
-/* Stats Section - Fixed Alignment */
+/* Stats Section - Perfectly Aligned */
 .stats-card {
     background: linear-gradient(135deg, #0f3460, #16213e);
     border-radius: 12px;
-    padding: 20px;
+    padding: 25px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    height: 100%;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .stats-item {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .stats-icon {
     font-size: 2rem;
     margin-right: 15px;
-    width: 50px;
+    min-width: 50px;
     text-align: center;
 }
 
-.stats-text {
+.stats-content {
     flex: 1;
 }
 
 .stats-label {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.8);
     margin-bottom: 5px;
 }
 
 .stats-value {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
 }
 
-/* Wheel of Fortune - Complete Fixed Styling */
+.streak-container {
+    background-color: rgba(255, 193, 7, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.progress {
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    background-color: #ffc107;
+}
+
+/* Wheel of Fortune - Perfect Styling */
 .wheel-container {
     position: relative;
     width: 300px;
@@ -223,10 +238,29 @@ body {
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
+/* Form Styles */
+.form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .profile-card, .stats-card {
-        margin-bottom: 20px;
+        padding: 20px;
+    }
+    
+    #profile-pic-preview {
+        width: 120px;
+        height: 120px;
     }
     
     .wheel-container {
@@ -236,9 +270,18 @@ body {
 }
 
 @media (max-width: 576px) {
-    #profile-pic-preview {
-        width: 120px;
-        height: 120px;
+    .profile-card, .stats-card {
+        padding: 15px;
+    }
+    
+    .stats-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stats-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
     }
     
     .wheel-container {
