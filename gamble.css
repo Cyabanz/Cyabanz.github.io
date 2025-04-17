@@ -1,365 +1,135 @@
-/* General Styles */
-:root {
-    --primary: #6c5ce7;
-    --primary-dark: #5649c0;
-    --secondary: #a29bfe;
-    --dark: #2d3436;
-    --light: #f5f6fa;
-    --danger: #d63031;
-    --warning: #fdcb6e;
-    --success: #00b894;
-    --info: #0984e3;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1a1a2e;
-    color: #fff;
-    min-height: 100vh;
-}
-
-/* Navbar */
-.navbar {
-    background-color: rgba(26, 26, 46, 0.9) !important;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    padding: 0.8rem 0;
-}
-
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--light);
-    letter-spacing: 1px;
-}
-
-.navbar-brand:hover {
-    color: var(--secondary);
-}
-
-/* Cards */
-.card {
-    background-color: #16213e;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    overflow: hidden;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.card-body {
-    padding: 1.5rem;
-}
-
-.card-title {
-    color: #fff;
-    font-weight: 600;
-}
-
-.card-img-top {
-    object-fit: cover;
-    height: 180px;
-    width: 100%;
-}
-
-/* Buttons */
-.btn {
-    border-radius: 8px;
-    font-weight: 600;
-    padding: 0.5rem 1.25rem;
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.btn-primary {
-    background-color: var(--primary);
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background-color: #4a4a8a;
-}
-
-.btn-secondary:hover {
-    background-color: #3a3a6a;
-}
-
-.btn-danger {
-    background-color: var(--danger);
-}
-
-.btn-warning {
-    background-color: var(--warning);
-    color: #333;
-}
-
-.btn-success {
-    background-color: var(--success);
-}
-
-.btn-outline-danger {
-    border-color: var(--danger);
-    color: var(--danger);
-}
-
-.btn-outline-danger:hover {
-    background-color: var(--danger);
-}
-
-/* Forms */
-.form-control, .form-select {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-}
-
-.form-control:focus, .form-select:focus {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: var(--primary);
-    color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
-}
-
-.form-range::-webkit-slider-thumb {
-    background: var(--primary);
-}
-
-.form-range::-moz-range-thumb {
-    background: var(--primary);
-}
-
-.form-range::-ms-thumb {
-    background: var(--primary);
-}
-
-/* Progress bars */
-.progress {
-    background-color: rgba(255, 255, 255, 0.1);
-    height: 10px;
-    border-radius: 5px;
-}
-
-.progress-bar {
-    background-color: var(--primary);
-    border-radius: 5px;
-}
-
-/* Badges */
-.badge {
-    font-weight: 500;
-    padding: 0.35em 0.65em;
-    border-radius: 8px;
-}
-
-.bg-primary {
-    background-color: var(--primary) !important;
-}
-
-.bg-secondary {
-    background-color: #4a4a8a !important;
-}
-
-.bg-success {
-    background-color: var(--success) !important;
-}
-
-.bg-danger {
-    background-color: var(--danger) !important;
-}
-
-.bg-warning {
-    background-color: var(--warning) !important;
-    color: #333;
-}
-
-.bg-info {
-    background-color: var(--info) !important;
-}
-
-/* Nav tabs */
-.nav-tabs {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 1.5rem;
-}
-
-.nav-tabs .nav-link {
-    color: rgba(255, 255, 255, 0.7);
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    border-radius: 8px 8px 0 0;
-    transition: all 0.3s ease;
-}
-
-.nav-tabs .nav-link:hover {
-    color: #fff;
-    border-color: transparent;
-    background-color: rgba(108, 92, 231, 0.1);
-}
-
-.nav-tabs .nav-link.active {
-    color: #fff;
-    background-color: rgba(108, 92, 231, 0.3);
-    border-color: transparent;
-}
-
-/* Loot boxes */
-.loot-box {
-    border-radius: 10px;
-    border: 3px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.loot-box:hover {
-    border-color: var(--primary);
-    transform: scale(1.05);
-}
-
-/* Wheel of Fortune */
+/* Wheel of Fortune Styles */
 .wheel-container {
     position: relative;
     width: 300px;
     height: 300px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 30px;
 }
 
 .wheel {
     width: 100%;
     height: 100%;
-    position: relative;
     border-radius: 50%;
+    position: relative;
     overflow: hidden;
     transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
     transform: rotate(0deg);
-    box-shadow: 0 0 0 8px #333, 0 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
 .wheel-section {
     position: absolute;
     width: 50%;
     height: 50%;
-    transform-origin: bottom right;
+    left: 0;
+    top: 0;
+    transform-origin: 100% 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+}
+
+.wheel-section div {
+    position: absolute;
+    width: 100px;
+    left: 10px;
+    text-align: center;
     font-weight: bold;
     color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    font-size: 1rem;
-    left: 0;
-    top: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .wheel-pointer {
     position: absolute;
-    top: -15px;
+    top: -20px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
     border-left: 20px solid transparent;
     border-right: 20px solid transparent;
-    border-top: 40px solid #ff4757;
+    border-top: 40px solid #dc3545;
     z-index: 10;
-    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 }
 
 .wheel-center {
     position: absolute;
     width: 60px;
     height: 60px;
-    background: #333;
+    background: #fff;
     border-radius: 50%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
     font-weight: bold;
-    font-size: 1rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    color: #333;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 5;
     cursor: pointer;
-    border: 3px solid #fff;
 }
 
-/* Blackjack */
+/* Blackjack Styles */
 .game-container {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 30px;
 }
 
 .cards-container {
     display: flex;
+    justify-content: center;
     gap: 10px;
     min-height: 120px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
 }
 
 .card-slot {
     width: 80px;
     height: 120px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    transition: transform 0.3s ease;
+    background: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .card-slot img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 5px;
 }
 
 .card-back {
-    background: linear-gradient(135deg, #ff4757, #e84393);
+    background: linear-gradient(135deg, #dc3545, #007bff);
     color: white;
+    font-size: 24px;
 }
 
 .blackjack-result {
     font-weight: bold;
-    font-size: 1.2rem;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
 }
 
 .blackjack-result.win {
-    background-color: rgba(0, 184, 148, 0.2);
-    color: #00b894;
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
 }
 
 .blackjack-result.lose {
-    background-color: rgba(214, 48, 49, 0.2);
-    color: #d63031;
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
 }
 
 .blackjack-result.push {
-    background-color: rgba(253, 203, 110, 0.2);
-    color: #fdcb6e;
+    background-color: rgba(108, 117, 125, 0.2);
+    color: #6c757d;
 }
 
-/* Reward animation */
+/* Reward Animation */
 .reward-animation {
     animation: pulse 1.5s infinite alternate;
 }
@@ -373,24 +143,28 @@ body {
     }
 }
 
-/* Modals */
-.modal-content {
-    background-color: #16213e;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+/* General Styles */
+.progress {
+    height: 10px;
+    margin-bottom: 15px;
 }
 
-.modal-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.card {
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.modal-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-.btn-close-white {
-    filter: invert(1);
+.loot-box {
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.loot-box:hover {
+    transform: scale(1.05);
 }
 
 /* Responsive adjustments */
@@ -400,34 +174,19 @@ body {
         height: 250px;
     }
     
-    .card-img-top {
-        height: 150px;
+    .wheel-section div {
+        font-size: 14px;
+        width: 80px;
     }
-}
-
-/* Utility classes */
-.text-shadow {
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.box-shadow {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--primary);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-dark);
+    
+    .wheel-center {
+        width: 50px;
+        height: 50px;
+        font-size: 14px;
+    }
+    
+    .card-slot {
+        width: 60px;
+        height: 90px;
+    }
 }
