@@ -3,6 +3,9 @@ body {
     background-color: #1a1a2e;
     color: #fff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
 }
 
 .container {
@@ -13,72 +16,97 @@ body {
 
 /* Navbar Styles */
 .navbar {
-    background-color: #16213e !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    padding: 10px 0;
+    background-color: #16213e;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+    padding: 12px 0;
 }
 
 .navbar-brand {
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: #fff !important;
+    letter-spacing: 1px;
 }
 
-/* Card Styles */
-.card {
-    background-color: #0f3460;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-    margin-bottom: 20px;
+.navbar-collapse {
+    justify-content: flex-end;
 }
 
-.card:hover {
-    transform: translateY(-5px);
+/* Profile Area Styles */
+.profile-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.card-body {
-    padding: 20px;
-}
-
-.card-title {
-    color: #fff;
+#username-display {
     font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+#profile-pic {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #007bff;
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+/* Stats Container Styles */
+.stats-container {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-between;
     margin-bottom: 15px;
 }
 
-/* Tab Styles */
-.nav-tabs {
-    border-bottom: 2px solid #0f3460;
-    margin-bottom: 20px;
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    flex: 1;
+    margin: 0 5px;
 }
 
-.nav-tabs .nav-link {
-    color: #aaa;
-    border: none;
-    padding: 12px 20px;
-    font-weight: 600;
-    transition: all 0.3s;
+.stat-item i {
+    font-size: 1.8rem;
 }
 
-.nav-tabs .nav-link:hover {
+.stat-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
     color: #fff;
-    background-color: rgba(15, 52, 96, 0.5);
 }
 
-.nav-tabs .nav-link.active {
-    color: #fff;
-    background-color: #0f3460;
-    border: none;
-    border-radius: 5px 5px 0 0;
-}
-
-/* Wheel of Fortune Styles */
+/* Wheel of Fortune - Complete Styling */
 .wheel-container {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 320px;
+    height: 320px;
     margin: 0 auto 30px;
 }
 
@@ -90,7 +118,8 @@ body {
     overflow: hidden;
     transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
     transform: rotate(0deg);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+    border: 8px solid #0f3460;
 }
 
 .wheel-section {
@@ -103,27 +132,28 @@ body {
     justify-content: center;
     color: white;
     font-weight: bold;
-    font-size: 14px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 16px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .wheel-section:nth-child(1) {
-    background-color: #dc3545; /* Lose All - Red */
+    background: linear-gradient(135deg, #dc3545, #c82333);
     transform: rotate(0deg) skewY(60deg);
 }
 
 .wheel-section:nth-child(2) {
-    background-color: #fd7e14; /* Lose Half - Orange */
+    background: linear-gradient(135deg, #fd7e14, #e36209);
     transform: rotate(90deg) skewY(60deg);
 }
 
 .wheel-section:nth-child(3) {
-    background-color: #28a745; /* Win 1x - Green */
+    background: linear-gradient(135deg, #28a745, #1e7e34);
     transform: rotate(180deg) skewY(60deg);
 }
 
 .wheel-section:nth-child(4) {
-    background-color: #007bff; /* Win 2x - Blue */
+    background: linear-gradient(135deg, #007bff, #0056b3);
     transform: rotate(270deg) skewY(60deg);
 }
 
@@ -131,20 +161,22 @@ body {
     transform: skewY(-60deg) rotate(30deg);
     width: 100px;
     text-align: center;
+    padding-bottom: 30px;
+    padding-left: 30px;
 }
 
 .wheel-pointer {
     position: absolute;
-    top: -10px;
+    top: -15px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-top: 30px solid #dc3545;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 40px solid #dc3545;
     z-index: 10;
-    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
 }
 
 .wheel-center {
@@ -152,72 +184,84 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 50px;
-    height: 50px;
-    background-color: white;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, #fff, #ddd);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     z-index: 5;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     color: #333;
+    font-size: 1.1rem;
+    border: 3px solid #0f3460;
 }
 
 /* Blackjack Game Styles */
-.game-container {
-    background-color: #0a1a30;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
+.blackjack-container {
+    background: linear-gradient(135deg, #0a1a30, #0f2342);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dealer-area, .player-area {
     margin-bottom: 30px;
+    text-align: center;
 }
 
 .dealer-area h5, .player-area h5 {
     color: #fff;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-weight: 600;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 .cards-container {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 10px;
-    min-height: 120px;
+    gap: 15px;
+    min-height: 140px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
 }
 
 .card-slot {
-    width: 80px;
-    height: 120px;
-    border-radius: 8px;
+    width: 90px;
+    height: 135px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #f8f9fa;
     position: relative;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
 .card-slot:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 .card-slot img {
     max-width: 100%;
     max-height: 100%;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .card-back {
     background: linear-gradient(135deg, #d10000, #8b0000);
     color: white;
-    font-size: 24px;
+    font-size: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -226,114 +270,124 @@ body {
 /* Button Styles */
 .btn {
     font-weight: 600;
-    padding: 8px 20px;
-    border-radius: 5px;
+    padding: 10px 25px;
+    border-radius: 8px;
     transition: all 0.3s;
+    border: none;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+    background: linear-gradient(135deg, #007bff, #0056b3);
 }
 
 .btn-primary:hover {
-    background-color: #0069d9;
-    border-color: #0062cc;
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, #0069d9, #004a9c);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
 .btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
+    background: linear-gradient(135deg, #ffc107, #e0a800);
     color: #212529;
 }
 
 .btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, #e0a800, #c69500);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
 }
 
 .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
+    background: linear-gradient(135deg, #28a745, #1e7e34);
 }
 
 .btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, #218838, #19692c);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
+    background: linear-gradient(135deg, #dc3545, #c82333);
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, #c82333, #a71d2a);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
 }
 
 /* Form Styles */
 .form-range {
-    height: 10px;
-    border-radius: 5px;
-    background-color: #0f3460;
+    height: 12px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #0f3460, #1a4b8c);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .form-range::-webkit-slider-thumb {
-    background: #007bff;
-    width: 20px;
-    height: 20px;
-    margin-top: -5px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    width: 25px;
+    height: 25px;
+    margin-top: -6px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .form-range::-moz-range-thumb {
-    background: #007bff;
-    width: 20px;
-    height: 20px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    width: 25px;
+    height: 25px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .form-range::-ms-thumb {
-    background: #007bff;
-    width: 20px;
-    height: 20px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    width: 25px;
+    height: 25px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Game Result Styles */
 .blackjack-result {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-top: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    margin: 25px auto;
     text-align: center;
     animation: fadeIn 0.5s ease;
+    max-width: 80%;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .win {
-    background-color: rgba(40, 167, 69, 0.2);
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.3), rgba(30, 126, 52, 0.3));
     color: #28a745;
-    border: 1px solid #28a745;
+    border: 2px solid #28a745;
 }
 
 .lose {
-    background-color: rgba(220, 53, 69, 0.2);
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.3), rgba(200, 35, 51, 0.3));
     color: #dc3545;
-    border: 1px solid #dc3545;
+    border: 2px solid #dc3545;
 }
 
 .push {
-    background-color: rgba(23, 162, 184, 0.2);
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.3), rgba(19, 132, 150, 0.3));
     color: #17a2b8;
-    border: 1px solid #17a2b8;
+    border: 2px solid #17a2b8;
 }
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -347,10 +401,42 @@ body {
 }
 
 /* Responsive Adjustments */
+@media (max-width: 992px) {
+    .stats-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .stat-item {
+        margin: 0;
+    }
+}
+
 @media (max-width: 768px) {
     .wheel-container {
-        width: 250px;
-        height: 250px;
+        width: 280px;
+        height: 280px;
+    }
+    
+    .card-slot {
+        width: 80px;
+        height: 120px;
+    }
+    
+    .btn {
+        padding: 8px 20px;
+        font-size: 0.85rem;
+    }
+    
+    .dealer-area h5, .player-area h5 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .wheel-container {
+        width: 240px;
+        height: 240px;
     }
     
     .card-slot {
@@ -358,25 +444,21 @@ body {
         height: 105px;
     }
     
-    .btn {
-        padding: 6px 15px;
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 576px) {
-    .wheel-container {
-        width: 200px;
-        height: 200px;
+    .profile-area {
+        gap: 10px;
     }
     
-    .card-slot {
-        width: 60px;
-        height: 90px;
+    #username-display {
+        font-size: 1rem;
     }
     
-    .nav-tabs .nav-link {
-        padding: 8px 12px;
-        font-size: 14px;
+    #profile-pic {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .blackjack-result {
+        font-size: 1.3rem;
+        padding: 12px 20px;
     }
 }
