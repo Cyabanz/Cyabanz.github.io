@@ -5,7 +5,6 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    min-height: 100vh;
 }
 
 .container {
@@ -25,89 +24,94 @@ body {
     font-weight: 700;
     font-size: 1.8rem;
     color: #fff !important;
-    letter-spacing: 1px;
 }
 
-.navbar-collapse {
-    justify-content: flex-end;
+/* Profile Section - Fixed Alignment */
+.profile-section {
+    margin-bottom: 25px;
 }
 
-/* Profile Area Styles */
-.profile-area {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-#username-display {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-}
-
-#profile-pic {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: 2px solid #007bff;
-    object-fit: cover;
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-}
-
-/* Stats Container Styles */
-.stats-container {
+.profile-card {
     background: linear-gradient(135deg, #0f3460, #16213e);
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    margin-bottom: 25px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.stats-row {
-    display: flex;
-    justify-content: space-between;
+.profile-pic-container {
+    margin-bottom: 20px;
+}
+
+#profile-pic-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #007bff;
+    object-fit: cover;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
+}
+
+#dashboard-username {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.profile-form-group {
+    width: 100%;
     margin-bottom: 15px;
 }
 
-.stat-item {
+/* Stats Section - Fixed Alignment */
+.stats-card {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    margin-right: 15px;
+    width: 50px;
+    text-align: center;
+}
+
+.stats-text {
     flex: 1;
-    margin: 0 5px;
 }
 
-.stat-item i {
-    font-size: 1.8rem;
-}
-
-.stat-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-label {
+.stats-label {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 5px;
 }
 
-.stat-value {
+.stats-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #fff;
 }
 
-/* Wheel of Fortune - Complete Styling */
+/* Wheel of Fortune - Complete Fixed Styling */
 .wheel-container {
     position: relative;
-    width: 320px;
-    height: 320px;
-    margin: 0 auto 30px;
+    width: 300px;
+    height: 300px;
+    margin: 30px auto;
 }
 
 .wheel {
@@ -119,7 +123,7 @@ body {
     transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
     transform: rotate(0deg);
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
-    border: 8px solid #0f3460;
+    border: 5px solid #0f3460;
 }
 
 .wheel-section {
@@ -134,35 +138,35 @@ body {
     font-weight: bold;
     font-size: 16px;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .wheel-section:nth-child(1) {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    transform: rotate(0deg) skewY(60deg);
+    background: #dc3545;
+    transform: rotate(0deg) skewY(-30deg);
 }
 
 .wheel-section:nth-child(2) {
-    background: linear-gradient(135deg, #fd7e14, #e36209);
-    transform: rotate(90deg) skewY(60deg);
+    background: #fd7e14;
+    transform: rotate(90deg) skewY(-30deg);
 }
 
 .wheel-section:nth-child(3) {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
-    transform: rotate(180deg) skewY(60deg);
+    background: #28a745;
+    transform: rotate(180deg) skewY(-30deg);
 }
 
 .wheel-section:nth-child(4) {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    transform: rotate(270deg) skewY(60deg);
+    background: #007bff;
+    transform: rotate(270deg) skewY(-30deg);
 }
 
-.wheel-section div {
-    transform: skewY(-60deg) rotate(30deg);
+.wheel-section-content {
+    transform: rotate(30deg);
     width: 100px;
     text-align: center;
-    padding-bottom: 30px;
-    padding-left: 30px;
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
 }
 
 .wheel-pointer {
@@ -186,7 +190,7 @@ body {
     transform: translate(-50%, -50%);
     width: 60px;
     height: 60px;
-    background: radial-gradient(circle, #fff, #ddd);
+    background: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -199,266 +203,46 @@ body {
     border: 3px solid #0f3460;
 }
 
-/* Blackjack Game Styles */
-.blackjack-container {
-    background: linear-gradient(135deg, #0a1a30, #0f2342);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dealer-area, .player-area {
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.dealer-area h5, .player-area h5 {
-    color: #fff;
-    margin-bottom: 20px;
-    font-weight: 600;
-    font-size: 1.3rem;
-    letter-spacing: 1px;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
-}
-
-.cards-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    min-height: 140px;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-}
-
-.card-slot {
-    width: 90px;
-    height: 135px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-    position: relative;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-}
-
-.card-slot:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-}
-
-.card-slot img {
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: 8px;
-}
-
-.card-back {
-    background: linear-gradient(135deg, #d10000, #8b0000);
-    color: white;
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 /* Button Styles */
 .btn {
     font-weight: 600;
-    padding: 10px 25px;
+    padding: 10px 20px;
     border-radius: 8px;
     transition: all 0.3s;
     border: none;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    font-size: 0.9rem;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background: #007bff;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #0069d9, #004a9c);
+    background: #0069d9;
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
-.btn-warning {
-    background: linear-gradient(135deg, #ffc107, #e0a800);
-    color: #212529;
-}
-
-.btn-warning:hover {
-    background: linear-gradient(135deg, #e0a800, #c69500);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
-}
-
-.btn-success:hover {
-    background: linear-gradient(135deg, #218838, #19692c);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-}
-
-.btn-danger:hover {
-    background: linear-gradient(135deg, #c82333, #a71d2a);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
-}
-
-/* Form Styles */
-.form-range {
-    height: 12px;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #0f3460, #1a4b8c);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-.form-range::-webkit-slider-thumb {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    width: 25px;
-    height: 25px;
-    margin-top: -6px;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.form-range::-moz-range-thumb {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    width: 25px;
-    height: 25px;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.form-range::-ms-thumb {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    width: 25px;
-    height: 25px;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-/* Game Result Styles */
-.blackjack-result {
-    font-size: 1.6rem;
-    font-weight: bold;
-    padding: 15px 25px;
-    border-radius: 8px;
-    margin: 25px auto;
-    text-align: center;
-    animation: fadeIn 0.5s ease;
-    max-width: 80%;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-}
-
-.win {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.3), rgba(30, 126, 52, 0.3));
-    color: #28a745;
-    border: 2px solid #28a745;
-}
-
-.lose {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.3), rgba(200, 35, 51, 0.3));
-    color: #dc3545;
-    border: 2px solid #dc3545;
-}
-
-.push {
-    background: linear-gradient(135deg, rgba(23, 162, 184, 0.3), rgba(19, 132, 150, 0.3));
-    color: #17a2b8;
-    border: 2px solid #17a2b8;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes bounce {
-    from { transform: translateY(0); }
-    to { transform: translateY(-10px); }
-}
-
-.reward-animation {
-    animation: bounce 0.5s ease infinite alternate;
-}
-
 /* Responsive Adjustments */
-@media (max-width: 992px) {
-    .stats-row {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .stat-item {
-        margin: 0;
-    }
-}
-
 @media (max-width: 768px) {
+    .profile-card, .stats-card {
+        margin-bottom: 20px;
+    }
+    
     .wheel-container {
-        width: 280px;
-        height: 280px;
-    }
-    
-    .card-slot {
-        width: 80px;
-        height: 120px;
-    }
-    
-    .btn {
-        padding: 8px 20px;
-        font-size: 0.85rem;
-    }
-    
-    .dealer-area h5, .player-area h5 {
-        font-size: 1.1rem;
+        width: 250px;
+        height: 250px;
     }
 }
 
 @media (max-width: 576px) {
+    #profile-pic-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
     .wheel-container {
-        width: 240px;
-        height: 240px;
-    }
-    
-    .card-slot {
-        width: 70px;
-        height: 105px;
-    }
-    
-    .profile-area {
-        gap: 10px;
-    }
-    
-    #username-display {
-        font-size: 1rem;
-    }
-    
-    #profile-pic {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .blackjack-result {
-        font-size: 1.3rem;
-        padding: 12px 20px;
+        width: 220px;
+        height: 220px;
     }
 }
