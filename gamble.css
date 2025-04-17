@@ -1,366 +1,493 @@
 <style>
-    /* Base Styles */
-    body {
-        background-color: #1a1a2e;
-        color: #e6e6e6;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+/* Base Styles */
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #858796;
+    --success-color: #1cc88a;
+    --info-color: #36b9cc;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
+    --light-color: #f8f9fc;
+    --dark-color: #5a5c69;
+    --body-bg: #f8f9fc;
+    --card-bg: #ffffff;
+    --nav-bg: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    --text-color: #5a5c69;
+    --text-light: #858796;
+    --text-dark: #2e2f37;
+}
 
-    /* Navbar */
-    .navbar {
-        background-color: #16213e !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    line-height: 1.6;
+}
 
-    .navbar-brand {
-        font-weight: bold;
-        font-size: 1.5rem;
-        color: #4cc9f0 !important;
-    }
+/* Navbar */
+.navbar {
+    background: var(--nav-bg);
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    padding: 0.75rem 1rem;
+}
 
-    #username-display {
-        font-weight: 500;
-        color: #f8f9fa;
-    }
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: white !important;
+}
 
-    /* Login View */
-    #login-view {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #16213e;
-        border-radius: 10px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
+#username-display {
+    color: white;
+    font-weight: 600;
+}
 
-    #login-view h1 {
-        color: #4cc9f0;
-        margin-bottom: 1.5rem;
-    }
+/* Login View */
+#login-view {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+    background-color: var(--card-bg);
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    margin-top: 2rem;
+}
 
-    #login-view .lead {
-        color: #a8dadc;
-        margin-bottom: 2rem;
-    }
+#login-view h1 {
+    color: var(--primary-color);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
 
-    /* Dashboard */
-    .card {
-        background-color: #16213e;
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        margin-bottom: 1.5rem;
-        transition: transform 0.3s ease;
-    }
+#login-view .lead {
+    color: var(--text-light);
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
 
-    .card:hover {
-        transform: translateY(-5px);
-    }
+#signInButton2 {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
 
-    .card-body {
-        padding: 1.5rem;
-    }
+/* Dashboard View */
+.card {
+    border: none;
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    margin-bottom: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 
-    .card-title {
-        color: #4cc9f0;
-        margin-bottom: 1rem;
-    }
+.card-body {
+    flex: 1;
+    padding: 1.5rem;
+}
 
-    /* Tabs */
-    .nav-tabs {
-        border-bottom: 2px solid #0f3460;
-    }
+.card-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+}
 
-    .nav-tabs .nav-link {
-        color: #a8dadc;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        font-weight: 500;
-    }
+/* Profile Section */
+#profile-pic-preview {
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
+}
 
-    .nav-tabs .nav-link:hover {
-        color: #4cc9f0;
-        background-color: rgba(76, 201, 240, 0.1);
-    }
+#dashboard-username {
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
 
-    .nav-tabs .nav-link.active {
-        color: #4cc9f0;
-        background-color: transparent;
-        border-bottom: 3px solid #4cc9f0;
-    }
+/* Stats Section */
+.stats-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+}
 
-    /* Buttons */
-    .btn-primary {
-        background-color: #4cc9f0;
-        border-color: #4cc9f0;
-        color: #16213e;
-        font-weight: 500;
-    }
+.stats-value {
+    font-weight: 700;
+    color: var(--text-dark);
+}
 
-    .btn-primary:hover {
-        background-color: #3aa8d8;
-        border-color: #3aa8d8;
-    }
+.stats-label {
+    color: var(--text-light);
+    font-size: 0.875rem;
+}
 
-    .btn-secondary {
-        background-color: #6c757d;
-        border-color: #6c757d;
-    }
+.progress {
+    height: 1rem;
+    border-radius: 0.35rem;
+    background-color: #eaecf4;
+}
 
-    .btn-danger {
-        background-color: #e63946;
-        border-color: #e63946;
-    }
+.progress-bar {
+    border-radius: 0.35rem;
+}
 
-    .btn-warning {
-        background-color: #ffbe0b;
-        border-color: #ffbe0b;
-        color: #16213e;
-    }
+/* Tabs */
+.nav-tabs {
+    border-bottom: 1px solid #dddfeb;
+    margin-bottom: 1.5rem;
+}
 
-    /* Progress Bar */
-    .progress {
-        background-color: #0f3460;
-        height: 10px;
-        border-radius: 5px;
-    }
+.nav-tabs .nav-link {
+    color: var(--text-light);
+    font-weight: 600;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    margin-right: 0.5rem;
+}
 
-    .progress-bar {
-        border-radius: 5px;
-    }
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background-color: transparent;
+    border-bottom: 3px solid var(--primary-color);
+}
 
-    /* Loot Boxes */
-    .loot-box {
-        border-radius: 10px;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+    border-color: transparent;
+}
 
-    .loot-box:hover {
-        transform: scale(1.05);
-    }
+/* Loot Boxes */
+.loot-box {
+    transition: transform 0.3s ease;
+    border-radius: 0.25rem;
+}
 
-    /* Wheel of Fortune */
+.loot-box:hover {
+    transform: scale(1.05);
+}
+
+.open-lootbox-btn {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+/* Wheel of Fortune */
+.wheel-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto 2rem;
+}
+
+.wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+    transform: rotate(0deg);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    border: 8px solid #333;
+}
+
+.wheel-section {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    transform-origin: bottom right;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.wheel-center {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: #fff;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--text-dark);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    cursor: pointer;
+    border: 4px solid #333;
+}
+
+.wheel-pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 30px solid #dc3545;
+    z-index: 20;
+}
+
+/* Wheel Colors - Aligned with your JS configuration */
+.wheel-section:nth-child(1) { background-color: #dc3545; transform: rotate(0deg) skewY(60deg); } /* Lose All */
+.wheel-section:nth-child(2) { background-color: #fd7e14; transform: rotate(90deg) skewY(60deg); } /* Lose Half */
+.wheel-section:nth-child(3) { background-color: #28a745; transform: rotate(180deg) skewY(60deg); } /* Win 1x */
+.wheel-section:nth-child(4) { background-color: #007bff; transform: rotate(270deg) skewY(60deg); } /* Win 2x */
+
+/* Form Elements */
+.form-control, .form-range {
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.form-range::-webkit-slider-thumb {
+    background: var(--primary-color);
+}
+
+.form-range::-moz-range-thumb {
+    background: var(--primary-color);
+}
+
+.form-range::-ms-thumb {
+    background: var(--primary-color);
+}
+
+/* Buttons */
+.btn {
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+    color: #fff;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+/* Badges */
+.badge {
+    font-weight: 600;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+/* Modals */
+.modal-content {
+    border: none;
+    border-radius: 0.35rem;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.modal-footer {
+    border-top: 1px solid #e3e6f0;
+}
+
+/* Reward Animation */
+.reward-animation {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
     .wheel-container {
-        position: relative;
-        width: 300px;
-        height: 300px;
-        margin: 0 auto 2rem;
+        width: 250px;
+        height: 250px;
     }
-
-    .wheel {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        position: relative;
-        overflow: hidden;
-        transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-        transform: rotate(0deg);
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .wheel-section {
-        position: absolute;
-        width: 50%;
-        height: 50%;
-        transform-origin: bottom right;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .wheel-section div {
-        position: absolute;
-        right: 10px;
-        transform-origin: center;
-        font-weight: bold;
-        color: white;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    }
-
-    .wheel-pointer {
-        position: absolute;
-        top: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-top: 30px solid #e63946;
-        z-index: 10;
-    }
-
-    .wheel-center {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 60px;
-        height: 60px;
-        background-color: #16213e;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        z-index: 5;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        border: 3px solid #4cc9f0;
-    }
-
-    /* Form Elements */
-    .form-control, .form-select {
-        background-color: #0f3460;
-        border: 1px solid #4cc9f0;
-        color: #e6e6e6;
-    }
-
-    .form-control:focus, .form-select:focus {
-        background-color: #0f3460;
-        color: #e6e6e6;
-        border-color: #4cc9f0;
-        box-shadow: 0 0 0 0.25rem rgba(76, 201, 240, 0.25);
-    }
-
-    .form-range::-webkit-slider-thumb {
-        background: #4cc9f0;
-    }
-
-    .form-range::-moz-range-thumb {
-        background: #4cc9f0;
-    }
-
-    .form-range::-ms-thumb {
-        background: #4cc9f0;
-    }
-
-    /* Badges */
-    .badge {
-        font-weight: 500;
-        padding: 0.4em 0.8em;
-    }
-
-    .bg-primary {
-        background-color: #4cc9f0 !important;
-        color: #16213e !important;
-    }
-
-    .bg-success {
-        background-color: #2a9d8f !important;
-    }
-
-    .bg-danger {
-        background-color: #e63946 !important;
-    }
-
-    .bg-warning {
-        background-color: #ffbe0b !important;
-        color: #16213e !important;
-    }
-
-    .bg-secondary {
-        background-color: #6c757d !important;
-    }
-
-    /* Modals */
-    .modal-content {
-        background-color: #16213e;
-        border: 1px solid #4cc9f0;
-    }
-
-    .modal-header {
-        border-bottom: 1px solid #0f3460;
-    }
-
-    .modal-footer {
-        border-top: 1px solid #0f3460;
-    }
-
-    .btn-close-white {
-        filter: invert(1);
-    }
-
-    /* Reward Animation */
-    .reward-animation {
-        animation: pulse 1.5s infinite alternate;
-    }
-
-    @keyframes pulse {
-        from {
-            transform: scale(1);
-        }
-        to {
-            transform: scale(1.1);
-        }
-    }
-
-    /* Inventory Items */
-    .card-img-top {
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-        height: 180px;
-        object-fit: cover;
-    }
-
-    /* Blackjack Game */
-    .game-container {
-        background-color: #0f3460;
-        border-radius: 10px;
-        padding: 1.5rem;
-    }
-
-    .dealer-area, .player-area {
+    
+    .card-body {
         padding: 1rem;
-        border-radius: 8px;
     }
+}
 
-    .dealer-area {
-        background-color: rgba(230, 57, 70, 0.1);
+/* Ensure equal height for profile and stats cards */
+@media (min-width: 768px) {
+    .row.mb-4 > .col-md-4 > .card,
+    .row.mb-4 > .col-md-8 > .card {
+        height: 100%;
     }
+}
 
-    .player-area {
-        background-color: rgba(42, 157, 143, 0.1);
-    }
+/* Inventory Items */
+.inventory-item {
+    transition: transform 0.3s ease;
+}
 
-    .cards-container {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        min-height: 100px;
-        align-items: center;
-    }
+.inventory-item:hover {
+    transform: translateY(-5px);
+}
 
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .wheel-container {
-            width: 250px;
-            height: 250px;
-        }
-        
-        .nav-tabs .nav-link {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-        }
-    }
+/* Sell Button */
+.sell-item-btn {
+    transition: all 0.3s ease;
+}
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
+.sell-item-btn:hover {
+    background-color: var(--danger-color) !important;
+    color: white !important;
+}
 
-    ::-webkit-scrollbar-track {
-        background: #0f3460;
-    }
+/* Blackjack Game */
+.game-container {
+    background-color: #2e7d32;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    color: white;
+}
 
-    ::-webkit-scrollbar-thumb {
-        background: #4cc9f0;
-        border-radius: 4px;
-    }
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 120px;
+    align-items: center;
+    flex-wrap: wrap;
+}
 
-    ::-webkit-scrollbar-thumb:hover {
-        background: #3aa8d8;
-    }
+.card-slot {
+    width: 80px;
+    height: 120px;
+    background-color: white;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.dealer-area {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+}
+
+#game-controls {
+    margin: 1.5rem 0;
+}
+
+#game-result {
+    font-size: 1.25rem;
+    font-weight: bold;
+    min-height: 2rem;
+}
+
+/* Ensure all text is visible */
+h1, h2, h3, h4, h5, h6,
+p, span, div, a, button, input, label {
+    color: var(--text-color);
+}
+
+/* Make sure containers are properly aligned */
+.container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Equal size for profile and stats containers */
+.profile-stats-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Loot box cards equal height */
+.loot-box-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.loot-box-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.loot-box-card .card-body .btn {
+    margin-top: auto;
+}
+
+/* Shop items equal height */
+.shop-item-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.shop-item-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.shop-item-card .card-body .btn {
+    margin-top: auto;
+}
 </style>
