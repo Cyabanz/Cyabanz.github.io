@@ -1,56 +1,178 @@
 /* General Styles */
 body {
+    background-color: #1a1a2e;
+    color: #fff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #121212;
-    color: #ffffff;
-    margin: 0;
-    padding: 0;
 }
 
 .navbar {
-    background-color: #1a1a1a;
+    background-color: #16213e !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
+    color: #4cc9f0 !important;
 }
 
 .card {
-    background-color: #1e1e1e;
-    border: 1px solid #2e2e2e;
+    background-color: #16213e;
+    border: 1px solid #1f4068;
     border-radius: 10px;
-    transition: transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+    margin-bottom: 20px;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .card-body {
     padding: 1.5rem;
 }
 
+.card-title {
+    color: #4cc9f0;
+    margin-bottom: 1rem;
+}
+
+/* Nav Tabs */
+.nav-tabs {
+    border-bottom: 1px solid #1f4068;
+    margin-bottom: 1.5rem;
+}
+
+.nav-tabs .nav-link {
+    color: #a8b2d1;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: #4cc9f0;
+    background-color: transparent;
+    border-bottom: 3px solid #4cc9f0;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+    color: #fff;
+    border-bottom: 3px solid #1f4068;
+}
+
+/* Buttons */
 .btn-primary {
-    background-color: #3a5fcd;
-    border-color: #3a5fcd;
+    background-color: #4361ee;
+    border-color: #4361ee;
 }
 
 .btn-primary:hover {
-    background-color: #2d4bb3;
-    border-color: #2d4bb3;
+    background-color: #3a56d4;
+    border-color: #3a56d4;
+}
+
+.btn-secondary {
+    background-color: #3a0ca3;
+    border-color: #3a0ca3;
+}
+
+.btn-secondary:hover {
+    background-color: #480ca8;
+    border-color: #480ca8;
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
+    background-color: #f72585;
+    border-color: #f72585;
 }
 
 .btn-danger:hover {
-    background-color: #bb2d3b;
-    border-color: #bb2d3b;
+    background-color: #e5177b;
+    border-color: #e5177b;
+}
+
+.btn-warning {
+    background-color: #f8961e;
+    border-color: #f8961e;
+    color: #000;
+}
+
+.btn-warning:hover {
+    background-color: #e68a1a;
+    border-color: #e68a1a;
+    color: #000;
+}
+
+/* Forms and Inputs */
+.form-control, .form-select {
+    background-color: #1f4068;
+    border: 1px solid #1f4068;
+    color: #fff;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #1a3460;
+    border-color: #4cc9f0;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(76, 201, 240, 0.25);
+}
+
+.form-range::-webkit-slider-thumb {
+    background: #4361ee;
+}
+
+.form-range::-moz-range-thumb {
+    background: #4361ee;
+}
+
+.form-range::-ms-thumb {
+    background: #4361ee;
+}
+
+/* Progress Bar */
+.progress {
+    background-color: #1f4068;
+    height: 10px;
+    border-radius: 5px;
+}
+
+.progress-bar {
+    background-color: #4cc9f0;
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+}
+
+.badge.bg-primary {
+    background-color: #4361ee !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.badge.bg-success {
+    background-color: #4cc9f0 !important;
+    color: #000;
+}
+
+.badge.bg-danger {
+    background-color: #f72585 !important;
+}
+
+.badge.bg-warning {
+    background-color: #f8961e !important;
+    color: #000;
+}
+
+.badge.bg-info {
+    background-color: #4895ef !important;
 }
 
 /* Wheel of Fortune Styles */
@@ -58,14 +180,14 @@ body {
     position: relative;
     width: 300px;
     height: 300px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 30px;
 }
 
 .wheel {
     width: 100%;
     height: 100%;
-    position: relative;
     border-radius: 50%;
+    position: relative;
     overflow: hidden;
     transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
     transform: rotate(0deg);
@@ -76,35 +198,20 @@ body {
     position: absolute;
     width: 50%;
     height: 50%;
-    right: 0;
-    top: 0;
-    transform-origin: 0% 100%;
+    transform-origin: bottom right;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
 }
 
-.wheel-center {
+.wheel-section div {
     position: absolute;
-    width: 50px;
-    height: 50px;
-    background-color: #1a1a1a;
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    right: 10px;
+    transform-origin: center;
     font-weight: bold;
     color: white;
-    z-index: 10;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    border: 3px solid #3a5fcd;
-    cursor: pointer;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .wheel-pointer {
@@ -116,45 +223,56 @@ body {
     height: 0;
     border-left: 15px solid transparent;
     border-right: 15px solid transparent;
-    border-top: 30px solid #dc3545;
+    border-top: 30px solid #f72585;
+    z-index: 10;
+}
+
+.wheel-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background-color: #16213e;
+    border-radius: 50%;
+    border: 5px solid #1f4068;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
     z-index: 5;
-}
-
-/* Loot Box Container Styles */
-.loot-box {
-    border-radius: 10px;
-    object-fit: cover;
-    transition: transform 0.3s;
-}
-
-.loot-box:hover {
-    transform: scale(1.05);
-}
-
-/* Equal height cards for loot boxes */
-.row {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.row > [class*='col-'] {
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Blackjack Styles */
+.game-container {
+    background-color: #1f4068;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.dealer-area, .player-area {
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #16213e;
+    margin-bottom: 15px;
+}
+
 .cards-container {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 10px;
     min-height: 120px;
-    margin-bottom: 20px;
 }
 
 .card-slot {
     width: 80px;
     height: 120px;
-    background-color: #2a2a2a;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
     display: flex;
     align-items: center;
@@ -162,56 +280,42 @@ body {
     font-size: 2rem;
 }
 
-.card-slot img {
-    width: 100%;
-    height: 100%;
+/* Loot Box Styles */
+.loot-box {
+    border-radius: 10px;
     object-fit: cover;
-    border-radius: 5px;
+    transition: transform 0.3s ease;
 }
 
-.card-back {
-    background: repeating-linear-gradient(
-        45deg,
-        #3a5fcd,
-        #3a5fcd 10px,
-        #2d4bb3 10px,
-        #2d4bb3 20px
-    );
-    color: white;
+.loot-box:hover {
+    transform: scale(1.05);
 }
 
-.blackjack-result {
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
+/* Inventory Item Styles */
+.inventory-item {
+    transition: transform 0.3s ease;
 }
 
-.blackjack-result.win {
-    background-color: rgba(40, 167, 69, 0.2);
-    color: #28a745;
+.inventory-item:hover {
+    transform: scale(1.03);
 }
 
-.blackjack-result.lose {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
+/* Reward Modal */
+.modal-content {
+    border: none;
 }
 
-.blackjack-result.push {
-    background-color: rgba(108, 117, 125, 0.2);
-    color: #6c757d;
-}
-
-/* Reward Modal Styles */
 .reward-animation {
-    animation: pulse 1.5s infinite;
+    animation: pulse 1.5s infinite alternate;
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.1);
+    }
 }
 
 /* Responsive Adjustments */
@@ -221,97 +325,63 @@ body {
         height: 250px;
     }
     
-    .card-slot {
-        width: 60px;
-        height: 90px;
+    .nav-tabs .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
     }
 }
 
-/* Form Range Styling */
-.form-range::-webkit-slider-thumb {
-    background: #3a5fcd;
+/* Utility Classes */
+.text-cyan {
+    color: #4cc9f0 !important;
 }
 
-.form-range::-moz-range-thumb {
-    background: #3a5fcd;
+.bg-dark-blue {
+    background-color: #16213e !important;
 }
 
-.form-range::-ms-thumb {
-    background: #3a5fcd;
+/* Animation for confetti */
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+    }
 }
 
-/* Badge Styles */
-.badge {
-    font-size: 0.8rem;
-    font-weight: 500;
-    padding: 0.35em 0.65em;
+/* Streak Animation */
+.streak-flash {
+    animation: streakFlash 0.5s 3;
 }
 
-.bg-primary {
-    background-color: #3a5fcd !important;
+@keyframes streakFlash {
+    0%, 100% {
+        color: #fff;
+    }
+    50% {
+        color: #f8961e;
+    }
 }
 
-.bg-success {
-    background-color: #28a745 !important;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
 }
 
-.bg-danger {
-    background-color: #dc3545 !important;
+::-webkit-scrollbar-track {
+    background: #1a1a2e;
 }
 
-.bg-warning {
-    background-color: #ffc107 !important;
-    color: #000 !important;
+::-webkit-scrollbar-thumb {
+    background: #4cc9f0;
+    border-radius: 4px;
 }
 
-.bg-secondary {
-    background-color: #6c757d !important;
-}
-
-/* Tab Styles */
-.nav-tabs .nav-link {
-    color: #adb5bd;
-    border: none;
-    padding: 0.75rem 1.5rem;
-}
-
-.nav-tabs .nav-link.active {
-    color: #ffffff;
-    background-color: transparent;
-    border-bottom: 3px solid #3a5fcd;
-}
-
-.nav-tabs .nav-link:hover {
-    color: #ffffff;
-    border-color: transparent;
-}
-
-/* Progress Bar */
-.progress {
-    height: 10px;
-    background-color: #2e2e2e;
-    border-radius: 5px;
-}
-
-.progress-bar {
-    background-color: #ffc107;
-    border-radius: 5px;
-}
-
-/* Modal Styles */
-.modal-content {
-    background-color: #1e1e1e;
-    border: 1px solid #2e2e2e;
-}
-
-.modal-header {
-    border-bottom: 1px solid #2e2e2e;
-}
-
-.modal-footer {
-    border-top: 1px solid #2e2e2e;
-}
-
-.btn-close-white {
-    filter: invert(1);
+::-webkit-scrollbar-thumb:hover {
+    background: #3aacd4;
 }
