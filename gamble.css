@@ -1,387 +1,366 @@
-/* General Styles */
-body {
-    background-color: #1a1a2e;
-    color: #fff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.navbar {
-    background-color: #16213e !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.navbar-brand {
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: #4cc9f0 !important;
-}
-
-.card {
-    background-color: #16213e;
-    border: 1px solid #1f4068;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-    margin-bottom: 20px;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.card-body {
-    padding: 1.5rem;
-}
-
-.card-title {
-    color: #4cc9f0;
-    margin-bottom: 1rem;
-}
-
-/* Nav Tabs */
-.nav-tabs {
-    border-bottom: 1px solid #1f4068;
-    margin-bottom: 1.5rem;
-}
-
-.nav-tabs .nav-link {
-    color: #a8b2d1;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-}
-
-.nav-tabs .nav-link.active {
-    color: #4cc9f0;
-    background-color: transparent;
-    border-bottom: 3px solid #4cc9f0;
-}
-
-.nav-tabs .nav-link:hover:not(.active) {
-    color: #fff;
-    border-bottom: 3px solid #1f4068;
-}
-
-/* Buttons */
-.btn-primary {
-    background-color: #4361ee;
-    border-color: #4361ee;
-}
-
-.btn-primary:hover {
-    background-color: #3a56d4;
-    border-color: #3a56d4;
-}
-
-.btn-secondary {
-    background-color: #3a0ca3;
-    border-color: #3a0ca3;
-}
-
-.btn-secondary:hover {
-    background-color: #480ca8;
-    border-color: #480ca8;
-}
-
-.btn-danger {
-    background-color: #f72585;
-    border-color: #f72585;
-}
-
-.btn-danger:hover {
-    background-color: #e5177b;
-    border-color: #e5177b;
-}
-
-.btn-warning {
-    background-color: #f8961e;
-    border-color: #f8961e;
-    color: #000;
-}
-
-.btn-warning:hover {
-    background-color: #e68a1a;
-    border-color: #e68a1a;
-    color: #000;
-}
-
-/* Forms and Inputs */
-.form-control, .form-select {
-    background-color: #1f4068;
-    border: 1px solid #1f4068;
-    color: #fff;
-}
-
-.form-control:focus, .form-select:focus {
-    background-color: #1a3460;
-    border-color: #4cc9f0;
-    color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(76, 201, 240, 0.25);
-}
-
-.form-range::-webkit-slider-thumb {
-    background: #4361ee;
-}
-
-.form-range::-moz-range-thumb {
-    background: #4361ee;
-}
-
-.form-range::-ms-thumb {
-    background: #4361ee;
-}
-
-/* Progress Bar */
-.progress {
-    background-color: #1f4068;
-    height: 10px;
-    border-radius: 5px;
-}
-
-.progress-bar {
-    background-color: #4cc9f0;
-}
-
-/* Badges */
-.badge {
-    font-weight: 500;
-    padding: 0.4em 0.8em;
-}
-
-.badge.bg-primary {
-    background-color: #4361ee !important;
-}
-
-.badge.bg-secondary {
-    background-color: #6c757d !important;
-}
-
-.badge.bg-success {
-    background-color: #4cc9f0 !important;
-    color: #000;
-}
-
-.badge.bg-danger {
-    background-color: #f72585 !important;
-}
-
-.badge.bg-warning {
-    background-color: #f8961e !important;
-    color: #000;
-}
-
-.badge.bg-info {
-    background-color: #4895ef !important;
-}
-
-/* Wheel of Fortune Styles */
-.wheel-container {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    margin: 0 auto 30px;
-}
-
-.wheel {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    position: relative;
-    overflow: hidden;
-    transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-    transform: rotate(0deg);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.wheel-section {
-    position: absolute;
-    width: 50%;
-    height: 50%;
-    transform-origin: bottom right;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.wheel-section div {
-    position: absolute;
-    right: 10px;
-    transform-origin: center;
-    font-weight: bold;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-.wheel-pointer {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-top: 30px solid #f72585;
-    z-index: 10;
-}
-
-.wheel-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    background-color: #16213e;
-    border-radius: 50%;
-    border: 5px solid #1f4068;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #fff;
-    z-index: 5;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-/* Blackjack Styles */
-.game-container {
-    background-color: #1f4068;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.dealer-area, .player-area {
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #16213e;
-    margin-bottom: 15px;
-}
-
-.cards-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    min-height: 120px;
-}
-
-.card-slot {
-    width: 80px;
-    height: 120px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-}
-
-/* Loot Box Styles */
-.loot-box {
-    border-radius: 10px;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.loot-box:hover {
-    transform: scale(1.05);
-}
-
-/* Inventory Item Styles */
-.inventory-item {
-    transition: transform 0.3s ease;
-}
-
-.inventory-item:hover {
-    transform: scale(1.03);
-}
-
-/* Reward Modal */
-.modal-content {
-    border: none;
-}
-
-.reward-animation {
-    animation: pulse 1.5s infinite alternate;
-}
-
-@keyframes pulse {
-    from {
-        transform: scale(1);
+<style>
+    /* Base Styles */
+    body {
+        background-color: #1a1a2e;
+        color: #e6e6e6;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    to {
-        transform: scale(1.1);
-    }
-}
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .wheel-container {
-        width: 250px;
-        height: 250px;
+    /* Navbar */
+    .navbar {
+        background-color: #16213e !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
-    
-    .nav-tabs .nav-link {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+
+    .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+        color: #4cc9f0 !important;
     }
-    
+
+    #username-display {
+        font-weight: 500;
+        color: #f8f9fa;
+    }
+
+    /* Login View */
+    #login-view {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #16213e;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    #login-view h1 {
+        color: #4cc9f0;
+        margin-bottom: 1.5rem;
+    }
+
+    #login-view .lead {
+        color: #a8dadc;
+        margin-bottom: 2rem;
+    }
+
+    /* Dashboard */
+    .card {
+        background-color: #16213e;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
     .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        color: #4cc9f0;
+        margin-bottom: 1rem;
+    }
+
+    /* Tabs */
+    .nav-tabs {
+        border-bottom: 2px solid #0f3460;
+    }
+
+    .nav-tabs .nav-link {
+        color: #a8dadc;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: #4cc9f0;
+        background-color: rgba(76, 201, 240, 0.1);
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #4cc9f0;
+        background-color: transparent;
+        border-bottom: 3px solid #4cc9f0;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #4cc9f0;
+        border-color: #4cc9f0;
+        color: #16213e;
+        font-weight: 500;
+    }
+
+    .btn-primary:hover {
+        background-color: #3aa8d8;
+        border-color: #3aa8d8;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn-danger {
+        background-color: #e63946;
+        border-color: #e63946;
+    }
+
+    .btn-warning {
+        background-color: #ffbe0b;
+        border-color: #ffbe0b;
+        color: #16213e;
+    }
+
+    /* Progress Bar */
+    .progress {
+        background-color: #0f3460;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    .progress-bar {
+        border-radius: 5px;
+    }
+
+    /* Loot Boxes */
+    .loot-box {
+        border-radius: 10px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .loot-box:hover {
+        transform: scale(1.05);
+    }
+
+    /* Wheel of Fortune */
+    .wheel-container {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        margin: 0 auto 2rem;
+    }
+
+    .wheel {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        position: relative;
+        overflow: hidden;
+        transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        transform: rotate(0deg);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .wheel-section {
+        position: absolute;
+        width: 50%;
+        height: 50%;
+        transform-origin: bottom right;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .wheel-section div {
+        position: absolute;
+        right: 10px;
+        transform-origin: center;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .wheel-pointer {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 30px solid #e63946;
+        z-index: 10;
+    }
+
+    .wheel-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        background-color: #16213e;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        z-index: 5;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border: 3px solid #4cc9f0;
+    }
+
+    /* Form Elements */
+    .form-control, .form-select {
+        background-color: #0f3460;
+        border: 1px solid #4cc9f0;
+        color: #e6e6e6;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #0f3460;
+        color: #e6e6e6;
+        border-color: #4cc9f0;
+        box-shadow: 0 0 0 0.25rem rgba(76, 201, 240, 0.25);
+    }
+
+    .form-range::-webkit-slider-thumb {
+        background: #4cc9f0;
+    }
+
+    .form-range::-moz-range-thumb {
+        background: #4cc9f0;
+    }
+
+    .form-range::-ms-thumb {
+        background: #4cc9f0;
+    }
+
+    /* Badges */
+    .badge {
+        font-weight: 500;
+        padding: 0.4em 0.8em;
+    }
+
+    .bg-primary {
+        background-color: #4cc9f0 !important;
+        color: #16213e !important;
+    }
+
+    .bg-success {
+        background-color: #2a9d8f !important;
+    }
+
+    .bg-danger {
+        background-color: #e63946 !important;
+    }
+
+    .bg-warning {
+        background-color: #ffbe0b !important;
+        color: #16213e !important;
+    }
+
+    .bg-secondary {
+        background-color: #6c757d !important;
+    }
+
+    /* Modals */
+    .modal-content {
+        background-color: #16213e;
+        border: 1px solid #4cc9f0;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #0f3460;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #0f3460;
+    }
+
+    .btn-close-white {
+        filter: invert(1);
+    }
+
+    /* Reward Animation */
+    .reward-animation {
+        animation: pulse 1.5s infinite alternate;
+    }
+
+    @keyframes pulse {
+        from {
+            transform: scale(1);
+        }
+        to {
+            transform: scale(1.1);
+        }
+    }
+
+    /* Inventory Items */
+    .card-img-top {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    /* Blackjack Game */
+    .game-container {
+        background-color: #0f3460;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .dealer-area, .player-area {
         padding: 1rem;
+        border-radius: 8px;
     }
-}
 
-/* Utility Classes */
-.text-cyan {
-    color: #4cc9f0 !important;
-}
-
-.bg-dark-blue {
-    background-color: #16213e !important;
-}
-
-/* Animation for confetti */
-@keyframes confetti-fall {
-    0% {
-        transform: translateY(-100vh) rotate(0deg);
+    .dealer-area {
+        background-color: rgba(230, 57, 70, 0.1);
     }
-    100% {
-        transform: translateY(100vh) rotate(360deg);
+
+    .player-area {
+        background-color: rgba(42, 157, 143, 0.1);
     }
-}
 
-/* Streak Animation */
-.streak-flash {
-    animation: streakFlash 0.5s 3;
-}
-
-@keyframes streakFlash {
-    0%, 100% {
-        color: #fff;
+    .cards-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        min-height: 100px;
+        align-items: center;
     }
-    50% {
-        color: #f8961e;
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .wheel-container {
+            width: 250px;
+            height: 250px;
+        }
+        
+        .nav-tabs .nav-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
     }
-}
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
 
-::-webkit-scrollbar-track {
-    background: #1a1a2e;
-}
+    ::-webkit-scrollbar-track {
+        background: #0f3460;
+    }
 
-::-webkit-scrollbar-thumb {
-    background: #4cc9f0;
-    border-radius: 4px;
-}
+    ::-webkit-scrollbar-thumb {
+        background: #4cc9f0;
+        border-radius: 4px;
+    }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #3aacd4;
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background: #3aa8d8;
+    }
+</style>
