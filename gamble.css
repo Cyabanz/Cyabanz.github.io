@@ -474,23 +474,26 @@ body {
     color: white !important;
 }
 
-/* Blackjack Game - Updated Styles */
+/* Blackjack Game - Fixed Card Styling */
 .game-container {
     background-color: #2e7d32;
     border-radius: 0.5rem;
     padding: 1.5rem;
     color: white;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    overflow: hidden; /* Prevent content from overflowing */
 }
 
 .cards-container {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
     min-height: 120px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin: 1rem 0;
+    margin: 0 auto;
+    max-width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
 }
 
 .card-slot {
@@ -501,55 +504,44 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: black;
-    font-weight: bold;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     position: relative;
     transition: transform 0.3s ease;
+    flex-shrink: 0; /* Prevent cards from shrinking */
+}
+
+.card-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 0.5rem;
 }
 
 .card-slot:hover {
     transform: translateY(-5px);
 }
 
-.card-slot::before {
+.card-back {
+    background: repeating-linear-gradient(
+        45deg,
+        #d40000,
+        #d40000 10px,
+        #fff 10px,
+        #fff 20px
+    );
+    position: relative;
+    overflow: hidden;
+}
+
+.card-back::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.card-slot.red {
-    color: #d40000;
-}
-
-.card-slot.black {
-    color: #000;
-}
-
-.card-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.card-suit {
-    font-size: 1.2rem;
-    position: absolute;
-}
-
-.card-suit.top {
     top: 5px;
     left: 5px;
-}
-
-.card-suit.bottom {
-    bottom: 5px;
     right: 5px;
-    transform: rotate(180deg);
+    bottom: 5px;
+    background-color: #d40000;
+    border-radius: 0.35rem;
 }
 
 .dealer-area {
@@ -574,6 +566,7 @@ body {
 #game-controls .btn {
     min-width: 100px;
     font-weight: 700;
+    flex-grow: 1;
 }
 
 #game-result {
@@ -593,6 +586,7 @@ body {
     justify-content: center;
     gap: 1rem;
     margin: 1rem 0;
+    flex-wrap: wrap;
 }
 
 .bet-amount {
@@ -600,6 +594,36 @@ body {
     font-weight: bold;
     min-width: 60px;
     text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-slot {
+        width: 60px;
+        height: 90px;
+    }
+    
+    #game-controls .btn {
+        min-width: 80px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .bet-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-slot {
+        width: 50px;
+        height: 75px;
+    }
+    
+    .cards-container {
+        gap: 0.3rem;
+    }
 }
 
 /* Card Back Design */
