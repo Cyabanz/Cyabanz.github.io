@@ -474,12 +474,13 @@ body {
     color: white !important;
 }
 
-/* Blackjack Game */
+/* Blackjack Game - Updated Styles */
 .game-container {
     background-color: #2e7d32;
     border-radius: 0.5rem;
     padding: 1.5rem;
     color: white;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 .cards-container {
@@ -489,6 +490,7 @@ body {
     min-height: 120px;
     align-items: center;
     flex-wrap: wrap;
+    margin: 1rem 0;
 }
 
 .card-slot {
@@ -502,22 +504,133 @@ body {
     color: black;
     font-weight: bold;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.card-slot:hover {
+    transform: translateY(-5px);
+}
+
+.card-slot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-slot.red {
+    color: #d40000;
+}
+
+.card-slot.black {
+    color: #000;
+}
+
+.card-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.card-suit {
+    font-size: 1.2rem;
+    position: absolute;
+}
+
+.card-suit.top {
+    top: 5px;
+    left: 5px;
+}
+
+.card-suit.bottom {
+    bottom: 5px;
+    right: 5px;
+    transform: rotate(180deg);
 }
 
 .dealer-area {
     margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+    padding-bottom: 1.5rem;
+    border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+.player-area {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
 }
 
 #game-controls {
     margin: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+#game-controls .btn {
+    min-width: 100px;
+    font-weight: 700;
 }
 
 #game-result {
+    font-size: 1.5rem;
+    font-weight: bold;
+    min-height: 2.5rem;
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 0.5rem;
+}
+
+.bet-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.bet-amount {
     font-size: 1.25rem;
     font-weight: bold;
-    min-height: 2rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Card Back Design */
+.card-back {
+    background: repeating-linear-gradient(
+        45deg,
+        #d40000,
+        #d40000 10px,
+        #fff 10px,
+        #fff 20px
+    );
+    position: relative;
+    overflow: hidden;
+}
+
+.card-back::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    background-color: #d40000;
+    border-radius: 0.35rem;
+}
+
+/* Score Display */
+.score-display {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
 }
 
 /* Card Grid Layout */
@@ -771,5 +884,32 @@ p, span, div, a, button, input, label {
     
     .equal-height-md > [class*="col-md"] {
         display: flex;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Adjust blackjack cards for mobile */
+    .card-slot {
+        width: 60px;
+        height: 90px;
+    }
+    
+    .card-value {
+        font-size: 1.2rem;
+    }
+    
+    .card-suit {
+        font-size: 1rem;
+    }
+    
+    #game-controls .btn {
+        min-width: 80px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .bet-controls {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }
