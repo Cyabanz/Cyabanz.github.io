@@ -21,6 +21,13 @@ body {
     background-color: var(--body-bg);
     color: var(--text-color);
     line-height: 1.6;
+    padding-top: 56px; /* For fixed navbar */
+}
+
+/* Container adjustments */
+.container, .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 /* Navbar */
@@ -164,7 +171,7 @@ body {
     font-weight: 600;
 }
 
-/* Dashboard View */
+/* Dashboard View - Card Fixes */
 .card {
     border: none;
     border-radius: 0.35rem;
@@ -173,11 +180,13 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* Prevents content from overflowing */
 }
 
 .card-body {
-    flex: 1;
+    flex: 1 1 auto;
     padding: 1.5rem;
+    min-height: 1px; /* Fix for flexbox in some browsers */
 }
 
 .card-title {
@@ -417,13 +426,32 @@ body {
     .card-body {
         padding: 1rem;
     }
+    
+    /* Stack cards on mobile */
+    .row > .col-md-4, 
+    .row > .col-md-8,
+    .row > .col-lg-6 {
+        margin-bottom: 1.5rem;
+    }
 }
 
 /* Ensure equal height for profile and stats cards */
 @media (min-width: 768px) {
     .row.mb-4 > .col-md-4 > .card,
     .row.mb-4 > .col-md-8 > .card {
-        height: 100%;
+        height: calc(100% - 1.5rem); /* Account for margin-bottom */
+    }
+    
+    /* Equal height for card groups */
+    .card-group-fix {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .card-group-fix > .col-md-4,
+    .card-group-fix > .col-md-6,
+    .card-group-fix > .col-lg-3 {
+        display: flex;
     }
 }
 
@@ -492,16 +520,44 @@ body {
     min-height: 2rem;
 }
 
-/* Ensure all text is visible */
+/* Card Grid Layout */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-grid .card {
+    margin-bottom: 0; /* Remove individual card margins when in grid */
+}
+
+/* Card Content Overflow Fix */
+.card-content {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Fix for card images */
+.card-img-top {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Card Footer */
+.card-footer {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 0.75rem 1.25rem;
+}
+
+/* Make sure all text is visible */
 h1, h2, h3, h4, h5, h6,
 p, span, div, a, button, input, label {
     color: var(--text-color);
-}
-
-/* Make sure containers are properly aligned */
-.container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
 }
 
 /* Equal size for profile and stats containers */
@@ -682,4 +738,38 @@ p, span, div, a, button, input, label {
 .btn-outline-dark:hover {
     background-color: var(--dark-color);
     color: white;
+}
+
+/* Grid layout fixes */
+.row {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+.row > [class*="col-"] {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Card height fixes for different screen sizes */
+@media (min-width: 992px) {
+    .equal-height-lg {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .equal-height-lg > [class*="col-lg"] {
+        display: flex;
+    }
+}
+
+@media (min-width: 768px) {
+    .equal-height-md {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .equal-height-md > [class*="col-md"] {
+        display: flex;
+    }
 }
