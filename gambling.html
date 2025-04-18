@@ -326,53 +326,6 @@
         </div>
     </div>
 
-   <!-- Mission Uncrossable Tab -->
-<div class="tab-pane fade" id="mission-uncrossable" role="tabpanel">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="mb-4">Mission Uncrossable</h3>
-                    <p>Navigate the path without crossing the lines!</p>
-                    
-                    <div class="game-container">
-                        <div class="mission-grid" id="mission-grid">
-                            <!-- Grid will be generated dynamically -->
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <div class="d-flex justify-content-between mb-3">
-                            <div>
-                                <h5>Current Level: <span id="current-level">1</span></h5>
-                            </div>
-                            <div>
-                                <h5>Score: <span id="mission-score">0</span></h5>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="mission-bet" class="form-label">Bet Amount (10-1000 coins)</label>
-                            <input type="range" class="form-range" id="mission-bet" min="10" max="1000" step="10" value="50">
-                            <div class="d-flex justify-content-between">
-                                <span>10</span>
-                                <span id="current-mission-bet">50</span>
-                                <span>1000</span>
-                            </div>
-                        </div>
-                        
-                        <button id="start-mission-btn" class="btn btn-primary btn-lg">Start Mission for <span id="mission-bet-display">50</span> coins</button>
-                        <button id="retry-mission-btn" class="btn btn-warning btn-lg d-none">Retry Mission</button>
-                        
-                        <div class="mt-3" id="mission-result"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-    
-    
     <!-- Reward Modal -->
     <div class="modal fade" id="rewardModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -1619,49 +1572,3 @@
     </script>
 </body>
 </html>
-
-<!-- Mission Uncrossable Tab -->
-<div class="tab-pane fade" id="mission-uncrossable" role="tabpanel">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="mb-4">Mission Uncrossable</h3>
-                    <p>Navigate the path without crossing the lines!</p>
-                    
-                    <div class="game-container">
-                        <div class="mission-grid" id="mission-grid">
-                            <!-- Grid will be generated dynamically -->
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <div class="d-flex justify-content-between mb-3">
-                            <div>
-                                <h5>Current Level: <span id="current-level">1</span></h5>
-                            </div>
-                            <div>
-                                <h5>Score: <span id="mission-score">0</span></h5>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="mission-bet" class="form-label">Bet Amount (10-1000 coins)</label>
-                            <input type="range" class="form-range" id="mission-bet" min="10" max="1000" step="10" value="50">
-                            <div class="d-flex justify-content-between">
-                                <span>10</span>
-                                <span id="current-mission-bet">50</span>
-                                <span>1000</span>
-                            </div>
-                        </div>
-                        
-                        <button id="start-mission-btn" class="btn btn-primary btn-lg">Start Mission for <span id="mission-bet-display">50</span> coins</button>
-                        <button id="retry-mission-btn" class="btn btn-warning btn-lg d-none">Retry Mission</button>
-                        
-                        <div class="mt-3" id="mission-result"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
