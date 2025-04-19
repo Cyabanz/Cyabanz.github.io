@@ -939,99 +939,84 @@ p, span, div, a, button, input, label {
     }
 }
 
-/* Compact Quantity Controls */
+/* Ultra-Compact Quantity & Sell Controls */
 .input-group.compact {
-    width: 140px;
+    width: 110px;
     margin-right: 0.5rem;
 }
 
 .input-group.compact .btn {
-    padding: 0.25rem 0.5rem;
-    min-width: 32px;
-    font-size: 0.9rem;
+    padding: 0.15rem 0.3rem;
+    min-width: 28px;
+    font-size: 0.8rem;
     background-color: var(--light-color);
-    color: var(--dark-color);
     border: 1px solid var(--secondary-color);
 }
 
-.input-group.compact .btn:hover {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
 .input-group.compact .form-control {
+    padding: 0.15rem;
+    font-size: 0.85rem;
     text-align: center;
-    font-weight: bold;
-    padding: 0.25rem;
     border-left: none;
     border-right: none;
 }
 
-/* Compact Sell Buttons */
+/* Minimal Sell Buttons */
 .sell-buttons-compact {
     display: flex;
     gap: 0.25rem;
-    margin-left: 0.5rem;
 }
 
-.sell-btn-compact {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
+.sell-btn-micro {
+    padding: 0.15rem 0.4rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    border-radius: 0.25rem;
-    white-space: nowrap;
+    border-radius: 0.2rem;
+    line-height: 1.2;
 }
 
-.sell-btn-compact.sell-one {
-    background-color: rgba(231, 74, 59, 0.1);
+.sell-btn-micro.sell-one {
+    background-color: rgba(231, 74, 59, 0.08);
     color: var(--danger-color);
-    border: 1px solid var(--danger-color);
+    border: 1px solid rgba(231, 74, 59, 0.3);
 }
 
-.sell-btn-compact.sell-one:hover {
-    background-color: var(--danger-color);
-    color: white;
+.sell-btn-micro.sell-all {
+    background-color: rgba(231, 74, 59, 0.15);
+    color: var(--danger-color);
+    border: 1px solid rgba(231, 74, 59, 0.4);
 }
 
-.sell-btn-compact.sell-all {
-    background-color: rgba(231, 74, 59, 0.2);
-    color: white;
-    background-color: var(--danger-color);
-    border: 1px solid var(--danger-color);
+.sell-btn-micro:hover {
+    background-color: var(--danger-color) !important;
+    color: white !important;
 }
 
-.sell-btn-compact.sell-all:hover {
-    background-color: #c82333;
-}
-
-/* Responsive adjustments for compact controls */
-@media (max-width: 768px) {
-    .input-group.compact {
-        width: 120px;
+/* Hover effects only on non-touch devices */
+@media (hover: hover) {
+    .input-group.compact .btn:hover {
+        background-color: var(--secondary-color);
+        color: white;
     }
     
-    .sell-buttons-compact {
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-    
-    .sell-btn-compact {
-        padding: 0.2rem 0.4rem;
-        font-size: 0.75rem;
+    .sell-btn-micro:hover {
+        transform: translateY(-1px);
     }
 }
 
+/* Super Compact Mobile Layout */
 @media (max-width: 576px) {
     .input-group.compact {
         width: 100px;
     }
     
     .input-group.compact .btn {
-        min-width: 28px;
-        padding: 0.2rem;
+        min-width: 24px;
+        padding: 0.1rem 0.25rem;
     }
     
-    .sell-buttons-compact {
-        flex-direction: row;
+    .sell-btn-micro {
+        padding: 0.1rem 0.3rem;
+        font-size: 0.7rem;
     }
 }
