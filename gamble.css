@@ -572,7 +572,7 @@ body {
         font-size: 0.9375rem;
     }
     
-    /* Quantity Controls - Perfectly Aligned */
+  /* Quantity Controls - Perfectly Aligned */
 .input-group-quantity {
     display: flex;
     width: 110px;
@@ -592,6 +592,7 @@ body {
     color: var(--dark-color);
     border: 1px solid var(--secondary-color);
     transition: all 0.15s ease;
+    line-height: 1; /* Ensures text is perfectly centered */
 }
 
 .input-group-quantity .btn:hover {
@@ -613,6 +614,64 @@ body {
     border-bottom: 1px solid var(--secondary-color);
     border-radius: 0;
     -moz-appearance: textfield; /* Hide number input arrows in Firefox */
+    line-height: 1.5; /* Ensures text is vertically centered */
+}
+
+/* Hide number input arrows in Chrome/Safari */
+.input-group-quantity .form-control::-webkit-outer-spin-button,
+.input-group-quantity .form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* First button rounded left, last button rounded right */
+.input-group-quantity .btn:first-child {
+    border-top-left-radius: 0.35rem;
+    border-bottom-left-radius: 0.35rem;
+    border-right: none; /* Remove double border */
+}
+
+.input-group-quantity .btn:last-child {
+    border-top-right-radius: 0.35rem;
+    border-bottom-right-radius: 0.35rem;
+    border-left: none; /* Remove double border */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .input-group-quantity {
+        width: 100px;
+    }
+    
+    .input-group-quantity .btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8125rem;
+    }
+    
+    .input-group-quantity .form-control {
+        width: 36px;
+        height: 28px;
+        font-size: 0.8125rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .input-group-quantity {
+        width: 90px;
+    }
+    
+    .input-group-quantity .btn {
+        width: 26px;
+        height: 26px;
+        font-size: 0.75rem;
+    }
+    
+    .input-group-quantity .form-control {
+        width: 32px;
+        height: 26px;
+        font-size: 0.75rem;
+    }
 }
 
 /* Hide number input arrows in Chrome/Safari */
