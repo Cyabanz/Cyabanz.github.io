@@ -1,0 +1,3870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FusionCYA - Daily Rewards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --body-bg: #f8f9fc;
+            --card-bg: #ffffff;
+            --nav-bg: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            --text-color: #5a5c69;
+            --text-light: #858796;
+            --text-dark: #2e2f37;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-top: 56px; /* For fixed navbar */
+        }
+
+        /* Container adjustments */
+        .container, .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--nav-bg);
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            padding: 0.75rem 1rem;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: white !important;
+        }
+
+        #username-display {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Login View */
+        #login-view {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+            background-color: var(--card-bg);
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-top: 2rem;
+        }
+
+        #login-view h1 {
+            color: var(--primary-color);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        #login-view .lead {
+            color: var(--text-light);
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Buttons - Compact and Consistent */
+        .btn {
+            font-weight: 600;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.35rem;
+            transition: all 0.2s ease;
+            border: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2e59d9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #6c757d;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: var(--text-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #17a673;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-outline-danger {
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            background-color: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        /* Special buttons */
+        .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
+            font-size: 0.9375rem;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+
+        #signInButton2 {
+            padding: 0.625rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Quantity Controls - Perfectly Aligned */
+        .input-group-quantity {
+            display: flex;
+            width: 110px;
+            margin-right: 0.5rem;
+        }
+
+        .input-group-quantity .btn {
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: bold;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 1px solid var(--secondary-color);
+            transition: all 0.15s ease;
+            line-height: 1; /* Ensures text is perfectly centered */
+        }
+
+        .input-group-quantity .btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .input-group-quantity .form-control {
+            width: 40px;
+            height: 30px;
+            padding: 0;
+            margin: 0 -1px; /* Remove double borders */
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+            border-left: 1px solid var(--secondary-color);
+            border-right: 1px solid var(--secondary-color);
+            border-top: 1px solid var(--secondary-color);
+            border-bottom: 1px solid var(--secondary-color);
+            border-radius: 0;
+            -moz-appearance: textfield; /* Hide number input arrows in Firefox */
+            line-height: 1.5; /* Ensures text is vertically centered */
+        }
+
+        /* Hide number input arrows in Chrome/Safari */
+        .input-group-quantity .form-control::-webkit-outer-spin-button,
+        .input-group-quantity .form-control::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* First button rounded left, last button rounded right */
+        .input-group-quantity .btn:first-child {
+            border-top-left-radius: 0.35rem;
+            border-bottom-left-radius: 0.35rem;
+            border-right: none; /* Remove double border */
+        }
+
+        .input-group-quantity .btn:last-child {
+            border-top-right-radius: 0.35rem;
+            border-bottom-right-radius: 0.35rem;
+            border-left: none; /* Remove double border */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .input-group-quantity {
+                width: 100px;
+            }
+            
+            .input-group-quantity .btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8125rem;
+            }
+            
+            .input-group-quantity .form-control {
+                width: 36px;
+                height: 28px;
+                font-size: 0.8125rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .input-group-quantity {
+                width: 90px;
+            }
+            
+            .input-group-quantity .btn {
+                width: 26px;
+                height: 26px;
+                font-size: 0.75rem;
+            }
+            
+            .input-group-quantity .form-control {
+                width: 32px;
+                height: 26px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Compact buy/sell buttons */
+        .buy-item-btn {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.8125rem;
+        }
+
+        .sell-item-btn {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.8125rem;
+            margin: 0.125rem;
+        }
+
+        /* Compact sell buttons container */
+        .sell-buttons-container {
+            gap: 0.25rem;
+        }
+
+        /* Compact form controls */
+        .form-control, .form-range {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+            height: calc(1.5em + 0.75rem + 2px);
+        }
+
+        /* Dashboard View - Card Fixes */
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-body {
+            flex: 1 1 auto;
+            padding: 1.25rem;
+            min-height: 1px;
+        }
+
+        .card-title {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        /* Profile Section */
+        #profile-pic-preview {
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        #dashboard-username {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+        }
+
+        /* Stats Section */
+        .stats-icon {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+        }
+
+        .stats-value {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 1.5rem;
+        }
+
+        .stats-label {
+            color: var(--text-light);
+            font-size: 0.8125rem;
+        }
+
+        .progress {
+            height: 0.75rem;
+            border-radius: 0.35rem;
+            background-color: #eaecf4;
+        }
+
+        .progress-bar {
+            border-radius: 0.35rem;
+        }
+
+        /* Tabs */
+        .nav-tabs {
+            border-bottom: 1px solid #dddfeb;
+            margin-bottom: 1.25rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-light);
+            font-weight: 600;
+            border: none;
+            padding: 0.5rem 1rem;
+            margin-right: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background-color: transparent;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--primary-color);
+            border-color: transparent;
+        }
+
+        /* Loot Boxes */
+        .loot-box {
+            transition: transform 0.3s ease;
+            border-radius: 0.25rem;
+        }
+
+        .loot-box:hover {
+            transform: scale(1.05);
+        }
+
+        .open-lootbox-btn {
+            margin-top: 0.75rem;
+            width: 100%;
+        }
+
+        /* Wheel of Fortune */
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            transform: rotate(0deg);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+            border: 6px solid #333;
+        }
+
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-size: 0.875rem;
+        }
+
+        .wheel-center {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-dark);
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            cursor: pointer;
+            border: 3px solid #333;
+            font-size: 0.875rem;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #dc3545;
+            z-index: 20;
+        }
+
+        /* Wheel Colors */
+        .wheel-section:nth-child(1) { background-color: #dc3545; transform: rotate(0deg) skewY(60deg); } /* Lose All */
+        .wheel-section:nth-child(2) { background-color: #fd7e14; transform: rotate(90deg) skewY(60deg); } /* Lose Half */
+        .wheel-section:nth-child(3) { background-color: #28a745; transform: rotate(180deg) skewY(60deg); } /* Win 1x */
+        .wheel-section:nth-child(4) { background-color: #007bff; transform: rotate(270deg) skewY(60deg); } /* Win 2x */
+
+        /* Badges */
+        .badge {
+            font-weight: 600;
+            padding: 0.25em 0.5em;
+            font-size: 0.6875rem;
+        }
+
+        /* Blackjack Game - Compact Card Styling */
+        .game-container {
+            background-color: #2e7d32;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            color: white;
+            box-shadow: 0 0.35rem 0.75rem rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 100px;
+            margin: 0 auto;
+            max-width: 100%;
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+
+        .card-slot {
+            width: 70px;
+            height: 105px;
+            background-color: white;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            position: relative;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .card-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+        }
+
+        .card-slot:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-back {
+            background: repeating-linear-gradient(
+                45deg,
+                #d40000,
+                #d40000 10px,
+                #fff 10px,
+                #fff 20px
+            );
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-back::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background-color: #d40000;
+            border-radius: 0.3rem;
+        }
+
+        .dealer-area {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .player-area {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+        }
+
+        #game-controls {
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        #game-controls .btn {
+            min-width: 80px;
+            font-weight: 600;
+            flex-grow: 1;
+            padding: 0.375rem 0.5rem;
+            font-size: 0.8125rem;
+        }
+
+        #game-result {
+            font-size: 1.25rem;
+            font-weight: bold;
+            min-height: 2rem;
+            text-align: center;
+            margin: 0.75rem 0;
+            padding: 0.375rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+        }
+
+        .bet-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 0.75rem 0;
+            flex-wrap: wrap;
+        }
+
+        .bet-amount {
+            font-size: 1rem;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Reward Animation */
+        .reward-animation {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .wheel-container {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            /* Stack cards on mobile */
+            .row > .col-md-4, 
+            .row > .col-md-8,
+            .row > .col-lg-6 {
+                margin-bottom: 1rem;
+            }
+            
+            /* Make buttons even more compact on mobile */
+            .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.8125rem;
+            }
+            
+            .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            #signInButton2 {
+                padding: 0.5rem 1.25rem;
+                font-size: 0.9375rem;
+            }
+            
+            /* Quantity Controls - Adjust for mobile */
+            .input-group-quantity {
+                width: 100px;
+            }
+            
+            .input-group-quantity .btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8125rem;
+            }
+            
+            .input-group-quantity .form-control {
+                width: 36px;
+                height: 28px;
+                font-size: 0.8125rem;
+            }
+            
+            /* Adjust blackjack cards */
+            .card-slot {
+                width: 60px;
+                height: 90px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .wheel-container {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .card-slot {
+                width: 50px;
+                height: 75px;
+            }
+            
+            .cards-container {
+                gap: 0.3rem;
+            }
+            
+            /* Make buttons even more compact on small devices */
+            .btn {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.75rem;
+            }
+            
+            .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.8125rem;
+            }
+            
+            #signInButton2 {
+                padding: 0.4rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            /* Adjust quantity controls */
+            .input-group-quantity {
+                width: 90px;
+            }
+            
+            .input-group-quantity .btn {
+                width: 26px;
+                height: 26px;
+                font-size: 0.75rem;
+            }
+            
+            .input-group-quantity .form-control {
+                width: 32px;
+                height: 26px;
+                font-size: 0.75rem;
+            }
+            
+            /* Adjust sell buttons */
+            .sell-buttons-container {
+                flex-direction: column;
+            }
+            
+            .sell-item-btn {
+                width: 100%;
+                margin: 0.125rem 0;
+            }
+        }
+
+        /* Card Back Design */
+        .card-back {
+            background: repeating-linear-gradient(
+                45deg,
+                #d40000,
+                #d40000 10px,
+                #fff 10px,
+                #fff 20px
+            );
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-back::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background-color: #d40000;
+            border-radius: 0.3rem;
+        }
+
+        /* Score Display */
+        .score-display {
+            font-size: 1rem;
+            margin-bottom: 0.375rem;
+            font-weight: 600;
+        }
+
+        /* Card Grid Layout */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-grid .card {
+            margin-bottom: 0;
+        }
+
+        /* Card Content Overflow Fix */
+        .card-content {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Fix for card images */
+        .card-img-top {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /* Card Footer */
+        .card-footer {
+            background-color: rgba(0, 0, 0, 0.03);
+            border-top: 1px solid rgba(0, 0, 0, 0.125);
+            padding: 0.5rem 1rem;
+        }
+
+        /* Equal size for profile and stats containers */
+        .profile-stats-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Loot box cards equal height */
+        .loot-box-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .loot-box-card .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .loot-box-card .card-body .btn {
+            margin-top: auto;
+        }
+
+        /* Shop items equal height */
+        .shop-item-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .shop-item-card .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .shop-item-card .card-body .btn {
+            margin-top: auto;
+        }
+
+        /* Button Group Styling */
+        .input-group .btn {
+            z-index: 1;
+        }
+
+        .btn-group .btn {
+            margin-right: 0;
+        }
+
+        /* Navbar Buttons */
+        .navbar .btn {
+            margin-left: 0.5rem;
+        }
+
+        /* Tab Buttons */
+        .nav-tabs .nav-link {
+            transition: all 0.2s ease;
+        }
+
+        /* Form Buttons */
+        .form-control + .btn {
+            margin-left: 0.5rem;
+        }
+
+        /* Special button for profile picture */
+        #upload-profile-pic-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        #update-profile-pic-btn {
+            margin-left: 0.5rem;
+        }
+
+        /* Button focus states */
+        .btn:focus {
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+            outline: none;
+        }
+
+        /* Disabled buttons */
+        .btn:disabled {
+            opacity: 0.65;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Button icons */
+        .btn i {
+            margin-right: 0.375rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Additional fixes for button visibility */
+        .btn-primary, .btn-secondary, .btn-success, 
+        .btn-danger, .btn-info, .btn-warning {
+            color: white;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-secondary {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline-success {
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-outline-danger {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .btn-outline-warning {
+            color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .btn-outline-info {
+            color: var(--info-color);
+            border-color: var(--info-color);
+        }
+
+        .btn-outline-light {
+            color: var(--text-dark);
+            border-color: var(--light-color);
+        }
+
+        .btn-outline-dark {
+            color: var(--dark-color);
+            border-color: var(--dark-color);
+        }
+
+        /* Fix for outline buttons hover state */
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-outline-success:hover {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-outline-warning:hover {
+            background-color: var(--warning-color);
+            color: var(--text-dark);
+        }
+
+        .btn-outline-info:hover {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--light-color);
+            color: var(--text-dark);
+        }
+
+        .btn-outline-dark:hover {
+            background-color: var(--dark-color);
+            color: white;
+        }
+
+        /* Grid layout fixes */
+        .row {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        /* Card height fixes for different screen sizes */
+        @media (min-width: 992px) {
+            .equal-height-lg {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .equal-height-lg > [class*="col-lg"] {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .equal-height-md {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .equal-height-md > [class*="col-md"] {
+                display: flex;
+            }
+        }
+
+        /* MODIFIED STYLES FOR COMPACT QUANTITY CONTROLS AND SELL BUTTONS */
+
+        /* Quantity Controls - Compact Version */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.375rem;
+            width: 100%;
+        }
+
+        .quantity-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 1px solid var(--secondary-color);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: scale(1.03);
+        }
+
+        .quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quantity-input {
+            width: 36px;
+            height: 26px;
+            text-align: center;
+            margin: 0 0.2rem;
+            font-weight: bold;
+            font-size: 0.8125rem;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+            padding: 0.125rem;
+        }
+
+        /* Sell Buttons - Compact Version */
+        .sell-buttons-container {
+            display: flex;
+            gap: 0.375rem;
+            margin-top: 0.375rem;
+            width: 100%;
+        }
+
+        .sell-btn {
+            flex: 1;
+            padding: 0.3rem 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .sell-btn.sell-one {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .sell-btn.sell-one:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .sell-btn.sell-all {
+            background-color: rgba(231, 74, 59, 0.2);
+            color: white;
+            background-color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .sell-btn.sell-all:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .sell-btn i {
+            margin-right: 0.2rem;
+            font-size: 0.75rem;
+        }
+
+        /* Quantity Badge */
+        .quantity-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Play Again Button */
+        #play-again-btn {
+            margin-top: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 0.35rem;
+            transition: all 0.15s ease;
+            display: inline-block;
+        }
+
+        #play-again-btn:hover {
+            background-color: #17a673;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Input Group for Quantity - Compact */
+        .input-group-quantity {
+            display: flex;
+            width: 100px;
+            margin-right: 0.375rem;
+        }
+
+        .input-group-quantity .btn {
+            padding: 0.125rem 0.25rem;
+            font-size: 0.75rem;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 1px solid var(--secondary-color);
+        }
+
+        .input-group-quantity .btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .input-group-quantity .form-control {
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.8125rem;
+            padding: 0.125rem;
+            border-left: none;
+            border-right: none;
+            height: 26px;
+        }
+
+        /* Buy Button - Compact */
+        .buy-item-btn {
+            padding: 0.3rem 0.4rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        /* Inventory Item Cards - Compact */
+        .inventory-item .card-body {
+            padding: 0.75rem;
+        }
+
+        .inventory-item .card-title {
+            font-size: 0.9375rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .inventory-item .card-text {
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Shop Item Cards - Compact */
+        .shop-item-card .card-body {
+            padding: 0.75rem;
+        }
+
+        .shop-item-card .card-title {
+            font-size: 0.9375rem;
+            margin-bottom: 0.375rem;
+        }
+
+        .shop-item-card .card-text {
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .shop-item-card .badge {
+            font-size: 0.625rem;
+            margin-bottom: 0.375rem;
+        }
+
+        /* Modal Buttons - Compact */
+        .modal-footer .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Wheel Button - Compact */
+        #spin-wheel-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Blackjack Buttons - Compact */
+        #game-controls .btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            min-width: 70px;
+        }
+
+        /* Daily Reward Button - Compact */
+        #claim-daily-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Loot Box Buttons - Compact */
+        .open-lootbox-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Trading System Styles */
+        .trade-container {
+            background-color: var(--card-bg);
+            border-radius: 0.35rem;
+            padding: 1.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .trade-section {
+            border: 1px solid #dddfeb;
+            border-radius: 0.35rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f8f9fc;
+        }
+
+        .trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #dddfeb;
+        }
+
+        .trade-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            min-height: 100px;
+            padding: 0.5rem;
+            border: 1px dashed #dddfeb;
+            border-radius: 0.25rem;
+        }
+
+        .trade-item {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #dddfeb;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .trade-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .trade-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .trade-item-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+        }
+
+        .trade-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .online-users-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dddfeb;
+            border-radius: 0.35rem;
+        }
+
+        .online-user {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #dddfeb;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .online-user:hover {
+            background-color: #f8f9fc;
+        }
+
+        .online-user:last-child {
+            border-bottom: none;
+        }
+
+        .online-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            object-fit: cover;
+        }
+
+        .online-user-info {
+            flex: 1;
+        }
+
+        .online-user-name {
+            font-weight: 600;
+            margin-bottom: 0.125rem;
+        }
+
+        .online-user-status {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .online-user-status.online {
+            color: var(--success-color);
+        }
+
+        .trade-status {
+            text-align: center;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .trade-preview {
+            display: flex;
+            justify-content: space-around;
+            margin: 1.5rem 0;
+        }
+
+        .trade-preview-section {
+            text-align: center;
+            width: 45%;
+        }
+
+        .trade-preview-items {
+            min-height: 100px;
+            border: 1px dashed #dddfeb;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .trade-history-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dddfeb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trade-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .trade-history-status.completed {
+            color: var(--success-color);
+        }
+
+        .trade-history-status.cancelled {
+            color: var(--danger-color);
+        }
+
+        .trade-history-status.pending {
+            color: var(--warning-color);
+        }
+
+        /* Responsive adjustments for trading */
+        @media (max-width: 768px) {
+            .trade-preview {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .trade-preview-section {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            .trade-controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .trade-items {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">FusionCYA</a>
+            <div class="d-flex align-items-center">
+                <span id="username-display" class="me-3">Guest</span>
+                <img id="profile-pic" src="https://via.placeholder.com/40" class="rounded-circle me-2" width="40" height="40">
+                <button id="signInButton" class="btn btn-primary me-2">Sign In</button>
+                <button id="signOutButton" class="btn btn-danger d-none">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login View -->
+    <div id="login-view" class="container text-center py-5">
+        <h1 class="mb-4">Welcome to FusionCYA</h1>
+        <p class="lead mb-4">Sign in to claim daily rewards, open loot boxes, and collect pets and knives!</p>
+        <button id="signInButton2" class="btn btn-primary btn-lg">Sign In with Google</button>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboard-view" class="container d-none">
+        <!-- Profile Section -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <img id="profile-pic-preview" src="https://via.placeholder.com/150" class="rounded-circle mb-3" width="150" height="150">
+                        <h4 id="dashboard-username">User</h4>
+                        <div class="input-group mb-3">
+                            <input type="text" id="new-username" class="form-control" placeholder="New username">
+                            <button id="update-username-btn" class="btn btn-primary">Update</button>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <input type="file" id="profile-pic-upload" accept="image/*" class="d-none">
+                            <button id="upload-profile-pic-btn" class="btn btn-secondary me-2">Choose Image</button>
+                            <button id="update-profile-pic-btn" class="btn btn-primary">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Stats</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-coins fa-2x text-warning me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">Coins</h5>
+                                        <h3 id="coin-balance">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-fire fa-2x text-danger me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">Current Streak</h5>
+                                        <h3 id="current-streak">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="streak-container">
+                            <h5>Daily Streak Progress</h5>
+                            <div class="progress mb-2">
+                                <div id="streak-progress" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p>Next streak reward in <span id="next-streak-reward">7</span> days</p>
+                            <button id="claim-daily-btn" class="btn btn-primary">Claim Daily Reward</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="lootbox-tab" data-bs-toggle="tab" data-bs-target="#lootbox" type="button" role="tab">Loot Boxes</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="shop-tab" data-bs-toggle="tab" data-bs-target="#shop" type="button" role="tab">Shop</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">Inventory</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="gamble-tab" data-bs-toggle="tab" data-bs-target="#gamble" type="button" role="tab">Gamble</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="blackjack-tab" data-bs-toggle="tab" data-bs-target="#blackjack" type="button" role="tab">Blackjack</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="trade-tab" data-bs-toggle="tab" data-bs-target="#trade" type="button" role="tab">Trade</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- Loot Boxes Tab -->
+            <div class="tab-pane fade show active" id="lootbox" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <img src="https://via.placeholder.com/200x150?text=Free+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                                <h4>Free Box</h4>
+                                <p>Open once every 24 hours</p>
+                                <p id="free-box-timer" class="text-muted">Ready!</p>
+                                <button class="btn btn-primary open-lootbox-btn" data-tier="free">Open Free Box</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <img src="https://via.placeholder.com/200x150?text=Bronze+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                                <h4>Bronze Box</h4>
+                                <p>Cost: 100 coins</p>
+                                <p>Better chances for rare items</p>
+                                <button class="btn btn-primary open-lootbox-btn" data-tier="bronze">Open Bronze Box</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <img src="https://via.placeholder.com/200x150?text=Silver+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                                <h4>Silver Box</h4>
+                                <p>Cost: 250 coins</p>
+                                <p>Good chances for epic items</p>
+                                <button class="btn btn-primary open-lootbox-btn" data-tier="silver">Open Silver Box</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <img src="https://via.placeholder.com/200x150?text=Gold+Box" class="img-fluid mb-3 loot-box" style="max-height: 200px;">
+                                <h4>Gold Box</h4>
+                                <p>Cost: 500 coins</p>
+                                <p>Chance for legendary items</p>
+                                <button class="btn btn-primary open-lootbox-btn" data-tier="gold">Open Gold Box</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Tab -->
+            <div class="tab-pane fade" id="shop" role="tabpanel">
+                <ul class="nav nav-tabs mb-4" id="shopTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pets-tab" data-bs-toggle="tab" data-bs-target="#shop-pets" type="button" role="tab">Pets</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="knives-tab" data-bs-toggle="tab" data-bs-target="#shop-knives" type="button" role="tab">Knives</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="shopTabContent">
+                    <div class="tab-pane fade show active" id="shop-pets" role="tabpanel">
+                        <div class="row" id="shop-pets-container">
+                            <!-- Pets will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="shop-knives" role="tabpanel">
+                        <div class="row" id="shop-knives-container">
+                            <!-- Knives will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Tab -->
+            <div class="tab-pane fade" id="inventory" role="tabpanel">
+                <ul class="nav nav-tabs mb-4" id="inventoryTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="inventory-pets-tab" data-bs-toggle="tab" data-bs-target="#inventory-pets" type="button" role="tab">Pets</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="inventory-knives-tab" data-bs-toggle="tab" data-bs-target="#inventory-knives" type="button" role="tab">Knives</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="inventoryTabContent">
+                    <div class="tab-pane fade show active" id="inventory-pets" role="tabpanel">
+                        <div class="row" id="pets-inventory">
+                            <!-- Pets inventory will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="inventory-knives" role="tabpanel">
+                        <div class="row" id="knives-inventory">
+                            <!-- Knives inventory will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gamble Tab -->
+            <div class="tab-pane fade" id="gamble" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 text-center">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="mb-4">Wheel of Fortune</h3>
+                                <p>Spin the wheel to win coins or lose some!</p>
+                                
+                                <div class="wheel-container mb-4">
+                                    <div class="wheel-pointer"></div>
+                                    <div class="wheel" id="wheel">
+                                        <!-- Wheel sections will be added dynamically -->
+                                    </div>
+                                    <div class="wheel-center">SPIN</div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="bet-amount" class="form-label">Bet Amount (10-1000 coins)</label>
+                                    <input type="range" class="form-range" id="bet-amount" min="10" max="1000" step="10" value="50">
+                                    <div class="d-flex justify-content-between">
+                                        <span>10</span>
+                                        <span id="current-bet">50</span>
+                                        <span>1000</span>
+                                    </div>
+                                </div>
+                                
+                                <button id="spin-wheel-btn" class="btn btn-primary btn-lg">Spin for <span id="bet-amount-display">50</span> coins</button>
+                                
+                                <div class="mt-4">
+                                    <h5>Possible Outcomes:</h5>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="badge bg-danger mb-2">Lose All</div>
+                                            <p>10% chance</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="badge bg-warning mb-2">Lose Half</div>
+                                            <p>20% chance</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="badge bg-success mb-2">Win 1x</div>
+                                            <p>40% chance</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="badge bg-primary mb-2">Win 2x</div>
+                                            <p>30% chance</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blackjack Tab -->
+            <div class="tab-pane fade" id="blackjack" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 text-center">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="mb-4">Blackjack</h3>
+                                <p>Try to beat the dealer without going over 21!</p>
+                                
+                                <div class="game-container mb-4">
+                                    <div class="dealer-area mb-4">
+                                        <h5>Dealer's Hand (<span id="dealer-score">?</span>)</h5>
+                                        <div id="dealer-cards" class="cards-container"></div>
+                                    </div>
+                                    
+                                    <div class="player-area">
+                                        <h5>Your Hand (<span id="player-score">0</span>)</h5>
+                                        <div id="player-cards" class="cards-container"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="blackjack-bet" class="form-label">Bet Amount (10-1000 coins)</label>
+                                    <input type="range" class="form-range" id="blackjack-bet" min="10" max="1000" step="10" value="50">
+                                    <div class="d-flex justify-content-between">
+                                        <span>10</span>
+                                        <span id="current-blackjack-bet">50</span>
+                                        <span>1000</span>
+                                    </div>
+                                </div>
+                                
+                                <div id="game-controls" class="d-none">
+                                    <button id="hit-btn" class="btn btn-primary me-2">Hit</button>
+                                    <button id="stand-btn" class="btn btn-warning me-2">Stand</button>
+                                    <button id="double-btn" class="btn btn-success me-2">Double</button>
+                                </div>
+                                
+                                <button id="start-blackjack-btn" class="btn btn-primary btn-lg">Start Game for <span id="blackjack-bet-display">50</span> coins</button>
+                                <button id="play-again-btn" class="btn btn-success btn-lg d-none">Play Again</button>
+                                
+                                <div class="mt-3" id="game-result"></div>
+                                
+                                <div class="mt-4">
+                                    <h5>Payouts:</h5>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="badge bg-success mb-2">Win</div>
+                                            <p>2x bet</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="badge bg-primary mb-2">Blackjack</div>
+                                            <p>2.5x bet</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="badge bg-info mb-2">Push</div>
+                                            <p>Return bet</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trade Tab -->
+            <div class="tab-pane fade" id="trade" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-8 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Trade Items</h4>
+                                <div class="trade-container">
+                                    <div class="trade-section">
+                                        <div class="trade-header">
+                                            <h5>Your Offer</h5>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-secondary" id="select-pets-btn">Pets</button>
+                                                <button class="btn btn-sm btn-outline-secondary" id="select-knives-btn">Knives</button>
+                                            </div>
+                                        </div>
+                                        <div class="trade-items" id="your-trade-items">
+                                            <!-- Your trade items will appear here -->
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="trade-section">
+                                        <div class="trade-header">
+                                            <h5>Their Offer</h5>
+                                        </div>
+                                        <div class="trade-items" id="their-trade-items">
+                                            <!-- Their trade items will appear here -->
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="trade-controls">
+                                        <button class="btn btn-primary" id="find-trade-btn">Find Trade Partner</button>
+                                        <button class="btn btn-success d-none" id="confirm-trade-btn">Confirm Trade</button>
+                                        <button class="btn btn-danger d-none" id="cancel-trade-btn">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Online Users</h4>
+                                <div class="online-users-list" id="online-users-list">
+                                    <!-- Online users will appear here -->
+                                    <div class="trade-status">Loading online users...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Trade History</h4>
+                                <div id="trade-history">
+                                    <!-- Trade history will appear here -->
+                                    <div class="trade-status">No trade history yet</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reward Modal -->
+    <div class="modal fade" id="rewardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title">You Received!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="reward-image" src="" class="img-fluid mb-3 reward-animation" style="max-height: 200px;">
+                    <span id="reward-rarity-badge" class="badge mb-2">Common</span>
+                    <h4 id="reward-name">Item Name</h4>
+                    <p id="reward-description">Item description goes here</p>
+                    <button id="sell-reward-btn" class="btn btn-danger">Sell for <span id="sell-price">0</span> coins</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalTitle">Confirm Action</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmationModalBody">
+                    Are you sure you want to perform this action?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirmActionBtn" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Modal -->
+    <div class="modal fade" id="tradeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tradeModalTitle">Trade Request</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="tradeModalBody">
+                    <div class="trade-preview">
+                        <div class="trade-preview-section">
+                            <h6>You Receive</h6>
+                            <div class="trade-preview-items" id="trade-preview-their-items">
+                                <!-- Their items will appear here -->
+                            </div>
+                        </div>
+                        <div class="trade-preview-section">
+                            <h6>You Give</h6>
+                            <div class="trade-preview-items" id="trade-preview-your-items">
+                                <!-- Your items will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="decline-trade-btn">Decline</button>
+                    <button type="button" class="btn btn-success" id="accept-trade-btn">Accept</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Game Data
+        const ITEMS = {
+            pets: {
+                common: [
+                    { id: 'pet1', name: 'Common Cat', value: 50, image: 'https://via.placeholder.com/150?text=Common+Cat', description: 'A cute common cat companion' },
+                    { id: 'pet2', name: 'Common Dog', value: 50, image: 'https://via.placeholder.com/150?text=Common+Dog', description: 'A loyal common dog companion' },
+                    { id: 'pet3', name: 'Common Bird', value: 50, image: 'https://via.placeholder.com/150?text=Common+Bird', description: 'A cheerful common bird companion' }
+                ],
+                rare: [
+                    { id: 'pet4', name: 'Rare Fox', value: 150, image: 'https://via.placeholder.com/150?text=Rare+Fox', description: 'A clever rare fox companion' },
+                    { id: 'pet5', name: 'Rare Rabbit', value: 150, image: 'https://via.placeholder.com/150?text=Rare+Rabbit', description: 'A quick rare rabbit companion' }
+                ],
+                epic: [
+                    { id: 'pet6', name: 'Epic Dragon', value: 300, image: 'https://via.placeholder.com/150?text=Epic+Dragon', description: 'A majestic epic dragon companion' },
+                    { id: 'pet7', name: 'Epic Unicorn', value: 300, image: 'https://via.placeholder.com/150?text=Epic+Unicorn', description: 'A magical epic unicorn companion' }
+                ],
+                legendary: [
+                    { id: 'pet8', name: 'Legendary Phoenix', value: 500, image: 'https://via.placeholder.com/150?text=Legendary+Phoenix', description: 'A fiery legendary phoenix companion' },
+                    { id: 'pet9', name: 'Legendary Griffin', value: 500, image: 'https://via.placeholder.com/150?text=Legendary+Griffin', description: 'A powerful legendary griffin companion' }
+                ]
+            },
+            knives: {
+                common: [
+                    { id: 'knife1', name: 'Common Dagger', value: 40, image: 'https://via.placeholder.com/150?text=Common+Dagger', description: 'A basic common dagger' },
+                    { id: 'knife2', name: 'Common Knife', value: 40, image: 'https://via.placeholder.com/150?text=Common+Knife', description: 'A standard common knife' }
+                ],
+                rare: [
+                    { id: 'knife3', name: 'Rare Bowie', value: 120, image: 'https://via.placeholder.com/150?text=Rare+Bowie', description: 'A sharp rare bowie knife' },
+                    { id: 'knife4', name: 'Rare Karambit', value: 120, image: 'https://via.placeholder.com/150?text=Rare+Karambit', description: 'A curved rare karambit' }
+                ],
+                epic: [
+                    { id: 'knife5', name: 'Epic Butterfly', value: 250, image: 'https://via.placeholder.com/150?text=Epic+Butterfly', description: 'A flashy epic butterfly knife' },
+                    { id: 'knife6', name: 'Epic Katana', value: 250, image: 'https://via.placeholder.com/150?text=Epic+Katana', description: 'A sleek epic katana' }
+                ],
+                legendary: [
+                    { id: 'knife7', name: 'Legendary Sword', value: 400, image: 'https://via.placeholder.com/150?text=Legendary+Sword', description: 'An ancient legendary sword' },
+                    { id: 'knife8', name: 'Legendary Scythe', value: 400, image: 'https://via.placeholder.com/150?text=Legendary+Scythe', description: 'A deadly legendary scythe' }
+                ]
+            }
+        };
+
+        const LOOT_BOXES = {
+            free: {
+                name: "Free Box",
+                cost: 0,
+                image: "https://via.placeholder.com/200x150?text=Free+Box",
+                rewards: {
+                    pets: { common: 70, rare: 25, epic: 5, legendary: 0 },
+                    knives: { common: 70, rare: 25, epic: 5, legendary: 0 },
+                    coins: { min: 10, max: 50, chance: 30 }
+                }
+            },
+            bronze: {
+                name: "Bronze Box",
+                cost: 100,
+                image: "https://via.placeholder.com/200x150?text=Bronze+Box",
+                rewards: {
+                    pets: { common: 50, rare: 35, epic: 10, legendary: 5 },
+                    knives: { common: 50, rare: 35, epic: 10, legendary: 5 },
+                    coins: { min: 25, max: 75, chance: 40 }
+                }
+            },
+            silver: {
+                name: "Silver Box",
+                cost: 250,
+                image: "https://via.placeholder.com/200x150?text=Silver+Box",
+                rewards: {
+                    pets: { common: 20, rare: 50, epic: 25, legendary: 5 },
+                    knives: { common: 20, rare: 50, epic: 25, legendary: 5 },
+                    coins: { min: 50, max: 100, chance: 50 }
+                }
+            },
+            gold: {
+                name: "Gold Box",
+                cost: 500,
+                image: "https://via.placeholder.com/200x150?text=Gold+Box",
+                rewards: {
+                    pets: { common: 0, rare: 30, epic: 50, legendary: 20 },
+                    knives: { common: 0, rare: 30, epic: 50, legendary: 20 },
+                    coins: { min: 75, max: 150, chance: 60 }
+                }
+            }
+        };
+
+        // Wheel configuration
+        const WHEEL_SECTIONS = [
+            { text: "Lose All", color: "#dc3545", multiplier: -1, probability: 10 },
+            { text: "Lose Half", color: "#fd7e14", multiplier: -0.5, probability: 20 },
+            { text: "Win 1x", color: "#28a745", multiplier: 1, probability: 40 },
+            { text: "Win 2x", color: "#007bff", multiplier: 2, probability: 30 }
+        ];
+
+        // Blackjack configuration
+        const CARD_VALUES = {
+            '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+            'J': 10, 'Q': 10, 'K': 10, 'A': 11
+        };
+
+        const CARD_SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
+        const CARD_RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+        // Game State
+        let userData = {
+            coins: 0,
+            streak: 0,
+            lastClaim: null,
+            inventory: {
+                pets: [],
+                knives: []
+            },
+            lastFreeBox: null
+        };
+
+        // Blackjack game state
+        let blackjackGame = {
+            deck: [],
+            playerHand: [],
+            dealerHand: [],
+            currentBet: 0,
+            gameActive: false,
+            doubled: false
+        };
+
+        // Trade system state
+        let tradeState = {
+            currentTrade: null,
+            yourTradeItems: [],
+            theirTradeItems: [],
+            selectedType: 'pets',
+            onlineUsers: [],
+            tradeListener: null,
+            onlineUsersListener: null
+        };
+
+        // DOM Elements
+        const elements = {
+            signInButton: document.getElementById('signInButton'),
+            signInButton2: document.getElementById('signInButton2'),
+            signOutButton: document.getElementById('signOutButton'),
+            usernameDisplay: document.getElementById('username-display'),
+            profilePic: document.getElementById('profile-pic'),
+            loginView: document.getElementById('login-view'),
+            dashboardView: document.getElementById('dashboard-view'),
+            dashboardUsername: document.getElementById('dashboard-username'),
+            updateUsernameBtn: document.getElementById('update-username-btn'),
+            newUsernameInput: document.getElementById('new-username'),
+            profilePicUpload: document.getElementById('profile-pic-upload'),
+            uploadProfilePicBtn: document.getElementById('upload-profile-pic-btn'),
+            updateProfilePicBtn: document.getElementById('update-profile-pic-btn'),
+            profilePicPreview: document.getElementById('profile-pic-preview'),
+            coinBalance: document.getElementById('coin-balance'),
+            claimDailyBtn: document.getElementById('claim-daily-btn'),
+            currentStreak: document.getElementById('current-streak'),
+            streakProgress: document.getElementById('streak-progress'),
+            nextStreakReward: document.getElementById('next-streak-reward'),
+            freeBoxTimer: document.getElementById('free-box-timer'),
+            petsInventory: document.getElementById('pets-inventory'),
+            knivesInventory: document.getElementById('knives-inventory'),
+            shopPets: document.getElementById('shop-pets-container'),
+            shopKnives: document.getElementById('shop-knives-container'),
+            rewardModal: new bootstrap.Modal(document.getElementById('rewardModal')),
+            rewardImage: document.getElementById('reward-image'),
+            rewardName: document.getElementById('reward-name'),
+            rewardDescription: document.getElementById('reward-description'),
+            rewardRarityBadge: document.getElementById('reward-rarity-badge'),
+            sellRewardBtn: document.getElementById('sell-reward-btn'),
+            sellPrice: document.getElementById('sell-price'),
+            confirmationModal: new bootstrap.Modal(document.getElementById('confirmationModal')),
+            confirmationModalTitle: document.getElementById('confirmationModalTitle'),
+            confirmationModalBody: document.getElementById('confirmationModalBody'),
+            confirmActionBtn: document.getElementById('confirmActionBtn'),
+            wheel: document.getElementById('wheel'),
+            betAmount: document.getElementById('bet-amount'),
+            currentBet: document.getElementById('current-bet'),
+            betAmountDisplay: document.getElementById('bet-amount-display'),
+            spinWheelBtn: document.getElementById('spin-wheel-btn'),
+            // Blackjack elements
+            dealerCards: document.getElementById('dealer-cards'),
+            playerCards: document.getElementById('player-cards'),
+            dealerScore: document.getElementById('dealer-score'),
+            playerScore: document.getElementById('player-score'),
+            blackjackBet: document.getElementById('blackjack-bet'),
+            currentBlackjackBet: document.getElementById('current-blackjack-bet'),
+            blackjackBetDisplay: document.getElementById('blackjack-bet-display'),
+            gameControls: document.getElementById('game-controls'),
+            hitBtn: document.getElementById('hit-btn'),
+            standBtn: document.getElementById('stand-btn'),
+            doubleBtn: document.getElementById('double-btn'),
+            startBlackjackBtn: document.getElementById('start-blackjack-btn'),
+            playAgainBtn: document.getElementById('play-again-btn'),
+            gameResult: document.getElementById('game-result'),
+            // Trade elements
+            selectPetsBtn: document.getElementById('select-pets-btn'),
+            selectKnivesBtn: document.getElementById('select-knives-btn'),
+            yourTradeItems: document.getElementById('your-trade-items'),
+            theirTradeItems: document.getElementById('their-trade-items'),
+            findTradeBtn: document.getElementById('find-trade-btn'),
+            confirmTradeBtn: document.getElementById('confirm-trade-btn'),
+            cancelTradeBtn: document.getElementById('cancel-trade-btn'),
+            onlineUsersList: document.getElementById('online-users-list'),
+            tradeHistory: document.getElementById('trade-history'),
+            tradeModal: new bootstrap.Modal(document.getElementById('tradeModal')),
+            tradeModalTitle: document.getElementById('tradeModalTitle'),
+            tradeModalBody: document.getElementById('tradeModalBody'),
+            declineTradeBtn: document.getElementById('decline-trade-btn'),
+            acceptTradeBtn: document.getElementById('accept-trade-btn'),
+            tradePreviewYourItems: document.getElementById('trade-preview-your-items'),
+            tradePreviewTheirItems: document.getElementById('trade-preview-their-items')
+        };
+
+        // Utility Functions
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getRandomRarity(probabilities) {
+            const total = Object.values(probabilities).reduce((sum, prob) => sum + prob, 0);
+            const random = Math.random() * total;
+            
+            let cumulative = 0;
+            for (const [rarity, prob] of Object.entries(probabilities)) {
+                cumulative += prob;
+                if (random <= cumulative) {
+                    return rarity;
+                }
+            }
+            
+            return 'common'; // fallback
+        }
+
+        function getRandomItem(type, rarity) {
+            const items = ITEMS[type][rarity];
+            return items[Math.floor(Math.random() * items.length)];
+        }
+
+        function getRarityColor(rarity) {
+            const colors = {
+                common: 'secondary',
+                rare: 'primary',
+                epic: 'danger',
+                legendary: 'warning'
+            };
+            return colors[rarity] || 'secondary';
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Firebase Functions
+        async function createUserDocument(user) {
+            const userDoc = {
+                uid: user.uid,
+                email: user.email,
+                username: user.displayName || 'user' + user.uid.substring(0, 4),
+                photoBase64: user.photoURL || '',
+                coins: 100,
+                streak: 0,
+                lastClaim: null,
+                inventory: {
+                    pets: [],
+                    knives: []
+                },
+                lastFreeBox: null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'online'
+            };
+            
+            return db.collection('users').doc(user.uid).set(userDoc);
+        }
+
+        async function loadUserData(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    userData = data;
+                    
+                    // Update UI
+                    updateUI();
+                    updateInventoryUI();
+                    updateShopUI();
+                    startFreeBoxTimer();
+                    initializeWheel();
+                    
+                    // Check if daily reward can be claimed
+                    checkDailyReward();
+                    
+                    // Initialize trade system
+                    initTradeSystem();
+                    loadTradeHistory();
+                }
+            } catch (error) {
+                console.error("Error loading user data:", error);
+            }
+        }
+
+        async function updateUserData(data) {
+            try {
+                await db.collection('users').doc(auth.currentUser.uid).update(data);
+                Object.assign(userData, data);
+                updateUI();
+            } catch (error) {
+                console.error("Error updating user data:", error);
+            }
+        }
+
+        async function addItemToInventory(item, type, quantity = 1) {
+            try {
+                // Check if item already exists in inventory
+                const existingIndex = userData.inventory[type].findIndex(i => i.id === item.id);
+                
+                if (existingIndex >= 0) {
+                    // Item exists, update quantity
+                    const updatedInventory = [...userData.inventory[type]];
+                    if (!updatedInventory[existingIndex].quantity) {
+                        updatedInventory[existingIndex].quantity = 1;
+                    }
+                    updatedInventory[existingIndex].quantity += quantity;
+                    
+                    await db.collection('users').doc(auth.currentUser.uid).update({
+                        [`inventory.${type}`]: updatedInventory
+                    });
+                    
+                    userData.inventory[type] = updatedInventory;
+                } else {
+                    // New item, add with quantity
+                    const itemWithQuantity = {...item, quantity: quantity};
+                    await db.collection('users').doc(auth.currentUser.uid).update({
+                        [`inventory.${type}`]: firebase.firestore.FieldValue.arrayUnion(itemWithQuantity)
+                    });
+                    
+                    userData.inventory[type].push(itemWithQuantity);
+                }
+                
+                updateInventoryUI();
+            } catch (error) {
+                console.error("Error adding item to inventory:", error);
+            }
+        }
+
+        async function removeItemFromInventory(item, type, quantity = 1) {
+            try {
+                const existingIndex = userData.inventory[type].findIndex(i => i.id === item.id);
+                
+                if (existingIndex >= 0) {
+                    const updatedInventory = [...userData.inventory[type]];
+                    
+                    if (updatedInventory[existingIndex].quantity > quantity) {
+                        // Reduce quantity
+                        updatedInventory[existingIndex].quantity -= quantity;
+                        
+                        await db.collection('users').doc(auth.currentUser.uid).update({
+                            [`inventory.${type}`]: updatedInventory
+                        });
+                        
+                        userData.inventory[type] = updatedInventory;
+                    } else {
+                        // Remove item completely
+                        await db.collection('users').doc(auth.currentUser.uid).update({
+                            [`inventory.${type}`]: firebase.firestore.FieldValue.arrayRemove(updatedInventory[existingIndex])
+                        });
+                        
+                        userData.inventory[type] = userData.inventory[type].filter(i => i.id !== item.id);
+                    }
+                    
+                    updateInventoryUI();
+                }
+            } catch (error) {
+                console.error("Error removing item from inventory:", error);
+            }
+        }
+
+        // Trade System Functions
+        function initTradeSystem() {
+            // Set up online status
+            updateUserStatus('online');
+            
+            // Set up listeners for online users and trade requests
+            setupOnlineUsersListener();
+            
+            // Clear any existing trade state
+            resetTradeState();
+            
+            // Set up UI event listeners
+            setupTradeEventListeners();
+        }
+
+        function updateUserStatus(status) {
+            if (!auth.currentUser) return;
+            
+            const statusUpdate = {
+                status: status,
+                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            db.collection('users').doc(auth.currentUser.uid).update(statusUpdate)
+                .catch(error => console.error("Error updating user status:", error));
+        }
+
+        function setupOnlineUsersListener() {
+            // Remove any existing listener
+            if (tradeState.onlineUsersListener) {
+                tradeState.onlineUsersListener();
+            }
+            
+            // Get users who were active in the last 5 minutes
+            const fiveMinutesAgo = new Date();
+            fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+            
+            tradeState.onlineUsersListener = db.collection('users')
+                .where('lastActive', '>=', fiveMinutesAgo)
+                .where('uid', '!=', auth.currentUser.uid)
+                .onSnapshot(snapshot => {
+                    tradeState.onlineUsers = [];
+                    elements.onlineUsersList.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        elements.onlineUsersList.innerHTML = '<div class="trade-status">No users online to trade with</div>';
+                        return;
+                    }
+                    
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        tradeState.onlineUsers.push(user);
+                        renderOnlineUser(user);
+                    });
+                }, error => {
+                    console.error("Error listening to online users:", error);
+                    elements.onlineUsersList.innerHTML = '<div class="trade-status">Error loading online users</div>';
+                });
+        }
+
+        function renderOnlineUser(user) {
+            const userElement = document.createElement('div');
+            userElement.className = 'online-user';
+            userElement.dataset.uid = user.uid;
+            userElement.innerHTML = `
+                <img src="${user.photoBase64 || 'https://via.placeholder.com/40'}" class="online-user-avatar">
+                <div class="online-user-info">
+                    <div class="online-user-name">${user.username}</div>
+                    <div class="online-user-status ${user.status === 'online' ? 'online' : ''}">
+                        ${user.status === 'online' ? 'Online' : 'Away'}
+                    </div>
+                </div>
+            `;
+            
+            userElement.addEventListener('click', () => initiateTrade(user.uid));
+            elements.onlineUsersList.appendChild(userElement);
+        }
+
+        function setupTradeEventListeners() {
+            // Item type selection
+            elements.selectPetsBtn.addEventListener('click', () => {
+                tradeState.selectedType = 'pets';
+                elements.selectPetsBtn.classList.remove('btn-outline-secondary');
+                elements.selectPetsBtn.classList.add('btn-primary');
+                elements.selectKnivesBtn.classList.remove('btn-primary');
+                elements.selectKnivesBtn.classList.add('btn-outline-secondary');
+                renderTradeItems();
+            });
+            
+            elements.selectKnivesBtn.addEventListener('click', () => {
+                tradeState.selectedType = 'knives';
+                elements.selectKnivesBtn.classList.remove('btn-outline-secondary');
+                elements.selectKnivesBtn.classList.add('btn-primary');
+                elements.selectPetsBtn.classList.remove('btn-primary');
+                elements.selectPetsBtn.classList.add('btn-outline-secondary');
+                renderTradeItems();
+            });
+            
+            // Trade controls
+            elements.findTradeBtn.addEventListener('click', findTradePartner);
+            elements.confirmTradeBtn.addEventListener('click', confirmTrade);
+            elements.cancelTradeBtn.addEventListener('click', cancelTrade);
+            
+            // Trade modal buttons
+            elements.declineTradeBtn.addEventListener('click', declineTrade);
+            elements.acceptTradeBtn.addEventListener('click', acceptTrade);
+        }
+
+        function renderTradeItems() {
+            elements.yourTradeItems.innerHTML = '';
+            
+            if (!userData.inventory[tradeState.selectedType] || userData.inventory[tradeState.selectedType].length === 0) {
+                elements.yourTradeItems.innerHTML = '<div class="trade-status">No items to trade</div>';
+                return;
+            }
+            
+            // Group items by ID
+            const groupedItems = groupInventoryItems(userData.inventory[tradeState.selectedType]);
+            
+            groupedItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'trade-item';
+                itemElement.dataset.id = item.item.id;
+                itemElement.dataset.type = tradeState.selectedType;
+                itemElement.innerHTML = `
+                    <img src="${item.item.image}" alt="${item.item.name}">
+                    <div class="trade-item-badge">${item.quantity}</div>
+                `;
+                
+                itemElement.addEventListener('click', () => addToTrade(item.item, tradeState.selectedType));
+                elements.yourTradeItems.appendChild(itemElement);
+            });
+        }
+
+        function addToTrade(item, type) {
+            // Check if item is already in trade
+            const existingIndex = tradeState.yourTradeItems.findIndex(i => i.id === item.id && i.type === type);
+            
+            if (existingIndex >= 0) {
+                // Remove from trade
+                tradeState.yourTradeItems.splice(existingIndex, 1);
+            } else {
+                // Add to trade
+                tradeState.yourTradeItems.push({...item, type});
+            }
+            
+            renderYourTradeItems();
+        }
+
+        function renderYourTradeItems() {
+            elements.yourTradeItems.innerHTML = '';
+            
+            if (tradeState.yourTradeItems.length === 0) {
+                elements.yourTradeItems.innerHTML = '<div class="trade-status">Select items to trade</div>';
+                return;
+            }
+            
+            // Group items by ID
+            const groupedItems = {};
+            tradeState.yourTradeItems.forEach(item => {
+                if (!groupedItems[item.id]) {
+                    groupedItems[item.id] = {...item, quantity: 1};
+                } else {
+                    groupedItems[item.id].quantity++;
+                }
+            });
+            
+            // Render items
+            Object.values(groupedItems).forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'trade-item';
+                itemElement.dataset.id = item.id;
+                itemElement.dataset.type = item.type;
+                itemElement.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="trade-item-badge">${item.quantity}</div>
+                `;
+                
+                itemElement.addEventListener('click', () => addToTrade(item, item.type));
+                elements.yourTradeItems.appendChild(itemElement);
+            });
+        }
+
+        function renderTheirTradeItems() {
+            elements.theirTradeItems.innerHTML = '';
+            
+            if (tradeState.theirTradeItems.length === 0) {
+                elements.theirTradeItems.innerHTML = '<div class="trade-status">Waiting for items</div>';
+                return;
+            }
+            
+            // Group items by ID
+            const groupedItems = {};
+            tradeState.theirTradeItems.forEach(item => {
+                if (!groupedItems[item.id]) {
+                    groupedItems[item.id] = {...item, quantity: 1};
+                } else {
+                    groupedItems[item.id].quantity++;
+                }
+            });
+            
+            // Render items
+            Object.values(groupedItems).forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'trade-item';
+                itemElement.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="trade-item-badge">${item.quantity}</div>
+                `;
+                elements.theirTradeItems.appendChild(itemElement);
+            });
+        }
+
+        function findTradePartner() {
+            if (tradeState.yourTradeItems.length === 0) {
+                alert("Please select items to trade first");
+                return;
+            }
+            
+            // For now, just show the online users list
+            // In a real app, you might implement a matchmaking system
+            alert("Select a user from the online users list to initiate a trade");
+        }
+
+        function initiateTrade(targetUserId) {
+            if (tradeState.yourTradeItems.length === 0) {
+                alert("Please select items to trade first");
+                return;
+            }
+            
+            // Create a new trade document
+            const tradeId = db.collection('trades').doc().id;
+            const tradeData = {
+                id: tradeId,
+                initiator: auth.currentUser.uid,
+                recipient: targetUserId,
+                initiatorItems: tradeState.yourTradeItems,
+                recipientItems: [],
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            db.collection('trades').doc(tradeId).set(tradeData)
+                .then(() => {
+                    // Set up listener for this trade
+                    setupTradeListener(tradeId);
+                    
+                    // Update UI
+                    elements.findTradeBtn.classList.add('d-none');
+                    elements.confirmTradeBtn.classList.add('d-none');
+                    elements.cancelTradeBtn.classList.remove('d-none');
+                    
+                    // Show status
+                    elements.theirTradeItems.innerHTML = '<div class="trade-status">Waiting for recipient to add items...</div>';
+                })
+                .catch(error => {
+                    console.error("Error initiating trade:", error);
+                    alert("Failed to initiate trade: " + error.message);
+                });
+        }
+
+        function setupTradeListener(tradeId) {
+            // Remove any existing listener
+            if (tradeState.tradeListener) {
+                tradeState.tradeListener();
+            }
+            
+            tradeState.tradeListener = db.collection('trades').doc(tradeId)
+                .onSnapshot(doc => {
+                    if (!doc.exists) {
+                        // Trade was cancelled or completed
+                        resetTradeState();
+                        return;
+                    }
+                    
+                    const trade = doc.data();
+                    tradeState.currentTrade = trade;
+                    
+                    // Update UI based on trade state
+                    if (trade.status === 'pending') {
+                        if (trade.recipient === auth.currentUser.uid) {
+                            // This user is the recipient
+                            renderTradeRequest(trade);
+                        } else {
+                            // This user is the initiator
+                            tradeState.theirTradeItems = trade.recipientItems || [];
+                            renderTheirTradeItems();
+                            
+                            if (trade.recipientItems && trade.recipientItems.length > 0) {
+                                elements.confirmTradeBtn.classList.remove('d-none');
+                            }
+                        }
+                    } else if (trade.status === 'completed') {
+                        completeTrade(trade);
+                    } else if (trade.status === 'cancelled') {
+                        alert("Trade was cancelled");
+                        resetTradeState();
+                    }
+                }, error => {
+                    console.error("Error listening to trade:", error);
+                    resetTradeState();
+                });
+        }
+
+        function renderTradeRequest(trade) {
+            // Show trade request modal
+            elements.tradeModalTitle.textContent = `Trade Request from ${trade.initiatorUsername || 'User'}`;
+            
+            // Clear previous items
+            elements.tradePreviewYourItems.innerHTML = '';
+            elements.tradePreviewTheirItems.innerHTML = '';
+            
+            // Render their items
+            trade.initiatorItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'trade-item';
+                itemElement.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                `;
+                elements.tradePreviewTheirItems.appendChild(itemElement);
+            });
+            
+            // Show modal
+            elements.tradeModal.show();
+        }
+
+        function confirmTrade() {
+            if (!tradeState.currentTrade || tradeState.theirTradeItems.length === 0) {
+                alert("Please wait for the other user to add items to the trade");
+                return;
+            }
+            
+            // Update trade status to 'completed'
+            db.collection('trades').doc(tradeState.currentTrade.id).update({
+                status: 'completed',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                // The trade listener will handle the completion
+            })
+            .catch(error => {
+                console.error("Error confirming trade:", error);
+                alert("Failed to confirm trade: " + error.message);
+            });
+        }
+
+        function completeTrade(trade) {
+            // Determine which user is which in the trade
+            const isInitiator = trade.initiator === auth.currentUser.uid;
+            const yourItems = isInitiator ? trade.initiatorItems : trade.recipientItems;
+            const theirItems = isInitiator ? trade.recipientItems : trade.initiatorItems;
+            
+            // Remove your items from inventory
+            const removePromises = yourItems.map(item => {
+                return removeItemFromInventory(item, item.type, 1);
+            });
+            
+            // Add their items to inventory
+            const addPromises = theirItems.map(item => {
+                return addItemToInventory(item, item.type, 1);
+            });
+            
+            Promise.all([...removePromises, ...addPromises])
+                .then(() => {
+                    // Show success message
+                    Swal.fire({
+                        title: 'Trade Completed!',
+                        text: 'Items have been exchanged successfully',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                    
+                    // Reset trade state
+                    resetTradeState();
+                    
+                    // Reload trade history
+                    loadTradeHistory();
+                })
+                .catch(error => {
+                    console.error("Error completing trade:", error);
+                    alert("There was an error completing the trade. Please try again.");
+                });
+        }
+
+        function cancelTrade() {
+            if (!tradeState.currentTrade) {
+                resetTradeState();
+                return;
+            }
+            
+            // Update trade status to 'cancelled'
+            db.collection('trades').doc(tradeState.currentTrade.id).update({
+                status: 'cancelled',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                resetTradeState();
+            })
+            .catch(error => {
+                console.error("Error cancelling trade:", error);
+                alert("Failed to cancel trade: " + error.message);
+            });
+        }
+
+        function declineTrade() {
+            if (!tradeState.currentTrade) {
+                elements.tradeModal.hide();
+                return;
+            }
+            
+            // Update trade status to 'cancelled'
+            db.collection('trades').doc(tradeState.currentTrade.id).update({
+                status: 'cancelled',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                elements.tradeModal.hide();
+                resetTradeState();
+            })
+            .catch(error => {
+                console.error("Error declining trade:", error);
+                alert("Failed to decline trade: " + error.message);
+                elements.tradeModal.hide();
+            });
+        }
+
+        function acceptTrade() {
+            if (!tradeState.currentTrade) {
+                elements.tradeModal.hide();
+                return;
+            }
+            
+            // Add your items to the trade
+            db.collection('trades').doc(tradeState.currentTrade.id).update({
+                recipientItems: tradeState.yourTradeItems,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                elements.tradeModal.hide();
+                
+                // Show confirmation button
+                elements.confirmTradeBtn.classList.remove('d-none');
+            })
+            .catch(error => {
+                console.error("Error accepting trade:", error);
+                alert("Failed to accept trade: " + error.message);
+                elements.tradeModal.hide();
+            });
+        }
+
+        function resetTradeState() {
+            tradeState.currentTrade = null;
+            tradeState.yourTradeItems = [];
+            tradeState.theirTradeItems = [];
+            
+            // Update UI
+            elements.findTradeBtn.classList.remove('d-none');
+            elements.confirmTradeBtn.classList.add('d-none');
+            elements.cancelTradeBtn.classList.add('d-none');
+            
+            renderYourTradeItems();
+            renderTheirTradeItems();
+            
+            // Remove trade listener if exists
+            if (tradeState.tradeListener) {
+                tradeState.tradeListener();
+                tradeState.tradeListener = null;
+            }
+        }
+
+        function loadTradeHistory() {
+            db.collection('trades')
+                .where('initiator', '==', auth.currentUser.uid)
+                .orderBy('updatedAt', 'desc')
+                .limit(10)
+                .get()
+                .then(snapshot => {
+                    const initiatorTrades = snapshot.docs.map(doc => doc.data());
+                    
+                    db.collection('trades')
+                        .where('recipient', '==', auth.currentUser.uid)
+                        .orderBy('updatedAt', 'desc')
+                        .limit(10)
+                        .get()
+                        .then(snapshot => {
+                            const recipientTrades = snapshot.docs.map(doc => doc.data());
+                            
+                            // Combine and sort trades
+                            const allTrades = [...initiatorTrades, ...recipientTrades]
+                                .sort((a, b) => b.updatedAt - a.updatedAt)
+                                .slice(0, 10);
+                            
+                            renderTradeHistory(allTrades);
+                        });
+                })
+                .catch(error => {
+                    console.error("Error loading trade history:", error);
+                    elements.tradeHistory.innerHTML = '<div class="trade-status">Error loading trade history</div>';
+                });
+        }
+
+        function renderTradeHistory(trades) {
+            if (trades.length === 0) {
+                elements.tradeHistory.innerHTML = '<div class="trade-status">No trade history yet</div>';
+                return;
+            }
+            
+            elements.tradeHistory.innerHTML = '';
+            
+            trades.forEach(trade => {
+                const isInitiator = trade.initiator === auth.currentUser.uid;
+                const otherUserId = isInitiator ? trade.recipient : trade.initiator;
+                const otherUsername = isInitiator ? trade.recipientUsername : trade.initiatorUsername;
+                
+                const tradeElement = document.createElement('div');
+                tradeElement.className = 'trade-history-item';
+                tradeElement.innerHTML = `
+                    <div>
+                        <strong>${otherUsername || 'User'}</strong>
+                        <div class="text-muted small">${new Date(trade.updatedAt.toDate()).toLocaleString()}</div>
+                    </div>
+                    <div class="trade-history-status ${trade.status}">
+                        ${trade.status === 'completed' ? 'Completed' : 
+                          trade.status === 'cancelled' ? 'Cancelled' : 'Pending'}
+                    </div>
+                `;
+                
+                elements.tradeHistory.appendChild(tradeElement);
+            });
+        }
+
+        // Game Functions
+        function checkDailyReward() {
+            if (!userData.lastClaim) {
+                elements.claimDailyBtn.disabled = false;
+                return;
+            }
+            
+            const lastClaim = userData.lastClaim.toDate();
+            const now = new Date();
+            const diffHours = (now - lastClaim) / (1000 * 60 * 60);
+            
+            // Reset streak if more than 48 hours since last claim
+            if (diffHours > 48) {
+                updateUserData({ streak: 0 });
+            }
+            
+            // Enable button if more than 24 hours since last claim
+            elements.claimDailyBtn.disabled = diffHours < 24;
+        }
+
+        async function claimDailyReward() {
+            const now = new Date();
+            const lastClaim = userData.lastClaim ? userData.lastClaim.toDate() : null;
+            const diffDays = lastClaim ? (now - lastClaim) / (1000 * 60 * 60 * 24) : 0;
+            
+            let newStreak = userData.streak;
+            let coinsToAdd = 50; // base reward
+            
+            // Increase streak if claimed within 48 hours of last claim
+            if (diffDays >= 1 && diffDays <= 2) {
+                newStreak += 1;
+            } else if (diffDays > 2) {
+                newStreak = 1; // reset streak if too much time passed
+            } else if (!lastClaim) {
+                newStreak = 1; // first claim
+            }
+            
+            // Streak bonus
+            if (newStreak >= 7) {
+                coinsToAdd += 100; // 7-day streak bonus
+            } else if (newStreak >= 3) {
+                coinsToAdd += 25; // 3-day streak bonus
+            }
+            
+            // Update user data
+            await updateUserData({
+                coins: userData.coins + coinsToAdd,
+                streak: newStreak,
+                lastClaim: firebase.firestore.Timestamp.fromDate(now)
+            });
+            
+            // Show reward
+            showReward({
+                type: 'coins',
+                amount: coinsToAdd,
+                message: `Daily Reward (${newStreak} day streak)`
+            });
+            
+            // Disable button until next day
+            elements.claimDailyBtn.disabled = true;
+        }
+
+        function startFreeBoxTimer() {
+            if (!userData.lastFreeBox) {
+                // First time, enable free box
+                elements.freeBoxTimer.textContent = "Ready!";
+                return;
+            }
+            
+            const lastClaim = userData.lastFreeBox.toDate();
+            const now = new Date();
+            const nextClaim = new Date(lastClaim);
+            nextClaim.setDate(nextClaim.getDate() + 1);
+            
+            if (now >= nextClaim) {
+                elements.freeBoxTimer.textContent = "Ready!";
+                return;
+            }
+            
+            const updateTimer = () => {
+                const now = new Date();
+                const diff = nextClaim - now;
+                
+                if (diff <= 0) {
+                    elements.freeBoxTimer.textContent = "Ready!";
+                    return;
+                }
+                
+                elements.freeBoxTimer.textContent = formatTime(Math.floor(diff / 1000));
+                setTimeout(updateTimer, 1000);
+            };
+            
+            updateTimer();
+        }
+
+        function openLootBox(tier) {
+            if (tier !== 'free' && userData.coins < LOOT_BOXES[tier].cost) {
+                alert("Not enough coins!");
+                return;
+            }
+            
+            if (tier === 'free' && userData.lastFreeBox) {
+                const lastClaim = userData.lastFreeBox.toDate();
+                const now = new Date();
+                const nextClaim = new Date(lastClaim);
+                nextClaim.setDate(nextClaim.getDate() + 1);
+                
+                if (now < nextClaim) {
+                    alert("You've already claimed your free box today!");
+                    return;
+                }
+            }
+            
+            // Determine reward type (item or coins)
+            const box = LOOT_BOXES[tier];
+            const rewardType = Math.random() * 100 < box.rewards.coins.chance ? 'coins' : 
+                            Math.random() < 0.5 ? 'pets' : 'knives';
+            
+            let reward;
+            
+            if (rewardType === 'coins') {
+                const amount = getRandomInt(box.rewards.coins.min, box.rewards.coins.max);
+                reward = {
+                    type: 'coins',
+                    amount: amount,
+                    message: `Coins from ${box.name}`
+                };
+                
+                // Add coins immediately
+                updateUserData({
+                    coins: userData.coins + amount
+                });
+            } else {
+                const rarity = getRandomRarity(box.rewards[rewardType]);
+                reward = {
+                    type: rewardType,
+                    item: getRandomItem(rewardType, rarity),
+                    rarity: rarity
+                };
+                
+                // Add item to inventory
+                addItemToInventory(reward.item, rewardType);
+            }
+            
+            // Deduct coins if not free box
+            if (tier !== 'free') {
+                updateUserData({
+                    coins: userData.coins - box.cost
+                });
+            } else {
+                // Update last free box time
+                updateUserData({
+                    lastFreeBox: firebase.firestore.Timestamp.fromDate(new Date())
+                });
+                startFreeBoxTimer();
+            }
+            
+            // Show reward with animation
+            showReward(reward);
+            
+            // Confetti effect
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function showReward(reward) {
+            if (reward.type === 'coins') {
+                elements.rewardImage.src = 'https://via.placeholder.com/150?text=' + reward.amount + '+Coins';
+                elements.rewardName.textContent = reward.message;
+                elements.rewardDescription.textContent = `You received ${reward.amount} coins!`;
+                elements.rewardRarityBadge.className = 'badge bg-warning';
+                elements.rewardRarityBadge.textContent = 'Coins';
+                elements.sellRewardBtn.style.display = 'none';
+            } else {
+                elements.rewardImage.src = reward.item.image;
+                elements.rewardName.textContent = reward.item.name;
+                elements.rewardDescription.textContent = reward.item.description;
+                elements.rewardRarityBadge.className = `badge bg-${getRarityColor(reward.rarity)}`;
+                elements.rewardRarityBadge.textContent = reward.rarity.charAt(0).toUpperCase() + reward.rarity.slice(1);
+                elements.sellRewardBtn.style.display = 'block';
+                elements.sellPrice.textContent = Math.floor(reward.item.value * 0.7); // 70% of value
+                
+                // Set up sell button
+                elements.sellRewardBtn.onclick = () => {
+                    sellItem(reward.item, reward.type);
+                };
+            }
+            
+            elements.rewardModal.show();
+        }
+
+        async function sellItem(item, type, quantity = 1) {
+            const sellPrice = Math.floor(item.value * 0.7 * quantity); // 70% of value
+            
+            showConfirmation(
+                `Sell ${item.name}${quantity > 1 ? ` (${quantity})` : ''}?`,
+                `Are you sure you want to sell ${quantity > 1 ? `${quantity} of this ${type}` : `this ${type}`} for ${sellPrice} coins?`,
+                async () => {
+                    await updateUserData({
+                        coins: userData.coins + sellPrice
+                    });
+                    await removeItemFromInventory(item, type, quantity);
+                    elements.rewardModal.hide();
+                }
+            );
+        }
+
+        function showConfirmation(title, message, callback) {
+            elements.confirmationModalTitle.textContent = title;
+            elements.confirmationModalBody.textContent = message;
+            elements.confirmActionBtn.onclick = () => {
+                callback();
+                elements.confirmationModal.hide();
+            };
+            elements.confirmationModal.show();
+        }
+
+        // Wheel of Fortune Functions
+        function initializeWheel() {
+            const wheel = document.getElementById('wheel');
+            wheel.innerHTML = ''; // Clear any existing sections
+            
+            // Create wheel sections
+            WHEEL_SECTIONS.forEach((section, index) => {
+                const sectionElement = document.createElement('div');
+                sectionElement.className = 'wheel-section';
+                sectionElement.style.backgroundColor = section.color;
+                
+                // Calculate rotation angle (90deg per section)
+                const rotationAngle = index * 90;
+                sectionElement.style.transform = `rotate(${rotationAngle}deg) skewY(60deg)`;
+                
+                // Add text content
+                const textDiv = document.createElement('div');
+                textDiv.textContent = section.text;
+                textDiv.style.transform = 'skewY(-60deg) rotate(30deg)';
+                textDiv.style.width = '100px';
+                textDiv.style.textAlign = 'center';
+                
+                sectionElement.appendChild(textDiv);
+                wheel.appendChild(sectionElement);
+            });
+        }
+
+        function spinWheel() {
+            const betAmount = parseInt(elements.betAmount.value);
+            
+            if (userData.coins < betAmount) {
+                alert("Not enough coins to place this bet!");
+                return;
+            }
+            
+            // Disable button during spin
+            elements.spinWheelBtn.disabled = true;
+            
+            // Randomly select a section based on probabilities
+            const totalProbability = WHEEL_SECTIONS.reduce((sum, section) => sum + section.probability, 0);
+            const random = Math.random() * totalProbability;
+            
+            let cumulativeProbability = 0;
+            let selectedSection = null;
+            let selectedIndex = 0;
+            
+            for (let i = 0; i < WHEEL_SECTIONS.length; i++) {
+                cumulativeProbability += WHEEL_SECTIONS[i].probability;
+                if (random <= cumulativeProbability) {
+                    selectedSection = WHEEL_SECTIONS[i];
+                    selectedIndex = i;
+                    break;
+                }
+            }
+            
+            // Calculate rotation (multiple full rotations plus the section angle)
+            const sectionAngle = 360 / WHEEL_SECTIONS.length;
+            const minRotations = 3;
+            const maxRotations = 5;
+            const rotations = minRotations + Math.random() * (maxRotations - minRotations);
+            const targetAngle = 360 * rotations + (360 - (selectedIndex * sectionAngle + sectionAngle / 2));
+            
+            // Apply rotation
+            elements.wheel.style.transform = `rotate(${targetAngle}deg)`;
+            
+            // Wait for animation to complete
+            setTimeout(async () => {
+                // Calculate result
+                const multiplier = selectedSection.multiplier;
+                const coinsWon = Math.floor(betAmount * multiplier);
+                const newCoins = userData.coins + coinsWon;
+                
+                // Update user data
+                await updateUserData({
+                    coins: newCoins
+                });
+                
+                // Show result
+                let resultMessage;
+                if (multiplier < 0) {
+                    resultMessage = `You lost ${Math.abs(coinsWon)} coins!`;
+                } else {
+                    resultMessage = `You won ${coinsWon} coins!`;
+                }
+                
+                Swal.fire({
+                    title: selectedSection.text,
+                    text: resultMessage,
+                    icon: multiplier < 0 ? 'error' : 'success',
+                    confirmButtonText: 'OK'
+                });
+                
+                // Re-enable button
+                elements.spinWheelBtn.disabled = false;
+            }, 4000); // Match this with CSS transition duration
+        }
+
+        // Blackjack Functions
+        function initializeBlackjack() {
+            // Event listeners for blackjack controls
+            elements.blackjackBet.addEventListener('input', () => {
+                elements.currentBlackjackBet.textContent = elements.blackjackBet.value;
+                elements.blackjackBetDisplay.textContent = elements.blackjackBet.value;
+            });
+            
+            elements.startBlackjackBtn.addEventListener('click', startBlackjackGame);
+            elements.hitBtn.addEventListener('click', hit);
+            elements.standBtn.addEventListener('click', stand);
+            elements.doubleBtn.addEventListener('click', double);
+            elements.playAgainBtn.addEventListener('click', resetBlackjackGame);
+        }
+
+        function createDeck() {
+            const deck = [];
+            for (const suit of CARD_SUITS) {
+                for (const rank of CARD_RANKS) {
+                    deck.push({
+                        rank: rank,
+                        suit: suit,
+                        value: CARD_VALUES[rank],
+                        image: `https://deckofcardsapi.com/static/img/${rank}${suit[0].toUpperCase()}.png`
+                    });
+                }
+            }
+            return shuffleDeck(deck);
+        }
+
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        function startBlackjackGame() {
+            const betAmount = parseInt(elements.blackjackBet.value);
+            
+            if (userData.coins < betAmount) {
+                alert("Not enough coins to place this bet!");
+                return;
+            }
+            
+            // Initialize game state
+            blackjackGame = {
+                deck: createDeck(),
+                playerHand: [],
+                dealerHand: [],
+                currentBet: betAmount,
+                gameActive: true,
+                doubled: false
+            };
+            
+            // Deal initial cards
+            blackjackGame.playerHand.push(blackjackGame.deck.pop());
+            blackjackGame.dealerHand.push(blackjackGame.deck.pop());
+            blackjackGame.playerHand.push(blackjackGame.deck.pop());
+            blackjackGame.dealerHand.push(blackjackGame.deck.pop());
+            
+            // Update UI
+            updateBlackjackUI();
+            
+            // Show game controls
+            elements.gameControls.classList.remove('d-none');
+            elements.startBlackjackBtn.classList.add('d-none');
+            elements.playAgainBtn.classList.add('d-none');
+            
+            // Check for blackjack
+            if (calculateHandValue(blackjackGame.playerHand) === 21) {
+                endBlackjackGame(true);
+            }
+        }
+
+        function resetBlackjackGame() {
+            // Clear the game board
+            elements.dealerCards.innerHTML = '';
+            elements.playerCards.innerHTML = '';
+            elements.dealerScore.textContent = '?';
+            elements.playerScore.textContent = '0';
+            elements.gameResult.textContent = '';
+            
+            // Reset UI elements
+            elements.gameControls.classList.add('d-none');
+            elements.startBlackjackBtn.classList.remove('d-none');
+            elements.playAgainBtn.classList.add('d-none');
+            
+            // Start a new game
+            startBlackjackGame();
+        }
+
+        function updateBlackjackUI() {
+            // Clear card displays
+            elements.playerCards.innerHTML = '';
+            elements.dealerCards.innerHTML = '';
+            
+            // Show player's cards
+            blackjackGame.playerHand.forEach(card => {
+                const cardElement = createCardElement(card);
+                elements.playerCards.appendChild(cardElement);
+            });
+            
+            // Show dealer's cards (hide first card if game is active)
+            blackjackGame.dealerHand.forEach((card, index) => {
+                if (index === 0 && blackjackGame.gameActive) {
+                    const cardBack = document.createElement('div');
+                    cardBack.className = 'card-slot card-back';
+                    cardBack.textContent = '🂠';
+                    elements.dealerCards.appendChild(cardBack);
+                } else {
+                    const cardElement = createCardElement(card);
+                    elements.dealerCards.appendChild(cardElement);
+                }
+            });
+            
+            // Update scores
+            elements.playerScore.textContent = calculateHandValue(blackjackGame.playerHand);
+            
+            if (blackjackGame.gameActive) {
+                elements.dealerScore.textContent = '?';
+            } else {
+                elements.dealerScore.textContent = calculateHandValue(blackjackGame.dealerHand);
+            }
+            
+            // Update double button state
+            elements.doubleBtn.disabled = userData.coins < blackjackGame.currentBet || blackjackGame.playerHand.length > 2;
+        }
+
+        function createCardElement(card) {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'card-slot';
+            
+            const img = document.createElement('img');
+            img.src = card.image;
+            img.alt = `${card.rank} of ${card.suit}`;
+            
+            cardElement.appendChild(img);
+            return cardElement;
+        }
+
+        function calculateHandValue(hand) {
+            let value = hand.reduce((sum, card) => sum + card.value, 0);
+            let aces = hand.filter(card => card.rank === 'A').length;
+            
+            // Adjust for aces if over 21
+            while (value > 21 && aces > 0) {
+                value -= 10;
+                aces--;
+            }
+            
+            return value;
+        }
+
+        function hit() {
+            if (!blackjackGame.gameActive) return;
+            
+            // Deal a card to player
+            blackjackGame.playerHand.push(blackjackGame.deck.pop());
+            updateBlackjackUI();
+            
+            // Check for bust
+            const playerValue = calculateHandValue(blackjackGame.playerHand);
+            if (playerValue > 21) {
+                endBlackjackGame(false);
+            }
+        }
+
+        function stand() {
+            if (!blackjackGame.gameActive) return;
+            
+            blackjackGame.gameActive = false;
+            
+            // Dealer draws until 17 or higher
+            while (calculateHandValue(blackjackGame.dealerHand) < 17) {
+                blackjackGame.dealerHand.push(blackjackGame.deck.pop());
+            }
+            
+            updateBlackjackUI();
+            determineBlackjackWinner();
+        }
+
+        function double() {
+            if (!blackjackGame.gameActive || blackjackGame.playerHand.length > 2 || userData.coins < blackjackGame.currentBet) {
+                return;
+            }
+            
+            // Double the bet
+            blackjackGame.currentBet *= 2;
+            blackjackGame.doubled = true;
+            
+            // Deal one more card and stand
+            hit();
+            if (blackjackGame.gameActive) { // Player didn't bust
+                stand();
+            }
+        }
+
+        async function endBlackjackGame(playerBlackjack = false) {
+            blackjackGame.gameActive = false;
+            updateBlackjackUI();
+            
+            // Hide game controls
+            elements.gameControls.classList.add('d-none');
+            elements.playAgainBtn.classList.remove('d-none');
+            
+            if (playerBlackjack) {
+                await determineBlackjackWinner(true);
+            } else {
+                determineBlackjackWinner();
+            }
+        }
+
+        async function determineBlackjackWinner(playerBlackjack = false) {
+            const playerValue = calculateHandValue(blackjackGame.playerHand);
+            const dealerValue = calculateHandValue(blackjackGame.dealerHand);
+            
+            let result = '';
+            let coinsWon = 0;
+            
+            if (playerBlackjack && playerValue === 21 && blackjackGame.playerHand.length === 2) {
+                // Player has blackjack
+                if (dealerValue === 21 && blackjackGame.dealerHand.length === 2) {
+                    // Both have blackjack - push
+                    result = 'Push! Both have Blackjack';
+                    coinsWon = blackjackGame.currentBet;
+                    elements.gameResult.className = 'blackjack-result push';
+                } else {
+                    // Player wins with blackjack
+                    result = 'Blackjack! You win 2.5x';
+                    coinsWon = Math.floor(blackjackGame.currentBet * 2.5);
+                    elements.gameResult.className = 'blackjack-result win';
+                }
+            } else if (playerValue > 21) {
+                // Player busts
+                result = 'Bust! You lose';
+                coinsWon = 0;
+                elements.gameResult.className = 'blackjack-result lose';
+            } else if (dealerValue > 21) {
+                // Dealer busts
+                result = 'Dealer busts! You win 2x';
+                coinsWon = blackjackGame.currentBet * 2;
+                elements.gameResult.className = 'blackjack-result win';
+            } else if (playerValue > dealerValue) {
+                // Player wins
+                result = 'You win 2x!';
+                coinsWon = blackjackGame.currentBet * 2;
+                elements.gameResult.className = 'blackjack-result win';
+            } else if (playerValue < dealerValue) {
+                // Dealer wins
+                result = 'Dealer wins!';
+                coinsWon = 0;
+                elements.gameResult.className = 'blackjack-result lose';
+            } else {
+                // Push
+                result = 'Push! Bet returned';
+                coinsWon = blackjackGame.currentBet;
+                elements.gameResult.className = 'blackjack-result push';
+            }
+            
+            elements.gameResult.textContent = result;
+            
+            // Update coins
+            const newCoins = userData.coins - blackjackGame.currentBet + coinsWon;
+            await updateUserData({ coins: newCoins });
+            
+            // Confetti for win
+            if (coinsWon > blackjackGame.currentBet) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // UI Update Functions
+        function updateUI() {
+            elements.coinBalance.textContent = userData.coins;
+            elements.currentStreak.textContent = userData.streak;
+            
+            // Streak progress (next reward at 7 days)
+            const progress = Math.min(100, (userData.streak % 7) / 7 * 100);
+            elements.streakProgress.style.width = `${progress}%`;
+            elements.nextStreakReward.textContent = 7 - (userData.streak % 7);
+            
+            // Update bet amount displays
+            elements.betAmountDisplay.textContent = elements.betAmount.value;
+            elements.blackjackBetDisplay.textContent = elements.blackjackBet.value;
+        }
+
+        function updateInventoryUI() {
+            // Group inventory items by ID and count quantities
+            const groupedPets = groupInventoryItems(userData.inventory.pets);
+            const groupedKnives = groupInventoryItems(userData.inventory.knives);
+            
+            // Pets inventory
+            if (groupedPets.length > 0) {
+                elements.petsInventory.innerHTML = groupedPets.map(pet => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <img src="${pet.item.image}" class="card-img-top" alt="${pet.item.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${pet.item.name}${pet.quantity > 1 ? ` (${pet.quantity})` : ''}</h5>
+                                <p class="card-text">${pet.item.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-outline-danger sell-item-btn" data-id="${pet.item.id}" data-type="pets" data-quantity="1">
+                                        Sell 1 for ${Math.floor(pet.item.value * 0.7)} <i class="fas fa-coins text-warning"></i>
+                                    </button>
+                                    ${pet.quantity > 1 ? `
+                                    <button class="btn btn-outline-danger sell-item-btn" data-id="${pet.item.id}" data-type="pets" data-quantity="${pet.quantity}">
+                                        Sell All (${Math.floor(pet.item.value * 0.7 * pet.quantity)}) <i class="fas fa-coins text-warning"></i>
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                elements.petsInventory.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No pets in your inventory yet</p>
+                    </div>
+                `;
+            }
+            
+            // Knives inventory
+            if (groupedKnives.length > 0) {
+                elements.knivesInventory.innerHTML = groupedKnives.map(knife => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <img src="${knife.item.image}" class="card-img-top" alt="${knife.item.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${knife.item.name}${knife.quantity > 1 ? ` (${knife.quantity})` : ''}</h5>
+                                <p class="card-text">${knife.item.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-outline-danger sell-item-btn" data-id="${knife.item.id}" data-type="knives" data-quantity="1">
+                                        Sell 1 for ${Math.floor(knife.item.value * 0.7)} <i class="fas fa-coins text-warning"></i>
+                                    </button>
+                                    ${knife.quantity > 1 ? `
+                                    <button class="btn btn-outline-danger sell-item-btn" data-id="${knife.item.id}" data-type="knives" data-quantity="${knife.quantity}">
+                                        Sell All (${Math.floor(knife.item.value * 0.7 * knife.quantity)}) <i class="fas fa-coins text-warning"></i>
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                elements.knivesInventory.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No knives in your inventory yet</p>
+                    </div>
+                `;
+            }
+            
+            // Add event listeners to sell buttons
+            document.querySelectorAll('.sell-item-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const type = btn.dataset.type;
+                    const quantity = parseInt(btn.dataset.quantity) || 1;
+                    const item = userData.inventory[type].find(i => i.id === id);
+                    
+                    if (item) {
+                        showConfirmation(
+                            `Sell ${item.name}${quantity > 1 ? ` (${quantity})` : ''}?`,
+                            `Are you sure you want to sell ${quantity > 1 ? `${quantity} of this ${type.slice(0, -1)}` : `this ${type.slice(0, -1)}`} for ${Math.floor(item.value * 0.7 * quantity)} coins?`,
+                            async () => {
+                                await updateUserData({
+                                    coins: userData.coins + Math.floor(item.value * 0.7 * quantity)
+                                });
+                                await removeItemFromInventory(item, type, quantity);
+                            }
+                        );
+                    }
+                });
+            });
+            
+            // Update trade items if trade tab is active
+            if (document.getElementById('trade-tab').classList.contains('active')) {
+                renderTradeItems();
+            }
+        }
+
+        function groupInventoryItems(items) {
+            const grouped = {};
+            
+            items.forEach(item => {
+                if (!grouped[item.id]) {
+                    grouped[item.id] = {
+                        item: item,
+                        quantity: item.quantity || 1
+                    };
+                } else {
+                    grouped[item.id].quantity += item.quantity || 1;
+                }
+            });
+            
+            return Object.values(grouped);
+        }
+
+        function updateShopUI() {
+            // Pets shop
+            elements.shopPets.innerHTML = Object.entries(ITEMS.pets).map(([rarity, pets]) => `
+                ${pets.map(pet => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <img src="${pet.image}" class="card-img-top" alt="${pet.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${pet.name}</h5>
+                                <span class="badge bg-${getRarityColor(rarity)} mb-2">${rarity.charAt(0).toUpperCase() + rarity.slice(1)}</span>
+                                <p class="card-text">${pet.description}</p>
+                                <div class="d-flex align-items-center">
+                                    <div class="input-group me-2" style="width: 100px;">
+                                        <button class="btn btn-outline-secondary minus-btn" type="button" data-id="${pet.id}" data-type="pets">-</button>
+                                        <input type="number" class="form-control text-center quantity-input" value="1" min="1" max="99" data-id="${pet.id}" data-type="pets">
+                                        <button class="btn btn-outline-secondary plus-btn" type="button" data-id="${pet.id}" data-type="pets">+</button>
+                                    </div>
+                                    <button class="btn btn-primary buy-item-btn flex-grow-1" data-id="${pet.id}" data-type="pets" ${userData.coins < pet.value ? 'disabled' : ''}>
+                                        Buy for ${pet.value} <i class="fas fa-coins text-warning"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `).join('');
+            
+            // Knives shop
+            elements.shopKnives.innerHTML = Object.entries(ITEMS.knives).map(([rarity, knives]) => `
+                ${knives.map(knife => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <img src="${knife.image}" class="card-img-top" alt="${knife.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${knife.name}</h5>
+                                <span class="badge bg-${getRarityColor(rarity)} mb-2">${rarity.charAt(0).toUpperCase() + rarity.slice(1)}</span>
+                                <p class="card-text">${knife.description}</p>
+                                <div class="d-flex align-items-center">
+                                    <div class="input-group me-2" style="width: 100px;">
+                                        <button class="btn btn-outline-secondary minus-btn" type="button" data-id="${knife.id}" data-type="knives">-</button>
+                                        <input type="number" class="form-control text-center quantity-input" value="1" min="1" max="99" data-id="${knife.id}" data-type="knives">
+                                        <button class="btn btn-outline-secondary plus-btn" type="button" data-id="${knife.id}" data-type="knives">+</button>
+                                    </div>
+                                    <button class="btn btn-primary buy-item-btn flex-grow-1" data-id="${knife.id}" data-type="knives" ${userData.coins < knife.value ? 'disabled' : ''}>
+                                        Buy for ${knife.value} <i class="fas fa-coins text-warning"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `).join('');
+            
+            // Add event listeners to quantity controls
+            document.querySelectorAll('.minus-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const input = btn.nextElementSibling;
+                    if (input.value > 1) {
+                        input.value--;
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.plus-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const input = btn.previousElementSibling;
+                    if (input.value < 99) {
+                        input.value++;
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', () => {
+                    if (input.value < 1) input.value = 1;
+                    if (input.value > 99) input.value = 99;
+                });
+            });
+            
+            // Add event listeners to buy buttons
+            document.querySelectorAll('.buy-item-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const type = btn.dataset.type;
+                    const quantityInput = btn.parentElement.querySelector('.quantity-input');
+                    const quantity = parseInt(quantityInput.value) || 1;
+                    
+                    // Find item in ITEMS
+                    let item;
+                    for (const rarity of Object.keys(ITEMS[type])) {
+                        const found = ITEMS[type][rarity].find(i => i.id === id);
+                        if (found) {
+                            item = found;
+                            break;
+                        }
+                    }
+                    
+                    const totalCost = item.value * quantity;
+                    
+                    if (item && userData.coins >= totalCost) {
+                        showConfirmation(
+                            `Buy ${item.name}${quantity > 1 ? ` (${quantity})` : ''}?`,
+                            `Are you sure you want to buy ${quantity > 1 ? `${quantity} of this ${type.slice(0, -1)}` : `this ${type.slice(0, -1)}`} for ${totalCost} coins?`,
+                            async () => {
+                                await updateUserData({
+                                    coins: userData.coins - totalCost
+                                });
+                                await addItemToInventory(item, type, quantity);
+                                updateShopUI(); // Refresh shop to update button states
+                            }
+                        );
+                    }
+                });
+            });
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth
+            elements.signInButton.addEventListener('click', signInWithGoogle);
+            elements.signInButton2.addEventListener('click', signInWithGoogle);
+            
+            elements.signOutButton.addEventListener('click', () => {
+                auth.signOut();
+            });
+            
+            // Profile
+            elements.updateUsernameBtn.addEventListener('click', () => {
+                const newUsername = elements.newUsernameInput.value.trim();
+                if (newUsername.length < 3) {
+                    alert('Username must be at least 3 characters');
+                    return;
+                }
+                
+                updateUserData({ username: newUsername })
+                    .then(() => {
+                        elements.dashboardUsername.textContent = newUsername;
+                        elements.usernameDisplay.textContent = newUsername;
+                        elements.newUsernameInput.value = '';
+                        alert('Username updated!');
+                    })
+                    .catch((error) => {
+                        console.error('Error updating username:', error);
+                        alert('Update failed: ' + error.message);
+                    });
+            });
+            
+            elements.uploadProfilePicBtn.addEventListener('click', () => {
+                elements.profilePicUpload.click();
+            });
+            
+            elements.updateProfilePicBtn.addEventListener('click', () => {
+                const file = elements.profilePicUpload.files[0];
+                if (!file) {
+                    alert('Please select an image first');
+                    return;
+                }
+                
+                if (file.size > 500 * 1024) {
+                    alert('Image must be smaller than 500KB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const base64Image = event.target.result;
+                    updateUserData({ photoBase64: base64Image })
+                        .then(() => {
+                            elements.profilePic.src = base64Image;
+                            elements.profilePicPreview.src = base64Image;
+                            elements.profilePicUpload.value = '';
+                            alert('Profile picture updated!');
+                        })
+                        .catch((error) => {
+                            console.error('Error saving image:', error);
+                            alert('Upload failed: ' + error.message);
+                        });
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Game
+            elements.claimDailyBtn.addEventListener('click', claimDailyReward);
+            
+            // Loot boxes
+            document.querySelectorAll('.open-lootbox-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tier = btn.dataset.tier;
+                    openLootBox(tier);
+                });
+            });
+            
+            // Wheel of fortune
+            elements.betAmount.addEventListener('input', () => {
+                elements.currentBet.textContent = elements.betAmount.value;
+                elements.betAmountDisplay.textContent = elements.betAmount.value;
+            });
+            
+            elements.spinWheelBtn.addEventListener('click', spinWheel);
+            
+            // Initialize blackjack
+            initializeBlackjack();
+        }
+        
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    if (result.additionalUserInfo.isNewUser) {
+                        return createUserDocument(result.user);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Sign in error:', error);
+                    alert('Sign in failed: ' + error.message);
+                });
+        }
+
+        // Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                elements.loginView.style.display = 'none';
+                elements.dashboardView.classList.remove('d-none');
+                elements.signOutButton.classList.remove('d-none');
+                
+                // Set profile info
+                const displayName = user.displayName || 'User';
+                elements.usernameDisplay.textContent = displayName;
+                elements.dashboardUsername.textContent = displayName;
+                
+                if (user.photoURL) {
+                    elements.profilePic.src = user.photoURL;
+                    elements.profilePicPreview.src = user.photoURL;
+                }
+                
+                // Load user data
+                loadUserData(user.uid);
+                
+                // Set up online status tracking
+                window.addEventListener('beforeunload', () => {
+                    updateUserStatus('offline');
+                });
+            } else {
+                // User is signed out
+                elements.loginView.style.display = 'block';
+                elements.dashboardView.classList.add('d-none');
+                elements.signOutButton.classList.add('d-none');
+                elements.usernameDisplay.textContent = 'Guest';
+                elements.profilePic.src = 'https://via.placeholder.com/40';
+                elements.profilePicPreview.src = 'https://via.placeholder.com/150';
+                
+                // Clean up trade listeners
+                if (tradeState.tradeListener) {
+                    tradeState.tradeListener();
+                    tradeState.tradeListener = null;
+                }
+                
+                if (tradeState.onlineUsersListener) {
+                    tradeState.onlineUsersListener();
+                    tradeState.onlineUsersListener = null;
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            initializeWheel();
+            initializeBlackjack();
+        });
+    </script>
+</body>
+</html>
