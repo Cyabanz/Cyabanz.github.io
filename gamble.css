@@ -71,14 +71,17 @@ body {
     margin-bottom: 2rem;
 }
 
-/* Buttons - Enhanced Visibility */
+/* Buttons - Compact and Consistent */
 .btn {
     font-weight: 600;
-    padding: 0.5rem 1rem;
+    padding: 0.375rem 0.75rem;
     border-radius: 0.35rem;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     border: none;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: nowrap;
 }
 
 .btn-primary {
@@ -88,8 +91,8 @@ body {
 
 .btn-primary:hover {
     background-color: #2e59d9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
@@ -99,8 +102,8 @@ body {
 
 .btn-secondary:hover {
     background-color: #6c757d;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .btn-danger {
@@ -110,8 +113,8 @@ body {
 
 .btn-danger:hover {
     background-color: #c82333;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .btn-warning {
@@ -121,8 +124,8 @@ body {
 
 .btn-warning:hover {
     background-color: #e0a800;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .btn-success {
@@ -132,8 +135,8 @@ body {
 
 .btn-success:hover {
     background-color: #17a673;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .btn-info {
@@ -143,8 +146,8 @@ body {
 
 .btn-info:hover {
     background-color: #138496;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .btn-outline-danger {
@@ -158,17 +161,59 @@ body {
     color: white;
 }
 
-/* Special buttons */
+/* Special buttons - Made more compact */
 .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
-    font-size: 1.05rem;
-    padding: 0.6rem 1.25rem;
-    font-weight: 700;
+    font-size: 0.9375rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
 }
 
 #signInButton2 {
-    padding: 0.75rem 2rem;
-    font-size: 1.1rem;
+    padding: 0.625rem 1.5rem;
+    font-size: 1rem;
     font-weight: 600;
+}
+
+/* Compact quantity controls */
+.input-group-quantity {
+    width: 110px;
+}
+
+.input-group-quantity .btn {
+    padding: 0.25rem 0.5rem;
+    min-width: 32px;
+    font-size: 0.8125rem;
+}
+
+.input-group-quantity .form-control {
+    padding: 0.25rem;
+    text-align: center;
+    font-weight: 600;
+    height: calc(1.5em + 0.5rem + 2px);
+}
+
+/* Compact buy/sell buttons */
+.buy-item-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
+}
+
+.sell-item-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
+    margin: 0.125rem;
+}
+
+/* Compact sell buttons container */
+.sell-buttons-container {
+    gap: 0.25rem;
+}
+
+/* Compact form controls */
+.form-control, .form-range {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    height: calc(1.5em + 0.75rem + 2px);
 }
 
 /* Dashboard View - Card Fixes */
@@ -180,19 +225,20 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Prevents content from overflowing */
+    overflow: hidden;
 }
 
 .card-body {
     flex: 1 1 auto;
-    padding: 1.5rem;
-    min-height: 1px; /* Fix for flexbox in some browsers */
+    padding: 1.25rem;
+    min-height: 1px;
 }
 
 .card-title {
     color: var(--text-dark);
     font-weight: 700;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
 }
 
 /* Profile Section */
@@ -204,27 +250,29 @@ body {
 #dashboard-username {
     color: var(--text-dark);
     font-weight: 700;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 1.25rem;
 }
 
 /* Stats Section */
 .stats-icon {
-    font-size: 2rem;
-    margin-right: 1rem;
+    font-size: 1.75rem;
+    margin-right: 0.75rem;
 }
 
 .stats-value {
     font-weight: 700;
     color: var(--text-dark);
+    font-size: 1.5rem;
 }
 
 .stats-label {
     color: var(--text-light);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
 }
 
 .progress {
-    height: 1rem;
+    height: 0.75rem;
     border-radius: 0.35rem;
     background-color: #eaecf4;
 }
@@ -236,15 +284,16 @@ body {
 /* Tabs */
 .nav-tabs {
     border-bottom: 1px solid #dddfeb;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .nav-tabs .nav-link {
     color: var(--text-light);
     font-weight: 600;
     border: none;
-    padding: 0.75rem 1.25rem;
-    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    margin-right: 0.25rem;
+    font-size: 0.875rem;
 }
 
 .nav-tabs .nav-link.active {
@@ -269,16 +318,16 @@ body {
 }
 
 .open-lootbox-btn {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
     width: 100%;
 }
 
 /* Wheel of Fortune */
 .wheel-container {
     position: relative;
-    width: 300px;
-    height: 300px;
-    margin: 0 auto 2rem;
+    width: 250px;
+    height: 250px;
+    margin: 0 auto 1.5rem;
 }
 
 .wheel {
@@ -289,8 +338,8 @@ body {
     overflow: hidden;
     transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
     transform: rotate(0deg);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    border: 8px solid #333;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    border: 6px solid #333;
 }
 
 .wheel-section {
@@ -304,12 +353,13 @@ body {
     color: white;
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 0.875rem;
 }
 
 .wheel-center {
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     background: #fff;
     border-radius: 50%;
     top: 50%;
@@ -320,169 +370,47 @@ body {
     justify-content: center;
     font-weight: bold;
     color: var(--text-dark);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     z-index: 10;
     cursor: pointer;
-    border: 4px solid #333;
+    border: 3px solid #333;
+    font-size: 0.875rem;
 }
 
 .wheel-pointer {
     position: absolute;
-    top: -15px;
+    top: -12px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 30px solid #dc3545;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 25px solid #dc3545;
     z-index: 20;
 }
 
-/* Wheel Colors - Aligned with your JS configuration */
+/* Wheel Colors */
 .wheel-section:nth-child(1) { background-color: #dc3545; transform: rotate(0deg) skewY(60deg); } /* Lose All */
 .wheel-section:nth-child(2) { background-color: #fd7e14; transform: rotate(90deg) skewY(60deg); } /* Lose Half */
 .wheel-section:nth-child(3) { background-color: #28a745; transform: rotate(180deg) skewY(60deg); } /* Win 1x */
 .wheel-section:nth-child(4) { background-color: #007bff; transform: rotate(270deg) skewY(60deg); } /* Win 2x */
 
-/* Form Elements */
-.form-control, .form-range {
-    border: 1px solid #d1d3e2;
-    border-radius: 0.35rem;
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-}
-
-.form-range::-webkit-slider-thumb {
-    background: var(--primary-color);
-}
-
-.form-range::-moz-range-thumb {
-    background: var(--primary-color);
-}
-
-.form-range::-ms-thumb {
-    background: var(--primary-color);
-}
-
 /* Badges */
 .badge {
     font-weight: 600;
-    padding: 0.35em 0.65em;
-    font-size: 0.75em;
+    padding: 0.25em 0.5em;
+    font-size: 0.6875rem;
 }
 
-.bg-primary {
-    background-color: var(--primary-color) !important;
-}
-
-.bg-success {
-    background-color: var(--success-color) !important;
-}
-
-.bg-warning {
-    background-color: var(--warning-color) !important;
-}
-
-.bg-danger {
-    background-color: var(--danger-color) !important;
-}
-
-/* Modals */
-.modal-content {
-    border: none;
-    border-radius: 0.35rem;
-}
-
-.modal-header {
-    border-bottom: 1px solid #e3e6f0;
-}
-
-.modal-footer {
-    border-top: 1px solid #e3e6f0;
-}
-
-/* Reward Animation */
-.reward-animation {
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .wheel-container {
-        width: 250px;
-        height: 250px;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    /* Stack cards on mobile */
-    .row > .col-md-4, 
-    .row > .col-md-8,
-    .row > .col-lg-6 {
-        margin-bottom: 1.5rem;
-    }
-}
-
-/* Ensure equal height for profile and stats cards */
-@media (min-width: 768px) {
-    .row.mb-4 > .col-md-4 > .card,
-    .row.mb-4 > .col-md-8 > .card {
-        height: calc(100% - 1.5rem); /* Account for margin-bottom */
-    }
-    
-    /* Equal height for card groups */
-    .card-group-fix {
-        display: flex;
-        flex-wrap: wrap;
-    }
-    
-    .card-group-fix > .col-md-4,
-    .card-group-fix > .col-md-6,
-    .card-group-fix > .col-lg-3 {
-        display: flex;
-    }
-}
-
-/* Inventory Items */
-.inventory-item {
-    transition: transform 0.3s ease;
-    position: relative;
-}
-
-.inventory-item:hover {
-    transform: translateY(-5px);
-}
-
-/* Sell Button */
-.sell-item-btn {
-    transition: all 0.3s ease;
-}
-
-.sell-item-btn:hover {
-    background-color: var(--danger-color) !important;
-    color: white !important;
-}
-
-/* Blackjack Game - Fixed Card Styling */
+/* Blackjack Game - Compact Card Styling */
 .game-container {
     background-color: #2e7d32;
     border-radius: 0.5rem;
-    padding: 1.5rem;
+    padding: 1.25rem;
     color: white;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    overflow: hidden; /* Prevent content from overflowing */
+    box-shadow: 0 0.35rem 0.75rem rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .cards-container {
@@ -490,7 +418,7 @@ body {
     justify-content: center;
     flex-wrap: wrap;
     gap: 0.5rem;
-    min-height: 120px;
+    min-height: 100px;
     margin: 0 auto;
     max-width: 100%;
     padding: 0.5rem;
@@ -498,17 +426,17 @@ body {
 }
 
 .card-slot {
-    width: 80px;
-    height: 120px;
+    width: 70px;
+    height: 105px;
     background-color: white;
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     position: relative;
-    transition: transform 0.3s ease;
-    flex-shrink: 0; /* Prevent cards from shrinking */
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
 }
 
 .card-slot img {
@@ -519,7 +447,7 @@ body {
 }
 
 .card-slot:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
 }
 
 .card-back {
@@ -537,46 +465,48 @@ body {
 .card-back::after {
     content: '';
     position: absolute;
-    top: 5px;
-    left: 5px;
-    right: 5px;
-    bottom: 5px;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
     background-color: #d40000;
-    border-radius: 0.35rem;
+    border-radius: 0.3rem;
 }
 
 .dealer-area {
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
     border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
 }
 
 .player-area {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
 }
 
 #game-controls {
-    margin: 1.5rem 0;
+    margin: 1rem 0;
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
 }
 
 #game-controls .btn {
-    min-width: 100px;
-    font-weight: 700;
+    min-width: 80px;
+    font-weight: 600;
     flex-grow: 1;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
 }
 
 #game-result {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: bold;
-    min-height: 2.5rem;
+    min-height: 2rem;
     text-align: center;
-    margin: 1rem 0;
-    padding: 0.5rem;
+    margin: 0.75rem 0;
+    padding: 0.375rem;
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 0.5rem;
 }
@@ -585,38 +515,86 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    margin: 1rem 0;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
     flex-wrap: wrap;
 }
 
 .bet-amount {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: bold;
-    min-width: 60px;
+    min-width: 50px;
     text-align: center;
 }
 
-/* Responsive adjustments */
+/* Reward Animation */
+.reward-animation {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
+    .wheel-container {
+        width: 220px;
+        height: 220px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Stack cards on mobile */
+    .row > .col-md-4, 
+    .row > .col-md-8,
+    .row > .col-lg-6 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Make buttons even more compact on mobile */
+    .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+    
+    .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    #signInButton2 {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9375rem;
+    }
+    
+    /* Adjust quantity controls */
+    .input-group-quantity {
+        width: 100px;
+    }
+    
+    .input-group-quantity .btn {
+        min-width: 28px;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    /* Adjust blackjack cards */
     .card-slot {
         width: 60px;
         height: 90px;
     }
-    
-    #game-controls .btn {
-        min-width: 80px;
-        padding: 0.4rem 0.8rem;
-        font-size: 0.9rem;
-    }
-    
-    .bet-controls {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
 }
 
 @media (max-width: 576px) {
+    .wheel-container {
+        width: 200px;
+        height: 200px;
+    }
+    
     .card-slot {
         width: 50px;
         height: 75px;
@@ -624,6 +602,48 @@ body {
     
     .cards-container {
         gap: 0.3rem;
+    }
+    
+    /* Make buttons even more compact on small devices */
+    .btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
+    }
+    
+    .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8125rem;
+    }
+    
+    #signInButton2 {
+        padding: 0.4rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Adjust quantity controls */
+    .input-group-quantity {
+        width: 90px;
+    }
+    
+    .input-group-quantity .btn {
+        min-width: 25px;
+        padding: 0.15rem 0.3rem;
+        font-size: 0.75rem;
+    }
+    
+    .input-group-quantity .form-control {
+        padding: 0.15rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Adjust sell buttons */
+    .sell-buttons-container {
+        flex-direction: column;
+    }
+    
+    .sell-item-btn {
+        width: 100%;
+        margin: 0.125rem 0;
     }
 }
 
@@ -643,31 +663,31 @@ body {
 .card-back::after {
     content: '';
     position: absolute;
-    top: 5px;
-    left: 5px;
-    right: 5px;
-    bottom: 5px;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
     background-color: #d40000;
-    border-radius: 0.35rem;
+    border-radius: 0.3rem;
 }
 
 /* Score Display */
 .score-display {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    margin-bottom: 0.375rem;
     font-weight: 600;
 }
 
 /* Card Grid Layout */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .card-grid .card {
-    margin-bottom: 0; /* Remove individual card margins when in grid */
+    margin-bottom: 0;
 }
 
 /* Card Content Overflow Fix */
@@ -689,13 +709,7 @@ body {
 .card-footer {
     background-color: rgba(0, 0, 0, 0.03);
     border-top: 1px solid rgba(0, 0, 0, 0.125);
-    padding: 0.75rem 1.25rem;
-}
-
-/* Make sure all text is visible */
-h1, h2, h3, h4, h5, h6,
-p, span, div, a, button, input, label {
-    color: var(--text-color);
+    padding: 0.5rem 1rem;
 }
 
 /* Equal size for profile and stats containers */
@@ -755,7 +769,7 @@ p, span, div, a, button, input, label {
 
 /* Tab Buttons */
 .nav-tabs .nav-link {
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 /* Form Buttons */
@@ -788,7 +802,8 @@ p, span, div, a, button, input, label {
 
 /* Button icons */
 .btn i {
-    margin-right: 0.5rem;
+    margin-right: 0.375rem;
+    font-size: 0.8125rem;
 }
 
 /* Additional fixes for button visibility */
@@ -912,64 +927,37 @@ p, span, div, a, button, input, label {
     }
 }
 
-@media (max-width: 576px) {
-    /* Adjust blackjack cards for mobile */
-    .card-slot {
-        width: 60px;
-        height: 90px;
-    }
-    
-    .card-value {
-        font-size: 1.2rem;
-    }
-    
-    .card-suit {
-        font-size: 1rem;
-    }
-    
-    #game-controls .btn {
-        min-width: 80px;
-        padding: 0.4rem 0.8rem;
-        font-size: 0.9rem;
-    }
-    
-    .bet-controls {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-}
-
 /* MODIFIED STYLES FOR COMPACT QUANTITY CONTROLS AND SELL BUTTONS */
 
 /* Quantity Controls - Compact Version */
 .quantity-control {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
     width: 100%;
 }
 
 .quantity-btn {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: bold;
     padding: 0;
     background-color: var(--light-color);
     color: var(--dark-color);
     border: 1px solid var(--secondary-color);
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     cursor: pointer;
 }
 
 .quantity-btn:hover {
     background-color: var(--secondary-color);
     color: white;
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 .quantity-btn:disabled {
@@ -979,32 +967,32 @@ p, span, div, a, button, input, label {
 }
 
 .quantity-input {
-    width: 40px;
-    height: 28px;
+    width: 36px;
+    height: 26px;
     text-align: center;
-    margin: 0 0.25rem;
+    margin: 0 0.2rem;
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 0.8125rem;
     border: 1px solid var(--secondary-color);
     border-radius: 4px;
-    padding: 0.15rem;
+    padding: 0.125rem;
 }
 
 /* Sell Buttons - Compact Version */
 .sell-buttons-container {
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: 0.375rem;
+    margin-top: 0.375rem;
     width: 100%;
 }
 
 .sell-btn {
     flex: 1;
-    padding: 0.35rem 0.5rem;
-    font-size: 0.8rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.75rem;
     font-weight: 600;
     border-radius: 4px;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1035,8 +1023,8 @@ p, span, div, a, button, input, label {
 }
 
 .sell-btn i {
-    margin-right: 0.25rem;
-    font-size: 0.8rem;
+    margin-right: 0.2rem;
+    font-size: 0.75rem;
 }
 
 /* Quantity Badge */
@@ -1047,46 +1035,46 @@ p, span, div, a, button, input, label {
     background-color: var(--danger-color);
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 /* Play Again Button */
 #play-again-btn {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     background-color: var(--success-color);
     color: white;
     border: none;
     border-radius: 0.35rem;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     display: inline-block;
 }
 
 #play-again-btn:hover {
     background-color: #17a673;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Input Group for Quantity - Compact */
 .input-group-quantity {
     display: flex;
-    width: 110px;
-    margin-right: 0.5rem;
+    width: 100px;
+    margin-right: 0.375rem;
 }
 
 .input-group-quantity .btn {
-    padding: 0.15rem 0.3rem;
-    font-size: 0.8rem;
+    padding: 0.125rem 0.25rem;
+    font-size: 0.75rem;
     background-color: var(--light-color);
     color: var(--dark-color);
     border: 1px solid var(--secondary-color);
@@ -1100,140 +1088,82 @@ p, span, div, a, button, input, label {
 .input-group-quantity .form-control {
     text-align: center;
     font-weight: bold;
-    font-size: 0.9rem;
-    padding: 0.15rem;
+    font-size: 0.8125rem;
+    padding: 0.125rem;
     border-left: none;
     border-right: none;
-    height: 28px;
+    height: 26px;
 }
 
 /* Buy Button - Compact */
 .buy-item-btn {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.85rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.75rem;
     white-space: nowrap;
-}
-
-/* Responsive Adjustments for Compact Elements */
-@media (max-width: 768px) {
-    .input-group-quantity {
-        width: 100px;
-    }
-    
-    .sell-buttons-container {
-        flex-direction: row;
-    }
-    
-    .sell-btn {
-        font-size: 0.75rem;
-        padding: 0.3rem;
-    }
-    
-    .quantity-btn {
-        width: 26px;
-        height: 26px;
-    }
-    
-    .quantity-input {
-        width: 36px;
-        height: 26px;
-    }
-}
-
-@media (max-width: 576px) {
-    .input-group-quantity {
-        width: 90px;
-    }
-    
-    .sell-buttons-container {
-        flex-direction: column;
-    }
-    
-    .quantity-btn {
-        width: 24px;
-        height: 24px;
-        font-size: 0.7rem;
-    }
-    
-    .quantity-input {
-        width: 32px;
-        height: 24px;
-        font-size: 0.8rem;
-    }
-    
-    #play-again-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-    }
-    
-    .buy-item-btn {
-        font-size: 0.8rem;
-        padding: 0.3rem 0.4rem;
-    }
 }
 
 /* Inventory Item Cards - Compact */
 .inventory-item .card-body {
-    padding: 1rem;
+    padding: 0.75rem;
 }
 
 .inventory-item .card-title {
-    font-size: 1rem;
-    margin-bottom: 0.75rem;
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
 }
 
 .inventory-item .card-text {
-    font-size: 0.85rem;
-    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 /* Shop Item Cards - Compact */
 .shop-item-card .card-body {
-    padding: 1rem;
+    padding: 0.75rem;
 }
 
 .shop-item-card .card-title {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+    margin-bottom: 0.375rem;
 }
 
 .shop-item-card .card-text {
-    font-size: 0.85rem;
-    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .shop-item-card .badge {
-    font-size: 0.7rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.625rem;
+    margin-bottom: 0.375rem;
 }
 
 /* Modal Buttons - Compact */
 .modal-footer .btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
 }
 
 /* Wheel Button - Compact */
 #spin-wheel-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
 }
 
 /* Blackjack Buttons - Compact */
 #game-controls .btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-    min-width: 80px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    min-width: 70px;
 }
 
 /* Daily Reward Button - Compact */
 #claim-daily-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
 }
 
 /* Loot Box Buttons - Compact */
 .open-lootbox-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
 }
