@@ -161,7 +161,7 @@ body {
     color: white;
 }
 
-/* Special buttons - Made more compact */
+/* Special buttons */
 .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
     font-size: 0.9375rem;
     padding: 0.5rem 1rem;
@@ -174,22 +174,69 @@ body {
     font-weight: 600;
 }
 
-/* Compact quantity controls */
+/* Compact quantity controls - Updated for perfect alignment */
 .input-group-quantity {
-    width: 110px;
+    display: flex;
+    width: 120px;
+    margin-right: 0.5rem;
 }
 
 .input-group-quantity .btn {
-    padding: 0.25rem 0.5rem;
-    min-width: 32px;
-    font-size: 0.8125rem;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: bold;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid var(--secondary-color);
+    transition: all 0.15s ease;
+    line-height: 1;
+}
+
+.input-group-quantity .btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
 }
 
 .input-group-quantity .form-control {
-    padding: 0.25rem;
+    width: 40px;
+    height: 30px;
+    padding: 0;
+    margin: 0 -1px;
     text-align: center;
-    font-weight: 600;
-    height: calc(1.5em + 0.5rem + 2px);
+    font-weight: bold;
+    font-size: 0.875rem;
+    border-left: 1px solid var(--secondary-color);
+    border-right: 1px solid var(--secondary-color);
+    border-top: 1px solid var(--secondary-color);
+    border-bottom: 1px solid var(--secondary-color);
+    border-radius: 0;
+    -moz-appearance: textfield;
+    line-height: 1.5;
+}
+
+/* Hide number input arrows in Chrome/Safari */
+.input-group-quantity .form-control::-webkit-outer-spin-button,
+.input-group-quantity .form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* First button rounded left, last button rounded right */
+.input-group-quantity .btn:first-child {
+    border-top-left-radius: 0.35rem;
+    border-bottom-left-radius: 0.35rem;
+    border-right: none;
+}
+
+.input-group-quantity .btn:last-child {
+    border-top-right-radius: 0.35rem;
+    border-bottom-right-radius: 0.35rem;
+    border-left: none;
 }
 
 /* Compact buy/sell buttons */
@@ -572,73 +619,7 @@ body {
         font-size: 0.9375rem;
     }
     
-  /* Quantity Controls - Perfectly Aligned */
-.input-group-quantity {
-    display: flex;
-    width: 110px;
-    margin-right: 0.5rem;
-}
-
-.input-group-quantity .btn {
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    font-weight: bold;
-    background-color: var(--light-color);
-    color: var(--dark-color);
-    border: 1px solid var(--secondary-color);
-    transition: all 0.15s ease;
-    line-height: 1; /* Ensures text is perfectly centered */
-}
-
-.input-group-quantity .btn:hover {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.input-group-quantity .form-control {
-    width: 40px;
-    height: 30px;
-    padding: 0;
-    margin: 0 -1px; /* Remove double borders */
-    text-align: center;
-    font-weight: bold;
-    font-size: 0.875rem;
-    border-left: 1px solid var(--secondary-color);
-    border-right: 1px solid var(--secondary-color);
-    border-top: 1px solid var(--secondary-color);
-    border-bottom: 1px solid var(--secondary-color);
-    border-radius: 0;
-    -moz-appearance: textfield; /* Hide number input arrows in Firefox */
-    line-height: 1.5; /* Ensures text is vertically centered */
-}
-
-/* Hide number input arrows in Chrome/Safari */
-.input-group-quantity .form-control::-webkit-outer-spin-button,
-.input-group-quantity .form-control::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* First button rounded left, last button rounded right */
-.input-group-quantity .btn:first-child {
-    border-top-left-radius: 0.35rem;
-    border-bottom-left-radius: 0.35rem;
-    border-right: none; /* Remove double border */
-}
-
-.input-group-quantity .btn:last-child {
-    border-top-right-radius: 0.35rem;
-    border-bottom-right-radius: 0.35rem;
-    border-left: none; /* Remove double border */
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
+    /* Quantity Controls - Adjust for mobile */
     .input-group-quantity {
         width: 100px;
     }
@@ -654,80 +635,6 @@ body {
         height: 28px;
         font-size: 0.8125rem;
     }
-}
-
-@media (max-width: 576px) {
-    .input-group-quantity {
-        width: 90px;
-    }
-    
-    .input-group-quantity .btn {
-        width: 26px;
-        height: 26px;
-        font-size: 0.75rem;
-    }
-    
-    .input-group-quantity .form-control {
-        width: 32px;
-        height: 26px;
-        font-size: 0.75rem;
-    }
-}
-
-/* Hide number input arrows in Chrome/Safari */
-.input-group-quantity .form-control::-webkit-outer-spin-button,
-.input-group-quantity .form-control::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* First button rounded left, last button rounded right */
-.input-group-quantity .btn:first-child {
-    border-top-left-radius: 0.35rem;
-    border-bottom-left-radius: 0.35rem;
-}
-
-.input-group-quantity .btn:last-child {
-    border-top-right-radius: 0.35rem;
-    border-bottom-right-radius: 0.35rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .input-group-quantity {
-        width: 100px;
-    }
-    
-    .input-group-quantity .btn {
-        width: 28px;
-        height: 28px;
-        font-size: 0.8125rem;
-    }
-    
-    .input-group-quantity .form-control {
-        width: 36px;
-        height: 28px;
-        font-size: 0.8125rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .input-group-quantity {
-        width: 90px;
-    }
-    
-    .input-group-quantity .btn {
-        width: 26px;
-        height: 26px;
-        font-size: 0.75rem;
-    }
-    
-    .input-group-quantity .form-control {
-        width: 32px;
-        height: 26px;
-        font-size: 0.75rem;
-    }
-}
     
     /* Adjust blackjack cards */
     .card-slot {
@@ -773,13 +680,14 @@ body {
     }
     
     .input-group-quantity .btn {
-        min-width: 25px;
-        padding: 0.15rem 0.3rem;
+        width: 26px;
+        height: 26px;
         font-size: 0.75rem;
     }
     
     .input-group-quantity .form-control {
-        padding: 0.15rem;
+        width: 32px;
+        height: 26px;
         font-size: 0.75rem;
     }
     
