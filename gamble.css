@@ -939,203 +939,99 @@ p, span, div, a, button, input, label {
     }
 }
 
-/* NEW STYLES ADDED FOR QUANTITY CONTROLS AND SELL BUTTONS */
-
-/* Quantity Controls */
-.quantity-control {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
+/* Compact Quantity Controls */
+.input-group.compact {
+    width: 140px;
+    margin-right: 0.5rem;
 }
 
-.quantity-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    font-weight: bold;
-    padding: 0;
+.input-group.compact .btn {
+    padding: 0.25rem 0.5rem;
+    min-width: 32px;
+    font-size: 0.9rem;
     background-color: var(--light-color);
     color: var(--dark-color);
     border: 1px solid var(--secondary-color);
-    transition: all 0.2s ease;
-    cursor: pointer;
 }
 
-.quantity-btn:hover {
+.input-group.compact .btn:hover {
     background-color: var(--secondary-color);
     color: white;
-    transform: scale(1.05);
 }
 
-.quantity-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.quantity-input {
-    width: 50px;
+.input-group.compact .form-control {
     text-align: center;
-    margin: 0 0.5rem;
     font-weight: bold;
-    border: 1px solid var(--secondary-color);
-    border-radius: 0.25rem;
     padding: 0.25rem;
+    border-left: none;
+    border-right: none;
 }
 
-/* Sell Buttons */
-.sell-buttons-container {
+/* Compact Sell Buttons */
+.sell-buttons-compact {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    gap: 0.25rem;
+    margin-left: 0.5rem;
 }
 
-.sell-btn {
-    width: 100%;
-    padding: 0.5rem;
-    font-size: 0.9rem;
+.sell-btn-compact {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
     font-weight: 600;
     border-radius: 0.25rem;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    white-space: nowrap;
 }
 
-.sell-btn.sell-one {
+.sell-btn-compact.sell-one {
     background-color: rgba(231, 74, 59, 0.1);
     color: var(--danger-color);
     border: 1px solid var(--danger-color);
 }
 
-.sell-btn.sell-one:hover {
+.sell-btn-compact.sell-one:hover {
     background-color: var(--danger-color);
     color: white;
 }
 
-.sell-btn.sell-all {
+.sell-btn-compact.sell-all {
     background-color: rgba(231, 74, 59, 0.2);
     color: white;
     background-color: var(--danger-color);
     border: 1px solid var(--danger-color);
 }
 
-.sell-btn.sell-all:hover {
+.sell-btn-compact.sell-all:hover {
     background-color: #c82333;
-    transform: translateY(-1px);
 }
 
-.sell-btn i {
-    margin-right: 0.5rem;
-}
-
-/* Quantity Badge */
-.quantity-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: var(--danger-color);
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Play Again Button */
-#play-again-btn {
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    background-color: var(--success-color);
-    color: white;
-    border: none;
-    border-radius: 0.35rem;
-    transition: all 0.2s ease;
-    display: inline-block;
-}
-
-#play-again-btn:hover {
-    background-color: #17a673;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Input Group for Quantity */
-.input-group-quantity {
-    display: flex;
-    width: 140px;
-    margin-right: 0.5rem;
-}
-
-.input-group-quantity .btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.9rem;
-    background-color: var(--light-color);
-    color: var(--dark-color);
-    border: 1px solid var(--secondary-color);
-}
-
-.input-group-quantity .btn:hover {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.input-group-quantity .form-control {
-    text-align: center;
-    font-weight: bold;
-    border-left: none;
-    border-right: none;
-}
-
-/* Responsive Adjustments for New Elements */
+/* Responsive adjustments for compact controls */
 @media (max-width: 768px) {
-    .input-group-quantity {
+    .input-group.compact {
         width: 120px;
     }
     
-    .sell-buttons-container {
-        flex-direction: row;
+    .sell-buttons-compact {
+        flex-direction: column;
+        gap: 0.25rem;
     }
     
-    .sell-btn {
-        font-size: 0.8rem;
-        padding: 0.4rem;
+    .sell-btn-compact {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
     }
 }
 
 @media (max-width: 576px) {
-    .input-group-quantity {
+    .input-group.compact {
         width: 100px;
     }
     
-    .sell-buttons-container {
-        flex-direction: column;
+    .input-group.compact .btn {
+        min-width: 28px;
+        padding: 0.2rem;
     }
     
-    .quantity-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 0.9rem;
-    }
-    
-    .quantity-input {
-        width: 40px;
-    }
-    
-    #play-again-btn {
-        padding: 0.6rem 1rem;
-        font-size: 1rem;
+    .sell-buttons-compact {
+        flex-direction: row;
     }
 }
