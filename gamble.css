@@ -458,6 +458,7 @@ body {
 /* Inventory Items */
 .inventory-item {
     transition: transform 0.3s ease;
+    position: relative;
 }
 
 .inventory-item:hover {
@@ -938,27 +939,30 @@ p, span, div, a, button, input, label {
     }
 }
 
-/* Quantity Controls in Shop */
-.quantity-controls {
+/* NEW STYLES ADDED FOR QUANTITY CONTROLS AND SELL BUTTONS */
+
+/* Quantity Controls */
+.quantity-control {
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
 }
 
 .quantity-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: bold;
     padding: 0;
     background-color: var(--light-color);
     color: var(--dark-color);
     border: 1px solid var(--secondary-color);
     transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .quantity-btn:hover {
@@ -979,9 +983,11 @@ p, span, div, a, button, input, label {
     margin: 0 0.5rem;
     font-weight: bold;
     border: 1px solid var(--secondary-color);
+    border-radius: 0.25rem;
+    padding: 0.25rem;
 }
 
-/* Sell Buttons in Inventory */
+/* Sell Buttons */
 .sell-buttons-container {
     display: flex;
     flex-direction: column;
@@ -1028,32 +1034,22 @@ p, span, div, a, button, input, label {
     margin-right: 0.5rem;
 }
 
-/* Buy Button in Shop */
-.buy-btn {
-    width: 100%;
-    padding: 0.6rem;
-    font-weight: 600;
-    border-radius: 0.25rem;
-    transition: all 0.2s ease;
+/* Quantity Badge */
+.quantity-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-}
-
-.buy-btn:hover {
-    background-color: #2e59d9;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.buy-btn:disabled {
-    opacity: 0.65;
-    background-color: var(--secondary-color);
-    transform: none;
-    box-shadow: none;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Play Again Button */
@@ -1067,6 +1063,7 @@ p, span, div, a, button, input, label {
     border: none;
     border-radius: 0.35rem;
     transition: all 0.2s ease;
+    display: inline-block;
 }
 
 #play-again-btn:hover {
@@ -1075,8 +1072,9 @@ p, span, div, a, button, input, label {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Quantity Input Group */
+/* Input Group for Quantity */
 .input-group-quantity {
+    display: flex;
     width: 140px;
     margin-right: 0.5rem;
 }
@@ -1101,7 +1099,7 @@ p, span, div, a, button, input, label {
     border-right: none;
 }
 
-/* Responsive Adjustments */
+/* Responsive Adjustments for New Elements */
 @media (max-width: 768px) {
     .input-group-quantity {
         width: 120px;
@@ -1127,53 +1125,17 @@ p, span, div, a, button, input, label {
     }
     
     .quantity-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 1rem;
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
     }
     
     .quantity-input {
         width: 40px;
     }
-}
-
-/* Inventory Item Quantity Badge */
-.quantity-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: var(--danger-color);
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Card Footer for Inventory Items */
-.inventory-card-footer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    background-color: rgba(0, 0, 0, 0.03);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* Shop Item Footer */
-.shop-item-footer {
-    padding: 0.75rem;
-    background-color: rgba(0, 0, 0, 0.03);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* Tooltip for Quantity Buttons */
-.tooltip-inner {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
+    
+    #play-again-btn {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+    }
 }
