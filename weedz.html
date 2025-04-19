@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FusionCYA - Trading System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+        }
+        
+        .card {
+            background-color: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-tabs .nav-link {
+            color: #e94560;
+            border: none;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: #fff;
+            background-color: #0f3460;
+            border-bottom: 3px solid #e94560;
+        }
+        
+        .btn-primary {
+            background-color: #0f3460;
+            border-color: #0f3460;
+        }
+        
+        .btn-primary:hover {
+            background-color: #16213e;
+            border-color: #16213e;
+        }
+        
+        .btn-danger {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+        
+        .btn-danger:hover {
+            background-color: #d13454;
+            border-color: #d13454;
+        }
+        
+        .trade-item {
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: rgba(15, 52, 96, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .trade-item:hover {
+            background-color: rgba(15, 52, 96, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .trade-item.selected {
+            border: 2px solid #e94560;
+            background-color: rgba(233, 69, 96, 0.2);
+        }
+        
+        .online-user {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .online-user:hover {
+            background-color: rgba(15, 52, 96, 0.5);
+        }
+        
+        .online-user.selected {
+            background-color: rgba(233, 69, 96, 0.3);
+            border-left: 3px solid #e94560;
+        }
+        
+        .trade-preview {
+            min-height: 200px;
+            border: 2px dashed #0f3460;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .trade-preview-item {
+            background-color: rgba(15, 52, 96, 0.3);
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        
+        .trade-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .trade-status.pending {
+            background-color: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+        }
+        
+        .trade-status.accepted {
+            background-color: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+        }
+        
+        .trade-status.declined {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+        }
+        
+        .badge-coins {
+            background-color: #ffc107;
+            color: #000;
+        }
+        
+        .badge-pet {
+            background-color: #17a2b8;
+        }
+        
+        .badge-knife {
+            background-color: #6c757d;
+        }
+        
+        .trade-history-item {
+            border-left: 3px solid #0f3460;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: rgba(15, 52, 96, 0.2);
+        }
+        
+        .trade-history-item.completed {
+            border-left-color: #28a745;
+        }
+        
+        .trade-history-item.cancelled {
+            border-left-color: #dc3545;
+        }
+        
+        .last-active-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        .last-active-indicator.online {
+            background-color: #28a745;
+        }
+        
+        .last-active-indicator.offline {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">FusionCYA Trading</a>
+            <div class="d-flex align-items-center">
+                <span id="username-display" class="me-3">Guest</span>
+                <img id="profile-pic" src="https://via.placeholder.com/40" class="rounded-circle me-2" width="40" height="40">
+                <button id="signInButton" class="btn btn-primary me-2">Sign In</button>
+                <button id="signOutButton" class="btn btn-danger d-none">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Login View -->
+        <div id="login-view" class="text-center py-5">
+            <h1 class="mb-4">Welcome to FusionCYA Trading</h1>
+            <p class="lead mb-4">Sign in to trade items with other players</p>
+            <button id="signInButton2" class="btn btn-primary btn-lg">Sign In with Google</button>
+        </div>
+
+        <!-- Trading Dashboard -->
+        <div id="trading-view" class="d-none">
+            <ul class="nav nav-tabs mb-4" id="tradeTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="create-trade-tab" data-bs-toggle="tab" data-bs-target="#create-trade" type="button" role="tab">Create Trade</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="incoming-trades-tab" data-bs-toggle="tab" data-bs-target="#incoming-trades" type="button" role="tab">Incoming Trades</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="trade-history-tab" data-bs-toggle="tab" data-bs-target="#trade-history" type="button" role="tab">Trade History</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="tradeTabsContent">
+                <!-- Create Trade Tab -->
+                <div class="tab-pane fade show active" id="create-trade" role="tabpanel">
+                    <div class="row">
+                        <!-- Online Users List -->
+                        <div class="col-md-4">
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Online Users</h5>
+                                    <button id="refresh-users-btn" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div id="online-users-list" class="list-group list-group-flush">
+                                        <div class="text-center py-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Your Items -->
+                        <div class="col-md-4">
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Your Items</h5>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-secondary active filter-btn" data-type="all">All</button>
+                                        <button type="button" class="btn btn-outline-secondary filter-btn" data-type="coins">Coins</button>
+                                        <button type="button" class="btn btn-outline-secondary filter-btn" data-type="pets">Pets</button>
+                                        <button type="button" class="btn btn-outline-secondary filter-btn" data-type="knives">Knives</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="your-items-list">
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trade Preview -->
+                        <div class="col-md-4">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Trade Preview</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>You are trading with:</h6>
+                                        <div id="selected-user" class="text-muted">No one selected</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6>You are offering:</h6>
+                                        <div id="your-offer" class="trade-preview">
+                                            <p class="text-muted">No items selected</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6>You are requesting:</h6>
+                                        <div id="their-offer" class="trade-preview">
+                                            <p class="text-muted">No items selected</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <button id="send-trade-btn" class="btn btn-primary w-100" disabled>Send Trade Request</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incoming Trades Tab -->
+                <div class="tab-pane fade" id="incoming-trades" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-8 mx-auto">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Incoming Trade Requests</h5>
+                                    <button id="refresh-trades-btn" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="incoming-trades-list">
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trade History Tab -->
+                <div class="tab-pane fade" id="trade-history" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-8 mx-auto">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Trade History</h5>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-secondary active history-filter-btn" data-status="all">All</button>
+                                        <button type="button" class="btn btn-outline-secondary history-filter-btn" data-status="completed">Completed</button>
+                                        <button type="button" class="btn btn-outline-secondary history-filter-btn" data-status="cancelled">Cancelled</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="trade-history-list">
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Details Modal -->
+    <div class="modal fade" id="tradeDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trade Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="trade-status" class="trade-status pending">Trade Pending</div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0" id="trader-name">Trader</h6>
+                                </div>
+                                <div class="card-body" id="trader-offer">
+                                    <!-- Trader's offer will be shown here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0" id="receiver-name">Receiver</h6>
+                                </div>
+                                <div class="card-body" id="receiver-offer">
+                                    <!-- Receiver's offer will be shown here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center" id="trade-actions">
+                        <!-- Trade action buttons will be shown here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalTitle">Confirm Action</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmationModalBody">
+                    Are you sure you want to perform this action?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirmActionBtn" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Game Data
+        const ITEMS = {
+            pets: {
+                common: [
+                    { id: 'pet1', name: 'Common Cat', value: 50, image: 'https://via.placeholder.com/150?text=Common+Cat', description: 'A cute common cat companion' },
+                    { id: 'pet2', name: 'Common Dog', value: 50, image: 'https://via.placeholder.com/150?text=Common+Dog', description: 'A loyal common dog companion' },
+                    { id: 'pet3', name: 'Common Bird', value: 50, image: 'https://via.placeholder.com/150?text=Common+Bird', description: 'A cheerful common bird companion' }
+                ],
+                rare: [
+                    { id: 'pet4', name: 'Rare Fox', value: 150, image: 'https://via.placeholder.com/150?text=Rare+Fox', description: 'A clever rare fox companion' },
+                    { id: 'pet5', name: 'Rare Rabbit', value: 150, image: 'https://via.placeholder.com/150?text=Rare+Rabbit', description: 'A quick rare rabbit companion' }
+                ],
+                epic: [
+                    { id: 'pet6', name: 'Epic Dragon', value: 300, image: 'https://via.placeholder.com/150?text=Epic+Dragon', description: 'A majestic epic dragon companion' },
+                    { id: 'pet7', name: 'Epic Unicorn', value: 300, image: 'https://via.placeholder.com/150?text=Epic+Unicorn', description: 'A magical epic unicorn companion' }
+                ],
+                legendary: [
+                    { id: 'pet8', name: 'Legendary Phoenix', value: 500, image: 'https://via.placeholder.com/150?text=Legendary+Phoenix', description: 'A fiery legendary phoenix companion' },
+                    { id: 'pet9', name: 'Legendary Griffin', value: 500, image: 'https://via.placeholder.com/150?text=Legendary+Griffin', description: 'A powerful legendary griffin companion' }
+                ]
+            },
+            knives: {
+                common: [
+                    { id: 'knife1', name: 'Common Dagger', value: 40, image: 'https://via.placeholder.com/150?text=Common+Dagger', description: 'A basic common dagger' },
+                    { id: 'knife2', name: 'Common Knife', value: 40, image: 'https://via.placeholder.com/150?text=Common+Knife', description: 'A standard common knife' }
+                ],
+                rare: [
+                    { id: 'knife3', name: 'Rare Bowie', value: 120, image: 'https://via.placeholder.com/150?text=Rare+Bowie', description: 'A sharp rare bowie knife' },
+                    { id: 'knife4', name: 'Rare Karambit', value: 120, image: 'https://via.placeholder.com/150?text=Rare+Karambit', description: 'A curved rare karambit' }
+                ],
+                epic: [
+                    { id: 'knife5', name: 'Epic Butterfly', value: 250, image: 'https://via.placeholder.com/150?text=Epic+Butterfly', description: 'A flashy epic butterfly knife' },
+                    { id: 'knife6', name: 'Epic Katana', value: 250, image: 'https://via.placeholder.com/150?text=Epic+Katana', description: 'A sleek epic katana' }
+                ],
+                legendary: [
+                    { id: 'knife7', name: 'Legendary Sword', value: 400, image: 'https://via.placeholder.com/150?text=Legendary+Sword', description: 'An ancient legendary sword' },
+                    { id: 'knife8', name: 'Legendary Scythe', value: 400, image: 'https://via.placeholder.com/150?text=Legendary+Scythe', description: 'A deadly legendary scythe' }
+                ]
+            }
+        };
+
+        // Trade State
+        let tradeState = {
+            selectedUser: null,
+            yourOffer: [],
+            theirOffer: [],
+            userData: {
+                coins: 0,
+                inventory: {
+                    pets: [],
+                    knives: []
+                }
+            },
+            onlineUsers: [],
+            onlineUsersListener: null,
+            incomingTradesListener: null
+        };
+
+        // DOM Elements
+        const elements = {
+            // Auth elements
+            signInButton: document.getElementById('signInButton'),
+            signInButton2: document.getElementById('signInButton2'),
+            signOutButton: document.getElementById('signOutButton'),
+            usernameDisplay: document.getElementById('username-display'),
+            profilePic: document.getElementById('profile-pic'),
+            loginView: document.getElementById('login-view'),
+            tradingView: document.getElementById('trading-view'),
+            
+            // Create trade elements
+            onlineUsersList: document.getElementById('online-users-list'),
+            refreshUsersBtn: document.getElementById('refresh-users-btn'),
+            yourItemsList: document.getElementById('your-items-list'),
+            selectedUser: document.getElementById('selected-user'),
+            yourOffer: document.getElementById('your-offer'),
+            theirOffer: document.getElementById('their-offer'),
+            sendTradeBtn: document.getElementById('send-trade-btn'),
+            filterBtns: document.querySelectorAll('.filter-btn'),
+            
+            // Incoming trades elements
+            incomingTradesList: document.getElementById('incoming-trades-list'),
+            refreshTradesBtn: document.getElementById('refresh-trades-btn'),
+            
+            // Trade history elements
+            tradeHistoryList: document.getElementById('trade-history-list'),
+            historyFilterBtns: document.querySelectorAll('.history-filter-btn'),
+            
+            // Modals
+            tradeDetailsModal: new bootstrap.Modal(document.getElementById('tradeDetailsModal')),
+            confirmationModal: new bootstrap.Modal(document.getElementById('confirmationModal')),
+            confirmationModalTitle: document.getElementById('confirmationModalTitle'),
+            confirmationModalBody: document.getElementById('confirmationModalBody'),
+            confirmActionBtn: document.getElementById('confirmActionBtn')
+        };
+
+        // Utility Functions
+        function getRarityColor(rarity) {
+            const colors = {
+                common: 'secondary',
+                rare: 'primary',
+                epic: 'danger',
+                legendary: 'warning'
+            };
+            return colors[rarity] || 'secondary';
+        }
+
+        function getItemType(itemId) {
+            // Check pets
+            for (const rarity of Object.keys(ITEMS.pets)) {
+                if (ITEMS.pets[rarity].some(pet => pet.id === itemId)) {
+                    return 'pets';
+                }
+            }
+            
+            // Check knives
+            for (const rarity of Object.keys(ITEMS.knives)) {
+                if (ITEMS.knives[rarity].some(knife => knife.id === itemId)) {
+                    return 'knives';
+                }
+            }
+            
+            return null;
+        }
+
+        function getItemDetails(itemId) {
+            // Check pets
+            for (const rarity of Object.keys(ITEMS.pets)) {
+                const pet = ITEMS.pets[rarity].find(p => p.id === itemId);
+                if (pet) return { ...pet, type: 'pets', rarity };
+            }
+            
+            // Check knives
+            for (const rarity of Object.keys(ITEMS.knives)) {
+                const knife = ITEMS.knives[rarity].find(k => k.id === itemId);
+                if (knife) return { ...knife, type: 'knives', rarity };
+            }
+            
+            return null;
+        }
+
+        function showConfirmation(title, message, callback) {
+            elements.confirmationModalTitle.textContent = title;
+            elements.confirmationModalBody.textContent = message;
+            elements.confirmActionBtn.onclick = () => {
+                callback();
+                elements.confirmationModal.hide();
+            };
+            elements.confirmationModal.show();
+        }
+
+        // Trade Functions
+        function selectUser(user) {
+            tradeState.selectedUser = user;
+            elements.selectedUser.textContent = user.username;
+            elements.selectedUser.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <img src="${user.photoBase64 || 'https://via.placeholder.com/40'}" class="rounded-circle me-2" width="30" height="30">
+                    <span>${user.username}</span>
+                    <span class="last-active-indicator online"></span>
+                </div>
+            `;
+            
+            // Update online users list UI
+            document.querySelectorAll('.online-user').forEach(el => {
+                el.classList.remove('selected');
+                if (el.dataset.uid === user.uid) {
+                    el.classList.add('selected');
+                }
+            });
+            
+            // Enable/disable send trade button based on selections
+            updateSendTradeButton();
+        }
+
+        function addToYourOffer(item) {
+            // Check if item is already in the offer
+            const existingIndex = tradeState.yourOffer.findIndex(i => i.id === item.id);
+            
+            if (existingIndex >= 0) {
+                // If it's coins, increase amount
+                if (item.id === 'coins') {
+                    tradeState.yourOffer[existingIndex].amount += 10;
+                } else {
+                    // For other items, just return (can't add same item multiple times)
+                    return;
+                }
+            } else {
+                // Add new item to offer
+                if (item.id === 'coins') {
+                    tradeState.yourOffer.push({ id: 'coins', amount: 10 });
+                } else {
+                    tradeState.yourOffer.push({ id: item.id });
+                }
+            }
+            
+            updateYourOfferUI();
+            updateSendTradeButton();
+        }
+
+        function addToTheirOffer(item) {
+            // Check if item is already in the offer
+            const existingIndex = tradeState.theirOffer.findIndex(i => i.id === item.id);
+            
+            if (existingIndex >= 0) {
+                // If it's coins, increase amount
+                if (item.id === 'coins') {
+                    tradeState.theirOffer[existingIndex].amount += 10;
+                } else {
+                    // For other items, just return (can't add same item multiple times)
+                    return;
+                }
+            } else {
+                // Add new item to offer
+                if (item.id === 'coins') {
+                    tradeState.theirOffer.push({ id: 'coins', amount: 10 });
+                } else {
+                    tradeState.theirOffer.push({ id: item.id });
+                }
+            }
+            
+            updateTheirOfferUI();
+            updateSendTradeButton();
+        }
+
+        function removeFromYourOffer(itemId) {
+            tradeState.yourOffer = tradeState.yourOffer.filter(item => item.id !== itemId);
+            updateYourOfferUI();
+            updateSendTradeButton();
+        }
+
+        function removeFromTheirOffer(itemId) {
+            tradeState.theirOffer = tradeState.theirOffer.filter(item => item.id !== itemId);
+            updateTheirOfferUI();
+            updateSendTradeButton();
+        }
+
+        function updateYourOfferUI() {
+            if (tradeState.yourOffer.length === 0) {
+                elements.yourOffer.innerHTML = '<p class="text-muted">No items selected</p>';
+                return;
+            }
+            
+            elements.yourOffer.innerHTML = tradeState.yourOffer.map(item => {
+                if (item.id === 'coins') {
+                    return `
+                        <div class="trade-preview-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge badge-coins me-2"><i class="fas fa-coins"></i></span>
+                                <span>${item.amount} Coins</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger remove-item-btn" data-id="coins" data-offer="yours">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const itemDetails = getItemDetails(item.id);
+                    if (!itemDetails) return '';
+                    
+                    return `
+                        <div class="trade-preview-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-${getRarityColor(itemDetails.rarity)} me-2">${itemDetails.type === 'pets' ? 'Pet' : 'Knife'}</span>
+                                <span>${itemDetails.name}</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger remove-item-btn" data-id="${item.id}" data-offer="yours">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-item-btn[data-offer="yours"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    removeFromYourOffer(btn.dataset.id);
+                });
+            });
+        }
+
+        function updateTheirOfferUI() {
+            if (tradeState.theirOffer.length === 0) {
+                elements.theirOffer.innerHTML = '<p class="text-muted">No items selected</p>';
+                return;
+            }
+            
+            elements.theirOffer.innerHTML = tradeState.theirOffer.map(item => {
+                if (item.id === 'coins') {
+                    return `
+                        <div class="trade-preview-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge badge-coins me-2"><i class="fas fa-coins"></i></span>
+                                <span>${item.amount} Coins</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger remove-item-btn" data-id="coins" data-offer="theirs">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const itemDetails = getItemDetails(item.id);
+                    if (!itemDetails) return '';
+                    
+                    return `
+                        <div class="trade-preview-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-${getRarityColor(itemDetails.rarity)} me-2">${itemDetails.type === 'pets' ? 'Pet' : 'Knife'}</span>
+                                <span>${itemDetails.name}</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger remove-item-btn" data-id="${item.id}" data-offer="theirs">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-item-btn[data-offer="theirs"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    removeFromTheirOffer(btn.dataset.id);
+                });
+            });
+        }
+
+        function updateSendTradeButton() {
+            const hasSelectedUser = tradeState.selectedUser !== null;
+            const hasYourOffer = tradeState.yourOffer.length > 0;
+            const hasTheirOffer = tradeState.theirOffer.length > 0;
+            
+            elements.sendTradeBtn.disabled = !(hasSelectedUser && (hasYourOffer || hasTheirOffer));
+        }
+
+        async function sendTradeRequest() {
+            if (!tradeState.selectedUser) {
+                alert('Please select a user to trade with');
+                return;
+            }
+            
+            if (tradeState.yourOffer.length === 0 && tradeState.theirOffer.length === 0) {
+                alert('Please add items to your offer or their offer');
+                return;
+            }
+            
+            // Validate that you have the items you're offering
+            for (const item of tradeState.yourOffer) {
+                if (item.id === 'coins') {
+                    if (tradeState.userData.coins < item.amount) {
+                        alert(`You don't have enough coins to offer ${item.amount}`);
+                        return;
+                    }
+                } else {
+                    const itemType = getItemType(item.id);
+                    if (!itemType) {
+                        alert(`Invalid item: ${item.id}`);
+                        return;
+                    }
+                    
+                    if (!tradeState.userData.inventory[itemType].some(i => i.id === item.id)) {
+                        alert(`You don't have this item to trade: ${item.id}`);
+                        return;
+                    }
+                }
+            }
+            
+            // Create trade document
+            const tradeData = {
+                traderId: auth.currentUser.uid,
+                traderName: tradeState.userData.username,
+                traderPhoto: tradeState.userData.photoBase64 || '',
+                receiverId: tradeState.selectedUser.uid,
+                receiverName: tradeState.selectedUser.username,
+                receiverPhoto: tradeState.selectedUser.photoBase64 || '',
+                yourOffer: tradeState.yourOffer,
+                theirOffer: tradeState.theirOffer,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                await db.collection('trades').add(tradeData);
+                
+                // Reset trade state
+                tradeState.yourOffer = [];
+                tradeState.theirOffer = [];
+                updateYourOfferUI();
+                updateTheirOfferUI();
+                updateSendTradeButton();
+                
+                // Show success message
+                Swal.fire({
+                    title: 'Trade Sent!',
+                    text: `Your trade request has been sent to ${tradeState.selectedUser.username}`,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+                
+                // Switch to incoming trades tab
+                document.getElementById('incoming-trades-tab').click();
+            } catch (error) {
+                console.error('Error sending trade:', error);
+                alert('Failed to send trade request: ' + error.message);
+            }
+        }
+
+        // Online Users Functions
+        function setupOnlineUsersListener() {
+            // Clear any existing listener
+            if (tradeState.onlineUsersListener) {
+                tradeState.onlineUsersListener();
+            }
+            
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+            
+            tradeState.onlineUsersListener = db.collection('users')
+                .where('lastActive', '>=', fiveMinutesAgo)
+                .where('uid', '!=', auth.currentUser.uid)
+                .onSnapshot(snapshot => {
+                    const onlineUsers = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        onlineUsers.push({
+                            uid: doc.id,
+                            username: data.username,
+                            photoBase64: data.photoBase64 || '',
+                            lastActive: data.lastActive?.toDate() || new Date()
+                        });
+                    });
+                    
+                    updateOnlineUsersUI(onlineUsers);
+                }, error => {
+                    console.error('Online users listener error:', error);
+                    elements.onlineUsersList.innerHTML = `
+                        <div class="text-center py-3 text-danger">
+                            Failed to load online users. <button class="btn btn-sm btn-outline-secondary" id="retry-online-users">Retry</button>
+                        </div>
+                    `;
+                    document.getElementById('retry-online-users').addEventListener('click', setupOnlineUsersListener);
+                });
+        }
+
+        function updateOnlineUsersUI(users) {
+            if (users.length === 0) {
+                elements.onlineUsersList.innerHTML = '<p class="text-muted text-center py-3">No other users online</p>';
+                return;
+            }
+            
+            // Sort by most recently active
+            users.sort((a, b) => b.lastActive - a.lastActive);
+            
+            elements.onlineUsersList.innerHTML = users.map(user => {
+                const isOnline = (new Date() - user.lastActive) < 5 * 60 * 1000;
+                return `
+                    <div class="online-user" data-uid="${user.uid}">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <img src="${user.photoBase64 || 'https://via.placeholder.com/40'}" class="rounded-circle me-2" width="30" height="30">
+                                <span>${user.username}</span>
+                            </div>
+                            <span class="last-active-indicator ${isOnline ? 'online' : 'offline'}"></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event listeners to user items
+            document.querySelectorAll('.online-user').forEach(el => {
+                el.addEventListener('click', () => {
+                    const user = users.find(u => u.uid === el.dataset.uid);
+                    if (user) {
+                        selectUser(user);
+                    }
+                });
+            });
+        }
+
+        // Incoming Trades Functions
+        function setupIncomingTradesListener() {
+            // Clear any existing listener
+            if (tradeState.incomingTradesListener) {
+                tradeState.incomingTradesListener();
+            }
+            
+            tradeState.incomingTradesListener = db.collection('trades')
+                .where('receiverId', '==', auth.currentUser.uid)
+                .where('status', '==', 'pending')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    if (snapshot.empty) {
+                        elements.incomingTradesList.innerHTML = '<p class="text-muted text-center py-4">No incoming trade requests</p>';
+                        return;
+                    }
+                    
+                    elements.incomingTradesList.innerHTML = snapshot.docs.map(doc => {
+                        const trade = doc.data();
+                        const date = trade.createdAt.toDate().toLocaleString();
+                        
+                        return `
+                            <div class="trade-item" data-id="${doc.id}">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <img src="${trade.traderPhoto || 'https://via.placeholder.com/40'}" class="rounded-circle me-2" width="30" height="30">
+                                        <h6 class="mb-0">${trade.traderName}</h6>
+                                    </div>
+                                    <small class="text-muted">${date}</small>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <small>Offering:</small>
+                                        <div class="d-flex flex-wrap">
+                                            ${trade.yourOffer.slice(0, 3).map(item => {
+                                                if (item.id === 'coins') {
+                                                    return `<span class="badge badge-coins me-1 mb-1">${item.amount} Coins</span>`;
+                                                } else {
+                                                    const itemDetails = getItemDetails(item.id);
+                                                    if (!itemDetails) return '';
+                                                    return `<span class="badge bg-${getRarityColor(itemDetails.rarity)} me-1 mb-1">${itemDetails.name}</span>`;
+                                                }
+                                            }).join('')}
+                                            ${trade.yourOffer.length > 3 ? `<span class="badge bg-secondary">+${trade.yourOffer.length - 3} more</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <small>Requesting:</small>
+                                        <div class="d-flex flex-wrap">
+                                            ${trade.theirOffer.slice(0, 3).map(item => {
+                                                if (item.id === 'coins') {
+                                                    return `<span class="badge badge-coins me-1 mb-1">${item.amount} Coins</span>`;
+                                                } else {
+                                                    const itemDetails = getItemDetails(item.id);
+                                                    if (!itemDetails) return '';
+                                                    return `<span class="badge bg-${getRarityColor(itemDetails.rarity)} me-1 mb-1">${itemDetails.name}</span>`;
+                                                }
+                                            }).join('')}
+                                            ${trade.theirOffer.length > 3 ? `<span class="badge bg-secondary">+${trade.theirOffer.length - 3} more</span>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button class="btn btn-sm btn-primary view-trade-btn me-2" data-id="${doc.id}">View</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // Add event listeners to view buttons
+                    document.querySelectorAll('.view-trade-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            viewTradeDetails(btn.dataset.id);
+                        });
+                    });
+                }, error => {
+                    console.error('Incoming trades listener error:', error);
+                    elements.incomingTradesList.innerHTML = `
+                        <div class="text-center py-4 text-danger">
+                            Failed to load trades. <button class="btn btn-sm btn-outline-secondary" id="retry-incoming-trades">Retry</button>
+                        </div>
+                    `;
+                    document.getElementById('retry-incoming-trades').addEventListener('click', setupIncomingTradesListener);
+                });
+        }
+
+        // Trade History Functions
+        async function loadTradeHistory() {
+            try {
+                // Get trades where current user is either trader or receiver and status is completed/cancelled
+                const snapshot = await db.collection('trades')
+                    .where('status', 'in', ['completed', 'cancelled'])
+                    .where('traderId', '==', auth.currentUser.uid)
+                    .orderBy('updatedAt', 'desc')
+                    .limit(20)
+                    .get();
+                
+                const snapshot2 = await db.collection('trades')
+                    .where('status', 'in', ['completed', 'cancelled'])
+                    .where('receiverId', '==', auth.currentUser.uid)
+                    .orderBy('updatedAt', 'desc')
+                    .limit(20)
+                    .get();
+                
+                const allTrades = [...snapshot.docs, ...snapshot2.docs]
+                    .sort((a, b) => b.data().updatedAt.toMillis() - a.data().updatedAt.toMillis())
+                    .slice(0, 20); // Limit to 20 most recent
+                
+                if (allTrades.length === 0) {
+                    elements.tradeHistoryList.innerHTML = '<p class="text-muted text-center py-4">No trade history yet</p>';
+                    return;
+                }
+                
+                elements.tradeHistoryList.innerHTML = allTrades.map(doc => {
+                    const trade = doc.data();
+                    const date = trade.updatedAt.toDate().toLocaleString();
+                    const isTrader = trade.traderId === auth.currentUser.uid;
+                    const otherUser = isTrader ? trade.receiverName : trade.traderName;
+                    const otherPhoto = isTrader ? trade.receiverPhoto : trade.traderPhoto;
+                    
+                    return `
+                        <div class="trade-history-item ${trade.status}" data-id="${doc.id}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="${otherPhoto || 'https://via.placeholder.com/40'}" class="rounded-circle me-2" width="30" height="30">
+                                    <h6 class="mb-0">${otherUser}</h6>
+                                    <span class="badge ${isTrader ? 'bg-info' : 'bg-secondary'} ms-2">${isTrader ? 'You offered' : 'They offered'}</span>
+                                </div>
+                                <small class="text-muted">${date}</small>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <small>${isTrader ? 'You gave' : 'You received'}:</small>
+                                    <div class="d-flex flex-wrap">
+                                        ${(isTrader ? trade.yourOffer : trade.theirOffer).slice(0, 3).map(item => {
+                                            if (item.id === 'coins') {
+                                                return `<span class="badge badge-coins me-1 mb-1">${item.amount} Coins</span>`;
+                                            } else {
+                                                const itemDetails = getItemDetails(item.id);
+                                                if (!itemDetails) return '';
+                                                return `<span class="badge bg-${getRarityColor(itemDetails.rarity)} me-1 mb-1">${itemDetails.name}</span>`;
+                                            }
+                                        }).join('')}
+                                        ${(isTrader ? trade.yourOffer : trade.theirOffer).length > 3 ? `<span class="badge bg-secondary">+${(isTrader ? trade.yourOffer : trade.theirOffer).length - 3} more</span>` : ''}
+                                    </div>
+                                </div>
+                                <div>
+                                    <small>${isTrader ? 'You received' : 'You gave'}:</small>
+                                    <div class="d-flex flex-wrap">
+                                        ${(isTrader ? trade.theirOffer : trade.yourOffer).slice(0, 3).map(item => {
+                                            if (item.id === 'coins') {
+                                                return `<span class="badge badge-coins me-1 mb-1">${item.amount} Coins</span>`;
+                                            } else {
+                                                const itemDetails = getItemDetails(item.id);
+                                                if (!itemDetails) return '';
+                                                return `<span class="badge bg-${getRarityColor(itemDetails.rarity)} me-1 mb-1">${itemDetails.name}</span>`;
+                                            }
+                                        }).join('')}
+                                        ${(isTrader ? trade.theirOffer : trade.yourOffer).length > 3 ? `<span class="badge bg-secondary">+${(isTrader ? trade.theirOffer : trade.yourOffer).length - 3} more</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end mt-2">
+                                <span class="badge ${trade.status === 'completed' ? 'bg-success' : 'bg-danger'}">${trade.status === 'completed' ? 'Completed' : 'Cancelled'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading trade history:', error);
+                elements.tradeHistoryList.innerHTML = `
+                    <div class="text-center py-4 text-danger">
+                        Failed to load trade history. <button class="btn btn-sm btn-outline-secondary" id="retry-trade-history">Retry</button>
+                    </div>
+                `;
+                document.getElementById('retry-trade-history').addEventListener('click', loadTradeHistory);
+            }
+        }
+
+        // Trade Details Functions
+        async function viewTradeDetails(tradeId) {
+            try {
+                const doc = await db.collection('trades').doc(tradeId).get();
+                if (!doc.exists) {
+                    alert('Trade not found');
+                    return;
+                }
+                
+                const trade = doc.data();
+                const isTrader = trade.traderId === auth.currentUser.uid;
+                
+                // Update modal UI
+                document.getElementById('trader-name').textContent = trade.traderName;
+                document.getElementById('receiver-name').textContent = trade.receiverName;
+                
+                // Trader's offer
+                const traderOfferEl = document.getElementById('trader-offer');
+                traderOfferEl.innerHTML = trade.yourOffer.map(item => {
+                    if (item.id === 'coins') {
+                        return `<div class="trade-preview-item">
+                            <span class="badge badge-coins me-2"><i class="fas fa-coins"></i></span>
+                            <span>${item.amount} Coins</span>
+                        </div>`;
+                    } else {
+                        const itemDetails = getItemDetails(item.id);
+                        if (!itemDetails) return '';
+                        return `<div class="trade-preview-item">
+                            <span class="badge bg-${getRarityColor(itemDetails.rarity)} me-2">${itemDetails.type === 'pets' ? 'Pet' : 'Knife'}</span>
+                            <span>${itemDetails.name}</span>
+                        </div>`;
+                    }
+                }).join('') || '<p class="text-muted">No items offered</p>';
+                
+                // Receiver's offer (what trader is requesting)
+                const receiverOfferEl = document.getElementById('receiver-offer');
+                receiverOfferEl.innerHTML = trade.theirOffer.map(item => {
+                    if (item.id === 'coins') {
+                        return `<div class="trade-preview-item">
+                            <span class="badge badge-coins me-2"><i class="fas fa-coins"></i></span>
+                            <span>${item.amount} Coins</span>
+                        </div>`;
+                    } else {
+                        const itemDetails = getItemDetails(item.id);
+                        if (!itemDetails) return '';
+                        return `<div class="trade-preview-item">
+                            <span class="badge bg-${getRarityColor(itemDetails.rarity)} me-2">${itemDetails.type === 'pets' ? 'Pet' : 'Knife'}</span>
+                            <span>${itemDetails.name}</span>
+                        </div>`;
+                    }
+                }).join('') || '<p class="text-muted">No items requested</p>';
+                
+                // Status
+                const tradeStatusEl = document.getElementById('trade-status');
+                tradeStatusEl.className = `trade-status ${trade.status}`;
+                tradeStatusEl.textContent = trade.status === 'pending' ? 'Trade Pending' : 
+                                           trade.status === 'accepted' ? 'Trade Accepted' : 
+                                           trade.status === 'declined' ? 'Trade Declined' : 
+                                           trade.status === 'completed' ? 'Trade Completed' : 
+                                           trade.status === 'cancelled' ? 'Trade Cancelled' : 'Trade Status Unknown';
+                
+                // Actions
+                const tradeActionsEl = document.getElementById('trade-actions');
+                tradeActionsEl.innerHTML = '';
+                
+                if (trade.status === 'pending') {
+                    if (isTrader) {
+                        // Trader can cancel the trade
+                        tradeActionsEl.innerHTML = `
+                            <button class="btn btn-danger cancel-trade-btn me-2" data-id="${tradeId}">
+                                Cancel Trade
+                            </button>
+                        `;
+                    } else {
+                        // Receiver can accept or decline
+                        tradeActionsEl.innerHTML = `
+                            <button class="btn btn-success accept-trade-btn me-2" data-id="${tradeId}">
+                                Accept Trade
+                            </button>
+                            <button class="btn btn-danger decline-trade-btn" data-id="${tradeId}">
+                                Decline Trade
+                            </button>
+                        `;
+                    }
+                    
+                    // Add event listeners to action buttons
+                    document.querySelector('.cancel-trade-btn')?.addEventListener('click', () => {
+                        cancelTrade(tradeId);
+                    });
+                    
+                    document.querySelector('.accept-trade-btn')?.addEventListener('click', () => {
+                        acceptTrade(tradeId);
+                    });
+                    
+                    document.querySelector('.decline-trade-btn')?.addEventListener('click', () => {
+                        declineTrade(tradeId);
+                    });
+                }
+                
+                // Show modal
+                elements.tradeDetailsModal.show();
+            } catch (error) {
+                console.error('Error viewing trade details:', error);
+                alert('Failed to load trade details: ' + error.message);
+            }
+        }
+
+        async function acceptTrade(tradeId) {
+            showConfirmation(
+                'Accept Trade?',
+                'Are you sure you want to accept this trade? This action cannot be undone.',
+                async () => {
+                    try {
+                        const doc = await db.collection('trades').doc(tradeId).get();
+                        if (!doc.exists) {
+                            alert('Trade not found');
+                            return;
+                        }
+                        
+                        const trade = doc.data();
+                        
+                        // Verify that the current user is the receiver
+                        if (trade.receiverId !== auth.currentUser.uid) {
+                            alert('You are not the receiver of this trade');
+                            return;
+                        }
+                        
+                        // Verify that the trade is still pending
+                        if (trade.status !== 'pending') {
+                            alert('This trade is no longer pending');
+                            return;
+                        }
+                        
+                        // Verify that the receiver has the items they're offering
+                        const receiverDoc = await db.collection('users').doc(trade.receiverId).get();
+                        if (!receiverDoc.exists) {
+                            alert('Receiver data not found');
+                            return;
+                        }
+                        
+                        const receiverData = receiverDoc.data();
+                        
+                        // Check coins
+                        const coinsOffered = trade.theirOffer.find(item => item.id === 'coins');
+                        if (coinsOffered && receiverData.coins < coinsOffered.amount) {
+                            alert('You no longer have enough coins for this trade');
+                            return;
+                        }
+                        
+                        // Check items
+                        for (const item of trade.theirOffer) {
+                            if (item.id === 'coins') continue;
+                            
+                            const itemType = getItemType(item.id);
+                            if (!itemType) {
+                                alert(`Invalid item in trade: ${item.id}`);
+                                return;
+                            }
+                            
+                            if (!receiverData.inventory[itemType].some(i => i.id === item.id)) {
+                                alert(`You no longer have this item to trade: ${item.id}`);
+                                return;
+                            }
+                        }
+                        
+                        // Verify that the trader still has their items
+                        const traderDoc = await db.collection('users').doc(trade.traderId).get();
+                        if (!traderDoc.exists) {
+                            alert('Trader data not found');
+                            return;
+                        }
+                        
+                        const traderData = traderDoc.data();
+                        
+                        // Check coins
+                        const traderCoinsOffered = trade.yourOffer.find(item => item.id === 'coins');
+                        if (traderCoinsOffered && traderData.coins < traderCoinsOffered.amount) {
+                            alert('The trader no longer has enough coins for this trade');
+                            return;
+                        }
+                        
+                        // Check items
+                        for (const item of trade.yourOffer) {
+                            if (item.id === 'coins') continue;
+                            
+                            const itemType = getItemType(item.id);
+                            if (!itemType) {
+                                alert(`Invalid item in trade: ${item.id}`);
+                                return;
+                            }
+                            
+                            if (!traderData.inventory[itemType].some(i => i.id === item.id)) {
+                                alert(`The trader no longer has this item to trade: ${item.id}`);
+                                return;
+                            }
+                        }
+                        
+                        // All checks passed - process the trade
+                        
+                        // Start a batch write for all operations
+                        const batch = db.batch();
+                        
+                        // Update trade status to accepted first
+                        const tradeRef = db.collection('trades').doc(tradeId);
+                        batch.update(tradeRef, {
+                            status: 'accepted',
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Process trader's items (giving to receiver)
+                        for (const item of trade.yourOffer) {
+                            if (item.id === 'coins') {
+                                // Deduct coins from trader
+                                batch.update(db.collection('users').doc(trade.traderId), {
+                                    coins: firebase.firestore.FieldValue.increment(-item.amount)
+                                });
+                                
+                                // Add coins to receiver
+                                batch.update(db.collection('users').doc(trade.receiverId), {
+                                    coins: firebase.firestore.FieldValue.increment(item.amount)
+                                });
+                            } else {
+                                const itemType = getItemType(item.id);
+                                if (!itemType) continue;
+                                
+                                // Remove item from trader's inventory
+                                const traderItems = traderData.inventory[itemType];
+                                const itemToRemove = traderItems.find(i => i.id === item.id);
+                                
+                                if (itemToRemove) {
+                                    batch.update(db.collection('users').doc(trade.traderId), {
+                                        [`inventory.${itemType}`]: firebase.firestore.FieldValue.arrayRemove(itemToRemove)
+                                    });
+                                    
+                                    // Add item to receiver's inventory
+                                    batch.update(db.collection('users').doc(trade.receiverId), {
+                                        [`inventory.${itemType}`]: firebase.firestore.FieldValue.arrayUnion(itemToRemove)
+                                    });
+                                }
+                            }
+                        }
+                        
+                        // Process receiver's items (giving to trader)
+                        for (const item of trade.theirOffer) {
+                            if (item.id === 'coins') {
+                                // Deduct coins from receiver
+                                batch.update(db.collection('users').doc(trade.receiverId), {
+                                    coins: firebase.firestore.FieldValue.increment(-item.amount)
+                                });
+                                
+                                // Add coins to trader
+                                batch.update(db.collection('users').doc(trade.traderId), {
+                                    coins: firebase.firestore.FieldValue.increment(item.amount)
+                                });
+                            } else {
+                                const itemType = getItemType(item.id);
+                                if (!itemType) continue;
+                                
+                                // Remove item from receiver's inventory
+                                const receiverItems = receiverData.inventory[itemType];
+                                const itemToRemove = receiverItems.find(i => i.id === item.id);
+                                
+                                if (itemToRemove) {
+                                    batch.update(db.collection('users').doc(trade.receiverId), {
+                                        [`inventory.${itemType}`]: firebase.firestore.FieldValue.arrayRemove(itemToRemove)
+                                    });
+                                    
+                                    // Add item to trader's inventory
+                                    batch.update(db.collection('users').doc(trade.traderId), {
+                                        [`inventory.${itemType}`]: firebase.firestore.FieldValue.arrayUnion(itemToRemove)
+                                    });
+                                }
+                            }
+                        }
+                        
+                        // Commit the batch
+                        await batch.commit();
+                        
+                        // Update trade status to completed
+                        await db.collection('trades').doc(tradeId).update({
+                            status: 'completed',
+                            completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Reload data
+                        setupIncomingTradesListener();
+                        loadTradeHistory();
+                        
+                        // Close modal
+                        elements.tradeDetailsModal.hide();
+                        
+                        // Show success message
+                        Swal.fire({
+                            title: 'Trade Completed!',
+                            text: 'The trade has been successfully processed',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } catch (error) {
+                        console.error('Error accepting trade:', error);
+                        alert('Failed to accept trade: ' + error.message);
+                    }
+                }
+            );
+        }
+
+        async function declineTrade(tradeId) {
+            showConfirmation(
+                'Decline Trade?',
+                'Are you sure you want to decline this trade request?',
+                async () => {
+                    try {
+                        await db.collection('trades').doc(tradeId).update({
+                            status: 'declined',
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Reload data
+                        setupIncomingTradesListener();
+                        loadTradeHistory();
+                        
+                        // Close modal
+                        elements.tradeDetailsModal.hide();
+                        
+                        // Show success message
+                        Swal.fire({
+                            title: 'Trade Declined',
+                            text: 'You have declined the trade request',
+                            icon: 'info',
+                            confirmButtonText: 'OK'
+                        });
+                    } catch (error) {
+                        console.error('Error declining trade:', error);
+                        alert('Failed to decline trade: ' + error.message);
+                    }
+                }
+            );
+        }
+
+        async function cancelTrade(tradeId) {
+            showConfirmation(
+                'Cancel Trade?',
+                'Are you sure you want to cancel this trade request?',
+                async () => {
+                    try {
+                        await db.collection('trades').doc(tradeId).update({
+                            status: 'cancelled',
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Reload data
+                        setupIncomingTradesListener();
+                        loadTradeHistory();
+                        
+                        // Close modal
+                        elements.tradeDetailsModal.hide();
+                        
+                        // Show success message
+                        Swal.fire({
+                            title: 'Trade Cancelled',
+                            text: 'You have cancelled the trade request',
+                            icon: 'info',
+                            confirmButtonText: 'OK'
+                        });
+                    } catch (error) {
+                        console.error('Error cancelling trade:', error);
+                        alert('Failed to cancel trade: ' + error.message);
+                    }
+                }
+            );
+        }
+
+        // Your Items Functions
+        function updateYourItemsUI(filterType = 'all') {
+            // Group inventory items by ID and count quantities
+            const groupedPets = groupInventoryItems(tradeState.userData.inventory.pets);
+            const groupedKnives = groupInventoryItems(tradeState.userData.inventory.knives);
+            
+            // Filter items based on selected filter
+            let itemsToShow = [];
+            
+            if (filterType === 'all' || filterType === 'coins') {
+                // Add coins as an item
+                itemsToShow.push({
+                    id: 'coins',
+                    name: 'Coins',
+                    type: 'coins',
+                    amount: tradeState.userData.coins
+                });
+            }
+            
+            if (filterType === 'all' || filterType === 'pets') {
+                // Add pets
+                groupedPets.forEach(pet => {
+                    itemsToShow.push({
+                        id: pet.item.id,
+                        name: pet.item.name,
+                        type: 'pets',
+                        rarity: getItemDetails(pet.item.id)?.rarity || 'common',
+                        quantity: pet.quantity
+                    });
+                });
+            }
+            
+            if (filterType === 'all' || filterType === 'knives') {
+                // Add knives
+                groupedKnives.forEach(knife => {
+                    itemsToShow.push({
+                        id: knife.item.id,
+                        name: knife.item.name,
+                        type: 'knives',
+                        rarity: getItemDetails(knife.item.id)?.rarity || 'common',
+                        quantity: knife.quantity
+                    });
+                });
+            }
+            
+            // Update UI
+            if (itemsToShow.length === 0) {
+                elements.yourItemsList.innerHTML = `
+                    <p class="text-muted text-center py-4">
+                        ${filterType === 'all' ? 'No items available' : `No ${filterType} available`}
+                    </p>
+                `;
+                return;
+            }
+            
+            elements.yourItemsList.innerHTML = itemsToShow.map(item => {
+                if (item.type === 'coins') {
+                    return `
+                        <div class="trade-item" data-id="coins" data-type="coins">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge badge-coins me-2"><i class="fas fa-coins"></i></span>
+                                    <span>${item.amount} Coins</span>
+                                </div>
+                                <button class="btn btn-sm btn-primary add-to-offer-btn" data-id="coins" data-offer="yours">
+                                    Add to Offer
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const itemDetails = getItemDetails(item.id);
+                    if (!itemDetails) return '';
+                    
+                    return `
+                        <div class="trade-item" data-id="${item.id}" data-type="${item.type}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-${getRarityColor(item.rarity)} me-2">${item.type === 'pets' ? 'Pet' : 'Knife'}</span>
+                                    <span>${item.name}</span>
+                                    ${item.quantity > 1 ? `<small class="text-muted ms-2">x${item.quantity}</small>` : ''}
+                                </div>
+                                <button class="btn btn-sm btn-primary add-to-offer-btn" data-id="${item.id}" data-offer="yours">
+                                    Add to Offer
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            // Add event listeners to add buttons
+            document.querySelectorAll('.add-to-offer-btn[data-offer="yours"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const itemId = btn.dataset.id;
+                    if (itemId === 'coins') {
+                        addToYourOffer({ id: 'coins' });
+                    } else {
+                        const itemDetails = getItemDetails(itemId);
+                        if (itemDetails) {
+                            addToYourOffer(itemDetails);
+                        }
+                    }
+                });
+            });
+        }
+
+        function groupInventoryItems(items) {
+            const grouped = {};
+            
+            items.forEach(item => {
+                if (!grouped[item.id]) {
+                    grouped[item.id] = {
+                        item: item,
+                        quantity: item.quantity || 1
+                    };
+                } else {
+                    grouped[item.id].quantity += item.quantity || 1;
+                }
+            });
+            
+            return Object.values(grouped);
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth
+            elements.signInButton.addEventListener('click', signInWithGoogle);
+            elements.signInButton2.addEventListener('click', signInWithGoogle);
+            elements.signOutButton.addEventListener('click', () => auth.signOut());
+            
+            // Send trade button
+            elements.sendTradeBtn.addEventListener('click', sendTradeRequest);
+            
+            // Filter buttons
+            elements.filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    elements.filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateYourItemsUI(btn.dataset.type);
+                });
+            });
+            
+            // History filter buttons
+            elements.historyFilterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    elements.historyFilterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    loadTradeHistory();
+                });
+            });
+            
+            // Refresh buttons
+            elements.refreshUsersBtn.addEventListener('click', setupOnlineUsersListener);
+            elements.refreshTradesBtn.addEventListener('click', setupIncomingTradesListener);
+        }
+        
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .catch((error) => {
+                    console.error('Sign in error:', error);
+                    alert('Sign in failed: ' + error.message);
+                });
+        }
+
+        // Auth State Listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is signed in
+                elements.loginView.style.display = 'none';
+                elements.tradingView.classList.remove('d-none');
+                elements.signOutButton.classList.remove('d-none');
+                
+                // Set profile info
+                const displayName = user.displayName || 'User';
+                elements.usernameDisplay.textContent = displayName;
+                
+                if (user.photoURL) {
+                    elements.profilePic.src = user.photoURL;
+                }
+                
+                // Load user data
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        tradeState.userData = data;
+                        
+                        // Update last active timestamp
+                        await db.collection('users').doc(user.uid).update({
+                            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Setup listeners
+                        setupOnlineUsersListener();
+                        setupIncomingTradesListener();
+                        
+                        // Load initial data
+                        updateYourItemsUI();
+                        loadTradeHistory();
+                    }
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                    alert('Failed to load user data: ' + error.message);
+                }
+            } else {
+                // User is signed out
+                elements.loginView.style.display = 'block';
+                elements.tradingView.classList.add('d-none');
+                elements.signOutButton.classList.add('d-none');
+                elements.usernameDisplay.textContent = 'Guest';
+                elements.profilePic.src = 'https://via.placeholder.com/40';
+                
+                // Clean up listeners
+                if (tradeState.onlineUsersListener) {
+                    tradeState.onlineUsersListener();
+                }
+                if (tradeState.incomingTradesListener) {
+                    tradeState.incomingTradesListener();
+                }
+                
+                // Reset trade state
+                tradeState = {
+                    selectedUser: null,
+                    yourOffer: [],
+                    theirOffer: [],
+                    userData: {
+                        coins: 0,
+                        inventory: {
+                            pets: [],
+                            knives: []
+                        }
+                    },
+                    onlineUsers: [],
+                    onlineUsersListener: null,
+                    incomingTradesListener: null
+                };
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>
