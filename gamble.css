@@ -937,3 +937,243 @@ p, span, div, a, button, input, label {
         gap: 0.5rem;
     }
 }
+
+/* Quantity Controls in Shop */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.quantity-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid var(--secondary-color);
+    transition: all 0.2s ease;
+}
+
+.quantity-btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.quantity-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.quantity-input {
+    width: 50px;
+    text-align: center;
+    margin: 0 0.5rem;
+    font-weight: bold;
+    border: 1px solid var(--secondary-color);
+}
+
+/* Sell Buttons in Inventory */
+.sell-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.sell-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sell-btn.sell-one {
+    background-color: rgba(231, 74, 59, 0.1);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.sell-btn.sell-one:hover {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.sell-btn.sell-all {
+    background-color: rgba(231, 74, 59, 0.2);
+    color: white;
+    background-color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.sell-btn.sell-all:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.sell-btn i {
+    margin-right: 0.5rem;
+}
+
+/* Buy Button in Shop */
+.buy-btn {
+    width: 100%;
+    padding: 0.6rem;
+    font-weight: 600;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.buy-btn:hover {
+    background-color: #2e59d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.buy-btn:disabled {
+    opacity: 0.65;
+    background-color: var(--secondary-color);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Play Again Button */
+#play-again-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 0.35rem;
+    transition: all 0.2s ease;
+}
+
+#play-again-btn:hover {
+    background-color: #17a673;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Quantity Input Group */
+.input-group-quantity {
+    width: 140px;
+    margin-right: 0.5rem;
+}
+
+.input-group-quantity .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid var(--secondary-color);
+}
+
+.input-group-quantity .btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.input-group-quantity .form-control {
+    text-align: center;
+    font-weight: bold;
+    border-left: none;
+    border-right: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .input-group-quantity {
+        width: 120px;
+    }
+    
+    .sell-buttons-container {
+        flex-direction: row;
+    }
+    
+    .sell-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .input-group-quantity {
+        width: 100px;
+    }
+    
+    .sell-buttons-container {
+        flex-direction: column;
+    }
+    
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+    
+    .quantity-input {
+        width: 40px;
+    }
+}
+
+/* Inventory Item Quantity Badge */
+.quantity-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Card Footer for Inventory Items */
+.inventory-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Shop Item Footer */
+.shop-item-footer {
+    padding: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Tooltip for Quantity Buttons */
+.tooltip-inner {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
