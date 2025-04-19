@@ -939,84 +939,67 @@ p, span, div, a, button, input, label {
     }
 }
 
-/* Ultra-Compact Quantity & Sell Controls */
-.input-group.compact {
-    width: 110px;
-    margin-right: 0.5rem;
+/* Compact Inventory Controls - Pure CSS Solution */
+.card-body .d-flex.justify-content-between.align-items-center {
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
-.input-group.compact .btn {
-    padding: 0.15rem 0.3rem;
-    min-width: 28px;
+.card-body .btn-outline-danger {
+    padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
-    background-color: var(--light-color);
-    border: 1px solid var(--secondary-color);
-}
-
-.input-group.compact .form-control {
-    padding: 0.15rem;
-    font-size: 0.85rem;
+    margin: 0.1rem;
+    flex-grow: 1;
     text-align: center;
-    border-left: none;
-    border-right: none;
+    min-width: 80px;
 }
 
-/* Minimal Sell Buttons */
-.sell-buttons-compact {
-    display: flex;
-    gap: 0.25rem;
+.card-body .btn-outline-danger .fa-coins {
+    margin-left: 0.25rem;
 }
 
-.sell-btn-micro {
-    padding: 0.15rem 0.4rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 0.2rem;
-    line-height: 1.2;
+/* Make quantity controls more compact */
+.card-body .input-group {
+    width: auto;
+    min-width: 120px;
 }
 
-.sell-btn-micro.sell-one {
-    background-color: rgba(231, 74, 59, 0.08);
-    color: var(--danger-color);
-    border: 1px solid rgba(231, 74, 59, 0.3);
+.card-body .input-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
 }
 
-.sell-btn-micro.sell-all {
-    background-color: rgba(231, 74, 59, 0.15);
-    color: var(--danger-color);
-    border: 1px solid rgba(231, 74, 59, 0.4);
+.card-body .input-group .form-control {
+    padding: 0.25rem;
+    font-size: 0.85rem;
+    width: 40px;
+    text-align: center;
 }
 
-.sell-btn-micro:hover {
-    background-color: var(--danger-color) !important;
-    color: white !important;
-}
-
-/* Hover effects only on non-touch devices */
-@media (hover: hover) {
-    .input-group.compact .btn:hover {
-        background-color: var(--secondary-color);
-        color: white;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body .btn-outline-danger {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+        min-width: 70px;
     }
     
-    .sell-btn-micro:hover {
-        transform: translateY(-1px);
+    .card-body .input-group {
+        min-width: 100px;
     }
 }
 
-/* Super Compact Mobile Layout */
 @media (max-width: 576px) {
-    .input-group.compact {
-        width: 100px;
-    }
-    
-    .input-group.compact .btn {
-        min-width: 24px;
-        padding: 0.1rem 0.25rem;
-    }
-    
-    .sell-btn-micro {
-        padding: 0.1rem 0.3rem;
+    .card-body .btn-outline-danger {
         font-size: 0.7rem;
+        padding: 0.15rem 0.3rem;
+    }
+    
+    .card-body .input-group .btn {
+        padding: 0.2rem 0.4rem;
+    }
+    
+    .card-body .input-group .form-control {
+        width: 30px;
     }
 }
