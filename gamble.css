@@ -1,4 +1,71 @@
-/* Base Styles */
+/* Quantity Controls - Compact Version */
+.input-group {
+    width: auto;
+    flex-wrap: nowrap;
+}
+
+.input-group > .btn {
+    padding: 0.25rem 0.5rem;
+    min-width: 30px;
+    font-size: 0.9rem;
+}
+
+.input-group > .form-control {
+    width: 50px;
+    text-align: center;
+    padding: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Sell Buttons - Compact Version */
+.sell-buttons-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.sell-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.sell-btn i {
+    margin-right: 0.25rem;
+}
+
+/* Inventory Card Adjustments */
+.card-body {
+    padding: 1rem;
+}
+
+.card-title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .input-group {
+        width: 100%;
+    }
+    
+    .sell-buttons-container {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .sell-btn {
+        width: 100%;
+    }
+}
+
+/* Existing styles remain unchanged */
 :root {
     --primary-color: #4e73df;
     --secondary-color: #858796;
@@ -21,16 +88,14 @@ body {
     background-color: var(--body-bg);
     color: var(--text-color);
     line-height: 1.6;
-    padding-top: 56px; /* For fixed navbar */
+    padding-top: 56px;
 }
 
-/* Container adjustments */
 .container, .container-fluid {
     padding-left: 15px;
     padding-right: 15px;
 }
 
-/* Navbar */
 .navbar {
     background: var(--nav-bg);
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
@@ -48,7 +113,6 @@ body {
     font-weight: 600;
 }
 
-/* Login View */
 #login-view {
     max-width: 600px;
     margin: 0 auto;
@@ -71,7 +135,6 @@ body {
     margin-bottom: 2rem;
 }
 
-/* Buttons - Enhanced Visibility */
 .btn {
     font-weight: 600;
     padding: 0.5rem 1rem;
@@ -158,7 +221,6 @@ body {
     color: white;
 }
 
-/* Special buttons */
 .open-lootbox-btn, #claim-daily-btn, #spin-wheel-btn, #start-blackjack-btn {
     font-size: 1.05rem;
     padding: 0.6rem 1.25rem;
@@ -171,7 +233,6 @@ body {
     font-weight: 600;
 }
 
-/* Dashboard View - Card Fixes */
 .card {
     border: none;
     border-radius: 0.35rem;
@@ -180,13 +241,13 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Prevents content from overflowing */
+    overflow: hidden;
 }
 
 .card-body {
     flex: 1 1 auto;
     padding: 1.5rem;
-    min-height: 1px; /* Fix for flexbox in some browsers */
+    min-height: 1px;
 }
 
 .card-title {
@@ -195,7 +256,6 @@ body {
     margin-bottom: 1.25rem;
 }
 
-/* Profile Section */
 #profile-pic-preview {
     border: 3px solid var(--primary-color);
     box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
@@ -207,7 +267,6 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Stats Section */
 .stats-icon {
     font-size: 2rem;
     margin-right: 1rem;
@@ -233,7 +292,6 @@ body {
     border-radius: 0.35rem;
 }
 
-/* Tabs */
 .nav-tabs {
     border-bottom: 1px solid #dddfeb;
     margin-bottom: 1.5rem;
@@ -258,7 +316,6 @@ body {
     border-color: transparent;
 }
 
-/* Loot Boxes */
 .loot-box {
     transition: transform 0.3s ease;
     border-radius: 0.25rem;
@@ -273,7 +330,6 @@ body {
     width: 100%;
 }
 
-/* Wheel of Fortune */
 .wheel-container {
     position: relative;
     width: 300px;
@@ -339,13 +395,11 @@ body {
     z-index: 20;
 }
 
-/* Wheel Colors - Aligned with your JS configuration */
-.wheel-section:nth-child(1) { background-color: #dc3545; transform: rotate(0deg) skewY(60deg); } /* Lose All */
-.wheel-section:nth-child(2) { background-color: #fd7e14; transform: rotate(90deg) skewY(60deg); } /* Lose Half */
-.wheel-section:nth-child(3) { background-color: #28a745; transform: rotate(180deg) skewY(60deg); } /* Win 1x */
-.wheel-section:nth-child(4) { background-color: #007bff; transform: rotate(270deg) skewY(60deg); } /* Win 2x */
+.wheel-section:nth-child(1) { background-color: #dc3545; transform: rotate(0deg) skewY(60deg); }
+.wheel-section:nth-child(2) { background-color: #fd7e14; transform: rotate(90deg) skewY(60deg); }
+.wheel-section:nth-child(3) { background-color: #28a745; transform: rotate(180deg) skewY(60deg); }
+.wheel-section:nth-child(4) { background-color: #007bff; transform: rotate(270deg) skewY(60deg); }
 
-/* Form Elements */
 .form-control, .form-range {
     border: 1px solid #d1d3e2;
     border-radius: 0.35rem;
@@ -368,7 +422,6 @@ body {
     background: var(--primary-color);
 }
 
-/* Badges */
 .badge {
     font-weight: 600;
     padding: 0.35em 0.65em;
@@ -391,7 +444,6 @@ body {
     background-color: var(--danger-color) !important;
 }
 
-/* Modals */
 .modal-content {
     border: none;
     border-radius: 0.35rem;
@@ -405,7 +457,6 @@ body {
     border-top: 1px solid #e3e6f0;
 }
 
-/* Reward Animation */
 .reward-animation {
     animation: pulse 1.5s infinite;
 }
@@ -416,7 +467,6 @@ body {
     100% { transform: scale(1); }
 }
 
-/* Responsive Adjustments */
 @media (max-width: 768px) {
     .wheel-container {
         width: 250px;
@@ -427,7 +477,6 @@ body {
         padding: 1rem;
     }
     
-    /* Stack cards on mobile */
     .row > .col-md-4, 
     .row > .col-md-8,
     .row > .col-lg-6 {
@@ -435,14 +484,12 @@ body {
     }
 }
 
-/* Ensure equal height for profile and stats cards */
 @media (min-width: 768px) {
     .row.mb-4 > .col-md-4 > .card,
     .row.mb-4 > .col-md-8 > .card {
-        height: calc(100% - 1.5rem); /* Account for margin-bottom */
+        height: calc(100% - 1.5rem);
     }
     
-    /* Equal height for card groups */
     .card-group-fix {
         display: flex;
         flex-wrap: wrap;
@@ -455,7 +502,6 @@ body {
     }
 }
 
-/* Inventory Items */
 .inventory-item {
     transition: transform 0.3s ease;
     position: relative;
@@ -465,7 +511,6 @@ body {
     transform: translateY(-5px);
 }
 
-/* Sell Button */
 .sell-item-btn {
     transition: all 0.3s ease;
 }
@@ -475,14 +520,13 @@ body {
     color: white !important;
 }
 
-/* Blackjack Game - Fixed Card Styling */
 .game-container {
     background-color: #2e7d32;
     border-radius: 0.5rem;
     padding: 1.5rem;
     color: white;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    overflow: hidden; /* Prevent content from overflowing */
+    overflow: hidden;
 }
 
 .cards-container {
@@ -508,7 +552,7 @@ body {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     position: relative;
     transition: transform 0.3s ease;
-    flex-shrink: 0; /* Prevent cards from shrinking */
+    flex-shrink: 0;
 }
 
 .card-slot img {
@@ -597,7 +641,6 @@ body {
     text-align: center;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .card-slot {
         width: 60px;
@@ -627,7 +670,6 @@ body {
     }
 }
 
-/* Card Back Design */
 .card-back {
     background: repeating-linear-gradient(
         45deg,
@@ -651,14 +693,12 @@ body {
     border-radius: 0.35rem;
 }
 
-/* Score Display */
 .score-display {
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
     font-weight: 600;
 }
 
-/* Card Grid Layout */
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -667,10 +707,9 @@ body {
 }
 
 .card-grid .card {
-    margin-bottom: 0; /* Remove individual card margins when in grid */
+    margin-bottom: 0;
 }
 
-/* Card Content Overflow Fix */
 .card-content {
     overflow: hidden;
     display: flex;
@@ -678,34 +717,29 @@ body {
     height: 100%;
 }
 
-/* Fix for card images */
 .card-img-top {
     width: 100%;
     height: auto;
     object-fit: cover;
 }
 
-/* Card Footer */
 .card-footer {
     background-color: rgba(0, 0, 0, 0.03);
     border-top: 1px solid rgba(0, 0, 0, 0.125);
     padding: 0.75rem 1.25rem;
 }
 
-/* Make sure all text is visible */
 h1, h2, h3, h4, h5, h6,
 p, span, div, a, button, input, label {
     color: var(--text-color);
 }
 
-/* Equal size for profile and stats containers */
 .profile-stats-container {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-/* Loot box cards equal height */
 .loot-box-card {
     display: flex;
     flex-direction: column;
@@ -722,7 +756,6 @@ p, span, div, a, button, input, label {
     margin-top: auto;
 }
 
-/* Shop items equal height */
 .shop-item-card {
     display: flex;
     flex-direction: column;
@@ -739,7 +772,6 @@ p, span, div, a, button, input, label {
     margin-top: auto;
 }
 
-/* Button Group Styling */
 .input-group .btn {
     z-index: 1;
 }
@@ -748,22 +780,18 @@ p, span, div, a, button, input, label {
     margin-right: 0;
 }
 
-/* Navbar Buttons */
 .navbar .btn {
     margin-left: 0.5rem;
 }
 
-/* Tab Buttons */
 .nav-tabs .nav-link {
     transition: all 0.3s ease;
 }
 
-/* Form Buttons */
 .form-control + .btn {
     margin-left: 0.5rem;
 }
 
-/* Special button for profile picture */
 #upload-profile-pic-btn {
     background-color: #6c757d;
     color: white;
@@ -773,25 +801,21 @@ p, span, div, a, button, input, label {
     margin-left: 0.5rem;
 }
 
-/* Button focus states */
 .btn:focus {
     box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
     outline: none;
 }
 
-/* Disabled buttons */
 .btn:disabled {
     opacity: 0.65;
     transform: none !important;
     box-shadow: none !important;
 }
 
-/* Button icons */
 .btn i {
     margin-right: 0.5rem;
 }
 
-/* Additional fixes for button visibility */
 .btn-primary, .btn-secondary, .btn-success, 
 .btn-danger, .btn-info, .btn-warning {
     color: white;
@@ -837,7 +861,6 @@ p, span, div, a, button, input, label {
     border-color: var(--dark-color);
 }
 
-/* Fix for outline buttons hover state */
 .btn-outline-primary:hover {
     background-color: var(--primary-color);
     color: white;
@@ -878,7 +901,6 @@ p, span, div, a, button, input, label {
     color: white;
 }
 
-/* Grid layout fixes */
 .row {
     margin-left: -15px;
     margin-right: -15px;
@@ -889,7 +911,6 @@ p, span, div, a, button, input, label {
     padding-right: 15px;
 }
 
-/* Card height fixes for different screen sizes */
 @media (min-width: 992px) {
     .equal-height-lg {
         display: flex;
@@ -913,7 +934,6 @@ p, span, div, a, button, input, label {
 }
 
 @media (max-width: 576px) {
-    /* Adjust blackjack cards for mobile */
     .card-slot {
         width: 60px;
         height: 90px;
@@ -939,67 +959,64 @@ p, span, div, a, button, input, label {
     }
 }
 
-/* Compact Inventory Controls - Pure CSS Solution */
-.card-body .d-flex.justify-content-between.align-items-center {
-    flex-wrap: wrap;
-    gap: 0.5rem;
+.quantity-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.card-body .btn-outline-danger {
+#play-again-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 0.35rem;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+#play-again-btn:hover {
+    background-color: #17a673;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-group-quantity {
+    display: flex;
+    width: 140px;
+    margin-right: 0.5rem;
+}
+
+.input-group-quantity .btn {
     padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    margin: 0.1rem;
-    flex-grow: 1;
+    font-size: 0.9rem;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid var(--secondary-color);
+}
+
+.input-group-quantity .btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.input-group-quantity .form-control {
     text-align: center;
-    min-width: 80px;
-}
-
-.card-body .btn-outline-danger .fa-coins {
-    margin-left: 0.25rem;
-}
-
-/* Make quantity controls more compact */
-.card-body .input-group {
-    width: auto;
-    min-width: 120px;
-}
-
-.card-body .input-group .btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-}
-
-.card-body .input-group .form-control {
-    padding: 0.25rem;
-    font-size: 0.85rem;
-    width: 40px;
-    text-align: center;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .card-body .btn-outline-danger {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.4rem;
-        min-width: 70px;
-    }
-    
-    .card-body .input-group {
-        min-width: 100px;
-    }
-}
-
-@media (max-width: 576px) {
-    .card-body .btn-outline-danger {
-        font-size: 0.7rem;
-        padding: 0.15rem 0.3rem;
-    }
-    
-    .card-body .input-group .btn {
-        padding: 0.2rem 0.4rem;
-    }
-    
-    .card-body .input-group .form-control {
-        width: 30px;
-    }
+    font-weight: bold;
+    border-left: none;
+    border-right: none;
 }
