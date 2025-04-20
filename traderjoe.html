@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FusionCYA - Trading</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="gamble.css">
+    <style>
+        /* Trading specific styles */
+        .player-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .player-card:hover {
+            transform: scale(1.05);
+        }
+        .player-card.selected {
+            border: 2px solid #0d6efd;
+        }
+        .trade-item {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .trade-item:hover {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .trade-item.selected {
+            background-color: rgba(13, 110, 253, 0.2);
+            border: 1px solid #0d6efd;
+        }
+        .trade-preview {
+            min-height: 200px;
+            border: 2px dashed #6c757d;
+            border-radius: 8px;
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .online {
+            background-color: #28a745;
+        }
+        .offline {
+            background-color: #dc3545;
+        }
+        #trade-status {
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">FusionCYA</a>
+            <div class="d-flex align-items-center">
+                <span id="username-display" class="me-3">Guest</span>
+                <img id="profile-pic" src="https://via.placeholder.com/40" class="rounded-circle me-2" width="40" height="40">
+                <button id="signInButton" class="btn btn-primary me-2">Sign In</button>
+                <button id="signOutButton" class="btn btn-danger d-none">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mb-4">Player Trading</h1>
+        
+        <!-- Login View -->
+        <div id="login-view" class="text-center py-5">
+            <h2 class="mb-4">Sign in to trade with other players</h2>
+            <button id="signInButton2" class="btn btn-primary btn-lg">Sign In with Google</button>
+        </div>
+
+        <!-- Trading View -->
+        <div id="trading-view" class="d-none">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Online Players</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="online-players" class="list-group">
+                                <!-- Online players will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Your Offer</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Coins to Offer</label>
+                                <input type="number" id="offer-coins" class="form-control" min="0" :max="userData.coins" value="0">
+                            </div>
+                            
+                            <h5>Select Items:</h5>
+                            <ul class="nav nav-tabs" id="offer-tabs">
+                                <li class="nav-item">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#offer-pets">Pets</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#offer-knives">Knives</button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content mt-2">
+                                <div class="tab-pane fade show active" id="offer-pets">
+                                    <div id="offer-pets-container" class="row row-cols-2 g-2">
+                                        <!-- Your pets will be loaded here -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="offer-knives">
+                                    <div id="offer-knives-container" class="row row-cols-2 g-2">
+                                        <!-- Your knives will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Trade Preview</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>You Offer:</h5>
+                                    <div id="your-offer-preview" class="trade-preview p-3 mb-3">
+                                        <!-- Your offer will be shown here -->
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>You Receive:</h5>
+                                    <div id="their-offer-preview" class="trade-preview p-3 mb-3">
+                                        <!-- Their offer will be shown here -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="trade-status" class="alert alert-info mb-0">
+                                <!-- Trade status messages will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Active Trades</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="active-trades">
+                                <!-- Active trades will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Modal -->
+    <div class="modal fade" id="tradeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trade Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="trade-modal-content">
+                        <!-- Trade details will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="accept-trade-btn" class="btn btn-success">Accept</button>
+                    <button type="button" id="decline-trade-btn" class="btn btn-danger">Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Trading System State
+        let userData = {
+            uid: '',
+            username: '',
+            coins: 0,
+            inventory: {
+                pets: [],
+                knives: []
+            }
+        };
+        
+        let selectedPlayer = null;
+        let selectedItems = {
+            pets: [],
+            knives: []
+        };
+        let offeredCoins = 0;
+        let activeTrades = [];
+        let onlinePlayers = [];
+        let tradeModal = null;
+
+        // DOM Elements
+        const elements = {
+            signInButton: document.getElementById('signInButton'),
+            signInButton2: document.getElementById('signInButton2'),
+            signOutButton: document.getElementById('signOutButton'),
+            usernameDisplay: document.getElementById('username-display'),
+            profilePic: document.getElementById('profile-pic'),
+            loginView: document.getElementById('login-view'),
+            tradingView: document.getElementById('trading-view'),
+            onlinePlayers: document.getElementById('online-players'),
+            offerCoins: document.getElementById('offer-coins'),
+            offerPetsContainer: document.getElementById('offer-pets-container'),
+            offerKnivesContainer: document.getElementById('offer-knives-container'),
+            yourOfferPreview: document.getElementById('your-offer-preview'),
+            theirOfferPreview: document.getElementById('their-offer-preview'),
+            tradeStatus: document.getElementById('trade-status'),
+            activeTrades: document.getElementById('active-trades'),
+            tradeModal: document.getElementById('tradeModal'),
+            tradeModalContent: document.getElementById('trade-modal-content'),
+            acceptTradeBtn: document.getElementById('accept-trade-btn'),
+            declineTradeBtn: document.getElementById('decline-trade-btn')
+        };
+
+        // Initialize modal
+        tradeModal = new bootstrap.Modal(elements.tradeModal);
+
+        // Utility Functions
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function showAlert(message, type = 'info') {
+            elements.tradeStatus.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        // Firebase Functions
+        async function loadUserData(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    userData = {
+                        uid: userId,
+                        username: data.username,
+                        coins: data.coins || 0,
+                        inventory: {
+                            pets: data.inventory?.pets || [],
+                            knives: data.inventory?.knives || []
+                        }
+                    };
+                    
+                    // Update UI
+                    updateUI();
+                    updateInventoryUI();
+                    
+                    // Set up presence
+                    setupPresence(userId);
+                    
+                    // Load online players
+                    loadOnlinePlayers();
+                    
+                    // Load active trades
+                    loadActiveTrades();
+                }
+            } catch (error) {
+                console.error("Error loading user data:", error);
+            }
+        }
+
+        function setupPresence(userId) {
+            // Create a reference to the user's presence in Firestore
+            const userStatusRef = db.collection('status').doc(userId);
+            
+            // Create a reference to the Firestore database
+            const dbRef = db.collection('status');
+            
+            // Set Firestore to mark user as online
+            dbRef.doc(userId).set({
+                status: 'online',
+                lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
+                username: userData.username
+            }, { merge: true });
+            
+            // Create a function to update the Firestore database when the user goes offline
+            const onDisconnectRef = dbRef.doc(userId);
+            onDisconnectRef.update({
+                status: 'offline',
+                lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                console.log("On disconnect function added.");
+            }).catch((error) => {
+                console.error("Error setting up onDisconnect:", error);
+            });
+            
+            // Listen for changes to the user's status
+            dbRef.doc(userId).onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    console.log("User status updated:", data.status);
+                }
+            });
+        }
+
+        function loadOnlinePlayers() {
+            // Listen for online players
+            db.collection('status')
+                .where('status', '==', 'online')
+                .onSnapshot((snapshot) => {
+                    onlinePlayers = [];
+                    elements.onlinePlayers.innerHTML = '';
+                    
+                    snapshot.forEach((doc) => {
+                        const player = doc.data();
+                        if (doc.id !== userData.uid) { // Don't show current user
+                            onlinePlayers.push({
+                                uid: doc.id,
+                                ...player
+                            });
+                            
+                            // Add player to UI
+                            const playerElement = document.createElement('button');
+                            playerElement.className = `list-group-item list-group-item-action player-card ${selectedPlayer?.uid === doc.id ? 'selected' : ''}`;
+                            playerElement.innerHTML = `
+                                <div class="d-flex align-items-center">
+                                    <img src="${player.photoBase64 || 'https://via.placeholder.com/40'}" class="rounded-circle me-3" width="40" height="40">
+                                    <div>
+                                        <h6 class="mb-0">${player.username}</h6>
+                                        <small class="text-muted">Online</small>
+                                    </div>
+                                    <div class="status-badge online ms-auto"></div>
+                                </div>
+                            `;
+                            
+                            playerElement.addEventListener('click', () => {
+                                selectedPlayer = {
+                                    uid: doc.id,
+                                    username: player.username
+                                };
+                                
+                                // Update selected state
+                                document.querySelectorAll('.player-card').forEach(card => {
+                                    card.classList.remove('selected');
+                                });
+                                playerElement.classList.add('selected');
+                                
+                                // Clear previous offer preview
+                                elements.theirOfferPreview.innerHTML = '<p class="text-muted">Select a player to trade with</p>';
+                                
+                                showAlert(`Selected player: ${player.username}. Set your offer and click "Send Trade Request" when ready.`);
+                            });
+                            
+                            elements.onlinePlayers.appendChild(playerElement);
+                        }
+                    });
+                    
+                    if (onlinePlayers.length === 0) {
+                        elements.onlinePlayers.innerHTML = '<div class="text-center py-3 text-muted">No other players online</div>';
+                    }
+                });
+        }
+
+        function loadActiveTrades() {
+            // Listen for incoming trades
+            db.collection('trades')
+                .where('participants', 'array-contains', userData.uid)
+                .where('status', 'in', ['pending', 'accepted'])
+                .onSnapshot((snapshot) => {
+                    activeTrades = [];
+                    elements.activeTrades.innerHTML = '';
+                    
+                    snapshot.forEach((doc) => {
+                        const trade = {
+                            id: doc.id,
+                            ...doc.data()
+                        };
+                        
+                        activeTrades.push(trade);
+                        
+                        // Determine if this is an incoming or outgoing trade
+                        const isIncoming = trade.sender !== userData.uid;
+                        const otherPlayerId = isIncoming ? trade.sender : trade.receiver;
+                        const otherPlayer = onlinePlayers.find(p => p.uid === otherPlayerId) || { username: 'Unknown' };
+                        
+                        const tradeElement = document.createElement('div');
+                        tradeElement.className = 'card mb-3';
+                        tradeElement.innerHTML = `
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Trade with ${otherPlayer.username}</h5>
+                                    <span class="badge bg-${trade.status === 'pending' ? 'warning' : 'success'}">${trade.status}</span>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <h6>${isIncoming ? 'They Offer' : 'You Offer'}:</h6>
+                                        <div class="p-2 bg-light rounded">
+                                            ${renderTradeItems(trade.senderOffer)}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>${isIncoming ? 'You Receive' : 'They Receive'}:</h6>
+                                        <div class="p-2 bg-light rounded">
+                                            ${renderTradeItems(trade.receiverOffer)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    ${trade.status === 'pending' && isIncoming ? 
+                                        `<button class="btn btn-sm btn-success me-2 respond-trade-btn" data-trade-id="${doc.id}" data-action="accept">Accept</button>
+                                         <button class="btn btn-sm btn-danger respond-trade-btn" data-trade-id="${doc.id}" data-action="decline">Decline</button>` : 
+                                        ''}
+                                    ${trade.status === 'pending' && !isIncoming ? 
+                                        `<button class="btn btn-sm btn-danger cancel-trade-btn" data-trade-id="${doc.id}">Cancel</button>` : 
+                                        ''}
+                                    ${trade.status === 'accepted' ? 
+                                        `<button class="btn btn-sm btn-primary confirm-trade-btn" data-trade-id="${doc.id}">Confirm Trade</button>` : 
+                                        ''}
+                                </div>
+                            </div>
+                        `;
+                        
+                        elements.activeTrades.appendChild(tradeElement);
+                    });
+                    
+                    // Add event listeners to buttons
+                    document.querySelectorAll('.respond-trade-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const tradeId = btn.dataset.tradeId;
+                            const action = btn.dataset.action;
+                            
+                            if (action === 'accept') {
+                                acceptTrade(tradeId);
+                            } else {
+                                declineTrade(tradeId);
+                            }
+                        });
+                    });
+                    
+                    document.querySelectorAll('.cancel-trade-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const tradeId = btn.dataset.tradeId;
+                            cancelTrade(tradeId);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.confirm-trade-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const tradeId = btn.dataset.tradeId;
+                            confirmTrade(tradeId);
+                        });
+                    });
+                    
+                    if (activeTrades.length === 0) {
+                        elements.activeTrades.innerHTML = '<div class="text-center py-3 text-muted">No active trades</div>';
+                    }
+                });
+        }
+
+        function renderTradeItems(tradeOffer) {
+            let html = '';
+            
+            if (tradeOffer.coins > 0) {
+                html += `<div class="mb-2"><i class="fas fa-coins text-warning me-2"></i> ${formatNumber(tradeOffer.coins)} coins</div>`;
+            }
+            
+            if (tradeOffer.pets.length > 0) {
+                html += '<div class="mb-2"><strong>Pets:</strong></div>';
+                html += '<div class="d-flex flex-wrap gap-2">';
+                tradeOffer.pets.forEach(pet => {
+                    html += `<span class="badge bg-primary">${pet.name}</span>`;
+                });
+                html += '</div>';
+            }
+            
+            if (tradeOffer.knives.length > 0) {
+                html += '<div class="mb-2"><strong>Knives:</strong></div>';
+                html += '<div class="d-flex flex-wrap gap-2">';
+                tradeOffer.knives.forEach(knife => {
+                    html += `<span class="badge bg-danger">${knife.name}</span>`;
+                });
+                html += '</div>';
+            }
+            
+            return html || '<p class="text-muted">No items</p>';
+        }
+
+        function updateUI() {
+            elements.usernameDisplay.textContent = userData.username;
+            elements.offerCoins.max = userData.coins;
+        }
+
+        function updateInventoryUI() {
+            // Clear previous items
+            elements.offerPetsContainer.innerHTML = '';
+            elements.offerKnivesContainer.innerHTML = '';
+            
+            // Group inventory items by ID and count quantities
+            const groupedPets = groupInventoryItems(userData.inventory.pets);
+            const groupedKnives = groupInventoryItems(userData.inventory.knives);
+            
+            // Pets
+            if (groupedPets.length > 0) {
+                groupedPets.forEach(pet => {
+                    const isSelected = selectedItems.pets.some(p => p.id === pet.item.id);
+                    
+                    const petElement = document.createElement('div');
+                    petElement.className = `col trade-item ${isSelected ? 'selected' : ''}`;
+                    petElement.innerHTML = `
+                        <div class="card h-100">
+                            <img src="${pet.item.image}" class="card-img-top" alt="${pet.item.name}">
+                            <div class="card-body p-2 text-center">
+                                <h6 class="card-title mb-0">${pet.item.name}</h6>
+                                <small class="text-muted">x${pet.quantity}</small>
+                            </div>
+                        </div>
+                    `;
+                    
+                    petElement.addEventListener('click', () => {
+                        toggleSelectedItem(pet.item, 'pets');
+                    });
+                    
+                    elements.offerPetsContainer.appendChild(petElement);
+                });
+            } else {
+                elements.offerPetsContainer.innerHTML = '<div class="col-12 text-center py-3 text-muted">No pets in inventory</div>';
+            }
+            
+            // Knives
+            if (groupedKnives.length > 0) {
+                groupedKnives.forEach(knife => {
+                    const isSelected = selectedItems.knives.some(k => k.id === knife.item.id);
+                    
+                    const knifeElement = document.createElement('div');
+                    knifeElement.className = `col trade-item ${isSelected ? 'selected' : ''}`;
+                    knifeElement.innerHTML = `
+                        <div class="card h-100">
+                            <img src="${knife.item.image}" class="card-img-top" alt="${knife.item.name}">
+                            <div class="card-body p-2 text-center">
+                                <h6 class="card-title mb-0">${knife.item.name}</h6>
+                                <small class="text-muted">x${knife.quantity}</small>
+                            </div>
+                        </div>
+                    `;
+                    
+                    knifeElement.addEventListener('click', () => {
+                        toggleSelectedItem(knife.item, 'knives');
+                    });
+                    
+                    elements.offerKnivesContainer.appendChild(knifeElement);
+                });
+            } else {
+                elements.offerKnivesContainer.innerHTML = '<div class="col-12 text-center py-3 text-muted">No knives in inventory</div>';
+            }
+            
+            // Update offer preview
+            updateOfferPreview();
+        }
+
+        function groupInventoryItems(items) {
+            const grouped = {};
+            
+            items.forEach(item => {
+                if (!grouped[item.id]) {
+                    grouped[item.id] = {
+                        item: item,
+                        quantity: item.quantity || 1
+                    };
+                } else {
+                    grouped[item.id].quantity += item.quantity || 1;
+                }
+            });
+            
+            return Object.values(grouped);
+        }
+
+        function toggleSelectedItem(item, type) {
+            const index = selectedItems[type].findIndex(i => i.id === item.id);
+            
+            if (index >= 0) {
+                // Item is already selected, remove it
+                selectedItems[type].splice(index, 1);
+            } else {
+                // Item is not selected, add it
+                selectedItems[type].push(item);
+            }
+            
+            // Update UI
+            updateInventoryUI();
+        }
+
+        function updateOfferPreview() {
+            // Your offer
+            if (selectedPlayer) {
+                let yourOfferHtml = '';
+                
+                if (offeredCoins > 0) {
+                    yourOfferHtml += `<div class="mb-2"><i class="fas fa-coins text-warning me-2"></i> ${formatNumber(offeredCoins)} coins</div>`;
+                }
+                
+                if (selectedItems.pets.length > 0) {
+                    yourOfferHtml += '<div class="mb-2"><strong>Pets:</strong></div>';
+                    yourOfferHtml += '<div class="d-flex flex-wrap gap-2">';
+                    selectedItems.pets.forEach(pet => {
+                        yourOfferHtml += `<span class="badge bg-primary">${pet.name}</span>`;
+                    });
+                    yourOfferHtml += '</div>';
+                }
+                
+                if (selectedItems.knives.length > 0) {
+                    yourOfferHtml += '<div class="mb-2"><strong>Knives:</strong></div>';
+                    yourOfferHtml += '<div class="d-flex flex-wrap gap-2">';
+                    selectedItems.knives.forEach(knife => {
+                        yourOfferHtml += `<span class="badge bg-danger">${knife.name}</span>`;
+                    });
+                    yourOfferHtml += '</div>';
+                }
+                
+                elements.yourOfferPreview.innerHTML = yourOfferHtml || '<p class="text-muted">No items selected</p>';
+                
+                // Add send trade button if we have an offer
+                if (offeredCoins > 0 || selectedItems.pets.length > 0 || selectedItems.knives.length > 0) {
+                    const sendButton = document.createElement('button');
+                    sendButton.className = 'btn btn-primary mt-3';
+                    sendButton.textContent = 'Send Trade Request';
+                    sendButton.addEventListener('click', sendTradeRequest);
+                    
+                    elements.yourOfferPreview.appendChild(sendButton);
+                }
+            } else {
+                elements.yourOfferPreview.innerHTML = '<p class="text-muted">Select a player and items to trade</p>';
+            }
+        }
+
+        // Trade Functions
+        function sendTradeRequest() {
+            if (!selectedPlayer) {
+                showAlert('Please select a player to trade with', 'danger');
+                return;
+            }
+            
+            if (offeredCoins === 0 && selectedItems.pets.length === 0 && selectedItems.knives.length === 0) {
+                showAlert('Please select items or coins to offer', 'danger');
+                return;
+            }
+            
+            // Create trade offer
+            const tradeData = {
+                sender: userData.uid,
+                receiver: selectedPlayer.uid,
+                senderOffer: {
+                    coins: offeredCoins,
+                    pets: selectedItems.pets,
+                    knives: selectedItems.knives
+                },
+                receiverOffer: {
+                    coins: 0,
+                    pets: [],
+                    knives: []
+                },
+                status: 'pending',
+                participants: [userData.uid, selectedPlayer.uid],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            // Add trade to Firestore
+            db.collection('trades').add(tradeData)
+                .then(() => {
+                    showAlert(`Trade request sent to ${selectedPlayer.username}!`, 'success');
+                    
+                    // Reset selection
+                    selectedItems = { pets: [], knives: [] };
+                    offeredCoins = 0;
+                    elements.offerCoins.value = 0;
+                    
+                    // Update UI
+                    updateInventoryUI();
+                })
+                .catch(error => {
+                    console.error('Error sending trade request:', error);
+                    showAlert('Failed to send trade request: ' + error.message, 'danger');
+                });
+        }
+
+        function acceptTrade(tradeId) {
+            // Update trade status to accepted
+            db.collection('trades').doc(tradeId).update({
+                status: 'accepted',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                showAlert('Trade accepted! Please confirm the trade to complete it.', 'success');
+            })
+            .catch(error => {
+                console.error('Error accepting trade:', error);
+                showAlert('Failed to accept trade: ' + error.message, 'danger');
+            });
+        }
+
+        function declineTrade(tradeId) {
+            // Update trade status to declined
+            db.collection('trades').doc(tradeId).update({
+                status: 'declined',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                showAlert('Trade declined.', 'info');
+            })
+            .catch(error => {
+                console.error('Error declining trade:', error);
+                showAlert('Failed to decline trade: ' + error.message, 'danger');
+            });
+        }
+
+        function cancelTrade(tradeId) {
+            // Update trade status to cancelled
+            db.collection('trades').doc(tradeId).update({
+                status: 'cancelled',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                showAlert('Trade cancelled.', 'info');
+            })
+            .catch(error => {
+                console.error('Error cancelling trade:', error);
+                showAlert('Failed to cancel trade: ' + error.message, 'danger');
+            });
+        }
+
+        async function confirmTrade(tradeId) {
+            try {
+                // Get the latest trade data
+                const tradeDoc = await db.collection('trades').doc(tradeId).get();
+                if (!tradeDoc.exists) {
+                    throw new Error('Trade not found');
+                }
+                
+                const trade = tradeDoc.data();
+                
+                // Verify both parties have accepted
+                if (trade.status !== 'accepted') {
+                    throw new Error('Trade must be accepted by both parties');
+                }
+                
+                // Get both users' data in a transaction to ensure consistency
+                await db.runTransaction(async (transaction) => {
+                    // Get sender data
+                    const senderDoc = await transaction.get(db.collection('users').doc(trade.sender));
+                    if (!senderDoc.exists) {
+                        throw new Error('Sender not found');
+                    }
+                    const senderData = senderDoc.data();
+                    
+                    // Get receiver data
+                    const receiverDoc = await transaction.get(db.collection('users').doc(trade.receiver));
+                    if (!receiverDoc.exists) {
+                        throw new Error('Receiver not found');
+                    }
+                    const receiverData = receiverDoc.data();
+                    
+                    // Verify both users still have the items and coins
+                    // Check sender
+                    if (senderData.coins < trade.senderOffer.coins) {
+                        throw new Error('Sender no longer has enough coins');
+                    }
+                    
+                    for (const pet of trade.senderOffer.pets) {
+                        if (!senderData.inventory.pets.some(p => p.id === pet.id)) {
+                            throw new Error(`Sender no longer has pet: ${pet.name}`);
+                        }
+                    }
+                    
+                    for (const knife of trade.senderOffer.knives) {
+                        if (!senderData.inventory.knives.some(k => k.id === knife.id)) {
+                            throw new Error(`Sender no longer has knife: ${knife.name}`);
+                        }
+                    }
+                    
+                    // Check receiver
+                    if (receiverData.coins < trade.receiverOffer.coins) {
+                        throw new Error('Receiver no longer has enough coins');
+                    }
+                    
+                    for (const pet of trade.receiverOffer.pets) {
+                        if (!receiverData.inventory.pets.some(p => p.id === pet.id)) {
+                            throw new Error(`Receiver no longer has pet: ${pet.name}`);
+                        }
+                    }
+                    
+                    for (const knife of trade.receiverOffer.knives) {
+                        if (!receiverData.inventory.knives.some(k => k.id === knife.id)) {
+                            throw new Error(`Receiver no longer has knife: ${knife.name}`);
+                        }
+                    }
+                    
+                    // Perform the trade
+                    // Update sender's data
+                    transaction.update(db.collection('users').doc(trade.sender), {
+                        coins: senderData.coins - trade.senderOffer.coins + trade.receiverOffer.coins,
+                        inventory: {
+                            pets: [
+                                ...senderData.inventory.pets.filter(p => !trade.senderOffer.pets.some(sp => sp.id === p.id)),
+                                ...trade.receiverOffer.pets
+                            ],
+                            knives: [
+                                ...senderData.inventory.knives.filter(k => !trade.senderOffer.knives.some(sk => sk.id === k.id)),
+                                ...trade.receiverOffer.knives
+                            ]
+                        }
+                    });
+                    
+                    // Update receiver's data
+                    transaction.update(db.collection('users').doc(trade.receiver), {
+                        coins: receiverData.coins - trade.receiverOffer.coins + trade.senderOffer.coins,
+                        inventory: {
+                            pets: [
+                                ...receiverData.inventory.pets.filter(p => !trade.receiverOffer.pets.some(rp => rp.id === p.id)),
+                                ...trade.senderOffer.pets
+                            ],
+                            knives: [
+                                ...receiverData.inventory.knives.filter(k => !trade.receiverOffer.knives.some(rk => rk.id === k.id)),
+                                ...trade.senderOffer.knives
+                            ]
+                        }
+                    });
+                    
+                    // Update trade status to completed
+                    transaction.update(db.collection('trades').doc(tradeId), {
+                        status: 'completed',
+                        completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                
+                showAlert('Trade completed successfully!', 'success');
+                
+                // Reload user data to reflect changes
+                loadUserData(userData.uid);
+            } catch (error) {
+                console.error('Error confirming trade:', error);
+                showAlert('Failed to complete trade: ' + error.message, 'danger');
+                
+                // Mark trade as failed
+                db.collection('trades').doc(tradeId).update({
+                    status: 'failed',
+                    error: error.message,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth
+            elements.signInButton.addEventListener('click', signInWithGoogle);
+            elements.signInButton2.addEventListener('click', signInWithGoogle);
+            
+            elements.signOutButton.addEventListener('click', () => {
+                auth.signOut();
+            });
+            
+            // Coins input
+            elements.offerCoins.addEventListener('change', () => {
+                offeredCoins = parseInt(elements.offerCoins.value) || 0;
+                if (offeredCoins < 0) {
+                    offeredCoins = 0;
+                    elements.offerCoins.value = 0;
+                }
+                if (offeredCoins > userData.coins) {
+                    offeredCoins = userData.coins;
+                    elements.offerCoins.value = userData.coins;
+                }
+                updateOfferPreview();
+            });
+        }
+        
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .catch((error) => {
+                    console.error('Sign in error:', error);
+                    alert('Sign in failed: ' + error.message);
+                });
+        }
+
+        // Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                elements.loginView.style.display = 'none';
+                elements.tradingView.classList.remove('d-none');
+                elements.signOutButton.classList.remove('d-none');
+                
+                // Set profile info
+                const displayName = user.displayName || 'User';
+                elements.usernameDisplay.textContent = displayName;
+                
+                if (user.photoURL) {
+                    elements.profilePic.src = user.photoURL;
+                }
+                
+                // Load user data
+                loadUserData(user.uid);
+            } else {
+                // User is signed out
+                elements.loginView.style.display = 'block';
+                elements.tradingView.classList.add('d-none');
+                elements.signOutButton.classList.add('d-none');
+                elements.usernameDisplay.textContent = 'Guest';
+                elements.profilePic.src = 'https://via.placeholder.com/40';
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>
