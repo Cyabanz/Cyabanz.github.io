@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FusionCYA - Trading</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .online-user {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .online-user:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        .trade-item {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 5px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .trade-item:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        .trade-item.selected {
+            background-color: rgba(0, 123, 255, 0.2);
+            border-color: #007bff;
+        }
+        #tradeModal .modal-dialog {
+            max-width: 800px;
+        }
+        .trade-section {
+            min-height: 300px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .status-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">FusionCYA</a>
+            <div class="d-flex align-items-center">
+                <span id="username-display" class="me-3">Guest</span>
+                <img id="profile-pic" src="https://via.placeholder.com/40" class="rounded-circle me-2" width="40" height="40">
+                <button id="signInButton" class="btn btn-primary me-2">Sign In</button>
+                <button id="signOutButton" class="btn btn-danger d-none">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <!-- Online Users Column -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Online Players</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <input type="text" id="searchUser" class="form-control" placeholder="Search players...">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div id="onlineUsersList" class="list-group">
+                            <!-- Online users will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trade Requests Column -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Trade Requests</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="tradeTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="incoming-tab" data-bs-toggle="tab" data-bs-target="#incoming" type="button" role="tab">Incoming</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="outgoing-tab" data-bs-toggle="tab" data-bs-target="#outgoing" type="button" role="tab">Outgoing</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">History</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-3" id="tradeTabsContent">
+                            <div class="tab-pane fade show active" id="incoming" role="tabpanel">
+                                <div id="incomingTrades" class="list-group">
+                                    <!-- Incoming trade requests will be loaded here -->
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="outgoing" role="tabpanel">
+                                <div id="outgoingTrades" class="list-group">
+                                    <!-- Outgoing trade requests will be loaded here -->
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="history" role="tabpanel">
+                                <div id="tradeHistory" class="list-group">
+                                    <!-- Trade history will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Modal -->
+    <div class="modal fade" id="tradeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tradeModalTitle">Trade with <span id="tradePartnerName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h6>Your Offer</h6>
+                            <div class="trade-section" id="yourOfferSection">
+                                <div class="mb-3">
+                                    <label class="form-label">Coins:</label>
+                                    <input type="number" id="yourCoins" class="form-control" min="0" :max="userData.coins" value="0">
+                                </div>
+                                <div>
+                                    <label class="form-label">Items:</label>
+                                    <div id="yourItems" class="d-flex flex-wrap">
+                                        <!-- Your items will be listed here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center justify-content-center">
+                            <div class="text-center">
+                                <i class="fas fa-exchange-alt fa-3x text-muted"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <h6>Their Offer</h6>
+                            <div class="trade-section" id="theirOfferSection">
+                                <div class="mb-3">
+                                    <label class="form-label">Coins:</label>
+                                    <input type="number" id="theirCoins" class="form-control" min="0" value="0" disabled>
+                                </div>
+                                <div>
+                                    <label class="form-label">Items:</label>
+                                    <div id="theirItems" class="d-flex flex-wrap">
+                                        <!-- Their items will be listed here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3" id="tradeStatusMessage"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="sendTradeBtn" class="btn btn-primary">Send Trade Request</button>
+                    <button type="button" id="acceptTradeBtn" class="btn btn-success d-none">Accept Trade</button>
+                    <button type="button" id="declineTradeBtn" class="btn btn-danger d-none">Decline Trade</button>
+                    <button type="button" id="cancelTradeBtn" class="btn btn-warning d-none">Cancel Trade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Trade status constants
+        const TRADE_STATUS = {
+            PENDING: 'pending',
+            ACCEPTED: 'accepted',
+            DECLINED: 'declined',
+            COMPLETED: 'completed',
+            CANCELLED: 'cancelled'
+        };
+
+        // DOM Elements
+        const elements = {
+            signInButton: document.getElementById('signInButton'),
+            signOutButton: document.getElementById('signOutButton'),
+            usernameDisplay: document.getElementById('username-display'),
+            profilePic: document.getElementById('profile-pic'),
+            onlineUsersList: document.getElementById('onlineUsersList'),
+            searchUser: document.getElementById('searchUser'),
+            incomingTrades: document.getElementById('incomingTrades'),
+            outgoingTrades: document.getElementById('outgoingTrades'),
+            tradeHistory: document.getElementById('tradeHistory'),
+            tradeModal: new bootstrap.Modal(document.getElementById('tradeModal')),
+            tradeModalTitle: document.getElementById('tradeModalTitle'),
+            tradePartnerName: document.getElementById('tradePartnerName'),
+            yourOfferSection: document.getElementById('yourOfferSection'),
+            theirOfferSection: document.getElementById('theirOfferSection'),
+            yourCoins: document.getElementById('yourCoins'),
+            theirCoins: document.getElementById('theirCoins'),
+            yourItems: document.getElementById('yourItems'),
+            theirItems: document.getElementById('theirItems'),
+            tradeStatusMessage: document.getElementById('tradeStatusMessage'),
+            sendTradeBtn: document.getElementById('sendTradeBtn'),
+            acceptTradeBtn: document.getElementById('acceptTradeBtn'),
+            declineTradeBtn: document.getElementById('declineTradeBtn'),
+            cancelTradeBtn: document.getElementById('cancelTradeBtn')
+        };
+
+        // App State
+        let currentUser = null;
+        let userData = {
+            coins: 0,
+            inventory: {
+                pets: [],
+                knives: []
+            }
+        };
+        let onlineUsers = [];
+        let selectedTrade = null;
+        let selectedItems = {
+            yourItems: [],
+            theirItems: []
+        };
+
+        // Initialize the app
+        function init() {
+            setupEventListeners();
+            auth.onAuthStateChanged(handleAuthStateChange);
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth
+            elements.signInButton.addEventListener('click', signInWithGoogle);
+            elements.signOutButton.addEventListener('click', signOut);
+            
+            // Trade modal
+            elements.sendTradeBtn.addEventListener('click', sendTradeRequest);
+            elements.acceptTradeBtn.addEventListener('click', acceptTrade);
+            elements.declineTradeBtn.addEventListener('click', declineTrade);
+            elements.cancelTradeBtn.addEventListener('click', cancelTrade);
+            
+            // Search
+            elements.searchUser.addEventListener('input', filterOnlineUsers);
+        }
+
+        // Auth Functions
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    console.error('Sign in error:', error);
+                    Swal.fire('Error', 'Sign in failed: ' + error.message, 'error');
+                });
+        }
+
+        function signOut() {
+            auth.signOut();
+        }
+
+        function handleAuthStateChange(user) {
+            if (user) {
+                currentUser = user;
+                elements.usernameDisplay.textContent = user.displayName || 'User';
+                elements.profilePic.src = user.photoURL || 'https://via.placeholder.com/40';
+                elements.signOutButton.classList.remove('d-none');
+                
+                // Load user data and setup realtime listeners
+                loadUserData();
+                setupOnlineStatus();
+                listenForTrades();
+            } else {
+                currentUser = null;
+                elements.usernameDisplay.textContent = 'Guest';
+                elements.profilePic.src = 'https://via.placeholder.com/40';
+                elements.signOutButton.classList.add('d-none');
+                elements.onlineUsersList.innerHTML = '<div class="text-center py-3">Please sign in to trade</div>';
+                
+                // Clean up listeners
+                if (this.userDataUnsubscribe) this.userDataUnsubscribe();
+                if (this.onlineUsersUnsubscribe) this.onlineUsersUnsubscribe();
+                if (this.tradesUnsubscribe) this.tradesUnsubscribe();
+            }
+        }
+
+        // User Data Functions
+        function loadUserData() {
+            if (!currentUser) return;
+            
+            this.userDataUnsubscribe = db.collection('users').doc(currentUser.uid)
+                .onSnapshot(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        userData = {
+                            coins: data.coins || 0,
+                            inventory: data.inventory || { pets: [], knives: [] }
+                        };
+                        
+                        // Update UI if trade modal is open
+                        if (elements.tradeModal._isShown) {
+                            renderInventoryItems();
+                        }
+                    }
+                }, error => {
+                    console.error('Error loading user data:', error);
+                });
+        }
+
+        // Online Users Functions
+        function setupOnlineStatus() {
+            if (!currentUser) return;
+            
+            // Set user as online
+            const userStatusRef = db.collection('status').doc(currentUser.uid);
+            
+            // Create realtime listener for online users
+            this.onlineUsersUnsubscribe = db.collection('status')
+                .where('state', '==', 'online')
+                .onSnapshot(snapshot => {
+                    onlineUsers = [];
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const user = change.doc.data();
+                            if (user.userId !== currentUser.uid) {
+                                onlineUsers.push(user);
+                            }
+                        }
+                        if (change.type === 'removed') {
+                            onlineUsers = onlineUsers.filter(u => u.userId !== change.doc.data().userId);
+                        }
+                    });
+                    
+                    renderOnlineUsers();
+                });
+            
+            // Set up presence detection
+            const isOfflineForFirestore = {
+                state: 'offline',
+                lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: currentUser.uid,
+                username: currentUser.displayName || 'User',
+                photoURL: currentUser.photoURL || ''
+            };
+
+            const isOnlineForFirestore = {
+                state: 'online',
+                lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: currentUser.uid,
+                username: currentUser.displayName || 'User',
+                photoURL: currentUser.photoURL || ''
+            };
+
+            db.collection('status').doc(currentUser.uid)
+                .onDisconnect()
+                .set(isOfflineForFirestore)
+                .then(() => {
+                    userStatusRef.set(isOnlineForFirestore);
+                });
+        }
+
+        function renderOnlineUsers() {
+            if (!currentUser) return;
+            
+            if (onlineUsers.length === 0) {
+                elements.onlineUsersList.innerHTML = '<div class="text-center py-3">No other players online</div>';
+                return;
+            }
+            
+            elements.onlineUsersList.innerHTML = onlineUsers.map(user => `
+                <div class="list-group-item online-user d-flex align-items-center" data-user-id="${user.userId}">
+                    <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="rounded-circle me-3" width="40" height="40">
+                    <div>
+                        <h6 class="mb-0">${user.username}</h6>
+                        <small class="text-muted">Online</small>
+                    </div>
+                    <button class="btn btn-sm btn-primary ms-auto trade-btn" data-user-id="${user.userId}" data-username="${user.username}">
+                        <i class="fas fa-exchange-alt me-1"></i> Trade
+                    </button>
+                </div>
+            `).join('');
+            
+            // Add event listeners to trade buttons
+            document.querySelectorAll('.trade-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const userId = btn.dataset.userId;
+                    const username = btn.dataset.username;
+                    openTradeModal(userId, username);
+                });
+            });
+            
+            // Add event listeners to user items (for viewing profile maybe)
+            document.querySelectorAll('.online-user').forEach(item => {
+                item.addEventListener('click', () => {
+                    const userId = item.dataset.userId;
+                    // Could implement profile viewing here
+                });
+            });
+        }
+
+        function filterOnlineUsers() {
+            const searchTerm = elements.searchUser.value.toLowerCase();
+            const users = document.querySelectorAll('.online-user');
+            
+            users.forEach(user => {
+                const username = user.querySelector('h6').textContent.toLowerCase();
+                if (username.includes(searchTerm)) {
+                    user.style.display = 'flex';
+                } else {
+                    user.style.display = 'none';
+                }
+            });
+        }
+
+        // Trade Functions
+        function listenForTrades() {
+            if (!currentUser) return;
+            
+            this.tradesUnsubscribe = db.collection('trades')
+                .where('participants', 'array-contains', currentUser.uid)
+                .orderBy('updatedAt', 'desc')
+                .onSnapshot(snapshot => {
+                    const incoming = [];
+                    const outgoing = [];
+                    const history = [];
+                    
+                    snapshot.forEach(doc => {
+                        const trade = { id: doc.id, ...doc.data() };
+                        const otherUserId = trade.participants.find(id => id !== currentUser.uid);
+                        const isInitiator = trade.initiator === currentUser.uid;
+                        
+                        if (trade.status === TRADE_STATUS.PENDING) {
+                            if (isInitiator) {
+                                outgoing.push(trade);
+                            } else {
+                                incoming.push(trade);
+                            }
+                        } else {
+                            history.push(trade);
+                        }
+                    });
+                    
+                    renderIncomingTrades(incoming);
+                    renderOutgoingTrades(outgoing);
+                    renderTradeHistory(history);
+                });
+        }
+
+        function renderIncomingTrades(trades) {
+            if (trades.length === 0) {
+                elements.incomingTrades.innerHTML = '<div class="text-center py-3">No incoming trade requests</div>';
+                return;
+            }
+            
+            elements.incomingTrades.innerHTML = trades.map(trade => {
+                const otherUserId = trade.participants.find(id => id !== currentUser.uid);
+                const otherUser = onlineUsers.find(u => u.userId === otherUserId) || {};
+                
+                return `
+                    <div class="list-group-item trade-item" data-trade-id="${trade.id}">
+                        <div class="d-flex align-items-center">
+                            <img src="${otherUser.photoURL || 'https://via.placeholder.com/40'}" class="rounded-circle me-3" width="40" height="40">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">Trade with ${otherUser.username || 'User'}</h6>
+                                <small class="text-muted">Received ${formatDate(trade.createdAt.toDate())}</small>
+                            </div>
+                            <button class="btn btn-sm btn-primary view-trade-btn" data-trade-id="${trade.id}">
+                                <i class="fas fa-eye me-1"></i> View
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-trade-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tradeId = btn.dataset.tradeId;
+                    viewTrade(tradeId);
+                });
+            });
+        }
+
+        function renderOutgoingTrades(trades) {
+            if (trades.length === 0) {
+                elements.outgoingTrades.innerHTML = '<div class="text-center py-3">No outgoing trade requests</div>';
+                return;
+            }
+            
+            elements.outgoingTrades.innerHTML = trades.map(trade => {
+                const otherUserId = trade.participants.find(id => id !== currentUser.uid);
+                const otherUser = onlineUsers.find(u => u.userId === otherUserId) || {};
+                
+                return `
+                    <div class="list-group-item trade-item" data-trade-id="${trade.id}">
+                        <div class="d-flex align-items-center">
+                            <img src="${otherUser.photoURL || 'https://via.placeholder.com/40'}" class="rounded-circle me-3" width="40" height="40">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">Trade with ${otherUser.username || 'User'}</h6>
+                                <small class="text-muted">Sent ${formatDate(trade.createdAt.toDate())}</small>
+                            </div>
+                            <span class="badge bg-warning me-2">Pending</span>
+                            <button class="btn btn-sm btn-danger cancel-trade-btn" data-trade-id="${trade.id}">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event listeners to cancel buttons
+            document.querySelectorAll('.cancel-trade-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tradeId = btn.dataset.tradeId;
+                    cancelTrade(tradeId);
+                });
+            });
+        }
+
+        function renderTradeHistory(trades) {
+            if (trades.length === 0) {
+                elements.tradeHistory.innerHTML = '<div class="text-center py-3">No trade history</div>';
+                return;
+            }
+            
+            elements.tradeHistory.innerHTML = trades.map(trade => {
+                const otherUserId = trade.participants.find(id => id !== currentUser.uid);
+                const otherUser = onlineUsers.find(u => u.userId === otherUserId) || {};
+                const isInitiator = trade.initiator === currentUser.uid;
+                const statusClass = trade.status === TRADE_STATUS.COMPLETED ? 'bg-success' : 
+                                  trade.status === TRADE_STATUS.DECLINED ? 'bg-danger' : 
+                                  trade.status === TRADE_STATUS.CANCELLED ? 'bg-secondary' : 'bg-warning';
+                
+                let statusText = trade.status.charAt(0).toUpperCase() + trade.status.slice(1);
+                if (trade.status === TRADE_STATUS.COMPLETED) {
+                    statusText = isInitiator ? 'Completed' : 'Accepted';
+                } else if (trade.status === TRADE_STATUS.DECLINED && !isInitiator) {
+                    statusText = 'Declined by you';
+                } else if (trade.status === TRADE_STATUS.CANCELLED && isInitiator) {
+                    statusText = 'Cancelled by you';
+                }
+                
+                return `
+                    <div class="list-group-item trade-item" data-trade-id="${trade.id}">
+                        <div class="d-flex align-items-center">
+                            <img src="${otherUser.photoURL || 'https://via.placeholder.com/40'}" class="rounded-circle me-3" width="40" height="40">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">Trade with ${otherUser.username || 'User'}</h6>
+                                <small class="text-muted">${formatDate(trade.updatedAt.toDate())}</small>
+                            </div>
+                            <span class="badge ${statusClass} me-2">${statusText}</span>
+                            <button class="btn btn-sm btn-primary view-trade-btn" data-trade-id="${trade.id}">
+                                <i class="fas fa-eye me-1"></i> View
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-trade-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tradeId = btn.dataset.tradeId;
+                    viewTrade(tradeId);
+                });
+            });
+        }
+
+        function openTradeModal(userId, username) {
+            if (!currentUser) return;
+            
+            // Reset modal state
+            selectedTrade = null;
+            selectedItems = {
+                yourItems: [],
+                theirItems: []
+            };
+            
+            // Set up modal for new trade
+            elements.tradeModalTitle.textContent = `New Trade with ${username}`;
+            elements.tradePartnerName.textContent = username;
+            elements.yourCoins.value = 0;
+            elements.theirCoins.value = 0;
+            elements.tradeStatusMessage.innerHTML = '';
+            
+            // Show/hide buttons
+            elements.sendTradeBtn.classList.remove('d-none');
+            elements.acceptTradeBtn.classList.add('d-none');
+            elements.declineTradeBtn.classList.add('d-none');
+            elements.cancelTradeBtn.classList.add('d-none');
+            
+            // Render inventory items
+            renderInventoryItems();
+            
+            // Store partner info
+            elements.tradeModal._partnerId = userId;
+            elements.tradeModal._partnerName = username;
+            
+            // Show modal
+            elements.tradeModal.show();
+        }
+
+        function renderInventoryItems() {
+            // Clear existing items
+            elements.yourItems.innerHTML = '';
+            elements.theirItems.innerHTML = '';
+            
+            // Render your items
+            ['pets', 'knives'].forEach(type => {
+                userData.inventory[type].forEach(item => {
+                    const isSelected = selectedItems.yourItems.some(i => i.id === item.id && i.type === type);
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = `trade-item ${isSelected ? 'selected' : ''}`;
+                    itemElement.innerHTML = `
+                        <img src="${item.image}" class="img-fluid" width="50" height="50">
+                        <small class="d-block">${item.name}</small>
+                    `;
+                    itemElement.dataset.id = item.id;
+                    itemElement.dataset.type = type;
+                    
+                    itemElement.addEventListener('click', () => {
+                        toggleSelectedItem(item, type, 'yourItems');
+                        renderInventoryItems();
+                    });
+                    
+                    elements.yourItems.appendChild(itemElement);
+                });
+            });
+            
+            // If viewing an existing trade, render their items
+            if (selectedTrade) {
+                const otherUserId = selectedTrade.participants.find(id => id !== currentUser.uid);
+                const isInitiator = selectedTrade.initiator === currentUser.uid;
+                
+                const theirOffer = isInitiator ? selectedTrade.receiverOffer : selectedTrade.initiatorOffer;
+                
+                // Their coins
+                elements.theirCoins.value = theirOffer.coins || 0;
+                
+                // Their items
+                ['pets', 'knives'].forEach(type => {
+                    theirOffer.items[type].forEach(itemId => {
+                        // Find item in our ITEMS data (you might need to adjust this based on your actual data structure)
+                        let item = null;
+                        for (const rarity of ['common', 'rare', 'epic', 'legendary']) {
+                            const found = window.ITEMS[type][rarity].find(i => i.id === itemId);
+                            if (found) {
+                                item = found;
+                                break;
+                            }
+                        }
+                        
+                        if (item) {
+                            const isSelected = selectedItems.theirItems.some(i => i.id === item.id && i.type === type);
+                            
+                            const itemElement = document.createElement('div');
+                            itemElement.className = `trade-item ${isSelected ? 'selected' : ''}`;
+                            itemElement.innerHTML = `
+                                <img src="${item.image}" class="img-fluid" width="50" height="50">
+                                <small class="d-block">${item.name}</small>
+                            `;
+                            itemElement.dataset.id = item.id;
+                            itemElement.dataset.type = type;
+                            
+                            // Only allow selection if trade is pending and you're the receiver
+                            if (selectedTrade.status === TRADE_STATUS.PENDING && !isInitiator) {
+                                itemElement.addEventListener('click', () => {
+                                    toggleSelectedItem(item, type, 'theirItems');
+                                    renderInventoryItems();
+                                });
+                            }
+                            
+                            elements.theirItems.appendChild(itemElement);
+                        }
+                    });
+                });
+            }
+        }
+
+        function toggleSelectedItem(item, type, section) {
+            const itemsArray = selectedItems[section];
+            const index = itemsArray.findIndex(i => i.id === item.id && i.type === type);
+            
+            if (index >= 0) {
+                itemsArray.splice(index, 1);
+            } else {
+                itemsArray.push({ id: item.id, type: type });
+            }
+        }
+
+        function sendTradeRequest() {
+            if (!currentUser || !elements.tradeModal._partnerId) return;
+            
+            const yourCoins = parseInt(elements.yourCoins.value) || 0;
+            const theirCoins = parseInt(elements.theirCoins.value) || 0;
+            
+            // Validate trade
+            if (yourCoins > userData.coins) {
+                Swal.fire('Error', 'You don\'t have enough coins for this trade', 'error');
+                return;
+            }
+            
+            if (yourCoins === 0 && selectedItems.yourItems.length === 0) {
+                Swal.fire('Error', 'You must offer at least coins or items', 'error');
+                return;
+            }
+            
+            // Prepare trade data
+            const tradeData = {
+                participants: [currentUser.uid, elements.tradeModal._partnerId],
+                initiator: currentUser.uid,
+                initiatorOffer: {
+                    coins: yourCoins,
+                    items: {
+                        pets: selectedItems.yourItems.filter(i => i.type === 'pets').map(i => i.id),
+                        knives: selectedItems.yourItems.filter(i => i.type === 'knives').map(i => i.id)
+                    }
+                },
+                receiverOffer: {
+                    coins: theirCoins,
+                    items: {
+                        pets: selectedItems.theirItems.filter(i => i.type === 'pets').map(i => i.id),
+                        knives: selectedItems.theirItems.filter(i => i.type === 'knives').map(i => i.id)
+                    }
+                },
+                status: TRADE_STATUS.PENDING,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            // Create trade in Firestore
+            db.collection('trades').add(tradeData)
+                .then(() => {
+                    Swal.fire('Success', 'Trade request sent!', 'success');
+                    elements.tradeModal.hide();
+                })
+                .catch(error => {
+                    console.error('Error sending trade request:', error);
+                    Swal.fire('Error', 'Failed to send trade request: ' + error.message, 'error');
+                });
+        }
+
+        function viewTrade(tradeId) {
+            if (!currentUser) return;
+            
+            // Get trade data
+            db.collection('trades').doc(tradeId).get()
+                .then(doc => {
+                    if (!doc.exists) {
+                        Swal.fire('Error', 'Trade not found', 'error');
+                        return;
+                    }
+                    
+                    const trade = { id: doc.id, ...doc.data() };
+                    selectedTrade = trade;
+                    
+                    const otherUserId = trade.participants.find(id => id !== currentUser.uid);
+                    const otherUser = onlineUsers.find(u => u.userId === otherUserId) || {};
+                    const isInitiator = trade.initiator === currentUser.uid;
+                    
+                    // Set up modal for viewing trade
+                    elements.tradeModalTitle.textContent = `Trade with ${otherUser.username || 'User'}`;
+                    elements.tradePartnerName.textContent = otherUser.username || 'User';
+                    
+                    // Set coins
+                    const yourOffer = isInitiator ? trade.initiatorOffer : trade.receiverOffer;
+                    const theirOffer = isInitiator ? trade.receiverOffer : trade.initiatorOffer;
+                    
+                    elements.yourCoins.value = yourOffer.coins || 0;
+                    elements.theirCoins.value = theirOffer.coins || 0;
+                    
+                    // Disable coin inputs
+                    elements.yourCoins.disabled = true;
+                    elements.theirCoins.disabled = true;
+                    
+                    // Set selected items
+                    selectedItems = {
+                        yourItems: [
+                            ...yourOffer.items.pets.map(id => ({ id, type: 'pets' })),
+                            ...yourOffer.items.knives.map(id => ({ id, type: 'knives' }))
+                        ],
+                        theirItems: [
+                            ...theirOffer.items.pets.map(id => ({ id, type: 'pets' })),
+                            ...theirOffer.items.knives.map(id => ({ id, type: 'knives' }))
+                        ]
+                    };
+                    
+                    // Show appropriate buttons based on trade status and user role
+                    elements.sendTradeBtn.classList.add('d-none');
+                    
+                    if (trade.status === TRADE_STATUS.PENDING) {
+                        if (isInitiator) {
+                            // Initiator can only cancel
+                            elements.acceptTradeBtn.classList.add('d-none');
+                            elements.declineTradeBtn.classList.add('d-none');
+                            elements.cancelTradeBtn.classList.remove('d-none');
+                        } else {
+                            // Receiver can accept or decline
+                            elements.acceptTradeBtn.classList.remove('d-none');
+                            elements.declineTradeBtn.classList.remove('d-none');
+                            elements.cancelTradeBtn.classList.add('d-none');
+                        }
+                        
+                        elements.tradeStatusMessage.innerHTML = '<div class="alert alert-info">Trade is pending</div>';
+                    } else {
+                        // Completed/cancelled/declined trade - view only
+                        elements.acceptTradeBtn.classList.add('d-none');
+                        elements.declineTradeBtn.classList.add('d-none');
+                        elements.cancelTradeBtn.classList.add('d-none');
+                        
+                        let statusText = '';
+                        if (trade.status === TRADE_STATUS.COMPLETED) {
+                            statusText = 'Trade completed successfully';
+                        } else if (trade.status === TRADE_STATUS.DECLINED) {
+                            statusText = isInitiator ? 'Trade declined by receiver' : 'You declined this trade';
+                        } else if (trade.status === TRADE_STATUS.CANCELLED) {
+                            statusText = isInitiator ? 'You cancelled this trade' : 'Trade cancelled by initiator';
+                        }
+                        
+                        elements.tradeStatusMessage.innerHTML = `<div class="alert alert-${trade.status === TRADE_STATUS.COMPLETED ? 'success' : 'warning'}">${statusText}</div>`;
+                    }
+                    
+                    // Render items
+                    renderInventoryItems();
+                    
+                    // Show modal
+                    elements.tradeModal.show();
+                })
+                .catch(error => {
+                    console.error('Error viewing trade:', error);
+                    Swal.fire('Error', 'Failed to view trade: ' + error.message, 'error');
+                });
+        }
+
+        function acceptTrade() {
+            if (!currentUser || !selectedTrade) return;
+            
+            // Verify items still exist in inventory
+            verifyTradeItems()
+                .then(() => {
+                    // Update trade status
+                    return db.collection('trades').doc(selectedTrade.id).update({
+                        status: TRADE_STATUS.ACCEPTED,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    // Process the trade
+                    return processTrade();
+                })
+                .then(() => {
+                    Swal.fire('Success', 'Trade accepted!', 'success');
+                    elements.tradeModal.hide();
+                })
+                .catch(error => {
+                    console.error('Error accepting trade:', error);
+                    Swal.fire('Error', 'Failed to accept trade: ' + error.message, 'error');
+                });
+        }
+
+        function declineTrade() {
+            if (!currentUser || !selectedTrade) return;
+            
+            db.collection('trades').doc(selectedTrade.id).update({
+                status: TRADE_STATUS.DECLINED,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                Swal.fire('Info', 'Trade declined', 'info');
+                elements.tradeModal.hide();
+            })
+            .catch(error => {
+                console.error('Error declining trade:', error);
+                Swal.fire('Error', 'Failed to decline trade: ' + error.message, 'error');
+            });
+        }
+
+        function cancelTrade(tradeId = null) {
+            if (!currentUser) return;
+            
+            const tradeToCancel = tradeId ? { id: tradeId } : selectedTrade;
+            if (!tradeToCancel) return;
+            
+            db.collection('trades').doc(tradeToCancel.id).update({
+                status: TRADE_STATUS.CANCELLED,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                if (tradeId) {
+                    Swal.fire('Info', 'Trade cancelled', 'info');
+                } else {
+                    Swal.fire('Info', 'Trade cancelled', 'info');
+                    elements.tradeModal.hide();
+                }
+            })
+            .catch(error => {
+                console.error('Error cancelling trade:', error);
+                Swal.fire('Error', 'Failed to cancel trade: ' + error.message, 'error');
+            });
+        }
+
+        function verifyTradeItems() {
+            if (!selectedTrade) return Promise.reject('No trade selected');
+            
+            const isInitiator = selectedTrade.initiator === currentUser.uid;
+            const yourOffer = isInitiator ? selectedTrade.initiatorOffer : selectedTrade.receiverOffer;
+            const theirOffer = isInitiator ? selectedTrade.receiverOffer : selectedTrade.initiatorOffer;
+            
+            // Check if all items still exist in inventories
+            const promises = [];
+            
+            // Check your items
+            ['pets', 'knives'].forEach(type => {
+                yourOffer.items[type].forEach(itemId => {
+                    promises.push(
+                        db.collection('users').doc(currentUser.uid).get()
+                            .then(doc => {
+                                const userData = doc.data();
+                                const hasItem = userData.inventory[type].some(item => item.id === itemId);
+                                if (!hasItem) {
+                                    throw new Error(`You no longer have one of the items you offered`);
+                                }
+                            })
+                    );
+                });
+            });
+            
+            // Check their items (if you're the receiver)
+            if (!isInitiator) {
+                const otherUserId = selectedTrade.participants.find(id => id !== currentUser.uid);
+                
+                ['pets', 'knives'].forEach(type => {
+                    theirOffer.items[type].forEach(itemId => {
+                        promises.push(
+                            db.collection('users').doc(otherUserId).get()
+                                .then(doc => {
+                                    const userData = doc.data();
+                                    const hasItem = userData.inventory[type].some(item => item.id === itemId);
+                                    if (!hasItem) {
+                                        throw new Error(`The other player no longer has one of the items they offered`);
+                                    }
+                                })
+                        );
+                    });
+                });
+            }
+            
+            return Promise.all(promises);
+        }
+
+        function processTrade() {
+            if (!selectedTrade) return Promise.reject('No trade selected');
+            
+            const isInitiator = selectedTrade.initiator === currentUser.uid;
+            const initiatorId = selectedTrade.initiator;
+            const receiverId = selectedTrade.participants.find(id => id !== initiatorId);
+            
+            const initiatorOffer = selectedTrade.initiatorOffer;
+            const receiverOffer = selectedTrade.receiverOffer;
+            
+            // Get both users' data first to verify they have the items and coins
+            return Promise.all([
+                db.collection('users').doc(initiatorId).get(),
+                db.collection('users').doc(receiverId).get()
+            ])
+            .then(([initiatorDoc, receiverDoc]) => {
+                const initiatorData = initiatorDoc.data();
+                const receiverData = receiverDoc.data();
+                
+                // Verify initiator has the items and coins
+                if (initiatorData.coins < initiatorOffer.coins) {
+                    throw new Error('Initiator no longer has enough coins');
+                }
+                
+                ['pets', 'knives'].forEach(type => {
+                    initiatorOffer.items[type].forEach(itemId => {
+                        if (!initiatorData.inventory[type].some(item => item.id === itemId)) {
+                            throw new Error('Initiator no longer has one of the offered items');
+                        }
+                    });
+                });
+                
+                // Verify receiver has the items and coins
+                if (receiverData.coins < receiverOffer.coins) {
+                    throw new Error('Receiver no longer has enough coins');
+                }
+                
+                ['pets', 'knives'].forEach(type => {
+                    receiverOffer.items[type].forEach(itemId => {
+                        if (!receiverData.inventory[type].some(item => item.id === itemId)) {
+                            throw new Error('Receiver no longer has one of the offered items');
+                        }
+                    });
+                });
+                
+                // Prepare batch update
+                const batch = db.batch();
+                
+                // Update initiator's coins and items
+                batch.update(initiatorDoc.ref, {
+                    coins: initiatorData.coins - initiatorOffer.coins + receiverOffer.coins,
+                    [`inventory.pets`]: initiatorData.inventory.pets.filter(item => 
+                        !initiatorOffer.items.pets.includes(item.id)
+                        .concat(receiverOffer.items.pets.map(itemId => 
+                            receiverData.inventory.pets.find(item => item.id === itemId))),
+                    [`inventory.knives`]: initiatorData.inventory.knives.filter(item => 
+                        !initiatorOffer.items.knives.includes(item.id))
+                        .concat(receiverOffer.items.knives.map(itemId => 
+                            receiverData.inventory.knives.find(item => item.id === itemId)))
+                });
+                
+                // Update receiver's coins and items
+                batch.update(receiverDoc.ref, {
+                    coins: receiverData.coins - receiverOffer.coins + initiatorOffer.coins,
+                    [`inventory.pets`]: receiverData.inventory.pets.filter(item => 
+                        !receiverOffer.items.pets.includes(item.id))
+                        .concat(initiatorOffer.items.pets.map(itemId => 
+                            initiatorData.inventory.pets.find(item => item.id === itemId))),
+                    [`inventory.knives`]: receiverData.inventory.knives.filter(item => 
+                        !receiverOffer.items.knives.includes(item.id))
+                        .concat(initiatorOffer.items.knives.map(itemId => 
+                            initiatorData.inventory.knives.find(item => item.id === itemId)))
+                });
+                
+                // Update trade status
+                batch.update(db.collection('trades').doc(selectedTrade.id), {
+                    status: TRADE_STATUS.COMPLETED,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Commit the batch
+                return batch.commit();
+            });
+        }
+
+        // Utility Functions
+        function formatDate(date) {
+            return date.toLocaleString();
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
