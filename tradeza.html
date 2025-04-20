@@ -351,7 +351,7 @@
     if (!currentUser) return;
     
     const userStatusRef = db.collection('status').doc(currentUser.uid);
-    const rtdbRef = firebase.database().ref('/status/' + currentUser.uid); // Use initialized reference
+    const rtdbRef = firebase.database().ref('/status/' + currentUser.uid);
     
     firebase.database().ref('.info/connected').on('value', (snapshot) => {
         if (snapshot.val() === false) return;
@@ -366,14 +366,15 @@
                 });
             });
     });
+    
+    // Set up realtime listener for user's own status
+    db.collection('status').doc(currentUser.uid).onSnapshot((doc) => {
+        if (doc.exists && doc.data().state === 'trading') {
+            // User is in a trade, update UI accordingly
+        }
+    });
 }
-            
-            // Set up realtime listener for user's own status
-            db.collection('status').doc(currentUser.uid).onSnapshot((doc) => {
-                if (doc.exists && doc.data().state === 'trading') {
-                    // User is in a trade, update UI accordingly
-                }
-            });
+   
             
             // Set user to online when they sign in
             db.collection('status').doc(currentUser.uid).set(isOnlineForFirestore);
