@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreetLife - Crime & Casino Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <div class="player-stats">
+                <div class="stat">
+                    <span class="stat-label">Cash:</span>
+                    <span id="cash">$10,000</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Health:</span>
+                    <div class="health-bar">
+                        <div class="health-fill" id="health-fill"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Food:</span>
+                    <div class="food-bar">
+                        <div class="food-fill" id="food-fill"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Reputation:</span>
+                    <span id="reputation">Neutral</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <div class="location-selector">
+                <button class="location-btn" data-location="casino">Casino</button>
+                <button class="location-btn" data-location="drug-lab">Drug Lab</button>
+                <button class="location-btn" data-location="phone">Phone</button>
+                <button class="location-btn" data-location="pawn-shop">Pawn Shop</button>
+                <button class="location-btn" data-location="car-dealer">Car Dealer</button>
+                <button class="location-btn" data-location="grocery">Grocery Store</button>
+                <button class="location-btn" data-location="gun-store">Gun Store</button>
+                <button class="location-btn" data-location="gangs">Gangs</button>
+                <button class="location-btn" data-location="street-selling">Street Selling</button>
+                <button class="location-btn" data-location="burglary">Burglary</button>
+                <button class="location-btn" data-location="carjacking">Carjacking</button>
+            </div>
+
+            <div class="location-content" id="location-content">
+                <div class="welcome-screen">
+                    <h1>StreetLife</h1>
+                    <p>Make your way to the top through gambling, crime, and business!</p>
+                    <p>Choose a location to begin.</p>
+                </div>
+            </div>
+
+            <div class="notifications" id="notifications"></div>
+        </main>
+
+        <footer class="game-footer">
+            <div class="time-display">
+                <span id="game-time">Day 1, 8:00 AM</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Casino Modals -->
+    <div id="roulette-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Roulette</h2>
+            <div class="roulette-wheel" id="roulette-wheel">
+                <div class="wheel-center"></div>
+            </div>
+            <div class="roulette-bets">
+                <div class="number-grid" id="number-grid"></div>
+                <div class="outside-bets">
+                    <button class="bet-btn" data-bet="red">Red</button>
+                    <button class="bet-btn" data-bet="black">Black</button>
+                    <button class="bet-btn" data-bet="odd">Odd</button>
+                    <button class="bet-btn" data-bet="even">Even</button>
+                    <button class="bet-btn" data-bet="1-18">1-18</button>
+                    <button class="bet-btn" data-bet="19-36">19-36</button>
+                </div>
+            </div>
+            <div class="bet-controls">
+                <input type="number" id="bet-amount" min="10" value="100">
+                <button id="place-bet">Place Bet</button>
+                <button id="spin-wheel">Spin Wheel</button>
+            </div>
+            <div class="current-bets" id="current-bets"></div>
+        </div>
+    </div>
+
+    <div id="blackjack-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Blackjack</h2>
+            <div class="blackjack-table">
+                <div class="dealer-hand">
+                    <h3>Dealer</h3>
+                    <div class="dealer-cards" id="dealer-cards"></div>
+                    <div class="dealer-total" id="dealer-total"></div>
+                </div>
+                <div class="player-hand">
+                    <h3>Player</h3>
+                    <div class="player-cards" id="player-cards"></div>
+                    <div class="player-total" id="player-total"></div>
+                </div>
+            </div>
+            <div class="blackjack-controls">
+                <input type="number" id="bj-bet-amount" min="10" value="100">
+                <button id="place-bj-bet">Place Bet</button>
+                <button id="hit-btn">Hit</button>
+                <button id="stand-btn">Stand</button>
+                <button id="double-btn">Double</button>
+                <button id="new-bj-game">New Game</button>
+            </div>
+            <div class="blackjack-status" id="blackjack-status"></div>
+        </div>
+    </div>
+
+    <div id="poker-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Texas Hold'em</h2>
+            <div class="poker-table">
+                <div class="community-cards" id="community-cards"></div>
+                <div class="player-hand">
+                    <h3>Your Hand</h3>
+                    <div class="player-cards" id="player-hand"></div>
+                </div>
+            </div>
+            <div class="poker-controls">
+                <input type="number" id="poker-bet-amount" min="10" value="100">
+                <button id="place-poker-bet">Start Game</button>
+                <button id="call-btn">Call</button>
+                <button id="raise-btn">Raise</button>
+                <button id="fold-btn">Fold</button>
+                <button id="check-btn">Check</button>
+            </div>
+            <div class="poker-status" id="poker-status"></div>
+            <div class="poker-ai-players" id="poker-ai-players"></div>
+        </div>
+    </div>
+
+    <div id="slots-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Slot Machines</h2>
+            <div class="slot-machine">
+                <div class="slot-reels" id="slot-reels">
+                    <div class="reel"></div>
+                    <div class="reel"></div>
+                    <div class="reel"></div>
+                </div>
+                <div class="slot-controls">
+                    <input type="number" id="slot-bet" min="10" value="100">
+                    <button id="spin-slots">Spin</button>
+                </div>
+                <div class="slot-paytable" id="slot-paytable"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drug Lab Modal -->
+    <div id="drug-lab-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Drug Lab</h2>
+            <div class="drug-lab-interface">
+                <div class="inventory-section">
+                    <h3>Inventory</h3>
+                    <div class="inventory-items" id="drug-inventory"></div>
+                </div>
+                <div class="crafting-section">
+                    <h3>Craft Drugs</h3>
+                    <div class="crafting-recipes" id="crafting-recipes"></div>
+                </div>
+                <div class="strain-creator">
+                    <h3>Create New Strain</h3>
+                    <select id="strain-base">
+                        <option value="weed">Weed</option>
+                        <option value="cocaine">Cocaine</option>
+                        <option value="meth">Meth</option>
+                        <option value="lsd">LSD</option>
+                        <option value="mdma">MDMA</option>
+                        <option value="fentanyl">Fentanyl</option>
+                    </select>
+                    <input type="text" id="strain-name" placeholder="Strain Name">
+                    <select id="strain-potency">
+                        <option value="low">Low (Cheaper, weaker)</option>
+                        <option value="medium">Medium (Balanced)</option>
+                        <option value="high">High (Expensive, potent)</option>
+                    </select>
+                    <button id="create-strain">Create Strain</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phone Modal -->
+    <div id="phone-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Phone</h2>
+            <div class="phone-interface">
+                <div class="contacts-list" id="contacts-list"></div>
+                <div class="phone-controls">
+                    <button id="call-contact">Call</button>
+                    <button id="text-contact">Text</button>
+                    <button id="sell-drugs">Sell Drugs</button>
+                </div>
+                <div class="phone-messages" id="phone-messages"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pawn Shop Modal -->
+    <div id="pawn-shop-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Pawn Shop</h2>
+            <div class="pawn-shop-interface">
+                <div class="player-items" id="player-items"></div>
+                <div class="pawn-offer">
+                    <p>Offer: <span id="pawn-offer-amount">$0</span></p>
+                    <button id="accept-pawn">Accept</button>
+                    <button id="decline-pawn">Decline</button>
+                </div>
+                <div class="rob-option">
+                    <button id="rob-pawn-shop" class="danger">Rob the Pawn Shop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Car Dealer Modal -->
+    <div id="car-dealer-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Luxury Vehicles</h2>
+            <div class="vehicle-showroom" id="vehicle-showroom"></div>
+            <div class="player-garage">
+                <h3>Your Garage</h3>
+                <div class="owned-vehicles" id="owned-vehicles"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grocery Store Modal -->
+    <div id="grocery-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Grocery Store</h2>
+            <div class="grocery-items" id="grocery-items"></div>
+            <div class="cart">
+                <h3>Your Cart</h3>
+                <div class="cart-items" id="cart-items"></div>
+                <div class="cart-total">
+                    Total: <span id="cart-total-amount">$0</span>
+                    <button id="checkout">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gun Store Modal -->
+    <div id="gun-store-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Gun Store</h2>
+            <div class="gun-store-inventory" id="gun-store-inventory"></div>
+            <div class="player-guns">
+                <h3>Your Arsenal</h3>
+                <div class="owned-guns" id="owned-guns"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gang Modal -->
+    <div id="gang-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Gang Network</h2>
+            <div class="gang-list" id="gang-list"></div>
+            <div class="gang-info" id="gang-info">
+                <p>Not in a gang</p>
+            </div>
+            <div class="gang-actions" id="gang-actions">
+                <button id="rob-gang-member" class="danger">Rob Gang Member</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Street Selling Modal -->
+    <div id="street-selling-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Street Selling</h2>
+            <div class="customer-interaction">
+                <div class="customer-info" id="customer-info">
+                    <p>No customers yet</p>
+                </div>
+                <div class="selling-options">
+                    <button id="offer-sample" class="success">Offer Free Sample</button>
+                    <button id="sell-drug">Sell Drug</button>
+                    <button id="upsell">Upsell (+50% Price)</button>
+                    <button id="pickpocket" class="danger">Pickpocket Customer</button>
+                    <button id="next-customer">Next Customer</button>
+                </div>
+                <div class="selling-status" id="selling-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Burglary Modal -->
+    <div id="burglary-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Burglary</h2>
+            <div class="house-selection" id="house-selection">
+                <h3>Select a House to Rob</h3>
+                <div class="house-options">
+                    <div class="house-option" data-value="5000">
+                        <h4>Small House</h4>
+                        <p>Potential Loot: $1,000-$5,000</p>
+                        <p>Police Response: Slow</p>
+                    </div>
+                    <div class="house-option" data-value="15000">
+                        <h4>Medium House</h4>
+                        <p>Potential Loot: $5,000-$15,000</p>
+                        <p>Police Response: Medium</p>
+                    </div>
+                    <div class="house-option" data-value="30000">
+                        <h4>Luxury House</h4>
+                        <p>Potential Loot: $15,000-$30,000</p>
+                        <p>Police Response: Fast</p>
+                    </div>
+                </div>
+            </div>
+            <div class="burglary-game" id="burglary-game" style="display:none;">
+                <div class="maze-container" id="maze-container"></div>
+                <div class="burglary-status">
+                    <p>Time Remaining: <span id="burglary-time">60</span>s</p>
+                    <p>Loot Collected: $<span id="loot-collected">0</span></p>
+                    <p>Items Found: <span id="items-found">0</span>/5</p>
+                </div>
+                <div class="burglary-controls">
+                    <button id="leave-house">Leave Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carjacking Modal -->
+    <div id="carjacking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Carjacking</h2>
+            <div class="carjacking-interface">
+                <div class="vehicle-selection" id="vehicle-selection">
+                    <h3>Select a Vehicle to Steal</h3>
+                    <div class="vehicle-options">
+                        <div class="vehicle-option" data-value="10000">
+                            <h4>Sedan</h4>
+                            <p>Value: $5,000-$10,000</p>
+                            <p>Risk: Medium</p>
+                        </div>
+                        <div class="vehicle-option" data-value="25000">
+                            <h4>SUV</h4>
+                            <p>Value: $15,000-$25,000</p>
+                            <p>Risk: High</p>
+                        </div>
+                        <div class="vehicle-option" data-value="50000">
+                            <h4>Luxury Car</h4>
+                            <p>Value: $30,000-$50,000</p>
+                            <p>Risk: Very High</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carjacking-status" id="carjacking-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jail Modal -->
+    <div id="jail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>County Jail</h2>
+            <div class="jail-interface">
+                <div class="jail-status" id="jail-status">
+                    <p>You've been arrested! You have <span id="jail-time">30</span> days remaining.</p>
+                </div>
+                <div class="jail-options">
+                    <button id="request-lawyer">Request Lawyer</button>
+                    <button id="bail-out">Post Bail ($50,000)</button>
+                    <button id="jail-work">Work (Earn $100/day)</button>
+                    <button id="jail-fight">Fight (Risk injury)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Court Modal -->
+    <div id="court-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Court Hearing</h2>
+            <div class="court-interface">
+                <div class="case-details" id="case-details"></div>
+                <div class="lawyer-options">
+                    <h3>Hire a Lawyer</h3>
+                    <div class="lawyer-option" data-skill="1">
+                        <h4>Public Defender</h4>
+                        <p>Free (10% chance of winning)</p>
+                    </div>
+                    <div class="lawyer-option" data-skill="2">
+                        <h4>Average Lawyer</h4>
+                        <p>$5,000 (35% chance of winning)</p>
+                    </div>
+                    <div class="lawyer-option" data-skill="3">
+                        <h4>Good Lawyer</h4>
+                        <p>$15,000 (60% chance of winning)</p>
+                    </div>
+                    <div class="lawyer-option" data-skill="4">
+                        <h4>Excellent Lawyer</h4>
+                        <p>$30,000 (80% chance of winning)</p>
+                    </div>
+                </div>
+                <div class="court-arguments">
+                    <h3>Present Your Case</h3>
+                    <textarea id="defense-argument" placeholder="Make your argument..."></textarea>
+                    <button id="present-case">Present Case</button>
+                </div>
+                <div class="court-result" id="court-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
