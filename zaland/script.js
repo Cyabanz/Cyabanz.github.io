@@ -1558,9 +1558,113 @@ function setupPoker() {
         raiseBtn.disabled = false;
         foldBtn.disabled = false;
         checkBtn.disabled = false;
-    })
+    });
+}
 
-
+function setupSlotMachine() {
+    const spinBtn = document.getElementById('spin-slots');
+    const betInput = document.getElementById('slot-bet');
+    const reels = document.querySelectorAll('.slot-reels .reel');
+    const paytableDiv = document.getElementById('slot-paytable');
+    
+    // Set up paytable
+    paytableDiv.innerHTML = `
+        <h3>Paytable</h3>
+        <p>3x 💎 = 100x bet</p>
+        <p>3x 7️⃣ = 50x bet</p>
+        <p>3x any fruit = 10x bet</p>
+        <p>2x 💎 = 5x bet</p>
+    `;
+    
+    spinBtn.addEventListener('click', () => {
+        if (casinoGames.slots.spinning) return;
+        
+        const bet = parseInt(betInput.value);
+        if (bet > gameState.cash) {
+            addNotification("You don't have enough cash for that bet!");
+            return;
+        }
+        
+        gameState.cash -= bet;
+        casinoGames.slots.spinning = true;
+        spinBtn.disabled = true;
+        updateUI();
+        
+        // Spin each reel with different durations
+        const spinDurations = [1000, 1200, 1400];
+        const results = [];
+        
+        reels.forEach((reel, index) => {
+            const duration = spinDurations[index];
+            const startTime = Date.now();
+            
+            function spinReel() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Show random symbol during spin
+                if (progress < 1) {
+                    const randomSymbol = items.slotSymbols[Math.floor(Math.random() * items.slotSymbols.length)];
+                    reel.textContent = randomSymbol;
+                    requestAnimationFrame(spinReel);
+                } else {
+                    // Final symbol
+                    const finalSymbol = items.slotSymbols[Math.floor(Math.random() * items.slotSymbols.length)];
+                    reel.textContent = finalSymbol;
+                    results.push(finalSymbol);
+                    
+                    // When all reels stopped
+                    if (results.length === 3) {
+                        evaluateSlotResult(results, bet);
+                        casinoGames.slots.spinning = false;
+                        spinBtn.disabled = false;
+                    }
+                }
+            }
+            
+            spinReel();
+        });
+    });
+    
+    function evaluateSlotResult(symbols, bet) {
+        let winnings = 0;
+        
+        // Check for wins
+        if (symbols[0] === symbols[1] && symbols[1] === symbols[2]) {
+            // Three of a kind
+            if (symbols[0] === '💎') {
+                winnings = bet * 100;
+            } else if (symbols[0] === '7️⃣') {
+                winnings = bet * 50;
+            } else {
+                winnings = bet * 10;
+            }
+        } else if (symbols[0] === symbols[1] && symbols[0] === '💎') {
+            // Two diamonds
+            winnings = bet * 5;
+        } else if (symbols[1] === symbols[2] && symbols[1] === '💎') {
+            // Two diamonds
+            winnings = bet * 5;
+        }
+        
+        if (winnings > 0) {
+            gameState.cash += winnings;
+            
+            // Gang bonus
+            if (gameState.gang && gameState.gang.name === 'Shadow Syndicate') {
+                const bonus = Math.floor(winnings * 0.2);
+                gameState.cash += bonus;
+                addNotification(`Gang bonus: +$${bonus.toLocaleString()}`);
+            }
+            
+            addNotification(`You won $${winnings}!`);
+        } else {
+            addNotification("No win this time. Try again!");
+        }
+        
+        updateUI();
+    }
+}
 
 function setupDrugLab() {
     const createStrainBtn = document.getElementById('create-strain');
