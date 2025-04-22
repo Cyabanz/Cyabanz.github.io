@@ -5,7 +5,8 @@ const tradeState = {
     currentDemand: null,
     isCop: false,
     robberyProgress: 0,
-    robberySuccess: false
+    robberySuccess: false,
+    robberyInterval: null
 };
 
 // Trader types and their behaviors
@@ -15,21 +16,24 @@ const traderTypes = {
         risk: 0.1,
         offerMultiplier: 0.8,
         fightChance: 0.3,
-        copChance: 0.05
+        copChance: 0.05,
+        availability: 0.8  // 80% chance to find
     },
     rich: {
         name: "Rich",
         risk: 0.3,
         offerMultiplier: 1.2,
         fightChance: 0.5,
-        copChance: 0.1
+        copChance: 0.1,
+        availability: 0.6  // 60% chance to find
     },
     wholesale: {
         name: "Wholesale",
         risk: 0.5,
         offerMultiplier: 1.0,
         fightChance: 0.2,
-        copChance: 0.2
+        copChance: 0.2,
+        availability: 0.4  // 40% chance to find
     }
 };
 
@@ -95,13 +99,19 @@ function setupEventListeners() {
     document.getElementById('trade-continue').addEventListener('click', resetTrade);
     
     // Robbery button
-    document.getElementById('robbery-action').addEventListener('click', attemptRobbery);
+    document.getElementById('robbery-action').addEventListener('click', attemptRobberyAction);
     
     // Robbery continue button
     document.getElementById('robbery-continue').addEventListener('click', finishRobbery);
     
     // Exit trading button
     document.getElementById('exit-trading').addEventListener('click', exitTrading);
+    
+    // Try again button
+    document.getElementById('try-again').addEventListener('click', () => {
+        document.getElementById('no-traders').classList.add('hidden');
+        document.querySelector('.trading-options').classList.remove('hidden');
+    });
 }
 
 // Update trading UI
@@ -154,24 +164,29 @@ function updateInventoryDisplay() {
 
 // Find a trader
 function findTrader(type) {
-    // Determine trader type
-    let traderType;
-    let isCop = false;
+    const traderKey = type.split('-')[1];
+    const traderType = traderTypes[traderKey];
     
-    // Check if this is an undercover cop (based on police heat)
-    if (Math.random() < traderTypes[type.split('-')[1]].copChance * (1 + gameState.policeHeat / 100)) {
+    // Check if trader is available
+    if (Math.random() > traderType.availability) {
+        showNoTradersAvailable();
+        return;
+    }
+    
+    // Determine if this is an undercover cop (based on police heat)
+    let isCop = false;
+    if (Math.random() < traderType.copChance * (1 + gameState.policeHeat / 100)) {
         isCop = true;
-        traderType = {
+        tradeState.currentTrader = {
             name: "Undercover Cop",
             risk: 1.0,
             offerMultiplier: 1.0,
             fightChance: 0.8
         };
     } else {
-        traderType = traderTypes[type.split('-')[1]];
+        tradeState.currentTrader = traderType;
     }
     
-    tradeState.currentTrader = traderType;
     tradeState.isCop = isCop;
     
     // Generate an offer
@@ -183,6 +198,11 @@ function findTrader(type) {
     
     // Update trader display
     updateTraderDisplay();
+}
+
+function showNoTradersAvailable() {
+    document.querySelector('.trading-options').classList.add('hidden');
+    document.getElementById('no-traders').classList.remove('hidden');
 }
 
 // Generate a trade offer
@@ -329,7 +349,7 @@ function handleTradeDecision(decision) {
     } else if (decision === "negotiate") {
         negotiateTrade();
     } else if (decision === "rob") {
-        attemptRobbery();
+        startRobbery();
     } else if (decision === "decline") {
         declineTrade();
     }
@@ -468,8 +488,8 @@ function declineTrade() {
     document.getElementById('trade-result-text').textContent = "You declined the trade offer.";
 }
 
-// Attempt to rob the trader
-function attemptRobbery() {
+// Start robbery attempt
+function startRobbery() {
     // Show robbery screen
     document.getElementById('current-trade').classList.add('hidden');
     document.getElementById('robbery-screen').classList.remove('hidden');
@@ -481,8 +501,8 @@ function attemptRobbery() {
     document.getElementById('robbery-outcome').classList.add('hidden');
     
     // Start robbery timer
-    clearInterval(robberyInterval);
-    robberyInterval = setInterval(updateRobbery, 100);
+    clearInterval(tradeState.robberyInterval);
+    tradeState.robberyInterval = setInterval(updateRobbery, 100);
 }
 
 // Update robbery progress
@@ -513,7 +533,7 @@ function attemptRobberyAction() {
 
 // Finish robbery attempt
 function finishRobbery(success) {
-    clearInterval(robberyInterval);
+    clearInterval(tradeState.robberyInterval);
     
     // Show outcome
     document.getElementById('robbery-outcome').classList.remove('hidden');
@@ -605,6 +625,5 @@ function exitTrading() {
 
 // Initialize the game when loaded
 let gameState = {};
-let robberyInterval = null;
 
 document.addEventListener('DOMContentLoaded', initTradingGame);
