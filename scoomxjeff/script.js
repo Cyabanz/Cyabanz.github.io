@@ -2010,26 +2010,57 @@ function buyIngredient(ingredient, quantity) {
 // Start the game
 initGame();
 
-// Save game state to localStorage
-function saveGameState() {
-    localStorage.setItem('streetAlchemistGameState', JSON.stringify(gameState));
-}
-
 // Function to open trading interface
 function openTrading() {
-    window.open('trading.html', '_blank');
+    // Save current game state to localStorage
+    localStorage.setItem('mainGameState', JSON.stringify({
+        inventory: player.inventory,
+        money: player.money,
+        health: player.health,
+        daysFree: player.daysFree,
+        jailTime: player.jailTime
+    }));
+    
+    // Open trading window
+    const tradingWindow = window.open('trading.html', 'tradingWindow', 'width=1000,height=800');
+    
+    // Listen for updates from trading window
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'tradingUpdate') {
+            // Update main game with trading data
+            player.inventory = event.data.inventory;
+            player.money = event.data.money;
+            player.health = event.data.health;
+            player.jailTime = event.data.jailTime;
+            player.daysFree = event.data.daysFree;
+            
+            // Update your main game UI
+            updateGameUI();
+        }
+    });
 }
 
-// In your game loop, call this to sync days
-function updateFromTrading() {
+// Function to update from trading system when it closes
+function checkTradingUpdates() {
     const tradingData = localStorage.getItem('undergroundTraderGame');
     if (tradingData) {
         const parsed = JSON.parse(tradingData);
-        // Update your game state with relevant values from trading system
-        // For example:
-        player.money = parsed.player.money;
         player.inventory = parsed.player.inventory;
+        player.money = parsed.player.money;
         player.health = parsed.player.health;
         player.jailTime = parsed.player.jailTime;
+        player.daysFree = parsed.player.daysFree;
+        
+        // Update your main game UI
+        updateGameUI();
     }
 }
+
+// Call this when your game loads
+window.addEventListener('load', function() {
+    // Check for trading updates if returning from trading screen
+    checkTradingUpdates();
+    
+    // Set up your trading button
+    document.getElementById('trading-button').addEventListener('click', openTrading);
+});
