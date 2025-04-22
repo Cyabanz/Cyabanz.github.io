@@ -2009,3 +2009,8 @@ function buyIngredient(ingredient, quantity) {
 
 // Start the game
 initGame();
+
+// Save game state to localStorage
+function saveGameState() {
+    localStorage.setItem('streetAlchemistGameState', JSON.stringify(gameState));
+}
