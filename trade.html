@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Alchemist - Trading</title>
+    <link rel="stylesheet" href="trading.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="phone-frame">
+            <div class="phone-screen">
+                <!-- Trading Main Screen -->
+                <div class="app-screen" id="trading-screen">
+                    <div class="status-bar">
+                        <span id="trade-time">12:00 PM</span>
+                        <span id="trade-money">$10,000</span>
+                        <span id="trade-health">Health: 100%</span>
+                        <button class="back-button" id="exit-trading">← Exit</button>
+                    </div>
+                    <h2>Street Trading</h2>
+                    <div class="trading-options">
+                        <div class="trading-option" data-option="find-trader">
+                            <h3>Find Trader</h3>
+                            <p>Look for someone to trade with</p>
+                            <p>Risk: Low</p>
+                            <button class="trade-action">Find</button>
+                        </div>
+                        <div class="trading-option" data-option="find-rich">
+                            <h3>Find Rich Buyer</h3>
+                            <p>Look for high-end buyers</p>
+                            <p>Risk: Medium</p>
+                            <button class="trade-action">Find</button>
+                        </div>
+                        <div class="trading-option" data-option="find-wholesale">
+                            <h3>Find Wholesaler</h3>
+                            <p>Look for bulk buyers</p>
+                            <p>Risk: High</p>
+                            <button class="trade-action">Find</button>
+                        </div>
+                    </div>
+                    <div class="current-trade hidden" id="current-trade">
+                        <h3>Current Offer</h3>
+                        <div class="trade-details">
+                            <div class="trader-info">
+                                <div class="trader-avatar"></div>
+                                <p id="trader-type">Type: Regular</p>
+                                <p id="trader-trust">Trust: 50%</p>
+                            </div>
+                            <div class="offer-details">
+                                <h4>They Offer:</h4>
+                                <div class="their-offer" id="their-offer"></div>
+                                <h4>They Want:</h4>
+                                <div class="their-demand" id="their-demand"></div>
+                            </div>
+                        </div>
+                        <div class="trade-actions">
+                            <button class="trade-decision" data-decision="accept">Accept</button>
+                            <button class="trade-decision" data-decision="negotiate">Negotiate</button>
+                            <button class="trade-decision" data-decision="rob">Rob Them</button>
+                            <button class="trade-decision" data-decision="decline">Decline</button>
+                        </div>
+                    </div>
+                    <div class="trade-result hidden" id="trade-result">
+                        <h3 id="trade-result-title">Trade Result</h3>
+                        <p id="trade-result-text"></p>
+                        <button class="action-button" id="trade-continue">Continue</button>
+                    </div>
+                    <div class="inventory-section">
+                        <h3>Your Inventory</h3>
+                        <div class="inventory-list" id="trade-inventory">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Robbery Mini-Game -->
+                <div class="app-screen hidden" id="robbery-screen">
+                    <div class="status-bar">
+                        <span id="robbery-time">12:00 PM</span>
+                        <span id="robbery-status">Status: In Progress</span>
+                    </div>
+                    <h2>Robbery Attempt</h2>
+                    <div class="robbery-container">
+                        <div class="robbery-instructions">
+                            <p>Quickly press the button to overpower the trader!</p>
+                            <p>Be careful - they might fight back!</p>
+                        </div>
+                        <div class="robbery-meter">
+                            <progress id="robbery-progress" value="0" max="100"></progress>
+                            <button class="robbery-button" id="robbery-action">Attack!</button>
+                        </div>
+                        <div class="robbery-outcome hidden" id="robbery-outcome">
+                            <h3 id="robbery-result-title">Robbery Result</h3>
+                            <p id="robbery-result-text"></p>
+                            <button class="action-button" id="robbery-continue">Continue</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="trading.js"></script>
+</body>
+</html>
