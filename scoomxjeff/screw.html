@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Alchemist</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="phone-frame">
+            <div class="phone-screen">
+                <!-- App Selection Screen -->
+                <div class="app-screen" id="home-screen">
+                    <div class="status-bar">
+                        <span id="game-time">12:00 PM</span>
+                        <span id="game-money">$10,000</span>
+                        <span id="game-rep">Rep: 0</span>
+                        <span id="game-health">Health: 100%</span>
+                    </div>
+                    <h2>Street Alchemist</h2>
+                    <div class="app-grid">
+                        <div class="app-icon" data-app="lab">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDYxLjIgMTI4LjVjLTIuMy0yLjMtNS4xLTMuNS03LjktMy41cy01LjYgMS4yLTcuOSAzLjVsLTQwLjkgNDAuOUwyNTYgMTM5LjdsLTQ5LjQtNDkuNGMtMi4zLTIuMy01LjEtMy41LTcuOS0zLjVzLTUuNiAxLjItNy45IDMuNWMtNC43IDQuNy00LjcgMTIuMyAwIDE3bDU3LjMgNTcuM2M0LjcgNC43IDEyLjMgNC43IDE3IDBsNTcuMy01Ny4zYzQuNy00LjcgNC43LTEyLjMgMC0xN3pNMjU2IDI5OC4zbC00OS40LTQ5LjRjLTQuNy00LjctMTIuMy00LjctMTcgMGwtNTcuMyA1Ny4zYy00LjcgNC43LTQuNyAxMi4zIDAgMTcgMi4zIDIuMyA1LjEgMy41IDcuOSAzLjVzNS42LTEuMiA3LjktMy41bDQwLjktNDAuOUwyNTYgMzcyLjNsMTQ5LjItMTQ5LjIgNDAuOSA0MC45YzIuMyAyLjMgNS4xIDMuNSA3LjkgMy41czUuNi0xLjIgNy45LTMuNWM0LjctNC43IDQuNy0xMjMgMC0xN2wtNTcuMy01Ny4zYy00LjctNC43LTEyLjMtNC43LTE3IDB6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" alt="Lab">
+                            <span>Lab</span>
+                        </div>
+                        <div class="app-icon" data-app="phone">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDkxLjEgNjguNWMtMTguNC0xOC40LTQ4LjItMTguNC02Ni42IDBsLTMzLjkgMzMuOWMtMTIuMSAxMi4xLTEyLjEgMzEuNyAwIDQzLjhDMzk5IDExOS4xIDQwOCAxMzcuNCA0MDggMTYwYzAgMjYuNS0yMS41IDQ4LTQ4IDQ4LTEzLjkgMC0yNi4zLTUuOS0zNS4yLTE1LjItMTIuMS0xMi4xLTMxLjctMTIuMS00My44IDBsLTQwLjIgNDAuMmMtMTIuMSAxMi4xLTEyLjEgMzEuNyAwIDQzLjggMTguNCAxOC40IDQ4LjIgMTguNCA2Ni42IDBsNzcuNC03Ny40YzE4LjQtMTguNCAxOC40LTQ4LjIgMC02Ni42eiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNMjI0IDQwOGMtMTMuOSAwLTI2LjMgNS45LTM1LjIgMTUuMi0xMi4xIDEyLjEtMzEuNyAxMi4xLTQzLjggMGwtNDAuMi00MC4yYy0xMi4xLTEyLjEtMTIuMS0zMS43IDAtNDMuOC0xOC40LTE4LjQtNDguMi0xOC40LTY2LjYgMGwtNzcuNCA3Ny40Yy0xOC40IDE4LjQtMTguNCA0OC4yIDAgNjYuNiAxOC40IDE8LjQgNDguMiAxOC40IDY2LjYgMGwzMy45LTMzLjljMTIuMS0xMi4xIDMxLjctMTIuMSA0My44IDAgOS4zIDkuMyAxNS4yIDIxLjcgMTUuMiAzNS4yIDAgMjYuNS0yMS41IDQ4LTQ4IDQ4eiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Phone">
+                            <span>Phone</span>
+                        </div>
+                        <div class="app-icon" data-app="police-scanner">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBjLTM1LjMgMC02NCAyOC43LTY0IDY0djM4NGMwIDM1LjMgMjguNyA2NCA2NCA2NHM2NC0yOC43IDY0LTY0VjY0YzAtMzUuMy0yOC43LTY0LTY0LTY0ek0yNTYgMTYwYzM1LjMgMCA2NCAyOC43IDY0IDY0djE5MmMwIDM1LjMtMjguNyA2NC02NCA2NHMtNjQtMjguNy02NC02NFYyMjRjMC0zNS4zIDI4LjctNjQgNjQtNjR6TTY0IDMyMGMzNS4zIDAgNjQgMjguNyA2NCA2NHY2NGMwIDM1LjMtMjguNyA2NC02NCA2NFMwIDQ4My4zIDAgNDQ4di02NGMwLTM1LjMgMjguNy02NCA2NC02NHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" alt="Police Scanner">
+                            <span>Scanner</span>
+                        </div>
+                        <div class="app-icon" data-app="store">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBIMTYwYy0xNy43IDAtMzIgMTQuMy0zMiAzMnYzMkg2NGMtMTcuNyAwLTMyIDE0LjMtMzIgMzJ2Mzg0YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDM4NGMxNy43IDAgMzItMTQuMyAzMi0zMlY2NGMwLTE3LjctMTQuMy0zMi0zMi0zMmgtNjRWMzJjMC0xNy43LTE0LjMtMzItMzItMzJ6bS0yNDAgOTZoNjR2NjRoLTY0Vjk2em0xMjggMGg2NHY2NGgtNjRWOTZ6TTEyOCAyMjRoNjR2NjRoLTY0di02NHptMTI4IDBoNjR2NjRoLTY0di02NHptMTYwLTk2djM1MmMwIDguOC03LjIgMTYtMTYgMTZoLTY0VjIyNGMwLTguOC03LjItMTYtMTYtMTZoLTk2Yy04LjggMC0xNiA3LjItMTYgMTZ2MTYwSDY0VjEyOGgzODR6bS00OCAxMjhoNjR2NjRoLTY0di02NHptLTMyIDBoLTY0djY0aDY0di02NHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" alt="Store">
+                            <span>Store</span>
+                        </div>
+                        <div class="app-icon" data-app="gun-store">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBIMTYwYy0xNy43IDAtMzIgMTQuMy0zMiAzMnYzMkg2NGMtMTcuNyAwLTMyIDE0LjMtMzIgMzJ2Mzg0YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDM4NGMxNy43IDAgMzItMTQuMyAzMi0zMlY2NGMwLTE3LjctMTQuMy0zMi0zMi0zMmgtNjRWMzJjMC0xNy43LTE0LjMtMzItMzItMzJ6bS0yNDAgOTZoNjR2NjRoLTY0Vjk2em0xMjggMGg2NHY2NGgtNjRWOTZ6TTEyOCAyMjRoNjR2NjRoLTY0di02NHptMTI4IDBoNjR2NjRoLTY0di02NHptMTYwLTk2djM1MmMwIDguOC03LjIgMTYtMTYgMTZoLTY0VjIyNGMwLTguOC03LjItMTYtMTYtMTZoLTk2Yy04LjggMC0xNiA3LjItMTYgMTZ2MTYwSDY0VjEyOGgzODR6bS00OCAxMjhoNjR2NjRoLTY0di02NHptLTMyIDBoLTY0djY0aDY0di02NHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" alt="Gun Store">
+                            <span>Gun Store</span>
+                        </div>
+                        <div class="app-icon" data-app="gangs">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDE2IDIxNmMwLTE3LjctMTQuMy0zMi0zMi0zMkgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZ6bTMyLTgwVjY0YzAtMTcuNy0xNC4zLTMyLTMyLTMySDY0QzQ2LjMgMzIgMzIgNDYuMyAzMiA2NHY3MmMwIDguOCA3LjIgMTYgMTYgMTZoNDE2YzguOCAwIDE2LTcuMiAxNi0xNnptLTMyIDI0OEgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZjMC0xNy43LTE0LjMtMzItMzItMzJ6TTMyIDQxNnYtNzJjMC04LjggNy4yLTE2IDE2LTE2aDQxNmM4LjggMCAxNiA3LjIgMTYgMTZ2NzJjMCAxNy43LTE0LjMgMzItMzIgMzJINjRjLTE3LjcgMC0zMi0xNC4zLTMyLTMyeiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Gangs">
+                            <span>Gangs</span>
+                        </div>
+                        <div class="app-icon" data-app="delivery">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDE2IDMyMEgyOTZWMTkySDE2MHYxMjhIMTZjLTguOCAwLTE2IDcuMi0xNiAxNnYzMmMwIDguOCA3LjIgMTYgMTYgMTZoODBjMCA0NC4yIDM1LjggODAgODAgODBzODAtMzUuOCA4MC04MGgyMjRjOC44IDAgMTYtNy4yIDE2LTE2di0zMmMwLTguOC03LjItMTYtMTYtMTZ6bS05NiA2NGMwIDE3LjctMTQuMyAzMi0zMiAzMnMtMzItMTQuMy0zMi0zMiAxNC4zLTMyIDMyLTMyIDMyIDE0LjMgMzIgMzJ6TTE2MCAyODhjLTE3LjcgMC0zMi0xNC4zLTMyLTMyczE0LjMtMzIgMzItMzIgMzIgMTQuMyAzMiAzMi0xNC4zIDMyLTMyIDMyem0yNzItOGMwIDguOC03LjIgMTYtMTYgMTZIMzY4YzAtNDQuMi0zNS44LTgwLTgwLTgwSDk2di02NGgyODBjOC44IDAgMTYtNy4yIDE2LTE2VjgwYzAtOC44LTcuMi0xNi0xNi0xNkg0OEMyMS41IDY0IDAgODUuNSAwIDExMnYyODhjMCAyNi41IDIxLjUgNDggNDggNDhoMzJjMC01My4xIDQyLjktOTYgOTYtOTZzOTYgNDIuOSA5NiA5NmgxMjhjMC01My4xIDQyLjktOTYgOTYtOTZzOTYgNDIuOSA5NiA5NmgzMmMyNi41IDAgNDgtMjEuNSA0OC00OHYtMTZjMC04LjgtNy4yLTE2LTE2LTE2eiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Delivery">
+                            <span>Delivery</span>
+                        </div>
+                        <div class="app-icon" data-app="jail">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDE2IDIxNmMwLTE3LjctMTQuMy0zMi0zMi0zMkgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZ6bTMyLTgwVjY0YzAtMTcuNy0xNC4zLTMyLTMyLTMySDY0QzQ2LjMgMzIgMzIgNDYuMyAzMiA2NHY3MmMwIDguOCA3LjIgMTYgMTYgMTZoNDE2YzguOCAwIDE2LTcuMiAxNi0xNnptLTMyIDI0OEgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZjMC0xNy43LTE0LjMtMzItMzItMzJ6TTMyIDQxNnYtNzJjMC04LjggNy4yLTE2IDE2LTE2aDQxNmM4LjggMCAxNiA3LjIgMTYgMTZ2NzJjMCAxNy43LTE0LjMgMzItMzIgMzJINjRjLTE3LjcgMC0zMi0xNC4zLTMyLTMyeiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Jail">
+                            <span>Jail</span>
+                        </div>
+                        <div class="app-icon" data-app="avatar">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDBDMTE0LjYgMCAwIDExNC42IDAgMjU2czExNC42IDI1NiAyNTYgMjU2IDI1Ni0xMTQuNiAyNTYtMjU2UzM5Ny40IDAgMjU2IDB6bTAgMzJjMTIzLjcgMCAyMjQgMTAwLjMgMjI0IDIyNHMtMTAwLjMgMjI0LTIyNCAyMjRTMzIgMzc5LjcgMzIgMjU2UzEzMi4zIDMyIDI1NiAzMnptLTMyIDk2YzAtMzUuMyAyOC43LTY0IDY0LTY0czY0IDI4LjcgNjQgNjQtMjguNyA2NC02NCA2NC02NC0yOC43LTY0LTY0em0xOTIgOTZjMCA1My0yMS4zIDEwMC4yLTUzLjMgMTMyLjcgMTUuNyAxNS43IDIxLjMgMzcuOCAxMy43IDU4LTE1LjQgNDAuNi01OS4yIDY1LjMtMTA0LjQgNjUuM3MtODktMjQuNy0xMDQuNC02NS4zYy03LjYtMjAuMi0yLTQyLjMgMTMuNy01OEMxMTcuMyAyOTIuMiA5NiAyMzUgOTYgMTgyaDMyMGMwIDUzLTIxLjMgMTAwLjItNTMuMyAxMzIuNyAxNS43IDE1LjcgMjEuMyAzNy44IDEzLjcgNTgtMTUuNCA0MC42LTU5LjIgNjUuMy0xMDQuNCA2NS4zeiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Avatar">
+                            <span>Avatar</span>
+                        </div>
+                        <div class="app-icon" data-app="trading">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBINjRDMjguNyAwIDAgMjguNyAwIDY0djM4NGMwIDM1LjMgMjguNyA2NCA2NCA2NGgzODRjMzUuMyAwIDY0LTI4LjcgNjQtNjRWNjRjMC0zNS4zLTI4LjctNjQtNjQtNjR6bTAgNDQ4SDY0VjY0aDM4NHYzODR6TTI5Mi4yIDE4NS43YzMuMSAzLjEgMy4xIDguMiAwIDExLjNsLTU0LjcgNTQuNywxMjAgMTIwYzQuNyA0LjcgNC43IDEyLjMgMCAxN2wtMTcuMyAxNy4zYy00LjcgNC43LTEyLjMgNC43LTE3IDBsLTEyMC0xMjAtNTQuNyA1NC43Yy0zLjEgMy4xLTguMiAzLjEtMTEuMyAwbC0xNy4zLTE3LjNjLTMuMS0zLjEtMy4xLTguMiAwLTExLjNsNTQuNy01NC43LTU0LjctNTQuN2MtMy4xLTMuMS0zLjEtOC4yIDAtMTEuM2wxNy4zLTE3LjNjMy4xLTMuMSA4LjItMy4xIDExLjMgMGw1NC43IDU0LjcsNTQuNy01NC43YzMuMS0zLjEgOC4yLTMuMSAxMS4zIDBsMTcuMyAxNy4zYzMuMSAzLjEgMy4xIDguMiAwIDExLjNsLTU0LjcgNTQuNyw1NC43IDU0Ljd6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" alt="Trading">
+                            <span>Trading</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- [All other existing screens remain unchanged...] -->
+
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
