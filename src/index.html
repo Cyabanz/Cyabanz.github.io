@@ -3,712 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Street Alchemist</title>
+    <title>GameHub - CrazyGames Clone</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="game-container">
-        <div class="phone-frame">
-            <div class="phone-screen">
-                <!-- App Selection Screen -->
-                <div class="app-screen" id="home-screen">
-                    <div class="status-bar">
-                        <span id="game-time">12:00 PM</span>
-                        <span id="game-money">$10,000</span>
-                        <span id="game-rep">Rep: 0</span>
-                        <span id="game-health">Health: 100%</span>
-                    </div>
-                    <h2>Street Alchemist</h2>
-                    <div class="app-grid">
-                        <div class="app-icon" data-app="lab">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDYxLjIgMTI4LjVjLTIuMy0yLjMtNS4xLTMuNS03LjktMy41cy01LjYgMS4yLTcuOSAzLjVsLTQwLjkgNDAuOUwyNTYgMTM5LjdsLTQ5LjQtNDkuNGMtMi4zLTIuMy01LjEtMy41LTcuOS0zLjVzLTUuNiAxLjItNy45IDMuNWMtNC43IDQuNy00LjcgMTIuMyAwIDE3bDU3LjMgNTcuM2M0LjcgNC43IDEyLjMgNC43IDE3IDBsNTcuMy01Ny4zYzQuNy00LjcgNC43LTEyLjMgMC0xN3pNMjU2IDI5OC4zbC00OS40LTQ5LjRjLTQuNy00LjctMTIuMy00LjctMTcgMGwtNTcuMyA1Ny4zYy00LjcgNC43LTQuNyAxMi4zIDAgMTcgMi4zIDIuMyA1LjEgMy41IDcuOSAzLjVzNS42LTEuMiA3LjktMy41bDQwLjktNDAuOUwyNTYgMzcyLjNsMTQ5LjItMTQ5LjIgNDAuOSA0MC45YzIuMyAyLjMgNS4xIDMuNSA3LjkgMy41czUuNi0xLjIgNy45LTMuNWM0LjctNC43IDQuNy0xMjMgMC0xN2wtNTcuMy01Ny4zYy00LjctNC43LTEyLjMtNC43LTE3IDB6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" alt="Lab">
-                            <span>Lab</span>
-                        </div>
-                        <div class="app-icon" data-app="phone">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDkxLjEgNjguNWMtMTguNC0xOC40LTQ4LjItMTguNC02Ni42IDBsLTMzLjkgMzMuOWMtMTIuMSAxMi4xLTEyLjEgMzEuNyAwIDQzLjhDMzk5IDExOS4xIDQwOCAxMzcuNCA0MDggMTYwYzAgMjYuNS0yMS41IDQ4LTQ4IDQ4LTEzLjkgMC0yNi4zLTUuOS0zNS4yLTE1LjItMTIuMS0xMi4xLTMxLjctMTIuMS00My44IDBsLTQwLjIgNDAuMmMtMTIuMSAxMi4xLTEyLjEgMzEuNyAwIDQzLjggMTguNCAxOC40IDQ4LjIgMTguNCA2Ni42IDBsNzcuNC03Ny40YzE4LjQtMTguNCAxOC40LTQ4LjIgMC02Ni42eiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNMjI0IDQwOGMtMTMuOSAwLTI2LjMgNS45LTM1LjIgMTUuMi0xMi4xIDEyLjEtMzEuNyAxMi4xLTQzLjggMGwtNDAuMi00MC4yYy0xMi4xLTEyLjEtMTIuMS0zMS43IDAtNDMuOC0xOC40LTE4LjQtNDguMi0xOC40LTY2LjYgMGwtNzcuNCA3Ny40Yy0xOC40IDE4LjQtMTguNCA0OC4yIDAgNjYuNiAxOC40IDE4LjQgNDguMiAxOC40IDY2LjYgMGwzMy45LTMzLjljMTIuMS0xMi4xIDMxLjctMTIuMSA0My44IDAgOS4zIDkuMyAxNS4yIDIxLjcgMTUuMiAzNS4yIDAgMjYuNS0yMS41IDQ4LTQ4IDQ4eiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Phone">
-                            <span>Phone</span>
-                        </div>
-                        <div class="app-icon" data-app="police-scanner">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBjLTM1LjMgMC02NCAyOC43LTY0IDY0djM4NGMwIDM1LjMgMjguNyA2NCA2NCA2NHM2NC0yOC43IDY0LTY0VjY0YzAtMzUuMy0yOC43LTY0LTY0LTY0ek0yNTYgMTYwYzM1LjMgMCA2NCAyOC43IDY0IDY0djE5MmMwIDM1LjMtMjguNyA2NC02NCA2NHMtNjQtMjguNy02NC02NFYyMjRjMC0zNS4zIDI4LjctNjQgNjQtNjR6TTY0IDMyMGMzNS4zIDAgNjQgMjguNyA2NCA2NHY2NGMwIDM1LjMtMjguNyA2NC02NCA2NFMwIDQ4My4zIDAgNDQ4di02NGMwLTM1LjMgMjguNy02NCA2NC02NHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" alt="Police Scanner">
-                            <span>Scanner</span>
-                        </div>
-                        <div class="app-icon" data-app="store">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBIMTYwYy0xNy43IDAtMzIgMTQuMy0zMiAzMnYzMkg2NGMtMTcuNyAwLTMyIDE0LjMtMzIgMzJ2Mzg0YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDM4NGMxNy43IDAgMzItMTQuMyAzMi0zMlY2NGMwLTE3LjctMTQuMy0zMi0zMi0zMmgtNjRWMzJjMC0xNy43LTE0LjMtMzItMzItMzJ6bS0yNDAgOTZoNjR2NjRoLTY0Vjk2em0xMjggMGg2NHY2NGgtNjRWOTZ6TTEyOCAyMjRoNjR2NjRoLTY0di02NHptMTI4IDBoNjR2NjRoLTY0di02NHptMTYwLTk2djM1MmMwIDguOC03LjIgMTYtMTYgMTZoLTY0VjIyNGMwLTguOC03LjItMTYtMTYtMTZoLTk2Yy04LjggMC0xNiA3LjItMTYgMTZ2MTYwSDY0VjEyOGgzODR6bS00OCAxMjhoNjR2NjRoLTY0di02NHptLTMyIDBoLTY0djY0aDY0di02NHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" alt="Store">
-                            <span>Store</span>
-                        </div>
-                        <div class="app-icon" data-app="gun-store">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBIMTYwYy0xNy43IDAtMzIgMTQuMy0zMiAzMnYzMkg2NGMtMTcuNyAwLTMyIDE0LjMtMzIgMzJ2Mzg0YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDM4NGMxNy43IDAgMzItMTQuMyAzMi0zMlY2NGMwLTE3LjctMTQuMy0zMi0zMi0zMmgtNjRWMzJjMC0xNy43LTE0LjMtMzItMzItMzJ6bS0yNDAgOTZoNjR2NjRoLTY0Vjk2em0xMjggMGg2NHY2NGgtNjRWOTZ6TTEyOCAyMjRoNjR2NjRoLTY0di02NHptMTI4IDBoNjR2NjRoLTY0di02NHptMTYwLTk2djM1MmMwIDguOC03LjIgMTYtMTYgMTZoLTY0VjIyNGMwLTguOC03LjItMTYtMTYtMTZoLTk2Yy04LjggMC0xNiA3LjItMTYgMTZ2MTYwSDY0VjEyOGgzODR6bS00OCAxMjhoNjR2NjRoLTY0di02NHptLTMyIDBoLTY0djY0aDY0di02NHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" alt="Gun Store">
-                            <span>Gun Store</span>
-                        </div>
-                        <div class="app-icon" data-app="gangs">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDE2IDIxNmMwLTE3LjctMTQuMy0zMi0zMi0zMkgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZ6bTMyLTgwVjY0YzAtMTcuNy0xNC4zLTMyLTMyLTMySDY0QzQ2LjMgMzIgMzIgNDYuMyAzMiA2NHY3MmMwIDguOCA3LjIgMTYgMTYgMTZoNDE2YzguOCAwIDE2LTcuMiAxNi0xNnptLTMyIDI0OEgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZjMC0xNy43LTE0LjMtMzItMzItMzJ6TTMyIDQxNnYtNzJjMC04LjggNy4yLTE2IDE2LTE2aDQxNmM4LjggMCAxNiA3LjIgMTYgMTZ2NzJjMCAxNy43LTE0LjMgMzItMzIgMzJINjRjLTE3LjcgMC0zMi0xNC4zLTMyLTMyeiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Gangs">
-                            <span>Gangs</span>
-                        </div>
-                        <div class="app-icon" data-app="delivery">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDE2IDMyMEgyOTZWMTkySDE2MHYxMjhIMTZjLTguOCAwLTE2IDcuMi0xNiAxNnYzMmMwIDguOCA3LjIgMTYgMTYgMTZoODBjMCA0NC4yIDM1LjggODAgODAgODBzODAtMzUuOCA4MC04MGgyMjRjOC44IDAgMTYtNy4yIDE2LTE2di0zMmMwLTguOC03LjItMTYtMTYtMTZ6bS05NiA2NGMwIDE3LjctMTQuMyAzMi0zMiAzMnMtMzItMTQuMy0zMi0zMiAxNC4zLTMyIDMyLTMyIDMyIDE0LjMgMzIgMzJ6TTE2MCAyODhjLTE3LjcgMC0zMi0xNC4zLTMyLTMyczE0LjMtMzIgMzItMzIgMzIgMTQuMyAzMiAzMi0xNC4zIDMyLTMyIDMyem0yNzItOGMwIDguOC03LjIgMTYtMTYgMTZIMzY4YzAtNDQuMi0zNS44LTgwLTgwLTgwSDk2di02NGgyODBjOC44IDAgMTYtNy4yIDE2LTE2VjgwYzAtOC44LTcuMi0xNi0xNi0xNkg0OEMyMS41IDY0IDAgODUuNSAwIDExMnYyODhjMCAyNi41IDIxLjUgNDggNDggNDhoMzJjMC01My4xIDQyLjktOTYgOTYtOTZzOTYgNDIuOSA5NiA5NmgxMjhjMC01My4xIDQyLjktOTYgOTYtOTZzOTYgNDIuOSA5NiA5NmgzMmMyNi41IDAgNDgtMjEuNSA0OC00OHYtMTZjMC04LjgtNy4yLTE2LTE2LTE2eiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Delivery">
-                            <span>Delivery</span>
-                        </div>
-                        <div class="app-icon" data-app="jail">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDE2IDIxNmMwLTE3LjctMTQuMy0zMi0zMi0zMkgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZ6bTMyLTgwVjY0YzAtMTcuNy0xNC4zLTMyLTMyLTMySDY0QzQ2LjMgMzIgMzIgNDYuMyAzMiA2NHY3MmMwIDguOCA3LjIgMTYgMTYgMTZoNDE2YzguOCAwIDE2LTcuMiAxNi0xNnptLTMyIDI0OEgxMjhjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjE2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDI1NmMxNy43IDAgMzItMTQuMyAzMi0zMnYtMTZjMC0xNy43LTE0LjMtMzItMzItMzJ6TTMyIDQxNnYtNzJjMC04LjggNy4yLTE2IDE2LTE2aDQxNmM4LjggMCAxNiA3LjIgMTYgMTZ2NzJjMCAxNy43LTE0LjMgMzItMzIgMzJINjRjLTE3LjcgMC0zMi0xNC4zLTMyLTMyeiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Jail">
-                            <span>Jail</span>
-                        </div>
-                        <div class="app-icon" data-app="avatar">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDBDMTE0LjYgMCAwIDExNC42IDAgMjU2czExNC42IDI1NiAyNTYgMjU2IDI1Ni0xMTQuNiAyNTYtMjU2UzM5Ny40IDAgMjU2IDB6bTAgMzJjMTIzLjcgMCAyMjQgMTAwLjMgMjI0IDIyNHMtMTAwLjMgMjI0LTIyNCAyMjRTMzIgMzc5LjcgMzIgMjU2UzEzMi4zIDMyIDI1NiAzMnptLTMyIDk2YzAtMzUuMyAyOC43LTY0IDY0LTY0czY0IDI4LjcgNjQgNjQtMjguNyA2NC02NCA2NC02NC0yOC43LTY0LTY0em0xOTIgOTZjMCA1My0yMS4zIDEwMC4yLTUzLjMgMTMyLjcgMTUuNyAxNS43IDIxLjMgMzcuOCAxMy43IDU4LTE1LjQgNDAuNi01OS4yIDY1LjMtMTA0LjQgNjUuM3MtODktMjQuNy0xMDQuNC02NS4zYy03LjYtMjAuMi0yLTQyLjMgMTMuNy01OEMxMTcuMyAyOTIuMiA5NiAyMzUgOTYgMTgyaDMyMGMwIDUzLTIxLjMgMTAwLjItNTMuMyAxMzIuNyAxNS43IDE1LjcgMjEuMyAzNy44IDEzLjcgNTgtMTUuNCA0MC42LTU5LjIgNjUuMy0xMDQuNCA2NS4zeiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Avatar">
-                            <span>Avatar</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- Auth Container (will be populated by JavaScript) -->
+    <div id="auth-container" class="auth-container"></div>
 
-                <!-- Drug Lab Screen -->
-                <div class="app-screen hidden" id="lab-screen">
-                    <div class="status-bar">
-                        <span id="lab-time">12:00 PM</span>
-                        <span id="lab-money">$10,000</span>
-                        <span id="lab-health">Health: 100%</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Drug Lab</h2>
-                    <div class="inventory">
-                        <h3>Ingredients</h3>
-                        <div class="ingredients-list">
-                            <div class="ingredient" data-ingredient="herb">Herb (10g)</div>
-                            <div class="ingredient" data-ingredient="chemical">Chemical (5g)</div>
-                            <div class="ingredient" data-ingredient="powder">Powder (8g)</div>
-                            <div class="ingredient" data-ingredient="liquid">Liquid (200ml)</div>
-                        </div>
-                        <h3>Recipes</h3>
-                        <div class="recipes-list">
-                            <div class="recipe" data-recipe="weed">
-                                <h4>Weed</h4>
-                                <p>Ingredients: 5g Herb</p>
-                                <p>Value: $20 per gram</p>
-                                <button class="craft-button" data-recipe="weed">Craft</button>
-                            </div>
-                            <div class="recipe" data-recipe="meth">
-                                <h4>Meth</h4>
-                                <p>Ingredients: 2g Chemical, 1g Powder</p>
-                                <p>Value: $50 per gram</p>
-                                <button class="craft-button" data-recipe="meth">Craft</button>
-                            </div>
-                            <div class="recipe" data-recipe="coke">
-                                <h4>Coke</h4>
-                                <p>Ingredients: 3g Powder, 50ml Liquid</p>
-                                <p>Value: $80 per gram</p>
-                                <button class="craft-button" data-recipe="coke">Craft</button>
-                            </div>
-                            <div class="recipe" data-recipe="heroin">
-                                <h4>Heroin</h4>
-                                <p>Ingredients: 2g Herb, 100ml Liquid, 1g Chemical</p>
-                                <p>Value: $100 per gram</p>
-                                <button class="craft-button" data-recipe="heroin">Craft</button>
-                            </div>
-                        </div>
-                        <h3>Inventory</h3>
-                        <div class="drugs-list">
-                            <!-- Will be populated with JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Crafting Mini-Game -->
-                <div class="app-screen hidden" id="crafting-screen">
-                    <div class="status-bar">
-                        <span id="craft-time">12:00 PM</span>
-                        <span id="craft-drug">Crafting: Weed</span>
-                    </div>
-                    <h2>Crafting <span id="crafting-drug-name">Weed</span></h2>
-                    <div class="crafting-game">
-                        <div class="crafting-step" id="step1">
-                            <h3>Step 1: Prepare Ingredients</h3>
-                            <p>Click the button when the arrow is in the green zone</p>
-                            <div class="meter-container">
-                                <div class="meter">
-                                    <div class="arrow"></div>
-                                    <div class="green-zone"></div>
-                                </div>
-                                <button class="action-button" id="prepare-button">Prepare</button>
-                            </div>
-                            <p class="step-result hidden" id="step1-result"></p>
-                        </div>
-                        <div class="crafting-step hidden" id="step2">
-                            <h3>Step 2: Mix Ingredients</h3>
-                            <p>Press the button rapidly to mix properly</p>
-                            <div class="mix-container">
-                                <progress id="mix-progress" value="0" max="100"></progress>
-                                <button class="action-button" id="mix-button">Mix!</button>
-                            </div>
-                            <p class="step-result hidden" id="step2-result"></p>
-                        </div>
-                        <div class="crafting-step hidden" id="step3">
-                            <h3>Step 3: Cook</h3>
-                            <p>Keep the temperature in the green zone</p>
-                            <div class="cook-container">
-                                <div class="temp-meter">
-                                    <div class="temp-indicator"></div>
-                                    <div class="temp-green-zone"></div>
-                                </div>
-                                <div class="temp-controls">
-                                    <button class="temp-button" id="heat-up">↑ Heat</button>
-                                    <button class="temp-button" id="cool-down">↓ Cool</button>
-                                </div>
-                            </div>
-                            <p class="step-result hidden" id="step3-result"></p>
-                        </div>
-                        <div class="crafting-result hidden" id="crafting-result">
-                            <h3>Crafting Complete!</h3>
-                            <p id="crafting-outcome"></p>
-                            <button class="action-button" id="done-button">Done</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Phone App Screen -->
-                <div class="app-screen hidden" id="phone-screen">
-                    <div class="status-bar">
-                        <span id="phone-time">12:00 PM</span>
-                        <span id="phone-money">$10,000</span>
-                        <span id="phone-health">Health: 100%</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Dealer Phone</h2>
-                    <div class="phone-tabs">
-                        <button class="tab-button active" data-tab="messages">Messages</button>
-                        <button class="tab-button" data-tab="contacts">Contacts</button>
-                        <button class="tab-button" data-tab="new-message">New Message</button>
-                    </div>
-                    <div class="phone-content">
-                        <div class="tab-content active" id="messages-tab">
-                            <div class="message-list">
-                                <!-- Messages will appear here -->
-                            </div>
-                            <div class="reply-box hidden" id="reply-box">
-                                <textarea placeholder="Type your reply..."></textarea>
-                                <div class="reply-options">
-                                    <button class="reply-option" data-option="accept">Accept</button>
-                                    <button class="reply-option" data-option="decline">Decline</button>
-                                    <button class="reply-option" data-option="negotiate">Negotiate</button>
-                                    <button class="reply-option" data-option="sample">Free Sample</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-content" id="contacts-tab">
-                            <div class="contact-list">
-                                <div class="contact" data-contact="junkie">
-                                    <h4>Junkie</h4>
-                                    <p>Buys small amounts frequently</p>
-                                    <button class="call-button">Call</button>
-                                    <button class="message-button">Message</button>
-                                </div>
-                                <div class="contact" data-contact="dealer">
-                                    <h4>Dealer</h4>
-                                    <p>Buys in bulk, pays well</p>
-                                    <button class="call-button">Call</button>
-                                    <button class="message-button">Message</button>
-                                </div>
-                                <div class="contact" data-contact="rich-kid">
-                                    <h4>Rich Kid</h4>
-                                    <p>Pays premium, but unpredictable</p>
-                                    <button class="call-button">Call</button>
-                                    <button class="message-button">Message</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-content" id="new-message-tab">
-                            <div class="new-message-form">
-                                <select id="message-recipient">
-                                    <option value="junkie">Junkie</option>
-                                    <option value="dealer">Dealer</option>
-                                    <option value="rich-kid">Rich Kid</option>
-                                </select>
-                                <textarea id="message-content" placeholder="Type your message..."></textarea>
-                                <button id="send-message">Send</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Deal Mini-Game -->
-                <div class="app-screen hidden" id="deal-screen">
-                    <div class="status-bar">
-                        <span id="deal-time">12:00 PM</span>
-                        <span id="deal-customer">Customer: Junkie</span>
-                    </div>
-                    <h2>Deal with <span id="deal-customer-name">Junkie</span></h2>
-                    <div class="deal-container">
-                        <div class="deal-step" id="deal-step1">
-                            <h3>Meet the Customer</h3>
-                            <p id="deal-description">Meeting with Junkie to sell 5g of Weed for $100</p>
-                            <div class="customer-image"></div>
-                            <button class="action-button" id="start-deal">Start Deal</button>
-                        </div>
-                        <div class="deal-step hidden" id="deal-step2">
-                            <h3>Exchange</h3>
-                            <p>Click the bag when the arrow is in the green zone to pickpocket extra cash</p>
-                            <div class="steal-meter">
-                                <div class="steal-arrow"></div>
-                                <div class="steal-green-zone"></div>
-                            </div>
-                            <div class="exchange-items">
-                                <div class="drug-item">5g Weed</div>
-                                <div class="money-item">$100</div>
-                            </div>
-                            <button class="action-button" id="steal-button">Take Money</button>
-                            <p class="deal-result hidden" id="deal-result"></p>
-                        </div>
-                        <div class="deal-step hidden" id="deal-step3">
-                            <h3>Deal Outcome</h3>
-                            <p id="deal-outcome"></p>
-                            <button class="action-button" id="deal-done">Done</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Police Scanner Screen -->
-                <div class="app-screen hidden" id="scanner-screen">
-                    <div class="status-bar">
-                        <span id="scanner-time">12:00 PM</span>
-                        <span id="scanner-alert">Status: Clear</span>
-                        <span id="scanner-health">Health: 100%</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Police Scanner</h2>
-                    <div class="scanner-container">
-                        <div class="scanner-display">
-                            <p class="scanner-message">Scanning police frequencies...</p>
-                            <div class="scanner-activity">
-                                <div class="activity-bar"></div>
-                                <div class="activity-bar"></div>
-                                <div class="activity-bar"></div>
-                                <div class="activity-bar"></div>
-                                <div class="activity-bar"></div>
-                            </div>
-                        </div>
-                        <div class="scanner-info">
-                            <p>Police Activity: <span id="police-activity">Low</span></p>
-                            <p>Heat Level: <span id="heat-level">0%</span></p>
-                            <p>Last Raid: <span id="last-raid">None</span></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Raid Mini-Game -->
-                <div class="app-screen hidden" id="raid-screen">
-                    <div class="status-bar">
-                        <span id="raid-time">12:00 PM</span>
-                        <span id="raid-timer">Time: 30s</span>
-                    </div>
-                    <h2>POLICE RAID!</h2>
-                    <div class="raid-container">
-                        <div class="raid-instructions">
-                            <p>Police are raiding your lab! Quickly hide your drugs and money!</p>
-                            <p>Click on the items to hide them before time runs out.</p>
-                        </div>
-                        <div class="raid-items">
-                            <div class="raid-item" data-item="weed">Weed</div>
-                            <div class="raid-item" data-item="meth">Meth</div>
-                            <div class="raid-item" data-item="coke">Coke</div>
-                            <div class="raid-item" data-item="heroin">Heroin</div>
-                            <div class="raid-item" data-item="cash">Cash</div>
-                            <div class="raid-item" data-item="gun">Gun</div>
-                            <div class="raid-item" data-item="switch">Switch</div>
-                        </div>
-                        <div class="raid-hiding-spots">
-                            <div class="hiding-spot" data-spot="vent">Vent</div>
-                            <div class="hiding-spot" data-spot="floor">Floor</div>
-                            <div class="hiding-spot" data-spot="wall">Wall</div>
-                            <div class="hiding-spot" data-spot="toilet">Toilet</div>
-                        </div>
-                        <div class="raid-progress">
-                            <progress id="raid-progress" value="100" max="100"></progress>
-                        </div>
-                        <div class="raid-result hidden">
-                            <h3 id="raid-outcome-title">Raid Outcome</h3>
-                            <p id="raid-outcome-text"></p>
-                            <button class="action-button" id="raid-continue">Continue</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Store Robbery Screen -->
-                <div class="app-screen hidden" id="store-screen">
-                    <div class="status-bar">
-                        <span id="store-time">12:00 PM</span>
-                        <span id="store-money">$10,000</span>
-                        <span id="store-health">Health: 100%</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Store Robbery</h2>
-                    <div class="store-container">
-                        <div class="store-selection">
-                            <h3>Choose a store to rob:</h3>
-                            <div class="store-option" data-store="convenience">
-                                <h4>Convenience Store</h4>
-                                <p>Risk: Low</p>
-                                <p>Potential: $200-$500</p>
-                                <button class="rob-button">Rob</button>
-                            </div>
-                            <div class="store-option" data-store="pharmacy">
-                                <h4>Pharmacy</h4>
-                                <p>Risk: Medium</p>
-                                <p>Potential: $500-$1,000</p>
-                                <button class="rob-button">Rob</button>
-                            </div>
-                            <div class="store-option" data-store="jewelry">
-                                <h4>Jewelry Store</h4>
-                                <p>Risk: High</p>
-                                <p>Potential: $1,000-$5,000</p>
-                                <button class="rob-button">Rob</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Robbery Mini-Game -->
-                <div class="app-screen hidden" id="robbery-screen">
-                    <div class="status-bar">
-                        <span id="robbery-time">12:00 PM</span>
-                        <span id="robbery-store">Store: Convenience</span>
-                    </div>
-                    <h2>Robbing <span id="robbery-store-name">Convenience Store</span></h2>
-                    <div class="robbery-container">
-                        <div class="robbery-step" id="robbery-step1">
-                            <h3>Grab Items</h3>
-                            <p>Quickly click on items to steal them before police arrive</p>
-                            <div class="store-items">
-                                <div class="store-item" data-item="cash-register">Cash Register</div>
-                                <div class="store-item" data-item="cigarettes">Cigarettes</div>
-                                <div class="store-item" data-item="alcohol">Alcohol</div>
-                                <div class="store-item" data-item="safe">Safe</div>
-                            </div>
-                            <div class="robbery-progress">
-                                <progress id="police-progress" value="0" max="100"></progress>
-                                <span>Police Arrival</span>
-                            </div>
-                            <div class="robbery-stolen">
-                                <h4>Stolen Items:</h4>
-                                <div class="stolen-items-list"></div>
-                            </div>
-                        </div>
-                        <div class="robbery-step hidden" id="robbery-step2">
-                            <h3>Police Arrived!</h3>
-                            <p>Choose your action:</p>
-                            <div class="police-options">
-                                <button class="police-option" data-option="run">Run Away</button>
-                                <button class="police-option" data-option="getaway">Getaway Car</button>
-                                <button class="police-option" data-option="surrender">Surrender</button>
-                                <button class="police-option" data-option="shoot">Shoot</button>
-                            </div>
-                        </div>
-                        <div class="robbery-step hidden" id="robbery-step3">
-                            <h3>Robbery Outcome</h3>
-                            <p id="robbery-outcome"></p>
-                            <button class="action-button" id="robbery-done">Done</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gun Store Screen -->
-                <div class="app-screen hidden" id="gun-store-screen">
-                    <div class="status-bar">
-                        <span id="gun-store-time">12:00 PM</span>
-                        <span id="gun-store-money">$10,000</span>
-                        <span id="gun-store-health">Health: 100%</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Gun Store</h2>
-                    <div class="gun-store-container">
-                        <div class="gun-store-selection">
-                            <h3>Available Weapons:</h3>
-                            <div class="gun-option" data-gun="pistol">
-                                <h4>Pistol</h4>
-                                <p>Damage: Medium</p>
-                                <p>Price: $500</p>
-                                <button class="buy-button">Buy</button>
-                            </div>
-                            <div class="gun-option" data-gun="shotgun">
-                                <h4>Shotgun</h4>
-                                <p>Damage: High</p>
-                                <p>Price: $1,200</p>
-                                <button class="buy-button">Buy</button>
-                            </div>
-                            <div class="gun-option" data-gun="rifle">
-                                <h4>Rifle</h4>
-                                <p>Damage: Very High</p>
-                                <p>Price: $2,500</p>
-                                <button class="buy-button">Buy</button>
-                            </div>
-                            <div class="gun-option" data-gun="switch">
-                                <h4>Switch</h4>
-                                <p>Damage: Extreme</p>
-                                <p>Price: $5,000</p>
-                                <button class="buy-button">Buy</button>
-                            </div>
-                        </div>
-                        <div class="current-weapons">
-                            <h3>Your Weapons:</h3>
-                            <div class="owned-weapons-list">
-                                <!-- Will be populated with JS -->
-                            </div>
-                            <button class="action-button" id="practice-button">Practice Shooting</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Shooting Range Mini-Game -->
-                <div class="app-screen hidden" id="shooting-range-screen">
-                    <div class="status-bar">
-                        <span id="range-time">12:00 PM</span>
-                        <span id="range-score">Score: 0</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Shooting Range</h2>
-                    <div class="shooting-range-container">
-                        <div class="range-targets">
-                            <div class="target" id="target1">🎯</div>
-                            <div class="target" id="target2">🎯</div>
-                            <div class="target" id="target3">🎯</div>
-                        </div>
-                        <div class="range-controls">
-                            <button class="action-button" id="shoot-button">Shoot</button>
-                            <button class="action-button" id="range-done">Done</button>
-                        </div>
-                        <div class="range-stats">
-                            <p>Hits: <span id="hits">0</span></p>
-                            <p>Misses: <span id="misses">0</span></p>
-                            <p>Accuracy: <span id="accuracy">0%</span></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gangs Screen -->
-                <div class="app-screen hidden" id="gangs-screen">
-                    <div class="status-bar">
-                        <span id="gangs-time">12:00 PM</span>
-                        <span id="gangs-money">$10,000</span>
-                        <span id="gangs-health">Health: 100%</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Gang Operations</h2>
-                    <div class="gangs-container">
-                        <div class="gang-tabs">
-                            <button class="tab-button active" data-tab="alliances">Alliances</button>
-                            <button class="tab-button" data-tab="war">War</button>
-                        </div>
-                        <div class="gang-content">
-                            <div class="tab-content active" id="alliances-tab">
-                                <div class="gang-list">
-                                    <div class="gang" data-gang="vipers">
-                                        <h4>Vipers</h4>
-                                        <p>Status: Neutral</p>
-                                        <p>Perk: +20% drug prices</p>
-                                        <button class="gang-action" data-action="ally">Form Alliance</button>
-                                        <button class="gang-action" data-action="betray">Backstab</button>
-                                    </div>
-                                    <div class="gang" data-gang="wolves">
-                                        <h4>Wolves</h4>
-                                        <p>Status: Neutral</p>
-                                        <p>Perk: -30% police heat</p>
-                                        <button class="gang-action" data-action="ally">Form Alliance</button>
-                                        <button class="gang-action" data-action="betray">Backstab</button>
-                                    </div>
-                                    <div class="gang" data-gang="dragons">
-                                        <h4>Dragons</h4>
-                                        <p>Status: Neutral</p>
-                                        <p>Perk: +50% weapon damage</p>
-                                        <button class="gang-action" data-action="ally">Form Alliance</button>
-                                        <button class="gang-action" data-action="betray">Backstab</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-content" id="war-tab">
-                                <div class="war-info">
-                                    <h3>Gang War</h3>
-                                    <p>Current Status: <span id="war-status">Peace</span></p>
-                                    <div class="war-options">
-                                        <button class="war-button" data-action="raid">Raid Territory</button>
-                                        <button class="war-button" data-action="defend">Defend Territory</button>
-                                        <button class="war-button" data-action="truce">Negotiate Truce</button>
-                                    </div>
-                                    <div class="war-outcome hidden" id="war-outcome">
-                                        <p id="war-result-text"></p>
-                                        <button class="action-button" id="war-continue">Continue</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Delivery Mini-Game -->
-                <div class="app-screen hidden" id="delivery-screen">
-                    <div class="status-bar">
-                        <span id="delivery-time">12:00 PM</span>
-                        <span id="delivery-status">Status: Ready</span>
-                    </div>
-                    <h2>Drug Delivery</h2>
-                    <div class="delivery-container">
-                        <div class="delivery-setup">
-                            <h3>Select Delivery:</h3>
-                            <div class="delivery-option" data-delivery="small">
-                                <h4>Small Delivery</h4>
-                                <p>Risk: Low</p>
-                                <p>Reward: $500</p>
-                                <button class="start-delivery">Start</button>
-                            </div>
-                            <div class="delivery-option" data-delivery="medium">
-                                <h4>Medium Delivery</h4>
-                                <p>Risk: Medium</p>
-                                <p>Reward: $1,500</p>
-                                <button class="start-delivery">Start</button>
-                            </div>
-                            <div class="delivery-option" data-delivery="large">
-                                <h4>Large Delivery</h4>
-                                <p>Risk: High</p>
-                                <p>Reward: $3,500</p>
-                                <button class="start-delivery">Start</button>
-                            </div>
-                        </div>
-                        <div class="delivery-game hidden" id="delivery-game">
-                            <div class="road">
-                                <div class="player-car">🚗</div>
-                                <div class="traffic-car hidden">🚙</div>
-                                <div class="police-car hidden">🚓</div>
-                            </div>
-                            <div class="delivery-controls">
-                                <button class="delivery-button" id="move-left">←</button>
-                                <button class="delivery-button" id="move-right">→</button>
-                            </div>
-                            <div class="delivery-progress">
-                                <progress id="delivery-progress" value="0" max="100"></progress>
-                                <span>Distance: <span id="distance">0</span>%</span>
-                            </div>
-                        </div>
-                        <div class="delivery-result hidden" id="delivery-result">
-                            <h3 id="delivery-outcome-title">Delivery Result</h3>
-                            <p id="delivery-outcome-text"></p>
-                            <button class="action-button" id="delivery-continue">Continue</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Jail Screen -->
-                <div class="app-screen hidden" id="jail-screen">
-                    <div class="status-bar">
-                        <span id="jail-time">12:00 PM</span>
-                        <span id="jail-days">Days Left: 10</span>
-                    </div>
-                    <h2>County Jail</h2>
-                    <div class="jail-container">
-                        <div class="jail-cell">
-                            <div class="jail-bars"></div>
-                            <div class="jail-character"></div>
-                        </div>
-                        <div class="jail-options">
-                            <h3>Daily Activity</h3>
-                            <button class="jail-option" data-option="work">Work</button>
-                            <button class="jail-option" data-option="riot">Start Riot</button>
-                            <button class="jail-option" data-option="sit">Do Nothing</button>
-                            <button class="jail-option" data-option="bail">Pay Bail ($5,000)</button>
-                        </div>
-                        <div class="jail-events hidden">
-                            <p id="jail-event-text"></p>
-                            <button class="action-button" id="jail-continue">Continue</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Avatar Customization Screen -->
-                <div class="app-screen hidden" id="avatar-screen">
-                    <div class="status-bar">
-                        <span id="avatar-time">12:00 PM</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Avatar Customization</h2>
-                    <div class="avatar-container">
-                        <div class="avatar-preview">
-                            <div class="avatar-image" id="avatar-image">
-                                <!-- Avatar will be rendered here -->
-                            </div>
-                        </div>
-                        <div class="avatar-options">
-                            <h3>Skin Color</h3>
-                            <div class="skin-colors">
-                                <div class="skin-color" data-color="#FFDBAC" style="background-color: #FFDBAC;"></div>
-                                <div class="skin-color" data-color="#F5D5A0" style="background-color: #F5D5A0;"></div>
-                                <div class="skin-color" data-color="#E5C298" style="background-color: #E5C298;"></div>
-                                <div class="skin-color" data-color="#D2B48C" style="background-color: #D2B48C;"></div>
-                                <div class="skin-color" data-color="#C68642" style="background-color: #C68642;"></div>
-                                <div class="skin-color" data-color="#8D5524" style="background-color: #8D5524;"></div>
-                            </div>
-                            <h3>Hair Style</h3>
-                            <select id="hair-style">
-                                <option value="short">Short</option>
-                                <option value="long">Long</option>
-                                <option value="afro">Afro</option>
-                                <option value="bald">Bald</option>
-                                <option value="dreads">Dreads</option>
-                            </select>
-                            <h3>Hair Color</h3>
-                            <select id="hair-color">
-                                <option value="black">Black</option>
-                                <option value="brown">Brown</option>
-                                <option value="blonde">Blonde</option>
-                                <option value="red">Red</option>
-                                <option value="gray">Gray</option>
-                            </select>
-                            <h3>Clothing</h3>
-                            <select id="clothing">
-                                <option value="hoodie">Hoodie</option>
-                                <option value="jacket">Jacket</option>
-                                <option value="tshirt">T-Shirt</option>
-                                <option value="suit">Suit</option>
-                                <option value="tank">Tank Top</option>
-                            </select>
-                            <button class="action-button" id="save-avatar">Save Avatar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ingredient Store Screen -->
-                <div class="app-screen hidden" id="ingredient-store-screen">
-                    <div class="status-bar">
-                        <span id="ingredient-time">12:00 PM</span>
-                        <span id="ingredient-money">$10,000</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Ingredient Store</h2>
-                    <div class="ingredient-store-container">
-                        <div class="ingredient-list">
-                            <div class="ingredient-option" data-ingredient="herb">
-                                <h4>Herb</h4>
-                                <p>Price: $10 per gram</p>
-                                <input type="number" min="1" value="1" class="ingredient-quantity">
-                                <button class="buy-ingredient">Buy</button>
-                            </div>
-                            <div class="ingredient-option" data-ingredient="chemical">
-                                <h4>Chemical</h4>
-                                <p>Price: $20 per gram</p>
-                                <input type="number" min="1" value="1" class="ingredient-quantity">
-                                <button class="buy-ingredient">Buy</button>
-                            </div>
-                            <div class="ingredient-option" data-ingredient="powder">
-                                <h4>Powder</h4>
-                                <p>Price: $15 per gram</p>
-                                <input type="number" min="1" value="1" class="ingredient-quantity">
-                                <button class="buy-ingredient">Buy</button>
-                            </div>
-                            <div class="ingredient-option" data-ingredient="liquid">
-                                <h4>Liquid</h4>
-                                <p>Price: $5 per ml</p>
-                                <input type="number" min="1" value="1" class="ingredient-quantity">
-                                <button class="buy-ingredient">Buy</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="container">
+        <!-- Pinned Games Row (initially hidden) -->
+        <div class="game-row pinned-games-row" style="display: none;">
+            <h3 class="row-title">
+                <i class='bx bxs-bookmark-alt'></i> Favorite Games
+                <span class="clear-pins" title="Clear all favorite games">
+                    <i class='bx bx-trash'></i>
+                </span>
+            </h3>
+            <div class="game-scroll-container">
+                <div class="horizontal-game-grid" id="pinnedGamesContainer"></div>
             </div>
         </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class='bx bx-search'></i>
+            <input type="text" id="searchInput" placeholder="Search games...">
+        </div>
+
+        <!-- Horizontal Category Tabs -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all">
+                <i class='bx bx-game'></i> All Games
+            </button>
+            <button class="tab-btn" data-category="action">
+                <i class='bx bx-run'></i> Action
+            </button>
+            <button class="tab-btn" data-category="puzzle">
+                <i class='bx bx-puzzle'></i> Puzzle
+            </button>
+            <button class="tab-btn" data-category="sports">
+                <i class='bx bx-football'></i> Sports
+            </button>
+            <button class="tab-btn" data-category="io">
+                <i class='bx bx-globe'></i> .IO
+            </button>
+        </div>
+
+        <!-- Game Rows Container -->
+        <div class="games-rows-container" id="gamesContainer">
+            <!-- Rows will be generated by JavaScript -->
+        </div>
     </div>
+
+    <!-- Hamburger Menu -->
+    <button class="hamburger">
+        <i class='bx bx-menu'></i>
+    </button>
+
+    <!-- Vertical Navbar -->
+    <nav class="navbar closed">
+        <div class="nav-container">
+            <a href="#" class="nav-link" data-glow-color="#4fc3f7">
+                <i class='bx bx-home'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ff6e40">
+                <i class='bx bx-search'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#9575cd">
+                <i class='bx bx-heart'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#64dd17">
+                <i class='bx bx-user'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ffd600">
+                <i class='bx bx-cog'></i>
+            </a>
+            <div class="glow-effect"></div>
+        </div>
+    </nav>
+
     <script src="script.js"></script>
 </body>
 </html>
