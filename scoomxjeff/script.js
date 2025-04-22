@@ -2014,3 +2014,22 @@ initGame();
 function saveGameState() {
     localStorage.setItem('streetAlchemistGameState', JSON.stringify(gameState));
 }
+
+// Function to open trading interface
+function openTrading() {
+    window.open('trading.html', '_blank');
+}
+
+// In your game loop, call this to sync days
+function updateFromTrading() {
+    const tradingData = localStorage.getItem('undergroundTraderGame');
+    if (tradingData) {
+        const parsed = JSON.parse(tradingData);
+        // Update your game state with relevant values from trading system
+        // For example:
+        player.money = parsed.player.money;
+        player.inventory = parsed.player.inventory;
+        player.health = parsed.player.health;
+        player.jailTime = parsed.player.jailTime;
+    }
+}
