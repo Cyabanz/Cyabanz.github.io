@@ -893,18 +893,31 @@ function loadGameState() {
 
 // Sync with main game
 function syncWithMainGame() {
-    // This would be called from your main game to update its state
-    // You'll need to implement the equivalent function in your main game
-    const event = new CustomEvent('tradingStateUpdated', {
-        detail: {
+    // If we're in an iframe/embedded
+    if (window.parent !== window) {
+        window.parent.postMessage({
+            type: 'tradingUpdate',
             inventory: gameState.player.inventory,
             money: gameState.player.money,
             health: gameState.player.health,
             jailTime: gameState.player.jailTime,
             daysFree: gameState.player.daysFree
-        }
-    });
-    window.opener.dispatchEvent(event);
+        }, '*');
+    }
+    // If we're in a popup window
+    else if (window.opener) {
+        window.opener.postMessage({
+            type: 'tradingUpdate',
+            inventory: gameState.player.inventory,
+            money: gameState.player.money,
+            health: gameState.player.health,
+            jailTime: gameState.player.jailTime,
+            daysFree: gameState.player.daysFree
+        }, '*');
+    }
+    
+    // Also save to localStorage for redundancy
+    localStorage.setItem('undergroundTraderGame', JSON.stringify(gameState));
 }
 
 // Simulate day passing (to be called from your main game loop)
