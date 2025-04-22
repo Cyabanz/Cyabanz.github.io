@@ -87,6 +87,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load saved game state if available
     loadGameState();
     
+    // Check if player is in jail
+    if (gameState.player.jailTime > 0) {
+        disableTrading();
+        showModal("In Jail", `You're currently in jail for ${gameState.player.jailTime} more days. Trading is not possible.`);
+    }
+    
     // Set up event listeners
     document.getElementById('find-trader').addEventListener('click', findTrader);
     document.getElementById('visit-market').addEventListener('click', visitBlackMarket);
@@ -110,8 +116,31 @@ document.addEventListener('DOMContentLoaded', function() {
     updateUI();
 });
 
+// Disable trading controls when in jail
+function disableTrading() {
+    document.getElementById('find-trader').disabled = true;
+    document.getElementById('visit-market').disabled = true;
+    document.getElementById('rob-trader').disabled = true;
+    document.getElementById('negotiate').disabled = true;
+    document.getElementById('accept-trade').disabled = true;
+    document.getElementById('decline-trade').disabled = true;
+}
+
+// Enable trading controls
+function enableTrading() {
+    document.getElementById('find-trader').disabled = false;
+    document.getElementById('visit-market').disabled = false;
+    updateTradeButtons(); // This will set rob/negotiate/accept based on current state
+}
+
 // Find a trader
 function findTrader() {
+    // Check if player is in jail
+    if (gameState.player.jailTime > 0) {
+        showModal("In Jail", "You can't trade while in jail!");
+        return;
+    }
+    
     // Random chance of no traders available
     if (Math.random() < 0.2) {
         addLogEntry("No traders available right now. Try again later.");
@@ -138,6 +167,12 @@ function findTrader() {
 
 // Visit black market
 function visitBlackMarket() {
+    // Check if player is in jail
+    if (gameState.player.jailTime > 0) {
+        showModal("In Jail", "You can't visit the black market while in jail!");
+        return;
+    }
+    
     gameState.blackMarket = true;
     
     // Chance of getting caught trying to enter black market
@@ -146,7 +181,9 @@ function visitBlackMarket() {
         showModal("Busted!", "You were caught trying to enter the black market! You're sentenced to 50 days in jail.");
         gameState.currentTrader = null;
         updateUI();
+        disableTrading();
         saveGameState();
+        syncWithMainGame();
         return;
     }
     
@@ -194,6 +231,12 @@ function generateTraderInventory(trader) {
 
 // Set up trade interface
 function setupTrade() {
+    // Check if player is in jail
+    if (gameState.player.jailTime > 0) {
+        showModal("In Jail", "You can't trade while in jail!");
+        return;
+    }
+    
     gameState.isTrading = true;
     gameState.selectedPlayerItems = [];
     gameState.selectedTraderItems = [];
@@ -271,6 +314,9 @@ function renderTraderInventory() {
 
 // Toggle player item selection
 function togglePlayerItem(item) {
+    // Check if player is in jail
+    if (gameState.player.jailTime > 0) return;
+    
     const index = gameState.selectedPlayerItems.findIndex(i => i.id === item.id);
     if (index === -1) {
         gameState.selectedPlayerItems.push(JSON.parse(JSON.stringify(item)));
@@ -283,6 +329,9 @@ function togglePlayerItem(item) {
 
 // Toggle trader item selection
 function toggleTraderItem(item) {
+    // Check if player is in jail
+    if (gameState.player.jailTime > 0) return;
+    
     const index = gameState.selectedTraderItems.findIndex(i => i.id === item.id);
     if (index === -1) {
         gameState.selectedTraderItems.push(JSON.parse(JSON.stringify(item)));
@@ -310,16 +359,16 @@ function updateTradeButtons() {
     const robBtn = document.getElementById('rob-trader');
     const negotiateBtn = document.getElementById('negotiate');
     
-    acceptBtn.disabled = !gameState.isTrading || 
+    acceptBtn.disabled = !gameState.isTrading || gameState.player.jailTime > 0 || 
         (gameState.selectedPlayerItems.length === 0 && gameState.selectedTraderItems.length === 0);
     
-    robBtn.disabled = !gameState.isTrading || !gameState.currentTrader;
-    negotiateBtn.disabled = !gameState.isTrading || !gameState.currentTrader;
+    robBtn.disabled = !gameState.isTrading || !gameState.currentTrader || gameState.player.jailTime > 0;
+    negotiateBtn.disabled = !gameState.isTrading || !gameState.currentTrader || gameState.player.jailTime > 0;
 }
 
 // Accept trade
 function acceptTrade() {
-    if (!gameState.currentTrader) return;
+    if (!gameState.currentTrader || gameState.player.jailTime > 0) return;
     
     const playerValue = gameState.selectedPlayerItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
     const traderValue = gameState.selectedTraderItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
@@ -328,8 +377,10 @@ function acceptTrade() {
     if (gameState.currentTrader.name === 'Mysterious Buyer') {
         gameState.player.jailTime += 30;
         showModal("Busted!", "The trader was an undercover cop! You've been arrested and sentenced to 30 days in jail.");
+        disableTrading();
         endTrade();
         saveGameState();
+        syncWithMainGame();
         return;
     }
     
@@ -410,6 +461,7 @@ function acceptTrade() {
     }
     
     saveGameState();
+    syncWithMainGame();
 }
 
 // Trade gone wrong scenario
@@ -470,6 +522,7 @@ function tradeGoneWrong() {
     
     endTrade();
     saveGameState();
+    syncWithMainGame();
 }
 
 // Decline trade
@@ -504,7 +557,7 @@ function endTrade() {
 
 // Attempt to rob the trader
 function attemptRobbery() {
-    if (!gameState.currentTrader) return;
+    if (!gameState.currentTrader || gameState.player.jailTime > 0) return;
     
     // Higher chance of success in black market but also higher consequences
     const successChance = gameState.blackMarket ? 0.4 : 0.6;
@@ -579,6 +632,7 @@ function attemptRobbery() {
             
             showModal("Robbery Failed", `The dealer's guards overpowered you! You take ${damage} damage and are sentenced to ${jailTime} days in jail.`);
             addLogEntry(`Robbery attempt failed! You were beaten and sentenced to ${jailTime} days in jail.`);
+            disableTrading();
         } else {
             showModal("Robbery Failed", `The trader fights back! You take ${damage} damage.`);
             addLogEntry(`Robbery attempt failed! The trader fought back and you took ${damage} damage.`);
@@ -588,11 +642,12 @@ function attemptRobbery() {
     }
     
     saveGameState();
+    syncWithMainGame();
 }
 
 // Negotiate trade
 function negotiateTrade() {
-    if (!gameState.currentTrader) return;
+    if (!gameState.currentTrader || gameState.player.jailTime > 0) return;
     
     // Base success chance based on trader trust
     let successChance = gameState.currentTrader.trust / 100;
@@ -711,6 +766,7 @@ function resolveConflict(choice) {
     
     endTrade();
     saveGameState();
+    syncWithMainGame();
 }
 
 // Add item to player inventory
@@ -811,6 +867,13 @@ function updateUI() {
     renderPlayerInventory();
     updateTraderInfo();
     updateTradeButtons();
+    
+    // Enable/disable trading based on jail status
+    if (gameState.player.jailTime > 0) {
+        disableTrading();
+    } else {
+        enableTrading();
+    }
 }
 
 // Save game state
@@ -828,13 +891,32 @@ function loadGameState() {
     }
 }
 
+// Sync with main game
+function syncWithMainGame() {
+    // This would be called from your main game to update its state
+    // You'll need to implement the equivalent function in your main game
+    const event = new CustomEvent('tradingStateUpdated', {
+        detail: {
+            inventory: gameState.player.inventory,
+            money: gameState.player.money,
+            health: gameState.player.health,
+            jailTime: gameState.player.jailTime,
+            daysFree: gameState.player.daysFree
+        }
+    });
+    window.opener.dispatchEvent(event);
+}
+
 // Simulate day passing (to be called from your main game loop)
 function simulateDay() {
     if (gameState.player.jailTime > 0) {
         gameState.player.jailTime--;
         if (gameState.player.jailTime === 0) {
             addLogEntry("You've been released from jail.");
+            enableTrading();
         }
+        saveGameState();
+        syncWithMainGame();
         return;
     }
     
@@ -852,4 +934,5 @@ function simulateDay() {
     
     updateUI();
     saveGameState();
+    syncWithMainGame();
 }
