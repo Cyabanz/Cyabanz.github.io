@@ -1,0 +1,411 @@
+/* trading.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #222;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.phone-frame {
+    background-color: #111;
+    border-radius: 30px;
+    padding: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.phone-screen {
+    background-color: #000;
+    border-radius: 20px;
+    height: 600px;
+    overflow: hidden;
+    position: relative;
+}
+
+.app-screen {
+    padding: 15px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #ccc;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #4CAF50;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.trading-tabs {
+    display: flex;
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    color: #ccc;
+    padding: 5px 15px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-button.active {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.action-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.action-button:hover {
+    background-color: #45a049;
+}
+
+.trader-list {
+    margin: 15px 0;
+}
+
+.trader {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.trader:hover {
+    background-color: #444;
+}
+
+.trader h4 {
+    margin: 0 0 5px 0;
+}
+
+.trader p {
+    margin: 5px 0;
+    font-size: 12px;
+    color: #ccc;
+}
+
+.trader .trader-offer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.trader-item {
+    background-color: #444;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.no-traders {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+.market-warning {
+    background-color: #5a0000;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.inventory-section {
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.inventory-section h4 {
+    margin-top: 0;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+}
+
+.inventory-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.inventory-item {
+    background-color: #333;
+    padding: 5px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* Negotiation Screen Styles */
+.trader-info {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.trader-avatar {
+    width: 60px;
+    height: 60px;
+    background-color: #333;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+}
+
+.trade-offer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.offer-items {
+    flex: 1;
+    min-height: 100px;
+    background-color: #222;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.trade-arrow {
+    padding: 0 15px;
+    font-size: 24px;
+}
+
+.offer-item {
+    background-color: #4CAF50;
+    padding: 5px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.negotiation-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.negotiation-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.negotiation-button:hover {
+    background-color: #444;
+}
+
+.negotiation-button[data-action="accept"] {
+    background-color: #4CAF50;
+}
+
+.negotiation-button[data-action="counter"] {
+    background-color: #FF9800;
+}
+
+.negotiation-button[data-action="rob"] {
+    background-color: #f44336;
+}
+
+.negotiation-button[data-action="decline"] {
+    background-color: #555;
+}
+
+.counter-offer {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #222;
+    border-radius: 5px;
+}
+
+.counter-items {
+    min-height: 80px;
+    background-color: #333;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.counter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.counter-controls select, 
+.counter-controls input {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.counter-controls input {
+    width: 50px;
+}
+
+#add-counter-item {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Robbery Screen Styles */
+.robbery-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.robbery-option {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.robbery-option:hover {
+    background-color: #444;
+}
+
+.robbery-option[data-action="stealth"] {
+    background-color: #2196F3;
+}
+
+.robbery-option[data-action="threaten"] {
+    background-color: #FF9800;
+}
+
+.robbery-option[data-action="ambush"] {
+    background-color: #f44336;
+}
+
+#robbery-outcome {
+    padding: 15px;
+    background-color: #333;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+/* Outcome Screen Styles */
+.outcome-message {
+    margin: 20px 0;
+}
+
+.outcome-items {
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.outcome-item {
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.gained-item {
+    background-color: rgba(76, 175, 80, 0.3);
+}
+
+.lost-item {
+    background-color: rgba(244, 67, 54, 0.3);
+}
+
+/* Trader type colors */
+.trader-type-street {
+    color: #4CAF50;
+}
+
+.trader-type-market {
+    color: #9C27B0;
+}
+
+.trader-type-undercover {
+    color: #f44336;
+}
+
+.trader-type-shady {
+    color: #FF9800;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+    .phone-screen {
+        height: 500px;
+    }
+    
+    .negotiation-options {
+        grid-template-columns: 1fr;
+    }
+}
