@@ -1,968 +1,855 @@
-// trading.js
-// Game state from main game
-let gameState = {};
-
-// Trading state
-const tradingState = {
+// Game State
+const gameState = {
+    player: {
+        inventory: [],
+        capacity: 10,
+        money: 1000,
+        health: 100,
+        daysFree: 0,
+        jailTime: 0,
+        wantedLevel: 0
+    },
     currentTrader: null,
-    currentOffer: null,
-    currentRobbery: null,
-    counterOffer: {
-        theirItems: [],
-        yourItems: []
-    },
-    traders: [],
-    marketTraders: [],
-    lastTraderSearch: 0,
-    lastMarketSearch: 0
+    tradeItems: [],
+    selectedPlayerItems: [],
+    selectedTraderItems: [],
+    isTrading: false,
+    blackMarket: false
 };
 
-// Trader types
-const TRADER_TYPES = {
-    STREET: {
-        name: "Street Vendor",
-        risk: 0.1,
-        reward: 0.8,
-        undercoverChance: 0.05
+// Item Database
+const items = {
+    drugs: [
+        { id: 'weed', name: 'Weed', value: 50, type: 'drug', danger: 5 },
+        { id: 'cocaine', name: 'Cocaine', value: 150, type: 'drug', danger: 15 },
+        { id: 'heroin', name: 'Heroin', value: 200, type: 'drug', danger: 25 },
+        { id: 'meth', name: 'Meth', value: 120, type: 'drug', danger: 20 },
+        { id: 'lsd', name: 'LSD', value: 80, type: 'drug', danger: 10 }
+    ],
+    weapons: [
+        { id: 'knife', name: 'Knife', value: 30, type: 'weapon', damage: 15 },
+        { id: 'pistol', name: 'Pistol', value: 200, type: 'weapon', damage: 30 },
+        { id: 'shotgun', name: 'Shotgun', value: 350, type: 'weapon', damage: 50 },
+        { id: 'ak47', name: 'AK-47', value: 800, type: 'weapon', damage: 70 },
+        { id: 'sniper', name: 'Sniper Rifle', value: 1200, type: 'weapon', damage: 90 }
+    ],
+    money: [
+        { id: 'cash', name: 'Cash', value: 1, type: 'money' }
+    ],
+    other: [
+        { id: 'fake_id', name: 'Fake ID', value: 300, type: 'other' },
+        { id: 'police_badge', name: 'Police Badge', value: 500, type: 'other' },
+        { id: 'body_armor', name: 'Body Armor', value: 400, type: 'other', protection: 30 }
+    ]
+};
+
+// Trader Types
+const traderTypes = {
+    shadyDealer: {
+        name: 'Shady Dealer',
+        trustRange: [30, 60],
+        inventory: ['drugs', 'weapons'],
+        danger: 20,
+        undercoverChance: 0
     },
-    MARKET: {
-        name: "Black Market Dealer",
-        risk: 0.3,
-        reward: 1.2,
-        undercoverChance: 0.2
+    streetVendor: {
+        name: 'Street Vendor',
+        trustRange: [40, 70],
+        inventory: ['drugs', 'other'],
+        danger: 10,
+        undercoverChance: 5
     },
-    UNDERCOVER: {
-        name: "Street Vendor", // Hidden as undercover
-        risk: 1.0,
-        reward: 0.5,
-        isUndercover: true
+    blackMarket: {
+        name: 'Black Market Dealer',
+        trustRange: [20, 50],
+        inventory: ['drugs', 'weapons', 'other'],
+        danger: 40,
+        undercoverChance: 15
     },
-    SHADY: {
-        name: "Shady Dealer",
-        risk: 0.5,
-        reward: 1.0,
-        undercoverChance: 0.1,
-        scamChance: 0.4
+    undercover: {
+        name: 'Mysterious Buyer',
+        trustRange: [60, 80],
+        inventory: ['money'],
+        danger: 80,
+        undercoverChance: 100
+    },
+    random: {
+        name: 'Stranger',
+        trustRange: [10, 90],
+        inventory: ['drugs', 'weapons', 'money', 'other'],
+        danger: 30,
+        undercoverChance: 10
     }
 };
 
-// Initialize the trading game
-function initTradingGame() {
-    // Try to load game state from localStorage
-    const savedState = localStorage.getItem('streetAlchemistGameState');
-    if (savedState) {
-        gameState = JSON.parse(savedState);
-    } else {
-        // Fallback to empty state if not found
-        gameState = {
-            money: 10000,
-            reputation: 0,
-            health: 100,
-            inventory: {},
-            weapons: {},
-            ingredients: {},
-            inJail: false,
-            jailDays: 0,
-            time: 0,
-            policeHeat: 0
-        };
+// Initialize the game
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved game state if available
+    loadGameState();
+    
+    // Set up event listeners
+    document.getElementById('find-trader').addEventListener('click', findTrader);
+    document.getElementById('visit-market').addEventListener('click', visitBlackMarket);
+    document.getElementById('rob-trader').addEventListener('click', attemptRobbery);
+    document.getElementById('negotiate').addEventListener('click', negotiateTrade);
+    document.getElementById('accept-trade').addEventListener('click', acceptTrade);
+    document.getElementById('decline-trade').addEventListener('click', declineTrade);
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('shoot-option').addEventListener('click', () => resolveConflict('shoot'));
+    document.getElementById('chase-option').addEventListener('click', () => resolveConflict('chase'));
+    document.getElementById('let-go-option').addEventListener('click', () => resolveConflict('let go'));
+    
+    // Initialize player inventory with some items
+    if (gameState.player.inventory.length === 0) {
+        addToInventory(createItem('weed', 3));
+        addToInventory(createItem('knife', 1));
+        addToInventory(createItem('cash', 500));
     }
-    
-    updateTradingUI();
-    setupEventListeners();
-    renderInventory();
-}
-
-// Update all UI elements
-function updateTradingUI() {
-    // Update money display
-    document.querySelectorAll('[id$="-money"]').forEach(el => {
-        el.textContent = `$${gameState.money.toLocaleString()}`;
-    });
-    
-    // Update time display
-    updateTimeDisplay();
-    
-    // Update reputation
-    document.getElementById('trade-rep').textContent = `Rep: ${gameState.reputation}`;
-    
-    // Update health
-    document.getElementById('trade-health').textContent = `Health: ${gameState.health}%`;
-}
-
-function updateTimeDisplay() {
-    if (!gameState.time) gameState.time = 0;
-    const hours = Math.floor(gameState.time / 60) % 24;
-    const minutes = gameState.time % 60;
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12;
-    const timeString = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-    document.querySelectorAll('[id$="-time"]').forEach(el => el.textContent = timeString);
-}
-
-// Setup event listeners
-function setupEventListeners() {
-    // Tab buttons
-    document.querySelectorAll('.trading-tabs .tab-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const tab = button.dataset.tab;
-            showTradingTab(tab);
-        });
-    });
-    
-    // Back button
-    document.querySelectorAll('.back-button').forEach(button => {
-        button.addEventListener('click', () => {
-            if (document.getElementById('negotiation-screen').classList.contains('hidden') === false) {
-                showTradingTab('street');
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-    });
-    
-    // Find traders buttons
-    document.getElementById('find-traders').addEventListener('click', findStreetTraders);
-    document.getElementById('find-market-traders').addEventListener('click', findMarketTraders);
-    
-    // Negotiation buttons
-    document.querySelectorAll('.negotiation-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const action = e.target.dataset.action;
-            handleNegotiation(action);
-        });
-    });
-    
-    // Counter offer controls
-    document.getElementById('counter-item-type').addEventListener('change', updateCounterItems);
-    document.getElementById('add-counter-item').addEventListener('click', addCounterItem);
-    document.getElementById('submit-counter').addEventListener('click', submitCounterOffer);
-    
-    // Robbery buttons
-    document.querySelectorAll('.robbery-option').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const action = e.target.dataset.action;
-            attemptRobbery(action);
-        });
-    });
-    
-    // Outcome continue button
-    document.getElementById('outcome-continue').addEventListener('click', () => {
-        showTradingTab('street');
-    });
-    
-    // Robbery continue button
-    document.getElementById('robbery-continue').addEventListener('click', () => {
-        if (gameState.inJail) {
-            window.location.href = 'index.html';
-        } else {
-            showTradingTab('street');
-        }
-    });
-}
-
-// Show trading tab
-function showTradingTab(tab) {
-    document.querySelectorAll('.trading-content .tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.trading-tabs .tab-button').forEach(el => el.classList.remove('active'));
-    
-    document.getElementById(`${tab}-tab`).classList.add('active');
-    document.querySelector(`.trading-tabs .tab-button[data-tab="${tab}"]`).classList.add('active');
-    
-    // Hide all app screens except trading screen
-    document.querySelectorAll('.app-screen').forEach(el => el.classList.add('hidden'));
-    document.getElementById('trading-screen').classList.remove('hidden');
-}
-
-// Find street traders
-function findStreetTraders() {
-    const now = Date.now();
-    const cooldown = 30000; // 30 seconds cooldown
-    
-    if (now - tradingState.lastTraderSearch < cooldown) {
-        alert("You need to wait before finding new traders!");
-        return;
-    }
-    
-    tradingState.lastTraderSearch = now;
-    tradingState.traders = [];
-    
-    const traderList = document.getElementById('street-traders');
-    traderList.innerHTML = '';
-    
-    // Random chance to find no traders
-    if (Math.random() < 0.2) {
-        traderList.innerHTML = '<p class="no-traders">No traders available right now. Try again later.</p>';
-        return;
-    }
-    
-    // Generate 1-3 traders
-    const numTraders = 1 + Math.floor(Math.random() * 3);
-    
-    for (let i = 0; i < numTraders; i++) {
-        // Determine trader type (5% chance of undercover)
-        let traderType;
-        const rand = Math.random();
-        
-        if (rand < 0.05) {
-            traderType = TRADER_TYPES.UNDERCOVER;
-        } else if (rand < 0.2) {
-            traderType = TRADER_TYPES.SHADY;
-        } else {
-            traderType = TRADER_TYPES.STREET;
-        }
-        
-        const trader = generateTrader(traderType);
-        tradingState.traders.push(trader);
-        
-        const traderEl = createTraderElement(trader);
-        traderList.appendChild(traderEl);
-    }
-}
-
-// Find black market traders
-function findMarketTraders() {
-    const now = Date.now();
-    const cooldown = 60000; // 60 seconds cooldown
-    
-    if (now - tradingState.lastMarketSearch < cooldown) {
-        alert("The black market needs time to get new offers!");
-        return;
-    }
-    
-    tradingState.lastMarketSearch = now;
-    tradingState.marketTraders = [];
-    
-    const traderList = document.getElementById('market-traders');
-    traderList.innerHTML = '';
-    
-    // Generate 1-2 traders (higher chance of undercover)
-    const numTraders = 1 + Math.floor(Math.random() * 2);
-    
-    for (let i = 0; i < numTraders; i++) {
-        // Determine trader type (20% chance of undercover)
-        const traderType = Math.random() < 0.2 ? TRADER_TYPES.UNDERCOVER : TRADER_TYPES.MARKET;
-        const trader = generateTrader(traderType);
-        tradingState.marketTraders.push(trader);
-        
-        const traderEl = createTraderElement(trader);
-        traderList.appendChild(traderEl);
-    }
-}
-
-// Generate a random trader
-function generateTrader(type) {
-    const names = [
-        "Tony", "Maria", "Carlos", "Jamal", "Viktor", "Lena", "Dmitri", "Aisha",
-        "Raul", "Jasmine", "Tyrone", "Mei", "Hector", "Nadia", "Ivan", "Leila"
-    ];
-    
-    const nicknames = [
-        "Fast Hands", "Slick", "The Snake", "Ghost", "Smiley", "Tiny", "Big Mike",
-        "The Professor", "Doc", "Lucky", "Fingers", "The Owl", "Whisper", "The Fox"
-    ];
-    
-    const name = `${names[Math.floor(Math.random() * names.length)]} "${nicknames[Math.floor(Math.random() * nicknames.length)]}"`;
-    
-    // Generate offer based on type
-    const offer = generateOffer(type);
-    
-    return {
-        id: Date.now() + Math.floor(Math.random() * 1000),
-        name,
-        type,
-        trust: 30 + Math.floor(Math.random() * 50), // 30-80% trust
-        offer,
-        isUndercover: type.isUndercover || false
-    };
-}
-
-// Generate a random offer
-function generateOffer(traderType) {
-    const offer = {
-        theirItems: [],
-        yourItems: []
-    };
-    
-    // What they're offering
-    const possibleDrugs = ["weed", "meth", "coke", "heroin"];
-    const possibleWeapons = ["pistol", "shotgun", "rifle", "switch"];
-    
-    // 70% chance to offer drugs, 20% weapons, 10% money
-    const offerType = Math.random();
-    
-    if (offerType < 0.7) {
-        // Offer drugs
-        const drug = possibleDrugs[Math.floor(Math.random() * possibleDrugs.length)];
-        const amount = 1 + Math.floor(Math.random() * 10 * traderType.reward);
-        offer.theirItems.push({ type: "drug", item: drug, amount });
-    } else if (offerType < 0.9) {
-        // Offer weapons
-        const weapon = possibleWeapons[Math.floor(Math.random() * possibleWeapons.length)];
-        offer.theirItems.push({ type: "weapon", item: weapon, amount: 1 });
-    } else {
-        // Offer money
-        const amount = 100 + Math.floor(Math.random() * 1000 * traderType.reward);
-        offer.theirItems.push({ type: "money", item: "cash", amount });
-    }
-    
-    // What they want
-    // 60% chance to want drugs, 30% weapons, 10% money
-    const wantType = Math.random();
-    
-    if (wantType < 0.6) {
-        // Want drugs
-        const drug = possibleDrugs[Math.floor(Math.random() * possibleDrugs.length)];
-        const amount = 1 + Math.floor(Math.random() * 10 / traderType.reward);
-        offer.yourItems.push({ type: "drug", item: drug, amount });
-    } else if (wantType < 0.9) {
-        // Want weapons
-        const weapon = possibleWeapons[Math.floor(Math.random() * possibleWeapons.length)];
-        offer.yourItems.push({ type: "weapon", item: weapon, amount: 1 });
-    } else {
-        // Want money
-        const amount = 50 + Math.floor(Math.random() * 500 / traderType.reward);
-        offer.yourItems.push({ type: "money", item: "cash", amount });
-    }
-    
-    return offer;
-}
-
-// Create trader HTML element
-function createTraderElement(trader) {
-    const traderEl = document.createElement('div');
-    traderEl.className = 'trader';
-    traderEl.dataset.id = trader.id;
-    
-    const typeClass = trader.isUndercover ? 'trader-type-undercover' : 
-                     trader.type === TRADER_TYPES.MARKET ? 'trader-type-market' :
-                     trader.type === TRADER_TYPES.SHADY ? 'trader-type-shady' : 'trader-type-street';
-    
-    traderEl.innerHTML = `
-        <h4>${trader.name}</h4>
-        <p class="${typeClass}">${trader.type.name}</p>
-        <p>Trust: ${trader.trust}%</p>
-        <div class="trader-offer">
-            <div class="their-items">
-                ${trader.offer.theirItems.map(item => 
-                    `<span class="trader-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</span>`
-                ).join('')}
-            </div>
-            <span>for</span>
-            <div class="your-items">
-                ${trader.offer.yourItems.map(item => 
-                    `<span class="trader-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</span>`
-                ).join('')}
-            </div>
-        </div>
-    `;
-    
-    traderEl.addEventListener('click', () => startNegotiation(trader));
-    
-    return traderEl;
-}
-
-// Start negotiation with a trader
-function startNegotiation(trader) {
-    tradingState.currentTrader = trader;
-    tradingState.currentOffer = trader.offer;
-    
-    // Reset counter offer
-    tradingState.counterOffer = {
-        theirItems: [...trader.offer.theirItems],
-        yourItems: [...trader.offer.yourItems]
-    };
     
     // Update UI
-    document.getElementById('trader-name').textContent = trader.name;
-    document.getElementById('trader-type').textContent = trader.type.name;
-    document.getElementById('trader-trust').textContent = `Trust: ${trader.trust}%`;
-    
-    // Set avatar based on trader type
-    const avatar = document.querySelector('.trader-avatar');
-    avatar.textContent = trader.name.charAt(0);
-    avatar.style.backgroundColor = trader.isUndercover ? '#f44336' : 
-                                 trader.type === TRADER_TYPES.MARKET ? '#9C27B0' :
-                                 trader.type === TRADER_TYPES.SHADY ? '#FF9800' : '#4CAF50';
-    
-    // Show their offer
-    const theirOfferEl = document.getElementById('their-offer');
-    theirOfferEl.innerHTML = tradingState.currentOffer.theirItems.map(item => 
-        `<div class="offer-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-    ).join('');
-    
-    // Show your offer
-    const yourOfferEl = document.getElementById('your-offer');
-    yourOfferEl.innerHTML = tradingState.currentOffer.yourItems.map(item => 
-        `<div class="offer-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-    ).join('');
-    
-    // Hide counter offer section
-    document.getElementById('counter-offer').classList.add('hidden');
-    
-    // Show negotiation screen
-    document.getElementById('trading-screen').classList.add('hidden');
-    document.getElementById('negotiation-screen').classList.remove('hidden');
-}
+    updateUI();
+});
 
-// Handle negotiation actions
-function handleNegotiation(action) {
-    switch(action) {
-        case 'accept':
-            completeTrade(false);
-            break;
-        case 'counter':
-            showCounterOffer();
-            break;
-        case 'rob':
-            startRobbery();
-            break;
-        case 'decline':
-            showTradingTab('street');
-            break;
-    }
-}
-
-// Show counter offer UI
-function showCounterOffer() {
-    const counterEl = document.getElementById('counter-offer');
-    counterEl.classList.remove('hidden');
-    
-    // Show their original items
-    const theirCounterEl = document.getElementById('counter-their');
-    theirCounterEl.innerHTML = tradingState.counterOffer.theirItems.map(item => 
-        `<div class="offer-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-    ).join('');
-    
-    // Show your counter items (starts with original offer)
-    const yourCounterEl = document.getElementById('counter-yours');
-    yourCounterEl.innerHTML = tradingState.counterOffer.yourItems.map(item => 
-        `<div class="offer-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-    ).join('');
-    
-    // Update counter item dropdown
-    updateCounterItems();
-}
-
-// Update counter item dropdown based on selected type
-function updateCounterItems() {
-    const type = document.getElementById('counter-item-type').value;
-    const itemSelect = document.getElementById('counter-item');
-    
-    itemSelect.innerHTML = '';
-    
-    if (type === 'drug') {
-        const drugs = Object.keys(gameState.inventory);
-        if (drugs.length === 0) {
-            itemSelect.innerHTML = '<option value="">No drugs available</option>';
-            return;
-        }
-        
-        drugs.forEach(drug => {
-            const option = document.createElement('option');
-            option.value = drug;
-            option.textContent = `${drug} (${gameState.inventory[drug]}g)`;
-            itemSelect.appendChild(option);
-        });
-    } else if (type === 'weapon') {
-        const weapons = Object.keys(gameState.weapons);
-        if (weapons.length === 0) {
-            itemSelect.innerHTML = '<option value="">No weapons available</option>';
-            return;
-        }
-        
-        weapons.forEach(weapon => {
-            const option = document.createElement('option');
-            option.value = weapon;
-            option.textContent = `${weapon} (${gameState.weapons[weapon]}x)`;
-            itemSelect.appendChild(option);
-        });
-    } else if (type === 'money') {
-        itemSelect.innerHTML = '<option value="cash">Cash</option>';
-    }
-}
-
-// Add item to counter offer
-function addCounterItem() {
-    const type = document.getElementById('counter-item-type').value;
-    const item = document.getElementById('counter-item').value;
-    const amount = parseInt(document.getElementById('counter-amount').value);
-    
-    if (!item || item === "No drugs available" || item === "No weapons available") {
-        alert("No item selected or you don't have any of that type!");
+// Find a trader
+function findTrader() {
+    // Random chance of no traders available
+    if (Math.random() < 0.2) {
+        addLogEntry("No traders available right now. Try again later.");
         return;
     }
     
-    if (isNaN(amount)) {
-        alert("Please enter a valid amount");
+    gameState.blackMarket = false;
+    
+    // Determine trader type
+    const traderOptions = ['shadyDealer', 'streetVendor', 'random'];
+    const traderType = traderOptions[Math.floor(Math.random() * traderOptions.length)];
+    
+    // Small chance of undercover cop
+    const undercoverRoll = Math.random() * 100;
+    if (undercoverRoll < traderTypes[traderType].undercoverChance) {
+        gameState.currentTrader = createTrader('undercover');
+    } else {
+        gameState.currentTrader = createTrader(traderType);
+    }
+    
+    setupTrade();
+    addLogEntry(`Found a trader: ${gameState.currentTrader.name}`);
+}
+
+// Visit black market
+function visitBlackMarket() {
+    gameState.blackMarket = true;
+    
+    // Chance of getting caught trying to enter black market
+    if (Math.random() < 0.1) {
+        gameState.player.jailTime += 50;
+        showModal("Busted!", "You were caught trying to enter the black market! You're sentenced to 50 days in jail.");
+        gameState.currentTrader = null;
+        updateUI();
+        saveGameState();
         return;
     }
     
-    // Check if player has enough
-    if (type === 'drug') {
-        if (!gameState.inventory[item] || gameState.inventory[item] < amount) {
-            alert(`You don't have enough ${item}!`);
-            return;
-        }
-    } else if (type === 'weapon') {
-        if (!gameState.weapons[item] || gameState.weapons[item] < amount) {
-            alert(`You don't have enough ${item}s!`);
-            return;
-        }
-    } else if (type === 'money') {
-        if (gameState.money < amount) {
-            alert("You don't have enough money!");
-            return;
-        }
-    }
-    
-    // Add to counter offer
-    tradingState.counterOffer.yourItems.push({ type, item, amount });
-    
-    // Update display
-    const yourCounterEl = document.getElementById('counter-yours');
-    yourCounterEl.innerHTML = tradingState.counterOffer.yourItems.map(item => 
-        `<div class="offer-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-    ).join('');
+    gameState.currentTrader = createTrader('blackMarket');
+    setupTrade();
+    addLogEntry("Entered the black market. High risk, high reward...");
 }
 
-// Submit counter offer
-function submitCounterOffer() {
-    // Calculate chance of acceptance based on trader trust and offer fairness
-    const trustFactor = tradingState.currentTrader.trust / 100;
-    const originalValue = calculateOfferValue(tradingState.currentOffer.yourItems);
-    const counterValue = calculateOfferValue(tradingState.counterOffer.yourItems);
-    
-    const valueRatio = counterValue / originalValue;
-    const acceptanceChance = trustFactor * (1 - Math.abs(1 - valueRatio));
-    
-    if (Math.random() < acceptanceChance) {
-        // Trader accepts counter offer
-        tradingState.currentOffer = {
-            theirItems: tradingState.counterOffer.theirItems,
-            yourItems: tradingState.counterOffer.yourItems
-        };
-        
-        // Update displayed offer
-        const theirOfferEl = document.getElementById('their-offer');
-        theirOfferEl.innerHTML = tradingState.currentOffer.theirItems.map(item => 
-            `<div class="offer-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-        ).join('');
-        
-        const yourOfferEl = document.getElementById('your-offer');
-        yourOfferEl.innerHTML = tradingState.currentOffer.yourItems.map(item => 
-            `<div class="offer-item">${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-        ).join('');
-        
-        alert(`${tradingState.currentTrader.name} accepts your counter offer!`);
-    } else {
-        // Trader rejects counter offer
-        const responses = [
-            "No way, that's not enough!",
-            "You must be joking with that offer.",
-            "I can't accept that, it's not fair.",
-            "Do you think I'm stupid? That's a bad deal.",
-            "I'll pass on that offer."
-        ];
-        
-        alert(`${tradingState.currentTrader.name}: "${responses[Math.floor(Math.random() * responses.length)]}"`);
-    }
-    
-    // Hide counter offer
-    document.getElementById('counter-offer').classList.add('hidden');
+// Create a trader
+function createTrader(type) {
+    const trader = JSON.parse(JSON.stringify(traderTypes[type]));
+    trader.trust = Math.floor(Math.random() * (trader.trustRange[1] - trader.trustRange[0] + 1)) + trader.trustRange[0];
+    trader.inventoryItems = generateTraderInventory(trader);
+    return trader;
 }
 
-// Calculate the value of an offer
-function calculateOfferValue(items) {
-    let value = 0;
+// Generate trader inventory
+function generateTraderInventory(trader) {
+    const inventory = [];
+    const itemCount = Math.floor(Math.random() * 5) + 3; // 3-7 items
     
-    for (const item of items) {
-        if (item.type === 'drug') {
-            const drugValue = recipes[item.item]?.value || 0;
-            value += drugValue * item.amount;
-        } else if (item.type === 'weapon') {
-            const weaponValue = weapons[item.item]?.price || 0;
-            value += weaponValue * item.amount;
-        } else if (item.type === 'money') {
-            value += item.amount;
-        }
-    }
-    
-    return value;
-}
-
-// Start robbery attempt
-function startRobbery() {
-    tradingState.currentRobbery = {
-        trader: tradingState.currentTrader,
-        successChance: 0.5, // Base chance
-        damageRisk: 0.3 // Base risk
-    };
-    
-    document.getElementById('robbery-description').textContent = 
-        `You're attempting to rob ${tradingState.currentTrader.name}. Choose your approach:`;
-    
-    document.getElementById('negotiation-screen').classList.add('hidden');
-    document.getElementById('robbery-screen').classList.remove('hidden');
-    document.getElementById('robbery-step1').classList.remove('hidden');
-    document.getElementById('robbery-step2').classList.add('hidden');
-}
-
-// Attempt robbery with chosen method
-function attemptRobbery(action) {
-    const robbery = tradingState.currentRobbery;
-    let successChance = robbery.successChance;
-    let damageRisk = robbery.damageRisk;
-    let outcomeText = "";
-    
-    // Modify chances based on action
-    switch(action) {
-        case 'stealth':
-            successChance *= 0.8; // Harder to succeed
-            damageRisk *= 0.5; // Less chance of damage
-            outcomeText = "You try to pickpocket the trader...\n";
-            break;
-        case 'threaten':
-            // Check if player has weapons
-            const hasWeapons = Object.keys(gameState.weapons).length > 0;
-            if (hasWeapons) {
-                successChance *= 1.2; // Better chance with weapon
-                damageRisk *= 1.2; // More chance of fight
-                outcomeText = "You pull out a weapon and threaten the trader...\n";
-                
-                // Use up a weapon
-                for (const weapon in gameState.weapons) {
-                    gameState.weapons[weapon]--;
-                    if (gameState.weapons[weapon] <= 0) {
-                        delete gameState.weapons[weapon];
-                    }
-                    break;
-                }
-            } else {
-                successChance *= 0.5; // Much harder without weapon
-                damageRisk *= 1.5; // More chance of damage
-                outcomeText = "You try to threaten the trader without a weapon...\n";
-            }
-            break;
-        case 'ambush':
-            successChance *= 1.5; // Best chance of success
-            damageRisk *= 2.0; // Highest chance of damage
-            outcomeText = "You launch a full ambush on the trader...\n";
-            break;
-    }
-    
-    // Modify based on trader type
-    if (robbery.trader.type === TRADER_TYPES.MARKET) {
-        successChance *= 0.8; // Market traders are more alert
-        damageRisk *= 1.5;
-    } else if (robbery.trader.isUndercover) {
-        successChance *= 0.3; // Very hard to rob undercover cops
-        damageRisk *= 3.0;
-    }
-    
-    // Determine outcome
-    const success = Math.random() < successChance;
-    const damaged = Math.random() < damageRisk;
-    
-    if (success) {
-        // Successful robbery
-        outcomeText += "SUCCESS! You managed to rob the trader.\n";
+    for (let i = 0; i < itemCount; i++) {
+        const category = trader.inventory[Math.floor(Math.random() * trader.inventory.length)];
+        const categoryItems = items[category];
+        const item = categoryItems[Math.floor(Math.random() * categoryItems.length)];
         
-        // Get all their items plus some extra
-        const stolenValue = calculateOfferValue(robbery.trader.offer.theirItems) * 1.5;
-        gameState.money += Math.floor(stolenValue);
-        outcomeText += `You got $${Math.floor(stolenValue)}!`;
-        
-        // Increase reputation but also police heat
-        gameState.reputation += 10;
-        gameState.policeHeat += 20;
-    } else {
-        // Failed robbery
-        outcomeText += "FAILED! The robbery didn't go as planned.\n";
-        
-        if (damaged) {
-            const damageAmount = 10 + Math.floor(Math.random() * 40);
-            gameState.health = Math.max(0, gameState.health - damageAmount);
-            outcomeText += `You got hurt in the attempt (${damageAmount}% damage).\n`;
-            
-            if (gameState.health <= 0) {
-                gameState.dead = true;
-                outcomeText += "You were killed in the robbery attempt!";
-            }
-        }
-        
-        if (robbery.trader.isUndercover) {
-            // Undercover cop arrests you
-            gameState.inJail = true;
-            gameState.jailDays = 30;
-            outcomeText += "The trader was an undercover cop! You're going to jail for 30 days.";
+        // Check if item already exists in inventory
+        const existingItem = inventory.find(i => i.id === item.id);
+        if (existingItem) {
+            existingItem.quantity += Math.floor(Math.random() * 3) + 1;
         } else {
-            // Regular trader might retaliate
-            if (Math.random() < 0.5) {
-                const stolenAmount = Math.floor(gameState.money * 0.2);
-                gameState.money -= stolenAmount;
-                outcomeText += `The trader retaliated and stole $${stolenAmount} from you!`;
-            } else {
-                outcomeText += "The trader managed to escape with their goods.";
-            }
-            
-            // Decrease reputation
-            gameState.reputation -= 5;
+            const newItem = JSON.parse(JSON.stringify(item));
+            newItem.quantity = Math.floor(Math.random() * 3) + 1;
+            inventory.push(newItem);
         }
     }
     
-    // Show outcome
-    document.getElementById('robbery-outcome').textContent = outcomeText;
-    document.getElementById('robbery-step1').classList.add('hidden');
-    document.getElementById('robbery-step2').classList.remove('hidden');
+    // Add money to inventory
+    const moneyItem = JSON.parse(JSON.stringify(items.money[0]));
+    moneyItem.quantity = Math.floor(Math.random() * 500) + 100;
+    inventory.push(moneyItem);
     
-    updateTradingUI();
+    return inventory;
+}
+
+// Set up trade interface
+function setupTrade() {
+    gameState.isTrading = true;
+    gameState.selectedPlayerItems = [];
+    gameState.selectedTraderItems = [];
+    
+    updateTraderInfo();
+    renderPlayerInventory();
+    renderTraderInventory();
+    updateTradeButtons();
+}
+
+// Update trader info display
+function updateTraderInfo() {
+    if (!gameState.currentTrader) {
+        document.getElementById('trader-name').textContent = 'No Active Trader';
+        document.getElementById('trader-type').textContent = '';
+        document.querySelector('.trust-fill').style.width = '0%';
+        document.getElementById('trader-trust').textContent = 'Trust: 0%';
+        return;
+    }
+    
+    document.getElementById('trader-name').textContent = gameState.currentTrader.name;
+    document.getElementById('trader-type').textContent = gameState.blackMarket ? 'Black Market Dealer' : 'Local Trader';
+    document.querySelector('.trust-fill').style.width = `${gameState.currentTrader.trust}%`;
+    document.getElementById('trader-trust').textContent = `Trust: ${gameState.currentTrader.trust}%`;
+}
+
+// Render player inventory
+function renderPlayerInventory() {
+    const inventoryEl = document.getElementById('player-inventory');
+    inventoryEl.innerHTML = '';
+    
+    gameState.player.inventory.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'inventory-item';
+        if (gameState.selectedPlayerItems.some(i => i.id === item.id)) {
+            itemEl.classList.add('selected');
+        }
+        itemEl.innerHTML = `
+            <div>${item.name}</div>
+            <div class="item-value">$${item.value * item.quantity}</div>
+            <div class="item-quantity">x${item.quantity}</div>
+        `;
+        itemEl.addEventListener('click', () => togglePlayerItem(item));
+        inventoryEl.appendChild(itemEl);
+    });
+    
+    document.getElementById('inventory-capacity').textContent = 
+        `${gameState.player.inventory.reduce((sum, item) => sum + item.quantity, 0)}/${gameState.player.capacity}`;
+}
+
+// Render trader inventory
+function renderTraderInventory() {
+    const inventoryEl = document.getElementById('trader-inventory');
+    inventoryEl.innerHTML = '';
+    
+    if (!gameState.currentTrader) return;
+    
+    gameState.currentTrader.inventoryItems.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'inventory-item';
+        if (gameState.selectedTraderItems.some(i => i.id === item.id)) {
+            itemEl.classList.add('selected');
+        }
+        itemEl.innerHTML = `
+            <div>${item.name}</div>
+            <div class="item-value">$${item.value * item.quantity}</div>
+            <div class="item-quantity">x${item.quantity}</div>
+        `;
+        itemEl.addEventListener('click', () => toggleTraderItem(item));
+        inventoryEl.appendChild(itemEl);
+    });
+    
+    updateTradeValues();
+}
+
+// Toggle player item selection
+function togglePlayerItem(item) {
+    const index = gameState.selectedPlayerItems.findIndex(i => i.id === item.id);
+    if (index === -1) {
+        gameState.selectedPlayerItems.push(JSON.parse(JSON.stringify(item)));
+    } else {
+        gameState.selectedPlayerItems.splice(index, 1);
+    }
+    renderPlayerInventory();
+    updateTradeValues();
+}
+
+// Toggle trader item selection
+function toggleTraderItem(item) {
+    const index = gameState.selectedTraderItems.findIndex(i => i.id === item.id);
+    if (index === -1) {
+        gameState.selectedTraderItems.push(JSON.parse(JSON.stringify(item)));
+    } else {
+        gameState.selectedTraderItems.splice(index, 1);
+    }
+    renderTraderInventory();
+    updateTradeValues();
+}
+
+// Update trade value displays
+function updateTradeValues() {
+    const playerValue = gameState.selectedPlayerItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
+    const traderValue = gameState.selectedTraderItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
+    
+    document.getElementById('player-value').textContent = playerValue;
+    document.getElementById('offer-value').textContent = traderValue;
+    
+    updateTradeButtons();
+}
+
+// Update trade buttons based on current state
+function updateTradeButtons() {
+    const acceptBtn = document.getElementById('accept-trade');
+    const robBtn = document.getElementById('rob-trader');
+    const negotiateBtn = document.getElementById('negotiate');
+    
+    acceptBtn.disabled = !gameState.isTrading || 
+        (gameState.selectedPlayerItems.length === 0 && gameState.selectedTraderItems.length === 0);
+    
+    robBtn.disabled = !gameState.isTrading || !gameState.currentTrader;
+    negotiateBtn.disabled = !gameState.isTrading || !gameState.currentTrader;
+}
+
+// Accept trade
+function acceptTrade() {
+    if (!gameState.currentTrader) return;
+    
+    const playerValue = gameState.selectedPlayerItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
+    const traderValue = gameState.selectedTraderItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
+    
+    // Check if trader is undercover cop
+    if (gameState.currentTrader.name === 'Mysterious Buyer') {
+        gameState.player.jailTime += 30;
+        showModal("Busted!", "The trader was an undercover cop! You've been arrested and sentenced to 30 days in jail.");
+        endTrade();
+        saveGameState();
+        return;
+    }
+    
+    // Calculate value difference for trust adjustment
+    const valueDiff = Math.abs(playerValue - traderValue);
+    const maxValue = Math.max(playerValue, traderValue);
+    const unfairness = maxValue > 0 ? valueDiff / maxValue : 0;
+    
+    // Adjust trader trust based on fairness
+    if (unfairness > 0.3) {
+        if (playerValue > traderValue) {
+            // Player is getting a better deal
+            gameState.currentTrader.trust -= Math.floor(unfairness * 20);
+            addLogEntry(`Trader feels cheated. Trust decreased.`);
+        } else {
+            // Trader is getting a better deal
+            gameState.currentTrader.trust += Math.floor(unfairness * 10);
+            addLogEntry(`Trader is pleased with the deal. Trust increased.`);
+        }
+        
+        gameState.currentTrader.trust = Math.max(0, Math.min(100, gameState.currentTrader.trust));
+    }
+    
+    // Chance of trade going bad based on trader danger and trust
+    const dangerChance = gameState.currentTrader.danger * (1 - gameState.currentTrader.trust / 100);
+    if (Math.random() * 100 < dangerChance) {
+        tradeGoneWrong();
+        return;
+    }
+    
+    // Process the trade
+    // Remove player items
+    gameState.selectedPlayerItems.forEach(item => {
+        removeFromInventory(item.id, item.quantity);
+    });
+    
+    // Add trader items to player inventory
+    gameState.selectedTraderItems.forEach(item => {
+        addToInventory(item);
+    });
+    
+    // Remove trader items from trader inventory
+    gameState.selectedTraderItems.forEach(item => {
+        const traderItem = gameState.currentTrader.inventoryItems.find(i => i.id === item.id);
+        if (traderItem) {
+            traderItem.quantity -= item.quantity;
+            if (traderItem.quantity <= 0) {
+                const index = gameState.currentTrader.inventoryItems.findIndex(i => i.id === item.id);
+                gameState.currentTrader.inventoryItems.splice(index, 1);
+            }
+        }
+    });
+    
+    // Add player items to trader inventory
+    gameState.selectedPlayerItems.forEach(item => {
+        const existingItem = gameState.currentTrader.inventoryItems.find(i => i.id === item.id);
+        if (existingItem) {
+            existingItem.quantity += item.quantity;
+        } else {
+            gameState.currentTrader.inventoryItems.push(JSON.parse(JSON.stringify(item)));
+        }
+    });
+    
+    addLogEntry(`Trade completed successfully.`);
+    
+    // Check if trader wants to continue
+    if (Math.random() < 0.7) {
+        // Continue trading
+        gameState.selectedPlayerItems = [];
+        gameState.selectedTraderItems = [];
+        renderPlayerInventory();
+        renderTraderInventory();
+        updateTradeValues();
+        updateTraderInfo();
+    } else {
+        addLogEntry(`Trader is done trading for now.`);
+        endTrade();
+    }
+    
     saveGameState();
 }
 
-// Complete the trade
-function completeTrade(isCounterOffer) {
-    const trader = tradingState.currentTrader;
-    const offer = tradingState.currentOffer;
+// Trade gone wrong scenario
+function tradeGoneWrong() {
+    const scenarios = [
+        {
+            title: "Ambush!",
+            message: "The trader signals their accomplices who ambush you during the trade!",
+            damage: 20 + Math.floor(Math.random() * 30),
+            moneyLoss: 0.3
+        },
+        {
+            title: "Scam!",
+            message: "You realize too late that the items you received are counterfeit!",
+            damage: 0,
+            moneyLoss: 0,
+            loseItems: true
+        },
+        {
+            title: "Setup!",
+            message: "The deal was a setup! You barely escape with your life.",
+            damage: 40 + Math.floor(Math.random() * 40),
+            moneyLoss: 0.5
+        }
+    ];
     
-    // Check if player has all required items
-    for (const item of offer.yourItems) {
-        if (item.type === 'drug') {
-            if (!gameState.inventory[item.item] || gameState.inventory[item.item] < item.amount) {
-                alert(`You don't have enough ${item.item} to complete this trade!`);
-                return;
-            }
-        } else if (item.type === 'weapon') {
-            if (!gameState.weapons[item.item] || gameState.weapons[item.item] < item.amount) {
-                alert(`You don't have enough ${item.item}s to complete this trade!`);
-                return;
-            }
-        } else if (item.type === 'money') {
-            if (gameState.money < item.amount) {
-                alert("You don't have enough money to complete this trade!");
+    const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+    
+    // Apply damage
+    if (scenario.damage > 0) {
+        gameState.player.health -= scenario.damage;
+        if (gameState.player.health <= 0) {
+            gameState.player.health = 1; // Don't let player die, just barely survive
+        }
+        scenario.message += ` You take ${scenario.damage} damage.`;
+    }
+    
+    // Lose money
+    if (scenario.moneyLoss > 0) {
+        const moneyLost = Math.floor(gameState.player.money * scenario.moneyLoss);
+        gameState.player.money -= moneyLost;
+        scenario.message += ` You lost $${moneyLost}.`;
+    }
+    
+    // Lose items
+    if (scenario.loseItems) {
+        const itemsLost = Math.min(2, gameState.player.inventory.length);
+        for (let i = 0; i < itemsLost; i++) {
+            const randomIndex = Math.floor(Math.random() * gameState.player.inventory.length);
+            const lostItem = gameState.player.inventory[randomIndex];
+            gameState.player.inventory.splice(randomIndex, 1);
+            scenario.message += ` You lost your ${lostItem.name}.`;
+        }
+    }
+    
+    showModal(scenario.title, scenario.message);
+    addLogEntry(`Trade went wrong: ${scenario.message}`);
+    
+    endTrade();
+    saveGameState();
+}
+
+// Decline trade
+function declineTrade() {
+    if (gameState.currentTrader) {
+        // Chance trader gets offended
+        if (Math.random() < 0.3) {
+            gameState.currentTrader.trust -= 10;
+            addLogEntry(`Trader is offended by your rejection. Trust decreased.`);
+            updateTraderInfo();
+            
+            // Small chance trader becomes hostile
+            if (Math.random() < 0.1) {
+                tradeGoneWrong();
                 return;
             }
         }
     }
     
-    // Undercover cop check (10% chance even if not marked as undercover)
-    const isActuallyUndercover = trader.isUndercover || 
-                               (trader.type.undercoverChance && Math.random() < trader.type.undercoverChance);
+    endTrade();
+}
+
+// End current trade
+function endTrade() {
+    gameState.isTrading = false;
+    gameState.currentTrader = null;
+    gameState.selectedPlayerItems = [];
+    gameState.selectedTraderItems = [];
     
-    if (isActuallyUndercover) {
-        // Undercover cop busts you
-        gameState.inJail = true;
-        gameState.jailDays = trader.type === TRADER_TYPES.MARKET ? 50 : 30;
-        
-        showTradeOutcome(
-            `TRAP! ${trader.name} was an undercover cop!\n` +
-            `You've been arrested and sentenced to ${gameState.jailDays} days in jail.`,
-            [], // No items gained
-            offer.yourItems // Items lost
+    updateUI();
+}
+
+// Attempt to rob the trader
+function attemptRobbery() {
+    if (!gameState.currentTrader) return;
+    
+    // Higher chance of success in black market but also higher consequences
+    const successChance = gameState.blackMarket ? 0.4 : 0.6;
+    
+    if (Math.random() < successChance) {
+        // Robbery successful
+        const stolenValue = Math.floor(
+            gameState.currentTrader.inventoryItems.reduce((sum, item) => sum + (item.value * item.quantity), 0) * 0.7
         );
         
-        // Reset police heat (you're in jail)
-        gameState.policeHeat = 0;
+        // Take random items (about 70% of value)
+        let remainingValue = stolenValue;
+        const stolenItems = [];
         
-        updateTradingUI();
-        saveGameState();
-        return;
-    }
-    
-    // Shady dealer scam check
-    if (trader.type === TRADER_TYPES.SHADY && Math.random() < trader.type.scamChance) {
-        // Scam - you get nothing or less than promised
-        const scamType = Math.random();
+        // Shuffle inventory
+        const shuffledInventory = [...gameState.currentTrader.inventoryItems].sort(() => 0.5 - Math.random());
         
-        if (scamType < 0.7) {
-            // Partial scam - get some items
-            const actualItems = offer.theirItems.map(item => {
-                return {
-                    ...item,
-                    amount: Math.max(1, Math.floor(item.amount * (0.2 + Math.random() * 0.5)))
-                };
-            });
+        for (const item of shuffledInventory) {
+            if (remainingValue <= 0) break;
             
-            showTradeOutcome(
-                `SCAM! ${trader.name} gave you less than promised.\n` +
-                "You got some of what you were supposed to get.",
-                actualItems,
-                offer.yourItems
-            );
-            
-            // Process the partial trade
-            processTrade(actualItems, offer.yourItems);
-        } else {
-            // Complete scam - get nothing
-            showTradeOutcome(
-                `SCAM! ${trader.name} took your items and ran.\n` +
-                "You got nothing in return!",
-                [], // No items gained
-                offer.yourItems // Items lost
-            );
-            
-            // Process the loss
-            processTrade([], offer.yourItems);
+            const itemTotalValue = item.value * item.quantity;
+            if (itemTotalValue <= remainingValue) {
+                // Take all of this item
+                stolenItems.push(JSON.parse(JSON.stringify(item)));
+                remainingValue -= itemTotalValue;
+                
+                // Remove from trader
+                const index = gameState.currentTrader.inventoryItems.findIndex(i => i.id === item.id);
+                gameState.currentTrader.inventoryItems.splice(index, 1);
+            } else {
+                // Take part of this item
+                const quantityToTake = Math.min(item.quantity, Math.floor(remainingValue / item.value));
+                if (quantityToTake > 0) {
+                    const partialItem = JSON.parse(JSON.stringify(item));
+                    partialItem.quantity = quantityToTake;
+                    stolenItems.push(partialItem);
+                    
+                    // Update trader's item
+                    item.quantity -= quantityToTake;
+                    remainingValue -= quantityToTake * item.value;
+                }
+            }
         }
         
-        // Decrease reputation
-        gameState.reputation -= 5;
+        // Add stolen items to player inventory
+        stolenItems.forEach(item => {
+            addToInventory(item);
+        });
         
-        updateTradingUI();
-        saveGameState();
-        return;
+        // Increase wanted level
+        gameState.player.wantedLevel += gameState.blackMarket ? 20 : 10;
+        
+        showModal("Robbery Successful", `You managed to steal items worth $${stolenValue}!`);
+        addLogEntry(`You successfully robbed the trader and got away with $${stolenValue} worth of goods.`);
+        
+        endTrade();
+    } else {
+        // Robbery failed
+        const damage = gameState.blackMarket ? 
+            40 + Math.floor(Math.random() * 40) : 
+            20 + Math.floor(Math.random() * 30);
+        
+        gameState.player.health -= damage;
+        if (gameState.player.health <= 0) {
+            gameState.player.health = 1;
+        }
+        
+        // In black market, chance of jail time
+        if (gameState.blackMarket && Math.random() < 0.7) {
+            const jailTime = 50 + Math.floor(Math.random() * 30);
+            gameState.player.jailTime += jailTime;
+            
+            showModal("Robbery Failed", `The dealer's guards overpowered you! You take ${damage} damage and are sentenced to ${jailTime} days in jail.`);
+            addLogEntry(`Robbery attempt failed! You were beaten and sentenced to ${jailTime} days in jail.`);
+        } else {
+            showModal("Robbery Failed", `The trader fights back! You take ${damage} damage.`);
+            addLogEntry(`Robbery attempt failed! The trader fought back and you took ${damage} damage.`);
+        }
+        
+        endTrade();
     }
     
-    // Regular trade
-    processTrade(offer.theirItems, offer.yourItems);
-    
-    // Show outcome
-    showTradeOutcome(
-        `Trade with ${trader.name} completed successfully!`,
-        offer.theirItems,
-        offer.yourItems
-    );
-    
-    // Increase reputation
-    gameState.reputation += 5;
-    
-    // Increase police heat based on trade value
-    const tradeValue = calculateOfferValue(offer.theirItems);
-    gameState.policeHeat = Math.min(100, gameState.policeHeat + tradeValue / 50);
-    
-    updateTradingUI();
     saveGameState();
 }
 
-// Process the actual trade (add/remove items)
-function processTrade(gainedItems, lostItems) {
-    // Add gained items
-    for (const item of gainedItems) {
-        if (item.type === 'drug') {
-            if (!gameState.inventory[item.item]) {
-                gameState.inventory[item.item] = 0;
+// Negotiate trade
+function negotiateTrade() {
+    if (!gameState.currentTrader) return;
+    
+    // Base success chance based on trader trust
+    let successChance = gameState.currentTrader.trust / 100;
+    
+    // Adjust based on how unfair the current offer is
+    const playerValue = gameState.selectedPlayerItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
+    const traderValue = gameState.selectedTraderItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
+    const valueDiff = traderValue - playerValue;
+    
+    if (valueDiff > 0) {
+        // Player is getting a worse deal - higher chance of successful negotiation
+        successChance += 0.2;
+    } else if (valueDiff < 0) {
+        // Player is getting a better deal - lower chance
+        successChance -= 0.2;
+    }
+    
+    // Cap between 0.1 and 0.9
+    successChance = Math.max(0.1, Math.min(0.9, successChance));
+    
+    if (Math.random() < successChance) {
+        // Negotiation successful
+        // Adjust values by 10-30%
+        const adjustment = 1 + (0.1 + Math.random() * 0.2) * (valueDiff > 0 ? 1 : -1);
+        
+        gameState.selectedTraderItems.forEach(item => {
+            item.value = Math.round(item.value * adjustment);
+        });
+        
+        addLogEntry(`Negotiation successful! Trader adjusted their prices.`);
+        renderTraderInventory();
+    } else {
+        // Negotiation failed
+        gameState.currentTrader.trust -= 5;
+        addLogEntry(`Negotiation failed. Trader is less trusting now.`);
+        updateTraderInfo();
+        
+        // Small chance trader ends trade
+        if (Math.random() < 0.2) {
+            addLogEntry(`Trader is offended and ends the trade.`);
+            endTrade();
+        }
+    }
+}
+
+// Resolve conflict (robbery, scam, etc.)
+function resolveConflict(choice) {
+    const conflictModal = document.getElementById('conflict-modal');
+    conflictModal.style.display = 'none';
+    
+    let message = "";
+    let damage = 0;
+    let moneyLost = 0;
+    let itemsLost = [];
+    
+    if (choice === 'shoot') {
+        // 60% chance to succeed, 40% chance to fail
+        if (Math.random() < 0.6) {
+            message = "You open fire and scare off the attackers!";
+            
+            // Gain some of their items
+            if (gameState.currentTrader && gameState.currentTrader.inventoryItems.length > 0) {
+                const itemsToTake = Math.min(2, gameState.currentTrader.inventoryItems.length);
+                for (let i = 0; i < itemsToTake; i++) {
+                    const randomIndex = Math.floor(Math.random() * gameState.currentTrader.inventoryItems.length);
+                    const stolenItem = JSON.parse(JSON.stringify(gameState.currentTrader.inventoryItems[randomIndex]));
+                    stolenItem.quantity = 1;
+                    addToInventory(stolenItem);
+                    itemsLost.push(stolenItem.name);
+                }
+                
+                if (itemsLost.length > 0) {
+                    message += ` You managed to grab ${itemsLost.join(' and ')} in the chaos.`;
+                }
             }
-            gameState.inventory[item.item] += item.amount;
-        } else if (item.type === 'weapon') {
-            if (!gameState.weapons[item.item]) {
-                gameState.weapons[item.item] = 0;
+        } else {
+            damage = 30 + Math.floor(Math.random() * 40);
+            gameState.player.health -= damage;
+            if (gameState.player.health <= 0) gameState.player.health = 1;
+            
+            moneyLost = Math.floor(gameState.player.money * 0.4);
+            gameState.player.money -= moneyLost;
+            
+            message = `Your shots missed! The attackers retaliate. You take ${damage} damage and lose $${moneyLost}.`;
+        }
+        
+        // Increase wanted level significantly
+        gameState.player.wantedLevel += 30;
+    } else if (choice === 'chase') {
+        // 50/50 chance
+        if (Math.random() < 0.5) {
+            message = "You chase down the perpetrator and recover your goods!";
+            
+            // Get back some lost items
+            if (gameState.selectedTraderItems.length > 0) {
+                const recoveredItem = gameState.selectedTraderItems[
+                    Math.floor(Math.random() * gameState.selectedTraderItems.length)
+                ];
+                addToInventory(recoveredItem);
+                message += ` You recovered your ${recoveredItem.name}.`;
             }
-            gameState.weapons[item.item] += item.amount;
-        } else if (item.type === 'money') {
-            gameState.money += item.amount;
+        } else {
+            damage = 10 + Math.floor(Math.random() * 20);
+            gameState.player.health -= damage;
+            if (gameState.player.health <= 0) gameState.player.health = 1;
+            
+            message = `You gave chase but tripped and fell! You take ${damage} damage and they get away.`;
+        }
+    } else { // let go
+        message = "You let them go. Better to live to trade another day.";
+        // No consequences
+    }
+    
+    showModal("Conflict Resolved", message);
+    addLogEntry(message);
+    
+    endTrade();
+    saveGameState();
+}
+
+// Add item to player inventory
+function addToInventory(item) {
+    // If item is money, add to money directly
+    if (item.id === 'cash') {
+        gameState.player.money += item.value * item.quantity;
+        return;
+    }
+    
+    // Check inventory capacity
+    const currentCapacity = gameState.player.inventory.reduce((sum, i) => sum + i.quantity, 0);
+    if (currentCapacity + item.quantity > gameState.player.capacity) {
+        addLogEntry(`Not enough inventory space for ${item.name}.`);
+        return false;
+    }
+    
+    const existingItem = gameState.player.inventory.find(i => i.id === item.id);
+    if (existingItem) {
+        existingItem.quantity += item.quantity;
+    } else {
+        gameState.player.inventory.push(JSON.parse(JSON.stringify(item)));
+    }
+    
+    return true;
+}
+
+// Remove item from player inventory
+function removeFromInventory(itemId, quantity) {
+    const itemIndex = gameState.player.inventory.findIndex(i => i.id === itemId);
+    if (itemIndex === -1) return false;
+    
+    const item = gameState.player.inventory[itemIndex];
+    if (item.quantity > quantity) {
+        item.quantity -= quantity;
+    } else {
+        gameState.player.inventory.splice(itemIndex, 1);
+    }
+    
+    return true;
+}
+
+// Create an item
+function createItem(itemId, quantity = 1) {
+    let item = null;
+    
+    // Search all categories for the item
+    for (const category in items) {
+        const foundItem = items[category].find(i => i.id === itemId);
+        if (foundItem) {
+            item = JSON.parse(JSON.stringify(foundItem));
+            item.quantity = quantity;
+            break;
         }
     }
     
-    // Remove lost items
-    for (const item of lostItems) {
-        if (item.type === 'drug') {
-            gameState.inventory[item.item] -= item.amount;
-            if (gameState.inventory[item.item] <= 0) {
-                delete gameState.inventory[item.item];
-            }
-        } else if (item.type === 'weapon') {
-            gameState.weapons[item.item] -= item.amount;
-            if (gameState.weapons[item.item] <= 0) {
-                delete gameState.weapons[item.item];
-            }
-        } else if (item.type === 'money') {
-            gameState.money -= item.amount;
-        }
-    }
+    return item;
 }
 
-// Show trade outcome screen
-function showTradeOutcome(message, gainedItems, lostItems) {
-    document.getElementById('outcome-text').textContent = message;
-    
-    // Show gained items
-    const gainedEl = document.getElementById('gained-items');
-    gainedEl.innerHTML = gainedItems.length > 0 ? 
-        gainedItems.map(item => 
-            `<div class="outcome-item gained-item">+${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-        ).join('') :
-        '<div class="outcome-item">Nothing gained</div>';
-    
-    // Show lost items
-    const lostEl = document.getElementById('lost-items');
-    lostEl.innerHTML = lostItems.length > 0 ? 
-        lostItems.map(item => 
-            `<div class="outcome-item lost-item">-${item.amount} ${item.type === 'money' ? '$' : ''}${item.item}</div>`
-        ).join('') :
-        '<div class="outcome-item">Nothing lost</div>';
-    
-    // Show outcome screen
-    document.getElementById('negotiation-screen').classList.add('hidden');
-    document.getElementById('outcome-screen').classList.remove('hidden');
+// Add log entry
+function addLogEntry(text) {
+    const logEl = document.querySelector('.log-entries');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.textContent = text;
+    logEl.appendChild(entry);
+    logEl.scrollTop = logEl.scrollHeight;
 }
 
-// Render inventory
-function renderInventory() {
-    // Drugs
-    const drugInventory = document.getElementById('drug-inventory');
-    drugInventory.innerHTML = '';
-    
-    for (const drug in gameState.inventory) {
-        const item = document.createElement('div');
-        item.className = 'inventory-item';
-        item.textContent = `${drug}: ${gameState.inventory[drug]}g`;
-        drugInventory.appendChild(item);
-    }
-    
-    if (Object.keys(gameState.inventory).length === 0) {
-        drugInventory.innerHTML = '<div class="inventory-item">No drugs</div>';
-    }
-    
-    // Weapons
-    const weaponInventory = document.getElementById('weapon-inventory');
-    weaponInventory.innerHTML = '';
-    
-    for (const weapon in gameState.weapons) {
-        const item = document.createElement('div');
-        item.className = 'inventory-item';
-        item.textContent = `${weapon}: ${gameState.weapons[weapon]}x`;
-        weaponInventory.appendChild(item);
-    }
-    
-    if (Object.keys(gameState.weapons).length === 0) {
-        weaponInventory.innerHTML = '<div class="inventory-item">No weapons</div>';
-    }
-    
-    // Ingredients
-    const ingredientInventory = document.getElementById('ingredient-inventory');
-    ingredientInventory.innerHTML = '';
-    
-    for (const ingredient in gameState.ingredients) {
-        const item = document.createElement('div');
-        item.className = 'inventory-item';
-        item.textContent = `${ingredient}: ${gameState.ingredients[ingredient]}`;
-        ingredientInventory.appendChild(item);
-    }
-    
-    if (Object.keys(gameState.ingredients).length === 0) {
-        ingredientInventory.innerHTML = '<div class="inventory-item">No ingredients</div>';
-    }
+// Show modal
+function showModal(title, message) {
+    const modal = document.getElementById('trade-modal');
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-message').textContent = message;
+    modal.style.display = 'flex';
 }
 
-// Save game state to localStorage
+// Show conflict modal
+function showConflictModal(title, message) {
+    const modal = document.getElementById('conflict-modal');
+    document.getElementById('conflict-title').textContent = title;
+    document.getElementById('conflict-message').textContent = message;
+    modal.style.display = 'flex';
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('trade-modal').style.display = 'none';
+}
+
+// Update UI
+function updateUI() {
+    document.getElementById('health').textContent = `Health: ${gameState.player.health}%`;
+    document.getElementById('money').textContent = `Money: $${gameState.player.money}`;
+    document.getElementById('days').textContent = `Days Free: ${gameState.player.daysFree}`;
+    document.getElementById('jail-time').textContent = `Jail Time: ${gameState.player.jailTime} days`;
+    
+    renderPlayerInventory();
+    updateTraderInfo();
+    updateTradeButtons();
+}
+
+// Save game state
 function saveGameState() {
-    localStorage.setItem('streetAlchemistGameState', JSON.stringify(gameState));
+    localStorage.setItem('undergroundTraderGame', JSON.stringify(gameState));
 }
 
-// Initialize the game when loaded
-document.addEventListener('DOMContentLoaded', initTradingGame);
+// Load game state
+function loadGameState() {
+    const savedGame = localStorage.getItem('undergroundTraderGame');
+    if (savedGame) {
+        const parsed = JSON.parse(savedGame);
+        Object.assign(gameState, parsed);
+        updateUI();
+    }
+}
 
-// Recipes and weapons data from main game
-const recipes = {
-    weed: { ingredients: { herb: 5 }, value: 20, difficulty: 1 },
-    meth: { ingredients: { chemical: 2, powder: 1 }, value: 50, difficulty: 2 },
-    coke: { ingredients: { powder: 3, liquid: 50 }, value: 80, difficulty: 3 },
-    heroin: { ingredients: { herb: 2, liquid: 100, chemical: 1 }, value: 100, difficulty: 4 }
-};
-
-const weapons = {
-    pistol: { price: 500, damage: 50 },
-    shotgun: { price: 1200, damage: 80 },
-    rifle: { price: 2500, damage: 120 },
-    switch: { price: 5000, damage: 200 }
-};
+// Simulate day passing (to be called from your main game loop)
+function simulateDay() {
+    if (gameState.player.jailTime > 0) {
+        gameState.player.jailTime--;
+        if (gameState.player.jailTime === 0) {
+            addLogEntry("You've been released from jail.");
+        }
+        return;
+    }
+    
+    gameState.player.daysFree++;
+    
+    // Heal slightly each day
+    if (gameState.player.health < 100) {
+        gameState.player.health = Math.min(100, gameState.player.health + 5);
+    }
+    
+    // Reduce wanted level over time
+    if (gameState.player.wantedLevel > 0) {
+        gameState.player.wantedLevel = Math.max(0, gameState.player.wantedLevel - 2);
+    }
+    
+    updateUI();
+    saveGameState();
+}

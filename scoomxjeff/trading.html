@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underground Trading Network</title>
+    <link rel="stylesheet" href="trading.css">
+</head>
+<body>
+    <div class="trading-container">
+        <div class="header">
+            <h1>Underground Trading Network</h1>
+            <div class="status-bar">
+                <span id="health">Health: 100%</span>
+                <span id="days">Days Free: 0</span>
+                <span id="money">Money: $0</span>
+                <span id="jail-time">Jail Time: 0 days</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="inventory-section">
+                <h2>Your Inventory</h2>
+                <div class="inventory-grid" id="player-inventory">
+                    <!-- Items will be populated by JS -->
+                </div>
+                <div class="inventory-stats">
+                    <p>Capacity: <span id="inventory-capacity">0/10</span></p>
+                </div>
+            </div>
+
+            <div class="trading-section">
+                <div class="trade-controls">
+                    <button id="find-trader" class="btn">Find Trader</button>
+                    <button id="visit-market" class="btn">Black Market</button>
+                    <button id="rob-trader" class="btn danger" disabled>Rob Trader</button>
+                    <button id="negotiate" class="btn" disabled>Negotiate</button>
+                </div>
+
+                <div class="trader-info">
+                    <h2 id="trader-name">No Active Trader</h2>
+                    <p id="trader-type"></p>
+                    <p id="trader-trust">Trust: 0%</p>
+                    <div class="trust-meter">
+                        <div class="trust-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="trade-offer">
+                    <div class="trader-inventory" id="trader-inventory">
+                        <!-- Trader items will be populated by JS -->
+                    </div>
+                    <div class="trade-actions">
+                        <button id="accept-trade" class="btn" disabled>Accept Trade</button>
+                        <button id="decline-trade" class="btn danger">Decline</button>
+                        <div class="trade-value">
+                            <p>Offer Value: $<span id="offer-value">0</span></p>
+                            <p>Your Offer: $<span id="player-value">0</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-log" id="event-log">
+                    <h3>Transaction Log</h3>
+                    <div class="log-entries">
+                        <!-- Events will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="trade-modal">
+            <div class="modal-content">
+                <h2 id="modal-title">Trade Outcome</h2>
+                <p id="modal-message"></p>
+                <button id="modal-close" class="btn">Continue</button>
+            </div>
+        </div>
+
+        <div class="modal" id="conflict-modal">
+            <div class="modal-content">
+                <h2 id="conflict-title">Conflict!</h2>
+                <p id="conflict-message"></p>
+                <div class="conflict-options">
+                    <button id="shoot-option" class="btn danger">Shoot</button>
+                    <button id="chase-option" class="btn">Chase</button>
+                    <button id="let-go-option" class="btn">Let Them Go</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="trading.js"></script>
+</body>
+</html>
