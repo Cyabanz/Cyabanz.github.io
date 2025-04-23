@@ -3,148 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Underground Trading</title>
+    <title>Trading System</title>
     <link rel="stylesheet" href="trading.css">
 </head>
 <body>
     <div class="trading-container">
-        <div class="phone-frame">
-            <div class="phone-screen">
-                <div class="app-screen">
-                    <div class="status-bar">
-                        <span id="trading-time">12:00 PM</span>
-                        <span id="trading-money">$10,000</span>
-                        <button class="back-button">← Back</button>
-                    </div>
-                    <h2>Underground Trading</h2>
-                    
-                    <div class="trading-tabs">
-                        <button class="tab-button active" data-tab="market">Market</button>
-                        <button class="tab-button" data-tab="inventory">Inventory</button>
-                        <button class="tab-button" data-tab="black-market">Black Market</button>
-                    </div>
-                    
-                    <div class="trading-content">
-                        <!-- Market Tab -->
-                        <div class="tab-content active" id="market-tab">
-                            <div class="trader-list">
-                                <!-- Traders will be populated here -->
-                            </div>
-                            <div class="no-traders hidden">
-                                <p>No customers to trade with right now.</p>
-                                <button id="refresh-traders">Check Again</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Inventory Tab -->
-                        <div class="tab-content" id="inventory-tab">
-                            <h3>Your Inventory</h3>
-                            <div class="inventory-list">
-                                <!-- Inventory will be populated here -->
-                            </div>
-                        </div>
-                        
-                        <!-- Black Market Tab -->
-                        <div class="tab-content" id="black-market-tab">
-                            <div class="warning">
-                                <p>⚠️ High RISK / High REWARD ⚠️</p>
-                                <p>Getting caught here means 50 days in jail!</p>
-                            </div>
-                            <div class="black-market-traders">
-                                <!-- Black market traders will be populated here -->
-                            </div>
-                            <div class="no-traders hidden">
-                                <p>The black market is quiet right now.</p>
-                                <button id="refresh-black-market">Check Again</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Trade Modal -->
-                    <div class="trade-modal hidden">
-                        <div class="trade-content">
-                            <h3 id="trade-title">Trade with <span id="trader-name">Dealer</span></h3>
-                            <div class="trade-offer">
-                                <div class="trader-items">
-                                    <h4>They Offer:</h4>
-                                    <div class="offer-items"></div>
-                                </div>
-                                <div class="player-items">
-                                    <h4>You Give:</h4>
-                                    <div class="request-items"></div>
-                                </div>
-                            </div>
-                            <div class="trade-actions">
-                                <button class="trade-button" id="accept-trade">Accept</button>
-                                <button class="trade-button" id="negotiate-trade">Negotiate</button>
-                                <button class="trade-button danger" id="rob-trader">Rob</button>
-                                <button class="trade-button" id="cancel-trade">Cancel</button>
-                            </div>
-                            <p class="trade-warning hidden" id="undercover-warning">⚠️ This might be a cop! ⚠️</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Negotiation Modal -->
-                    <div class="negotiation-modal hidden">
-                        <div class="negotiation-content">
-                            <h3>Negotiate with <span id="negotiate-trader-name">Dealer</span></h3>
-                            <div class="negotiation-offer">
-                                <div class="original-offer">
-                                    <h4>Original Offer:</h4>
-                                    <div class="original-items"></div>
-                                </div>
-                                <div class="counter-offer">
-                                    <h4>Your Counter:</h4>
-                                    <div class="counter-items"></div>
-                                </div>
-                            </div>
-                            <div class="negotiation-actions">
-                                <button class="negotiation-button" id="submit-counter">Submit</button>
-                                <button class="negotiation-button" id="cancel-negotiation">Cancel</button>
-                            </div>
-                            <div class="slider-container">
-                                <label for="offer-modifier">Offer Value:</label>
-                                <input type="range" id="offer-modifier" min="50" max="150" value="100">
-                                <span id="offer-percentage">100%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Robbery Modal -->
-                    <div class="robbery-modal hidden">
-                        <div class="robbery-content">
-                            <h3>Robbery Attempt</h3>
-                            <p id="robbery-outcome">You're about to rob this trader. This could go wrong!</p>
-                            <div class="robbery-actions">
-                                <button class="robbery-button" id="proceed-robbery">Proceed</button>
-                                <button class="robbery-button" id="cancel-robbery">Back Out</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Trade Outcome Modal -->
-                    <div class="outcome-modal hidden">
-                        <div class="outcome-content">
-                            <h3 id="outcome-title">Trade Outcome</h3>
-                            <p id="outcome-message">Trade completed successfully!</p>
-                            <div class="outcome-items"></div>
-                            <button class="outcome-button" id="close-outcome">Continue</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Undercover Arrest Modal -->
-                    <div class="arrest-modal hidden">
-                        <div class="arrest-content">
-                            <h3>🚨 BUSTED! 🚨</h3>
-                            <p>You were trading with an undercover cop!</p>
-                            <p id="jail-sentence">Sentence: 30 days in jail</p>
-                            <button class="arrest-button" id="accept-arrest">Damn it!</button>
-                        </div>
-                    </div>
+        <div class="trading-header">
+            <h2>Underground Market</h2>
+            <div class="trading-status">
+                <span id="trading-money">Money: $0</span>
+                <span id="trading-police-heat">Police Heat: 0%</span>
+            </div>
+        </div>
+
+        <div class="trading-tabs">
+            <button class="tab-button active" data-tab="market">Market</button>
+            <button class="tab-button" data-tab="inventory">Inventory</button>
+            <button class="tab-button" data-tab="blackmarket">Black Market</button>
+        </div>
+
+        <div class="tab-content active" id="market-tab">
+            <div class="trader-list" id="normal-traders">
+                <!-- Traders will be populated here -->
+            </div>
+            <button id="refresh-traders">Find New Traders</button>
+        </div>
+
+        <div class="tab-content" id="inventory-tab">
+            <div class="inventory-items">
+                <h3>Drugs</h3>
+                <div class="drugs-list" id="trading-drugs-list">
+                    <!-- Drugs will be populated here -->
+                </div>
+                <h3>Weapons</h3>
+                <div class="weapons-list" id="trading-weapons-list">
+                    <!-- Weapons will be populated here -->
                 </div>
             </div>
         </div>
-    </div>
-    <script src="trading.js"></script>
-</body>
-</html>
+
+        <div class="tab-content" id="blackmarket-tab">
+            <div class="warning">
+                <p>⚠️ HIGH RISK AREA ⚠️</p>
+                <p>50 days jail if caught by undercover cops!</p>
+            </div>
+            <div class="trader-list" id="blackmarket-traders">
+                <!-- Black market traders will be populated here -->
+            </div>
+            <button id="refresh-blackmarket">Find New Connections</button>
+        </div>
+
+        <div class="trade-modal hidden" id="trade-modal">
+            <div class="trade-header">
+                <h3 id="trade-trader-name">Trader</h3>
+                <span id="trade-trader-type">Type: Dealer</span>
+            </div>
+            <div class="trade-offer">
+                <h4>They Offer:</h4>
+                <div class="trade-items" id="their-offer">
+                    <!-- Their offer items will appear here -->
+                </div>
+                <h4>They Want:</h4>
+                <div class="trade-items" id="their-demand">
+                    <!-- Their demand items will appear here -->
+                </div>
+            </div>
+            <div class="trade-actions">
+                <button id="accept-trade">Accept</button>
+                <button id="negotiate-trade">Negotiate</button>
+                <button id="rob-trader">Rob Them</button>
+                <button id="reject-trade">Reject</button>
+            </div>
+        </div>
+
+        <div class="negotiation-modal hidden" id="negotiation-modal">
+            <div class="negotiation-header">
+                <h3>Negotiation</h3>
+                <p id="negotiation-status">Make your counter offer</p>
+            </div>
+            <div class="negotiation-offer">
+                <div class="offer-section">
+                    <h4>Your Offer:</h4>
+                    <div class="select-items" id="your-counter-offer">
+                        <!-- Items you're offering -->
+                    </div>
+                </div>
+                <div class="offer-section">
+                    <h4>You Want:</h4>
+                    <div class="select-items" id="your-counter-demand">
+                        <!-- Items you want -->
+                    </div>
+                </div>
+            </div>
+            <div class="negotiation-actions">
+                <button id="submit-counter">Submit Offer</button>
+                <button id="cancel-negotiation">Cancel</button>
+            </div>
+        </div>
+
+        <div class="outcome-modal hidden" id="outcome-modal">
+            <h3 id="outcome-title">Trade Outcome</h3>
+            <p id="outcome-message">Trade completed successfully</p>
+            <div class="outcome-stats" id="outcome-stats">
+                <!-- Outcome details will appear here -->
+            </div>
+            <button id="close-outcome">Continue</button>
+        </div>
+
+        <div class="robbery-modal hidden" id="robbery-modal">
+            <h3>Robbery Attempt
