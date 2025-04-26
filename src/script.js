@@ -1316,12 +1316,3 @@ function setupGamePlayTracking() {
     });
 }
 
-// Call this in your init function
-function init() {
-    setupEventListeners();
-    setupNavbar();
-    renderAllGameRows();
-    setupGamePlayTracking(); // Add this line
-    
-    // ... rest of your existing init code
-}
