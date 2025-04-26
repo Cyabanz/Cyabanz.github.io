@@ -251,3 +251,29 @@ function setupFavoritesListener(userId) {
     updateFavoritesUI(favorites);
   });
 }
+
+// Add to your existing auth.js
+function setupProfileSharing() {
+    const profileLink = document.getElementById('public-profile-link');
+    const copyBtn = document.getElementById('copy-profile-link');
+    
+    if (!profileLink || !copyBtn) return;
+    
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            profileLink.value = `${window.location.origin}/profile.html?id=${user.uid}`;
+        }
+    });
+    
+    copyBtn.addEventListener('click', () => {
+        profileLink.select();
+        document.execCommand('copy');
+        alert('Profile link copied to clipboard!');
+    });
+}
+
+// Call this in your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing code ...
+    setupProfileSharing();
+});
