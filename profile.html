@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile System</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="profile.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="profile-container">
+        <!-- Public Profile View -->
+        <div id="public-profile-view">
+            <div class="profile-header">
+                <div class="profile-pic-container">
+                    <img id="public-profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture">
+                </div>
+                <div class="profile-info">
+                    <h1 id="public-username">Username</h1>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <i class='bx bx-game'></i>
+                            <span id="games-played-stat">0</span>
+                            <span>Games Played</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class='bx bx-calendar'></i>
+                            <span id="member-since-stat">0 days</span>
+                            <span>Member Since</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class='bx bx-streak'></i>
+                            <span id="play-streak-stat">0</span>
+                            <span>Day Streak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2><i class='bx bxs-bookmark-alt'></i> Favorite Games</h2>
+                <div class="favorites-grid" id="public-favorites-container">
+                    <!-- Favorites will be loaded here -->
+                    <p class="no-favorites">No favorite games yet</p>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2><i class='bx bx-history'></i> Recent Activity</h2>
+                <div class="activity-list" id="public-activity-container">
+                    <!-- Recent activity will be loaded here -->
+                    <p class="no-activity">No recent activity</p>
+                </div>
+            </div>
+
+            <div class="share-profile">
+                <button id="copy-profile-link" class="btn-share">
+                    <i class='bx bx-link'></i> Copy Profile Link
+                </button>
+            </div>
+        </div>
+
+        <!-- Edit Profile View (only visible to profile owner) -->
+        <div id="edit-profile-view" style="display: none;">
+            <h1>Edit Profile</h1>
+            
+            <div class="form-group">
+                <label for="profile-username">Username:</label>
+                <input type="text" id="profile-username" placeholder="Enter your username">
+            </div>
+            
+            <div class="form-group">
+                <label>Profile Picture:</label>
+                <div class="profile-pic-preview">
+                    <img id="profile-pic-preview" src="https://via.placeholder.com/150">
+                </div>
+                <input type="file" id="profile-pic-upload" accept="image/*">
+                <button id="upload-profile-pic" class="btn-upload">Upload Picture</button>
+                <p class="file-info">Max 500KB</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Profile Visibility:</label>
+                <select id="profile-visibility">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button id="save-profile" class="btn-save">Save Changes</button>
+                <button id="cancel-edit" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard Button (only visible to profile owner) -->
+        <div id="back-to-dashboard" style="display: none;">
+            <a href="dashboard.html" class="btn-back">
+                <i class='bx bx-arrow-back'></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="profile.js"></script>
+</body>
+</html>
