@@ -207,7 +207,13 @@ function handleThemeSelection(theme) {
 }
 
 function applyTheme(theme) {
-  document.body.className = theme;
+  // Remove all theme classes first
+  document.body.className = '';
+  
+  // Apply the selected theme
+  if (theme) {
+    document.body.classList.add(theme);
+  }
 }
 
 // Background Image Management
