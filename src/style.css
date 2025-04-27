@@ -108,7 +108,7 @@
 }
 
 body {
-    background: #f5f7fa;
+    background: #;
     padding: 20px;
 }
 
@@ -446,39 +446,3 @@ body {
     color: #ff4081;
 }
 
-/* Game Frame Styles */
-.game-frame-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 1001;
-    display: none;
-}
-
-.game-frame-content {
-    width: 90%;
-    height: 90%;
-    margin: 2% auto;
-    background: #000;
-    border: 2px solid #333;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.close-game-frame {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #ff4081;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    cursor: pointer;
-    z-index: 1002;
-}
