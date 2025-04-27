@@ -13,8 +13,57 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Auth Container (will be populated by JavaScript) -->
-    <div id="auth-container" class="auth-container"></div>
+    <!-- Login Modal (hidden by default) -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>Sign In Required</h3>
+            <p>Please sign in to access all features.</p>
+            <div class="modal-actions">
+                <button id="go-to-login" class="btn">Sign In</button>
+                <button id="continue-guest" class="btn btn-secondary">Continue as Guest</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Sidebar -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <button id="sidebarToggle" class="sidebar-toggle">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="index.html"><i class='bx bx-home'></i> Home</a></li>
+            <li><a href="settings.html"><i class='bx bx-cog'></i> Settings</a></li>
+            <li><a href="profile.html"><i class='bx bx-user'></i> Profile</a></li>
+            <li class="divider"></li>
+            <li>
+                <button id="aboutBlankBtn" class="about-blank-btn">
+                    <i class='bx bx-shield'></i> About Blank
+                </button>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-info-small">
+                <img id="sidebar-profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic-small">
+                <span id="sidebar-username">Guest</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Header -->
+    <header>
+        <button id="sidebarToggleMobile" class="sidebar-toggle mobile">
+            <i class='bx bx-menu'></i>
+        </button>
+        <h1 class="logo">GameHub</h1>
+        <div class="user-info">
+            <span id="username-display">Guest</span>
+            <div id="profile-pic-container">
+                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+            </div>
+        </div>
+    </header>
 
     <div class="container">
         <!-- Pinned Games Row (initially hidden) -->
@@ -61,34 +110,57 @@
         </div>
     </div>
 
-    <!-- Hamburger Menu -->
-    <button class="hamburger">
-        <i class='bx bx-menu'></i>
-    </button>
-
-    <!-- Vertical Navbar -->
-    <nav class="navbar closed">
-        <div class="nav-container">
-            <a href="#" class="nav-link" data-glow-color="#4fc3f7">
-                <i class='bx bx-home'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#ff6e40">
-                <i class='bx bx-search'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#9575cd">
-                <i class='bx bx-heart'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#64dd17">
-                <i class='bx bx-user'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#ffd600">
-                <i class='bx bx-cog'></i>
-            </a>
-            <div class="glow-effect"></div>
-        </div>
-    </nav>
-
     <script src="script.js"></script>
     <script src="setting.js"></script>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Apply theme from localStorage on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.className = savedTheme;
+            }
+            
+            // Initialize auth state listener
+            auth.onAuthStateChanged(handleAuthStateChange);
+        });
+
+        function handleAuthStateChange(user) {
+            if (user) {
+                // User is signed in
+                document.getElementById('username-display').textContent = user.displayName || 'User';
+                document.getElementById('sidebar-username').textContent = user.displayName || 'User';
+                
+                if (user.photoURL) {
+                    document.getElementById('profile-pic').src = user.photoURL;
+                    document.getElementById('sidebar-profile-pic').src = user.photoURL;
+                }
+                
+                document.getElementById('login-modal').classList.remove('active');
+            } else {
+                // No user is signed in
+                document.getElementById('username-display').textContent = 'Guest';
+                document.getElementById('sidebar-username').textContent = 'Guest';
+                document.getElementById('profile-pic').src = 'https://via.placeholder.com/40';
+                document.getElementById('sidebar-profile-pic').src = 'https://via.placeholder.com/40';
+            }
+        }
+    </script>
 </body>
 </html>
