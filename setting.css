@@ -1,17 +1,90 @@
 /* Modern CSS Reset */
 :root {
+  /* Base Colors */
   --primary: #4361ee;
   --primary-light: #4895ef;
   --secondary: #3f37c9;
-  --dark: #1b263b;
-  --light: #f8f9fa;
   --success: #4cc9f0;
   --danger: #f72585;
   --warning: #f8961e;
+  
+  /* Light Theme (default) */
+  --text: #1b263b;
+  --text-inverse: #f8f9fa;
+  --background: #f5f7ff;
+  --card-bg: #ffffff;
+  --border: #e9ecef;
   --gray: #adb5bd;
   --gray-light: #e9ecef;
 }
 
+/* Dark Theme */
+.dark {
+  --text: #f8f9fa;
+  --text-inverse: #1b263b;
+  --background: #121212;
+  --card-bg: #1e1e1e;
+  --border: #333333;
+  --gray: #555555;
+  --gray-light: #333333;
+}
+
+/* Moon Theme */
+.moon {
+  --text: #e2e8f0;
+  --text-inverse: #0f172a;
+  --background: #0f172a;
+  --card-bg: #1e293b;
+  --border: #334155;
+  --gray: #64748b;
+  --gray-light: #334155;
+}
+
+/* Emerald Theme */
+.emerald {
+  --text: #a7f3d0;
+  --text-inverse: #064e3b;
+  --background: #064e3b;
+  --card-bg: #047857;
+  --border: #059669;
+  --gray: #34d399;
+  --gray-light: #059669;
+}
+
+/* Ruby Theme */
+.ruby {
+  --text: #fbcfe8;
+  --text-inverse: #831843;
+  --background: #831843;
+  --card-bg: #9d174d;
+  --border: #be185d;
+  --gray: #ec4899;
+  --gray-light: #be185d;
+}
+
+/* Diamond Theme */
+.diamond {
+  --text: #082f49;
+  --text-inverse: #bae6fd;
+  --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+  --card-bg: #bae6fd;
+  --border: #7dd3fc;
+  --gray: #38bdf8;
+  --gray-light: #7dd3fc;
+}
+
+/* Crazy Theme */
+.crazy {
+  --text: #2b0504;
+  --text-inverse: #ffedd5;
+  --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+  --card-bg: #ffedd5;
+  --border: #fdba74;
+  --gray: #fb923c;
+  --gray-light: #fdba74;
+}
+
+/* Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -21,65 +94,14 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;
-  background-color: #f5f7ff;
-  color: var(--dark);
+  background: var(--background);
+  color: var(--text);
   min-height: 100vh;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Theme Variants */
-body.dark {
-  background-color: #121212;
-  color: #ffffff;
-  --dark: #ffffff;
-  --light: #1e1e1e;
-  --gray: #555555;
-  --gray-light: #333333;
-}
-
-body.moon {
-  background-color: #0f172a;
-  color: #e2e8f0;
-  --dark: #e2e8f0;
-  --light: #1e293b;
-  --gray: #64748b;
-  --gray-light: #334155;
-}
-
-body.emerald {
-  background-color: #064e3b;
-  color: #a7f3d0;
-  --dark: #a7f3d0;
-  --light: #047857;
-  --gray: #34d399;
-  --gray-light: #059669;
-}
-
-body.ruby {
-  background-color: #831843;
-  color: #fbcfe8;
-  --dark: #fbcfe8;
-  --light: #9d174d;
-  --gray: #ec4899;
-  --gray-light: #be185d;
-}
-
-body.diamond {
-  background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
-  color: #082f49;
-  --dark: #082f49;
-  --light: #bae6fd;
-  --gray: #38bdf8;
-  --gray-light: #7dd3fc;
-}
-
-body.crazy {
-  background: linear-gradient(135deg, #ff3e00, #ffbe0b);
-  color: #2b0504;
-  --dark: #2b0504;
-  --light: #ffedd5;
-  --gray: #fb923c;
-  --gray-light: #fdba74;
+h1, h2, h3, h4, h5, h6, p, span, a, label, input, textarea, select {
+  color: var(--text);
 }
 
 /* Layout */
@@ -87,9 +109,10 @@ body.crazy {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
-  background: white;
+  background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
   transition: all 0.3s ease;
 }
 
@@ -152,13 +175,14 @@ header {
   position: fixed;
   top: 0;
   left: -280px;
-  background: var(--light);
+  background: var(--card-bg);
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid var(--border);
 }
 
 .sidebar.active {
@@ -176,7 +200,7 @@ header {
   border: none;
   font-size: 1.75rem;
   cursor: pointer;
-  color: var(--dark);
+  color: var(--text);
   padding: 0.5rem;
   transition: all 0.3s ease;
   align-self: flex-end;
@@ -209,7 +233,7 @@ header {
   align-items: center;
   gap: 1rem;
   padding: 0.875rem 1.25rem;
-  color: var(--dark);
+  color: var(--text);
   text-decoration: none;
   border-radius: 12px;
   transition: all 0.3s ease;
@@ -231,7 +255,7 @@ header {
 
 .divider {
   height: 1px;
-  background: var(--gray-light);
+  background: var(--border);
   margin: 1rem 0;
 }
 
@@ -261,7 +285,7 @@ header {
 .sidebar-footer {
   margin-top: auto;
   padding-top: 1rem;
-  border-top: 1px solid var(--gray-light);
+  border-top: 1px solid var(--border);
 }
 
 .user-info-small {
@@ -278,7 +302,6 @@ header {
 .settings-header h1 {
   font-size: 2.25rem;
   margin-bottom: 0.5rem;
-  color: var(--dark);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -290,12 +313,12 @@ header {
 }
 
 .settings-section {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   margin-bottom: 2.5rem;
-  border: 1px solid var(--gray-light);
+  border: 1px solid var(--border);
   transition: all 0.3s ease;
 }
 
@@ -305,7 +328,6 @@ header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: var(--dark);
   position: relative;
   padding-bottom: 0.75rem;
 }
@@ -339,25 +361,26 @@ header {
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: var(--dark);
   font-size: 1.05rem;
 }
 
 .form-input, 
-.form-select {
+.form-select,
+.key-input {
   width: 100%;
   padding: 0.875rem 1.25rem;
-  border: 1px solid var(--gray-light);
+  border: 1px solid var(--border);
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: white;
-  color: var(--dark);
+  background: var(--card-bg);
+  color: var(--text);
   margin-bottom: 1rem;
 }
 
 .form-input:focus,
-.form-select:focus {
+.form-select:focus,
+.key-input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
@@ -366,9 +389,9 @@ header {
 .key-input {
   text-align: center;
   font-weight: bold;
-  font-size: 1.2rem;
   letter-spacing: 1px;
   text-transform: uppercase;
+  height: auto; /* Match other inputs */
 }
 
 textarea.form-input {
@@ -387,9 +410,9 @@ textarea.form-input {
 
 .theme-btn {
   padding: 1rem;
-  border: 2px solid var(--gray-light);
+  border: 2px solid var(--border);
   border-radius: 12px;
-  background: white;
+  background: var(--card-bg);
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
@@ -456,9 +479,11 @@ textarea.form-input {
 .share-input {
   flex: 1;
   padding: 0.875rem 1.25rem;
-  border: 1px solid var(--gray-light);
+  border: 1px solid var(--border);
   border-radius: 12px;
   font-size: 1rem;
+  background: var(--card-bg);
+  color: var(--text);
 }
 
 .or-divider {
@@ -475,6 +500,7 @@ textarea.form-input {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: var(--text);
 }
 
 .file-upload-btn:hover {
@@ -531,7 +557,7 @@ textarea.form-input {
 
 .btn-secondary {
   background: var(--gray-light);
-  color: var(--dark);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
@@ -650,6 +676,7 @@ input:checked + .toggle-slider:before {
   cursor: pointer;
   border-radius: 8px;
   transition: transform 0.3s ease;
+  border: 2px solid var(--border);
 }
 
 .color-picker input:hover {
@@ -694,12 +721,13 @@ input:checked + .toggle-slider:before {
 }
 
 .modal-content {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 16px;
   max-width: 500px;
   width: 90%;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
 }
 
 .modal-actions {
@@ -764,6 +792,10 @@ input:checked + .toggle-slider:before {
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
   }
+
+  .panic-key-container {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -796,10 +828,6 @@ input:checked + .toggle-slider:before {
   .bg-image-controls {
     flex-direction: column;
     gap: 0.75rem;
-  }
-  
-  .panic-key-container {
-    grid-template-columns: 1fr;
   }
   
   .modal-actions {
