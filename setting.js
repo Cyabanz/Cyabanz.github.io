@@ -47,6 +47,12 @@ const particleColor3 = document.getElementById('particle-color-3');
 const resetAllSettings = document.getElementById('reset-all-settings');
 const usernameDisplay = document.getElementById('username-display');
 const profilePic = document.getElementById('profile-pic');
+const sidebarUsername = document.getElementById('sidebar-username');
+const sidebarProfilePic = document.getElementById('sidebar-profile-pic');
+const loginModal = document.getElementById('login-modal');
+const goToLogin = document.getElementById('go-to-login');
+const continueGuest = document.getElementById('continue-guest');
+const signOutBtn = document.getElementById('sign-out-btn');
 
 // Global Variables
 let particles = [];
@@ -55,11 +61,13 @@ let particleCtx;
 let currentUser = null;
 let activeTheme = '';
 let panicKeyListener = null;
+let isGuest = false;
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
   initEventListeners();
   auth.onAuthStateChanged(handleAuthStateChange);
+  initFromLocalStorage();
 });
 
 function initEventListeners() {
@@ -67,6 +75,15 @@ function initEventListeners() {
   sidebarToggle.addEventListener('click', toggleSidebar);
   sidebarToggleMobile.addEventListener('click', toggleSidebar);
   
+  // Close sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if (sidebar.classList.contains('active') && 
+        !sidebar.contains(e.target) && 
+        e.target !== sidebarToggleMobile) {
+      toggleSidebar();
+    }
+  });
+
   // About blank button
   aboutBlankBtn.addEventListener('click', () => {
     window.open('about:blank', '_blank');
@@ -103,42 +120,73 @@ function initEventListeners() {
 
   // Reset all settings
   resetAllSettings.addEventListener('click', confirmResetAllSettings);
+
+  // Auth related
+  goToLogin.addEventListener('click', () => window.location.href = 'index.html');
+  continueGuest.addEventListener('click', continueAsGuest);
+  signOutBtn.addEventListener('click', signOut);
 }
 
 function handleAuthStateChange(user) {
   currentUser = user;
   if (user) {
+    isGuest = false;
     updateUIForUser(user);
     loadUserSettings(user.uid);
-  } else {
-    updateUIForGuest();
-    redirectToLogin();
+    loginModal.classList.remove('active');
+  } else if (!isGuest) {
+    showLoginModal();
   }
+}
+
+function showLoginModal() {
+  loginModal.classList.add('active');
+}
+
+function continueAsGuest() {
+  isGuest = true;
+  loginModal.classList.remove('active');
+  updateUIForGuest();
+  loadLocalSettings();
 }
 
 function toggleSidebar() {
   sidebar.classList.toggle('active');
   document.body.classList.toggle('sidebar-open');
+  
+  // Update toggle icon
+  const icon = sidebarToggle.querySelector('i');
+  if (sidebar.classList.contains('active')) {
+    icon.classList.replace('bx-menu', 'bx-x');
+  } else {
+    icon.classList.replace('bx-x', 'bx-menu');
+  }
 }
 
 function updateUIForUser(user) {
   usernameDisplay.textContent = user.displayName || 'User';
+  sidebarUsername.textContent = user.displayName || 'User';
+  
   if (user.photoURL) {
     profilePic.src = user.photoURL;
+    sidebarProfilePic.src = user.photoURL;
   }
 }
 
 function updateUIForGuest() {
   usernameDisplay.textContent = 'Guest';
+  sidebarUsername.textContent = 'Guest';
   profilePic.src = 'https://via.placeholder.com/40';
-}
-
-function redirectToLogin() {
-  window.location.href = 'index.html';
+  sidebarProfilePic.src = 'https://via.placeholder.com/40';
 }
 
 // Theme Management
 function handleThemeSelection(theme) {
+  if (!currentUser && !isGuest) {
+    showLoginModal();
+    return;
+  }
+  
   activeTheme = theme;
   applyTheme(theme);
   saveSetting('theme', theme);
@@ -160,19 +208,6 @@ function handleThemeSelection(theme) {
 
 function applyTheme(theme) {
   document.body.className = theme;
-  
-  // Add theme-specific styles
-  const styleId = 'theme-styles';
-  let styleElement = document.getElementById(styleId);
-  
-  if (!styleElement) {
-    styleElement = document.createElement('style');
-    styleElement.id = styleId;
-    document.head.appendChild(styleElement);
-  }
-  
-  // Add any theme-specific overrides here if needed
-  styleElement.textContent = '';
 }
 
 // Background Image Management
@@ -193,11 +228,21 @@ function handleImageUpload(e) {
 }
 
 function applyBackgroundImage() {
+  if (!currentUser && !isGuest) {
+    showLoginModal();
+    return;
+  }
+
   let imageUrl = bgImageUrl.value.trim();
   const file = bgImageUpload.files[0];
 
   if (file) {
-    // Upload to Firebase Storage if it's a new file
+    if (!currentUser) {
+      alert('Please sign in to upload images');
+      return;
+    }
+    
+    // Upload to Firebase Storage
     const storageRef = storage.ref(`backgrounds/${currentUser.uid}/${file.name}`);
     const uploadTask = storageRef.put(file);
 
@@ -250,6 +295,11 @@ function handleCloakSiteChange() {
 }
 
 function applyTabCloak() {
+  if (!currentUser && !isGuest) {
+    showLoginModal();
+    return;
+  }
+
   let url = '';
   
   switch(cloakSite.value) {
@@ -313,7 +363,7 @@ function resetTabCloak() {
   cloakSite.value = '';
   customCloakUrl.value = '';
   customCloakContainer.style.display = 'none';
-  document.title = 'Settings';
+  document.title = 'Settings | Fusion';
   
   // Reset favicon
   const favicon = document.querySelector('link[rel="icon"]');
@@ -329,6 +379,11 @@ function setPanicKeyInput(e) {
 }
 
 function savePanicKey() {
+  if (!currentUser && !isGuest) {
+    showLoginModal();
+    return;
+  }
+
   const key = panicKeyInput.value;
   const url = panicUrl.value.trim();
   
@@ -547,15 +602,17 @@ function destroyParticles() {
 
 // Settings Management
 function saveSetting(key, value) {
-  if (!currentUser) return;
+  if (!currentUser && !isGuest) return;
   
-  // Save to Firebase
-  db.collection('users').doc(currentUser.uid).update({
-    [`settings.${key}`]: value,
-    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(error => {
-    console.error('Error saving setting:', error);
-  });
+  if (currentUser) {
+    // Save to Firebase
+    db.collection('users').doc(currentUser.uid).update({
+      [`settings.${key}`]: value,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(error => {
+      console.error('Error saving setting:', error);
+    });
+  }
   
   // Save to localStorage for immediate access
   localStorage.setItem(key, value);
@@ -572,6 +629,25 @@ function loadUserSettings(userId) {
     .catch(error => {
       console.error('Error loading settings:', error);
     });
+}
+
+function loadLocalSettings() {
+  const settings = {
+    theme: localStorage.getItem('theme'),
+    backgroundImage: localStorage.getItem('backgroundImage'),
+    particlesEnabled: localStorage.getItem('particlesEnabled'),
+    particleCount: localStorage.getItem('particleCount'),
+    particleSpeed: localStorage.getItem('particleSpeed'),
+    particleType: localStorage.getItem('particleType'),
+    'particle-color-1': localStorage.getItem('particle-color-1'),
+    'particle-color-2': localStorage.getItem('particle-color-2'),
+    'particle-color-3': localStorage.getItem('particle-color-3'),
+    panicKey: localStorage.getItem('panicKey'),
+    panicUrl: localStorage.getItem('panicUrl'),
+    cloakUrl: localStorage.getItem('cloakUrl')
+  };
+  
+  applySettings(settings);
 }
 
 function applySettings(settings) {
@@ -602,7 +678,7 @@ function applySettings(settings) {
   }
   
   // Apply particle settings
-  if (settings.particlesEnabled) {
+  if (settings.particlesEnabled === 'true') {
     particlesToggle.checked = true;
     particleSettings.style.display = 'block';
     initParticles();
@@ -641,48 +717,54 @@ function confirmResetAllSettings() {
 }
 
 function resetAllSettingsToDefault() {
-  if (!currentUser) return;
+  if (!currentUser && !isGuest) return;
   
-  // Reset in Firebase
-  db.collection('users').doc(currentUser.uid).update({
-    settings: {},
-    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
-    // Reset UI
-    document.body.className = '';
-    document.body.style.backgroundImage = 'none';
-    bgImageUrl.value = '';
-    bgImageUpload.value = '';
-    
-    particlesToggle.checked = false;
-    particleSettings.style.display = 'none';
-    destroyParticles();
-    
-    panicKeyInput.value = '';
-    panicUrl.value = '';
-    if (panicKeyListener) {
-      document.removeEventListener('keydown', panicKeyListener);
-      panicKeyListener = null;
-    }
-    
-    cloakSite.value = '';
-    customCloakUrl.value = '';
-    customCloakContainer.style.display = 'none';
-    
-    themeButtons.forEach(btn => btn.classList.remove('active'));
-    activeTheme = '';
-    
-    // Reset local storage
-    localStorage.clear();
-    
-    alert('All settings have been reset to default.');
-  }).catch(error => {
-    console.error('Error resetting settings:', error);
-    alert('Failed to reset settings: ' + error.message);
+  if (currentUser) {
+    // Reset in Firebase
+    db.collection('users').doc(currentUser.uid).update({
+      settings: {},
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(error => {
+      console.error('Error resetting settings:', error);
+    });
+  }
+  
+  // Reset UI
+  document.body.className = '';
+  document.body.style.backgroundImage = 'none';
+  bgImageUrl.value = '';
+  bgImageUpload.value = '';
+  
+  particlesToggle.checked = false;
+  particleSettings.style.display = 'none';
+  destroyParticles();
+  
+  panicKeyInput.value = '';
+  panicUrl.value = '';
+  if (panicKeyListener) {
+    document.removeEventListener('keydown', panicKeyListener);
+    panicKeyListener = null;
+  }
+  
+  cloakSite.value = '';
+  customCloakUrl.value = '';
+  customCloakContainer.style.display = 'none';
+  
+  themeButtons.forEach(btn => btn.classList.remove('active'));
+  activeTheme = '';
+  
+  // Reset local storage
+  localStorage.clear();
+  
+  alert('All settings have been reset to default.');
+}
+
+function signOut() {
+  auth.signOut().catch(error => {
+    console.error('Sign out error:', error);
   });
 }
 
-// Initialize any settings from localStorage on page load
 function initFromLocalStorage() {
   if (localStorage.getItem('particlesEnabled') === 'true') {
     particlesToggle.checked = true;
@@ -703,6 +785,3 @@ function initFromLocalStorage() {
     document.addEventListener('keydown', panicKeyListener);
   }
 }
-
-// Initialize from localStorage when DOM is loaded
-initFromLocalStorage();
