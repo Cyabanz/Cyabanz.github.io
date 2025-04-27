@@ -31,6 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const profilePicUpload = document.getElementById('profile-pic-upload');
     const updateProfilePicBtn = document.getElementById('update-profile-pic-btn');
     const profilePicPreview = document.getElementById('profile-pic-preview');
+    const userBioTextarea = document.getElementById('user-bio');
+    const updateBioBtn = document.getElementById('update-bio-btn');
+    const bioCharCount = document.getElementById('bio-char-count');
 
     // Auth state listener
     auth.onAuthStateChanged(function(user) {
@@ -76,7 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const userId = auth.currentUser.uid;
         db.collection('users').doc(userId).update({
-            username: newUsername
+            username: newUsername,
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(function() {
             usernameDisplay.textContent = newUsername;
@@ -121,7 +125,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const userId = auth.currentUser.uid;
             
             db.collection('users').doc(userId).update({
-                photoBase64: base64Image
+                photoBase64: base64Image,
+                lastActive: firebase.firestore.FieldValue.serverTimestamp()
             })
             .then(function() {
                 profilePic.src = base64Image;
@@ -135,6 +140,34 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         };
         reader.readAsDataURL(file);
+    });
+
+    // Bio character counter
+    userBioTextarea.addEventListener('input', function() {
+        bioCharCount.textContent = this.value.length;
+    });
+
+    // Update Bio
+    updateBioBtn.addEventListener('click', function() {
+        const newBio = userBioTextarea.value.trim();
+        
+        if (newBio.length > 200) {
+            alert('Bio must be 200 characters or less');
+            return;
+        }
+        
+        const userId = auth.currentUser.uid;
+        db.collection('users').doc(userId).update({
+            bio: newBio,
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(function() {
+            alert('Bio updated successfully!');
+        })
+        .catch(function(error) {
+            console.error('Error updating bio:', error);
+            alert('Update failed: ' + error.message);
+        });
     });
 
     // Helper Functions
@@ -164,7 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
             email: user.email,
             username: user.displayName || 'user' + user.uid.substring(0, 4),
             photoBase64: user.photoURL || '',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            bio: '',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
         })
         .catch(function(error) {
             console.error('Error creating user document:', error);
@@ -186,12 +221,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         profilePic.src = userData.photoBase64;
                         profilePicPreview.src = userData.photoBase64;
                     }
+                    
+                    if (userData.bio) {
+                        userBioTextarea.value = userData.bio;
+                        bioCharCount.textContent = userData.bio.length;
+                    }
                 }
             })
             .catch(function(error) {
                 console.error('Error loading user data:', error);
             });
     }
+
+    // Profile Sharing System
+    setupProfileSharing();
 });
 
 // ======================
@@ -252,7 +295,7 @@ function setupFavoritesListener(userId) {
   });
 }
 
-// Add to your existing auth.js
+// Profile Sharing Function
 function setupProfileSharing() {
     const profileLink = document.getElementById('public-profile-link');
     const copyBtn = document.getElementById('copy-profile-link');
@@ -271,9 +314,3 @@ function setupProfileSharing() {
         alert('Profile link copied to clipboard!');
     });
 }
-
-// Call this in your DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', function() {
-    // ... your existing code ...
-    setupProfileSharing();
-});
