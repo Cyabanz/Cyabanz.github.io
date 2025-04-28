@@ -16,7 +16,6 @@
   --border: #e9ecef;
   --gray: #adb5bd;
   --gray-light: #e9ecef;
-  --card-bg-rgb: 255, 255, 255;
 }
 
 /* Dark Theme */
@@ -28,7 +27,6 @@
   --border: #333333;
   --gray: #555555;
   --gray-light: #333333;
-  --card-bg-rgb: 30, 30, 30;
 }
 
 /* Moon Theme */
@@ -40,7 +38,6 @@
   --border: #334155;
   --gray: #64748b;
   --gray-light: #334155;
-  --card-bg-rgb: 30, 41, 59;
 }
 
 /* Emerald Theme */
@@ -52,7 +49,6 @@
   --border: #059669;
   --gray: #34d399;
   --gray-light: #059669;
-  --card-bg-rgb: 4, 120, 87;
 }
 
 /* Ruby Theme */
@@ -64,7 +60,6 @@
   --border: #be185d;
   --gray: #ec4899;
   --gray-light: #be185d;
-  --card-bg-rgb: 157, 23, 77;
 }
 
 /* Diamond Theme */
@@ -76,7 +71,6 @@
   --border: #7dd3fc;
   --gray: #38bdf8;
   --gray-light: #7dd3fc;
-  --card-bg-rgb: 186, 230, 253;
 }
 
 /* Crazy Theme */
@@ -88,7 +82,6 @@
   --border: #fdba74;
   --gray: #fb923c;
   --gray-light: #fdba74;
-  --card-bg-rgb: 255, 237, 213;
 }
 
 /* Base Styles */
@@ -116,12 +109,11 @@ h1, h2, h3, h4, h5, h6, p, span, a, label, input, textarea, select {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
-  background: rgba(var(--card-bg-rgb), 0.92);
+  background: var(--card-bg);
   border-radius: 16px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border);
   transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
 }
 
 /* Header */
@@ -183,7 +175,7 @@ header {
   position: fixed;
   top: 0;
   left: -280px;
-  background: rgba(var(--card-bg-rgb), 0.95);
+  background: var(--card-bg);
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
@@ -191,7 +183,6 @@ header {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
-  backdrop-filter: blur(4px);
 }
 
 .sidebar.active {
@@ -322,14 +313,13 @@ header {
 }
 
 .settings-section {
-  background: rgba(var(--card-bg-rgb), 0.92);
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   margin-bottom: 2.5rem;
   border: 1px solid var(--border);
   transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
 }
 
 .settings-section h2 {
@@ -754,7 +744,7 @@ input:checked + .toggle-slider:before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }
 
 /* Responsive Design */
