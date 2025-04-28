@@ -6,52 +6,147 @@
     <title>GameHub - CrazyGames Clone</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="setting.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Theme Sync Script -->
+    <script>
+        // Apply theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for saved theme in localStorage
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.className = savedTheme;
+            }
+            
+            // Listen for theme changes from other tabs
+            window.addEventListener('storage', function(event) {
+                if (event.key === 'theme') {
+                    document.body.className = event.newValue || '';
+                }
+            });
+        });
+    </script>
+    
+    <!-- Theme Styles (matches settings.css themes) -->
+    <style>
+        /* Light Theme (default) */
+        :root {
+            --text: #1b263b;
+            --text-inverse: #f8f9fa;
+            --background: #f5f7ff;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --gray: #adb5bd;
+            --gray-light: #e9ecef;
+        }
+
+        /* Dark Theme */
+        .dark {
+            --text: #f8f9fa;
+            --text-inverse: #1b263b;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --border: #333333;
+            --gray: #555555;
+            --gray-light: #333333;
+        }
+
+        /* Moon Theme */
+        .moon {
+            --text: #e2e8f0;
+            --text-inverse: #0f172a;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --gray: #64748b;
+            --gray-light: #334155;
+        }
+
+        /* Emerald Theme */
+        .emerald {
+            --text: #a7f3d0;
+            --text-inverse: #064e3b;
+            --background: #064e3b;
+            --card-bg: #047857;
+            --border: #059669;
+            --gray: #34d399;
+            --gray-light: #059669;
+        }
+
+        /* Ruby Theme */
+        .ruby {
+            --text: #fbcfe8;
+            --text-inverse: #831843;
+            --background: #831843;
+            --card-bg: #9d174d;
+            --border: #be185d;
+            --gray: #ec4899;
+            --gray-light: #be185d;
+        }
+
+        /* Diamond Theme */
+        .diamond {
+            --text: #082f49;
+            --text-inverse: #bae6fd;
+            --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+            --card-bg: #bae6fd;
+            --border: #7dd3fc;
+            --gray: #38bdf8;
+            --gray-light: #7dd3fc;
+        }
+
+        /* Crazy Theme */
+        .crazy {
+            --text: #2b0504;
+            --text-inverse: #ffedd5;
+            --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+            --card-bg: #ffedd5;
+            --border: #fdba74;
+            --gray: #fb923c;
+            --gray-light: #fdba74;
+        }
+        
+        /* Update existing elements to use CSS variables */
+        body {
+            background: var(--background);
+            color: var(--text);
+        }
+        
+        .game-card, .tab-btn, .search-container input {
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        
+        .game-card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .dark-theme .game-card:hover,
+        .moon-theme .game-card:hover,
+        .emerald-theme .game-card:hover,
+        .ruby-theme .game-card:hover {
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .row-title {
+            color: var(--text);
+        }
+        
+        .sidebar {
+            background: var(--card-bg);
+        }
+        
+        .navbar {
+            background: var(--card-bg);
+        }
+    </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <button id="sidebarToggle" class="sidebar-toggle">
-                <i class='bx bx-x'></i>
-            </button>
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="index.html" class="active"><i class='bx bx-home'></i> Home</a></li>
-            <li><a href="settings.html"><i class='bx bx-cog'></i> Settings</a></li>
-            <li><a href="profile.html"><i class='bx bx-user'></i> Profile</a></li>
-            <li class="divider"></li>
-            <li>
-                <button id="aboutBlankBtn" class="about-blank-btn">
-                    <i class='bx bx-shield'></i> About Blank
-                </button>
-            </li>
-        </ul>
-        <div class="sidebar-footer">
-            <div class="user-info-small">
-                <img id="sidebar-profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic-small">
-                <span id="sidebar-username">Guest</span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Header -->
-    <header>
-        <button id="sidebarToggleMobile" class="sidebar-toggle mobile">
-            <i class='bx bx-menu'></i>
-        </button>
-        <h1 class="logo">Fusion</h1>
-        <div class="user-info">
-            <span id="username-display">Guest</span>
-            <div id="profile-pic-container">
-                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
-            </div>
-        </div>
-    </header>
+    <!-- Auth Container (will be populated by JavaScript) -->
+    <div id="auth-container" class="auth-container"></div>
 
     <div class="container">
         <!-- Pinned Games Row (initially hidden) -->
@@ -98,19 +193,33 @@
         </div>
     </div>
 
-    <!-- Login Modal (hidden by default) -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <h3>Sign In Required</h3>
-            <p>Please sign in to access all features.</p>
-            <div class="modal-actions">
-                <button id="go-to-login" class="btn">Sign In</button>
-                <button id="continue-guest" class="btn btn-secondary">Continue as Guest</button>
-            </div>
+    <!-- Hamburger Menu -->
+    <button class="hamburger">
+        <i class='bx bx-menu'></i>
+    </button>
+
+    <!-- Vertical Navbar -->
+    <nav class="navbar closed">
+        <div class="nav-container">
+            <a href="#" class="nav-link" data-glow-color="#4fc3f7">
+                <i class='bx bx-home'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ff6e40">
+                <i class='bx bx-search'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#9575cd">
+                <i class='bx bx-heart'></i>
+            </a>
+            <a href="settings.html" class="nav-link" data-glow-color="#64dd17">
+                <i class='bx bx-user'></i>
+            </a>
+            <a href="settings.html" class="nav-link" data-glow-color="#ffd600">
+                <i class='bx bx-cog'></i>
+            </a>
+            <div class="glow-effect"></div>
         </div>
-    </div>
+    </nav>
 
     <script src="script.js"></script>
-    <script src="setting.js"></script>
 </body>
 </html>
