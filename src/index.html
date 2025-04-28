@@ -13,18 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Login Modal (hidden by default) -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <h3>Sign In Required</h3>
-            <p>Please sign in to access all features.</p>
-            <div class="modal-actions">
-                <button id="go-to-login" class="btn">Sign In</button>
-                <button id="continue-guest" class="btn btn-secondary">Continue as Guest</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Navigation Sidebar -->
     <nav id="sidebar" class="sidebar">
         <div class="sidebar-header">
@@ -66,7 +54,7 @@
     </header>
 
     <div class="container">
-        <!-- Pinned Games Row (initially hidden) -->
+        <!-- Pinned Games Row -->
         <div class="game-row pinned-games-row" style="display: none;">
             <h3 class="row-title">
                 <i class='bx bxs-bookmark-alt'></i> Favorite Games
@@ -85,7 +73,7 @@
             <input type="text" id="searchInput" placeholder="Search games...">
         </div>
 
-        <!-- Horizontal Category Tabs -->
+        <!-- Category Tabs -->
         <div class="category-tabs">
             <button class="tab-btn active" data-category="all">
                 <i class='bx bx-game'></i> All Games
@@ -110,6 +98,18 @@
         </div>
     </div>
 
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>Sign In Required</h3>
+            <p>Please sign in to access all features.</p>
+            <div class="modal-actions">
+                <button id="go-to-login" class="btn">Sign In</button>
+                <button id="continue-guest" class="btn btn-secondary">Continue as Guest</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script src="setting.js"></script>
     
@@ -130,8 +130,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Apply theme from localStorage on page load
+        // Load theme immediately when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            // Apply saved theme
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
                 document.body.className = savedTheme;
@@ -139,11 +140,16 @@
             
             // Initialize auth state listener
             auth.onAuthStateChanged(handleAuthStateChange);
+            
+            // Force games to load on initial page load
+            setTimeout(() => {
+                const allGamesBtn = document.querySelector('.tab-btn[data-category="all"]');
+                if (allGamesBtn) allGamesBtn.click();
+            }, 100);
         });
 
         function handleAuthStateChange(user) {
             if (user) {
-                // User is signed in
                 document.getElementById('username-display').textContent = user.displayName || 'User';
                 document.getElementById('sidebar-username').textContent = user.displayName || 'User';
                 
@@ -154,7 +160,6 @@
                 
                 document.getElementById('login-modal').classList.remove('active');
             } else {
-                // No user is signed in
                 document.getElementById('username-display').textContent = 'Guest';
                 document.getElementById('sidebar-username').textContent = 'Guest';
                 document.getElementById('profile-pic').src = 'https://via.placeholder.com/40';
