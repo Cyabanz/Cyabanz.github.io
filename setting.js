@@ -51,7 +51,6 @@ const sidebarUsername = document.getElementById('sidebar-username');
 const sidebarProfilePic = document.getElementById('sidebar-profile-pic');
 const loginModal = document.getElementById('login-modal');
 const goToLogin = document.getElementById('go-to-login');
-const continueGuest = document.getElementById('continue-guest');
 const signOutBtn = document.getElementById('sign-out-btn');
 
 // Global Variables
@@ -59,9 +58,7 @@ let particles = [];
 let particleCanvas;
 let particleCtx;
 let currentUser = null;
-let activeTheme = '';
 let panicKeyListener = null;
-let isGuest = false;
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
@@ -123,38 +120,55 @@ function initEventListeners() {
 
   // Auth related
   goToLogin.addEventListener('click', () => window.location.href = 'index.html');
-  continueGuest.addEventListener('click', continueAsGuest);
   signOutBtn.addEventListener('click', signOut);
 }
 
 function handleAuthStateChange(user) {
   currentUser = user;
   if (user) {
-    isGuest = false;
     updateUIForUser(user);
     loadUserSettings(user.uid);
     loginModal.classList.remove('active');
-  } else if (!isGuest) {
+  } else {
     showLoginModal();
+    // Clear all settings if not signed in
+    resetAllSettingsToDefault();
   }
 }
 
 function showLoginModal() {
   loginModal.classList.add('active');
+  // Disable all interactive elements
+  disableAllFeatures();
 }
 
-function continueAsGuest() {
-  isGuest = true;
-  loginModal.classList.remove('active');
-  updateUIForGuest();
-  loadLocalSettings();
+function disableAllFeatures() {
+  const interactiveElements = [
+    themeButtons,
+    applyBgImage,
+    resetBg,
+    bgImageUpload,
+    applyCloak,
+    resetCloak,
+    setPanicKey,
+    resetPanicKey,
+    particlesToggle,
+    resetAllSettings
+  ];
+  
+  interactiveElements.forEach(element => {
+    if (Array.isArray(element)) {
+      element.forEach(el => el.disabled = true);
+    } else {
+      element.disabled = true;
+    }
+  });
 }
 
 function toggleSidebar() {
   sidebar.classList.toggle('active');
   document.body.classList.toggle('sidebar-open');
   
-  // Update toggle icon
   const icon = sidebarToggle.querySelector('i');
   if (sidebar.classList.contains('active')) {
     icon.classList.replace('bx-menu', 'bx-x');
@@ -171,18 +185,33 @@ function updateUIForUser(user) {
     profilePic.src = user.photoURL;
     sidebarProfilePic.src = user.photoURL;
   }
-}
-
-function updateUIForGuest() {
-  usernameDisplay.textContent = 'Guest';
-  sidebarUsername.textContent = 'Guest';
-  profilePic.src = 'https://via.placeholder.com/40';
-  sidebarProfilePic.src = 'https://via.placeholder.com/40';
+  
+  // Re-enable all interactive elements
+  const interactiveElements = [
+    themeButtons,
+    applyBgImage,
+    resetBg,
+    bgImageUpload,
+    applyCloak,
+    resetCloak,
+    setPanicKey,
+    resetPanicKey,
+    particlesToggle,
+    resetAllSettings
+  ];
+  
+  interactiveElements.forEach(element => {
+    if (Array.isArray(element)) {
+      element.forEach(el => el.disabled = false);
+    } else {
+      element.disabled = false;
+    }
+  });
 }
 
 // Theme Management
 function handleThemeSelection(theme) {
-  if (!currentUser && !isGuest) {
+  if (!currentUser) {
     showLoginModal();
     return;
   }
@@ -207,10 +236,7 @@ function handleThemeSelection(theme) {
 }
 
 function applyTheme(theme) {
-  // Remove all theme classes first
   document.body.className = '';
-  
-  // Apply the selected theme
   if (theme) {
     document.body.classList.add(theme);
   }
@@ -221,7 +247,7 @@ function handleImageUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
 
-  if (file.size > 2 * 1024 * 1024) { // 2MB limit
+  if (file.size > 2 * 1024 * 1024) {
     alert('Image must be smaller than 2MB');
     return;
   }
@@ -234,7 +260,7 @@ function handleImageUpload(e) {
 }
 
 function applyBackgroundImage() {
-  if (!currentUser && !isGuest) {
+  if (!currentUser) {
     showLoginModal();
     return;
   }
@@ -243,11 +269,6 @@ function applyBackgroundImage() {
   const file = bgImageUpload.files[0];
 
   if (file) {
-    if (!currentUser) {
-      alert('Please sign in to upload images');
-      return;
-    }
-    
     // Upload to Firebase Storage
     const storageRef = storage.ref(`backgrounds/${currentUser.uid}/${file.name}`);
     const uploadTask = storageRef.put(file);
@@ -259,7 +280,6 @@ function applyBackgroundImage() {
         alert('Error uploading image: ' + error.message);
       }, 
       () => {
-        // Get download URL
         uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
           imageUrl = downloadURL;
           setBackgroundImage(imageUrl);
@@ -279,7 +299,6 @@ function setBackgroundImage(url) {
   document.body.style.backgroundPosition = 'center';
   document.body.style.backgroundAttachment = 'fixed';
   
-  // Reset theme when setting background
   document.body.className = '';
   saveSetting('theme', '');
   themeButtons.forEach(btn => btn.classList.remove('active'));
@@ -301,7 +320,7 @@ function handleCloakSiteChange() {
 }
 
 function applyTabCloak() {
-  if (!currentUser && !isGuest) {
+  if (!currentUser) {
     showLoginModal();
     return;
   }
@@ -332,8 +351,6 @@ function applyTabCloak() {
   if (url) {
     saveSetting('cloakUrl', url);
     alert('Tab cloaker applied! Press F11 for full effect.');
-    
-    // Update the tab title and icon
     document.title = getCloakTitle(cloakSite.value);
     updateFavicon(cloakSite.value);
   }
@@ -371,7 +388,6 @@ function resetTabCloak() {
   customCloakContainer.style.display = 'none';
   document.title = 'Settings | Fusion';
   
-  // Reset favicon
   const favicon = document.querySelector('link[rel="icon"]');
   if (favicon) {
     favicon.href = '/favicon.ico';
@@ -385,7 +401,7 @@ function setPanicKeyInput(e) {
 }
 
 function savePanicKey() {
-  if (!currentUser && !isGuest) {
+  if (!currentUser) {
     showLoginModal();
     return;
   }
@@ -398,12 +414,10 @@ function savePanicKey() {
     return;
   }
 
-  // Remove previous listener if it exists
   if (panicKeyListener) {
     document.removeEventListener('keydown', panicKeyListener);
   }
 
-  // Add new listener
   panicKeyListener = function(e) {
     if (e.key === key) {
       window.location.href = url;
@@ -527,15 +541,12 @@ function animateParticles() {
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];
     
-    // Update position
     p.x += p.speedX;
     p.y += p.speedY;
     
-    // Bounce off edges
     if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
     if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
     
-    // Draw particle
     particleCtx.fillStyle = p.color;
     
     switch(p.type) {
@@ -545,7 +556,7 @@ function animateParticles() {
       case 'triangle':
         drawTriangle(p.x, p.y, p.size);
         break;
-      default: // circle
+      default:
         particleCtx.beginPath();
         particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         particleCtx.fill();
@@ -608,19 +619,15 @@ function destroyParticles() {
 
 // Settings Management
 function saveSetting(key, value) {
-  if (!currentUser && !isGuest) return;
+  if (!currentUser) return;
   
-  if (currentUser) {
-    // Save to Firebase
-    db.collection('users').doc(currentUser.uid).update({
-      [`settings.${key}`]: value,
-      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(error => {
-      console.error('Error saving setting:', error);
-    });
-  }
+  db.collection('users').doc(currentUser.uid).update({
+    [`settings.${key}`]: value,
+    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(error => {
+    console.error('Error saving setting:', error);
+  });
   
-  // Save to localStorage for immediate access
   localStorage.setItem(key, value);
 }
 
@@ -637,45 +644,18 @@ function loadUserSettings(userId) {
     });
 }
 
-function loadLocalSettings() {
-  const settings = {
-    theme: localStorage.getItem('theme'),
-    backgroundImage: localStorage.getItem('backgroundImage'),
-    particlesEnabled: localStorage.getItem('particlesEnabled'),
-    particleCount: localStorage.getItem('particleCount'),
-    particleSpeed: localStorage.getItem('particleSpeed'),
-    particleType: localStorage.getItem('particleType'),
-    'particle-color-1': localStorage.getItem('particle-color-1'),
-    'particle-color-2': localStorage.getItem('particle-color-2'),
-    'particle-color-3': localStorage.getItem('particle-color-3'),
-    panicKey: localStorage.getItem('panicKey'),
-    panicUrl: localStorage.getItem('panicUrl'),
-    cloakUrl: localStorage.getItem('cloakUrl')
-  };
-  
-  applySettings(settings);
-}
-
 function applySettings(settings) {
-  // Apply theme
   if (settings.theme) {
     activeTheme = settings.theme;
     applyTheme(settings.theme);
     document.querySelector(`.theme-btn[data-theme="${settings.theme}"]`)?.classList.add('active');
   }
   
-  // Apply background image
   if (settings.backgroundImage) {
     document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
     bgImageUrl.value = settings.backgroundImage;
   }
   
-  // Apply tab cloaker
-  if (settings.cloakUrl) {
-    // Just load the setting, don't automatically apply
-  }
-  
-  // Apply panic key
   if (settings.panicKey) {
     panicKeyInput.value = settings.panicKey;
   }
@@ -683,7 +663,6 @@ function applySettings(settings) {
     panicUrl.value = settings.panicUrl;
   }
   
-  // Apply particle settings
   if (settings.particlesEnabled === 'true') {
     particlesToggle.checked = true;
     particleSettings.style.display = 'block';
@@ -704,7 +683,6 @@ function applySettings(settings) {
     particleType.value = settings.particleType;
   }
   
-  // Apply colors
   if (settings['particle-color-1']) {
     particleColor1.value = settings['particle-color-1'];
   }
@@ -723,19 +701,15 @@ function confirmResetAllSettings() {
 }
 
 function resetAllSettingsToDefault() {
-  if (!currentUser && !isGuest) return;
+  if (!currentUser) return;
   
-  if (currentUser) {
-    // Reset in Firebase
-    db.collection('users').doc(currentUser.uid).update({
-      settings: {},
-      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(error => {
-      console.error('Error resetting settings:', error);
-    });
-  }
+  db.collection('users').doc(currentUser.uid).update({
+    settings: {},
+    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(error => {
+    console.error('Error resetting settings:', error);
+  });
   
-  // Reset UI
   document.body.className = '';
   document.body.style.backgroundImage = 'none';
   bgImageUrl.value = '';
@@ -759,14 +733,15 @@ function resetAllSettingsToDefault() {
   themeButtons.forEach(btn => btn.classList.remove('active'));
   activeTheme = '';
   
-  // Reset local storage
   localStorage.clear();
   
   alert('All settings have been reset to default.');
 }
 
 function signOut() {
-  auth.signOut().catch(error => {
+  auth.signOut().then(() => {
+    window.location.href = 'index.html';
+  }).catch(error => {
     console.error('Sign out error:', error);
   });
 }
