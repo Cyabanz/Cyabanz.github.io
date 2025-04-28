@@ -10,13 +10,125 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
 </head>
 <body>
-    <!-- Auth Container (will be populated by JavaScript) -->
-    <div id="auth-container" class="auth-container"></div>
+    <!-- Login Modal -->
+    <div id="login-modal" class="login-modal">
+        <div class="login-content">
+            <h2>Welcome to GameHub</h2>
+            <p>Please sign in to save your settings and favorites</p>
+            <div class="login-buttons">
+                <button id="go-to-login" class="btn btn-primary">Sign In</button>
+                <button id="continue-guest" class="btn">Continue as Guest</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebar-profile-pic" src="https://via.placeholder.com/50" alt="Profile" class="sidebar-profile-pic">
+            <span id="sidebar-username" class="sidebar-username">User</span>
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h3>Appearance</h3>
+                <div class="theme-buttons">
+                    <button class="theme-btn" data-theme="light-theme">Light</button>
+                    <button class="theme-btn" data-theme="dark-theme">Dark</button>
+                    <button class="theme-btn" data-theme="blue-theme">Blue</button>
+                    <button class="theme-btn" data-theme="pink-theme">Pink</button>
+                    <button class="theme-btn" data-theme="green-theme">Green</button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Background</h3>
+                <input type="text" id="bg-image-url" class="form-control" placeholder="Image URL">
+                <input type="file" id="bg-image-upload" accept="image/*" class="form-control">
+                <button id="apply-bg-image" class="btn btn-primary">Apply</button>
+                <button id="reset-bg" class="btn">Reset</button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Tab Cloaker</h3>
+                <select id="cloak-site" class="form-control">
+                    <option value="">Select Site</option>
+                    <option value="google">Google Classroom</option>
+                    <option value="clever">Clever</option>
+                    <option value="drive">Google Drive</option>
+                    <option value="docs">Google Docs</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <div id="custom-cloak-container" style="display: none;">
+                    <input type="text" id="custom-cloak-url" class="form-control" placeholder="Enter URL">
+                </div>
+                <button id="apply-cloak" class="btn btn-primary">Apply</button>
+                <button id="reset-cloak" class="btn">Reset</button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Panic Key</h3>
+                <input type="text" id="panic-key-input" class="form-control" placeholder="Press a key" readonly>
+                <input type="text" id="panic-url" class="form-control" placeholder="Redirect URL">
+                <button id="set-panic-key" class="btn btn-primary">Set</button>
+                <button id="reset-panic-key" class="btn">Reset</button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Particle Effects</h3>
+                <label>
+                    <input type="checkbox" id="particles-toggle"> Enable Particles
+                </label>
+                <div id="particle-settings" style="display: none;">
+                    <label>Type</label>
+                    <select id="particle-type" class="form-control">
+                        <option value="circle">Circles</option>
+                        <option value="star">Stars</option>
+                        <option value="triangle">Triangles</option>
+                    </select>
+                    
+                    <label>Count: <span id="particle-count-value">50</span></label>
+                    <input type="range" id="particle-count" min="10" max="200" value="50" class="form-control">
+                    
+                    <label>Speed: <span id="particle-speed-value">3</span></label>
+                    <input type="range" id="particle-speed" min="1" max="10" value="3" class="form-control">
+                    
+                    <label>Colors</label>
+                    <input type="color" id="particle-color-1" value="#4285F4">
+                    <input type="color" id="particle-color-2" value="#FF5722">
+                    <input type="color" id="particle-color-3" value="#4CAF50">
+                </div>
+            </div>
+            
+            <button id="reset-all-settings" class="btn btn-danger">Reset All Settings</button>
+            <button id="sign-out-btn" class="btn">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- Sidebar Toggles -->
+    <button id="sidebarToggle" class="sidebar-toggle">
+        <i class='bx bx-menu'></i>
+    </button>
+    <button id="sidebarToggleMobile" class="sidebar-toggle-mobile">
+        <i class='bx bx-menu'></i>
+    </button>
+
+    <!-- Main Content -->
     <div class="container">
-        <!-- Pinned Games Row (initially hidden) -->
+        <!-- Profile Section -->
+        <header>
+            <div class="profile-section">
+                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                <span id="username-display" class="username">Guest</span>
+            </div>
+            <button id="aboutBlankBtn" class="btn">
+                <i class='bx bx-window-open'></i> About:Blank
+            </button>
+        </header>
+
+        <!-- Pinned Games Row -->
         <div class="game-row pinned-games-row" style="display: none;">
             <h3 class="row-title">
                 <i class='bx bxs-bookmark-alt'></i> Favorite Games
@@ -35,7 +147,7 @@
             <input type="text" id="searchInput" placeholder="Search games...">
         </div>
 
-        <!-- Horizontal Category Tabs -->
+        <!-- Category Tabs -->
         <div class="category-tabs">
             <button class="tab-btn active" data-category="all">
                 <i class='bx bx-game'></i> All Games
@@ -60,33 +172,27 @@
         </div>
     </div>
 
-    <!-- Hamburger Menu -->
-    <button class="hamburger">
-        <i class='bx bx-menu'></i>
-    </button>
-
-    <!-- Vertical Navbar -->
-    <nav class="navbar closed">
-        <div class="nav-container">
-            <a href="#" class="nav-link" data-glow-color="#4fc3f7">
-                <i class='bx bx-home'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#ff6e40">
-                <i class='bx bx-search'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#9575cd">
-                <i class='bx bx-heart'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#64dd17">
-                <i class='bx bx-user'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#ffd600">
-                <i class='bx bx-cog'></i>
-            </a>
-            <div class="glow-effect"></div>
-        </div>
+    <!-- Bottom Navigation -->
+    <nav class="bottom-navbar">
+        <a href="#" class="nav-link">
+            <i class='bx bx-home'></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-link">
+            <i class='bx bx-search'></i>
+            <span>Search</span>
+        </a>
+        <a href="#" class="nav-link">
+            <i class='bx bx-heart'></i>
+            <span>Favorites</span>
+        </a>
+        <a href="#" class="nav-link">
+            <i class='bx bx-cog'></i>
+            <span>Settings</span>
+        </a>
     </nav>
 
+    <script src="setting.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
