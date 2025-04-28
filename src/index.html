@@ -6,37 +6,57 @@
     <title>GameHub - CrazyGames Clone</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="setting.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     
-    <!-- Theme & Particles Sync Script -->
+    <!-- Theme & Particles Sync System -->
     <script>
-        // Global variables for particles
+        // Global variables
         let particles = [];
         let particleCanvas;
         let particleCtx;
         
-        // Apply theme and particles on page load
+        // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check for saved theme in localStorage
+            applySavedSettings();
+            setupStorageListener();
+            setupPanicKey();
+        });
+        
+        function applySavedSettings() {
+            // Theme
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
-                document.body.className = savedTheme;
+                document.body.classList.add(savedTheme);
             }
             
-            // Check for particle settings
-            const particlesEnabled = localStorage.getItem('particlesEnabled') === 'true';
-            if (particlesEnabled) {
+            // Particles
+            if (localStorage.getItem('particlesEnabled') === 'true') {
                 initParticles();
             }
             
-            // Listen for changes from other tabs
+            // Background Image
+            const bgImage = localStorage.getItem('backgroundImage');
+            if (bgImage) {
+                applyBackgroundImage(bgImage);
+            }
+        }
+        
+        function setupStorageListener() {
             window.addEventListener('storage', function(event) {
+                // Theme changed
                 if (event.key === 'theme') {
-                    document.body.className = event.newValue || '';
+                    // Remove all theme classes first
+                    document.body.className = '';
+                    // Apply new theme if exists
+                    if (event.newValue) {
+                        document.body.classList.add(event.newValue);
+                    }
                 }
+                // Particles enabled/disabled
                 else if (event.key === 'particlesEnabled') {
                     if (event.newValue === 'true') {
                         initParticles();
@@ -44,13 +64,59 @@
                         destroyParticles();
                     }
                 }
-                else if (event.key.startsWith('particle-')) {
+                // Particle settings changed
+                else if (event.key && event.key.startsWith('particle')) {
                     updateParticles();
                 }
+                // Background image changed
+                else if (event.key === 'backgroundImage') {
+                    if (event.newValue) {
+                        applyBackgroundImage(event.newValue);
+                    } else {
+                        document.body.style.backgroundImage = 'none';
+                    }
+                }
+                // All settings cleared
+                else if (event.key === null && event.newValue === null) {
+                    handleFullReset();
+                }
             });
-        });
+        }
         
-        // Particle functions
+        function setupPanicKey() {
+            const panicKey = localStorage.getItem('panicKey');
+            const panicUrl = localStorage.getItem('panicUrl');
+            
+            if (panicKey && panicUrl) {
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === panicKey) {
+                        window.location.href = panicUrl;
+                    }
+                });
+            }
+        }
+        
+        function handleFullReset() {
+            // Reset theme
+            document.body.className = '';
+            
+            // Reset particles
+            destroyParticles();
+            
+            // Reset background
+            document.body.style.backgroundImage = 'none';
+            
+            // Reset any other visual settings as needed
+        }
+        
+        function applyBackgroundImage(url) {
+            document.body.style.backgroundImage = `url(${url})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+        }
+
+        /* Particle System Functions */
         function initParticles() {
             if (particleCanvas) return;
             
@@ -185,8 +251,8 @@
             }
         }
     </script>
-    
-    <!-- Theme Styles (matches settings.css themes) -->
+
+    <!-- Theme Styles -->
     <style>
         /* Light Theme (default) */
         :root {
@@ -265,11 +331,12 @@
             --gray-light: #fdba74;
         }
         
-        /* Update existing elements to use CSS variables */
+        /* Base Styles */
         body {
             background: var(--background);
             color: var(--text);
             transition: background 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
         }
         
         .game-card, .tab-btn, .search-container input {
@@ -311,6 +378,11 @@
             height: 100%;
             pointer-events: none;
             z-index: -1;
+        }
+        
+        /* Background Image */
+        body[style*="background-image"] {
+            background-color: transparent !important;
         }
     </style>
 </head>
@@ -391,5 +463,6 @@
     </nav>
 
     <script src="script.js"></script>
+    <script src="setting.js"></script>
 </body>
 </html>
