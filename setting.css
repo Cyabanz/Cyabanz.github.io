@@ -16,8 +16,6 @@
   --border: #e9ecef;
   --gray: #adb5bd;
   --gray-light: #e9ecef;
-  
-  /* New RGB values for transparency */
   --card-bg-rgb: 255, 255, 255;
 }
 
@@ -93,53 +91,7 @@
   --card-bg-rgb: 255, 237, 213;
 }
 
-/* Particle Canvas Adjustments */
-#particle-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 5; /* Above containers but below interactive elements */
-}
-
-/* Container Transparency */
-.container {
-  background-color: rgba(var(--card-bg-rgb), 0.92) !important;
-  backdrop-filter: blur(4px);
-}
-
-.settings-section {
-  background-color: rgba(var(--card-bg-rgb), 0.92) !important;
-  backdrop-filter: blur(4px);
-}
-
-/* Keep form elements solid */
-.form-group,
-.form-input,
-.form-select,
-.key-input,
-.btn,
-.toggle-switch,
-.theme-btn {
-  background-color: var(--card-bg) !important;
-}
-
-/* Z-index hierarchy */
-header {
-  z-index: 10;
-}
-
-.sidebar {
-  z-index: 15;
-}
-
-.modal {
-  z-index: 100;
-}
-
-/* Rest of your existing CSS below */
+/* Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -164,11 +116,12 @@ h1, h2, h3, h4, h5, h6, p, span, a, label, input, textarea, select {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
-  background: var(--card-bg);
+  background: rgba(var(--card-bg-rgb), 0.92);
   border-radius: 16px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border);
   transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 /* Header */
@@ -230,7 +183,7 @@ header {
   position: fixed;
   top: 0;
   left: -280px;
-  background: var(--card-bg);
+  background: rgba(var(--card-bg-rgb), 0.95);
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
@@ -238,6 +191,7 @@ header {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
+  backdrop-filter: blur(4px);
 }
 
 .sidebar.active {
@@ -368,13 +322,14 @@ header {
 }
 
 .settings-section {
-  background: var(--card-bg);
+  background: rgba(var(--card-bg-rgb), 0.92);
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   margin-bottom: 2.5rem;
   border: 1px solid var(--border);
   transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 .settings-section h2 {
@@ -799,7 +754,7 @@ input:checked + .toggle-slider:before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: -1;
+  z-index: 1;
 }
 
 /* Responsive Design */
@@ -888,56 +843,4 @@ input:checked + .toggle-slider:before {
   .modal-actions {
     flex-direction: column;
   }
-}
-
-/* Particle Canvas - Now appears OVER containers */
-#particle-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 10; /* Higher than containers */
-}
-
-/* Make containers transparent (so particles show through) */
-.container,
-.settings-section {
-  background-color: transparent !important;
-  position: relative; /* Ensures proper stacking */
-}
-
-/* Header should stay above particles */
-header {
-  z-index: 100; /* Higher than particles */
-}
-
-/* Sidebar should stay above particles */
-.sidebar {
-  z-index: 100;
-}
-
-/* Modal should stay on top of everything */
-.modal {
-  z-index: 1000;
-}
-
-/* Ensure form elements are still visible (opaque) */
-.form-group,
-.form-input,
-.form-select,
-.key-input,
-.btn,
-.theme-btn,
-.toggle-switch,
-.toggle-slider {
-  background-color: var(--card-bg) !important;
-  position: relative; /* Ensures they stay above particles */
-}
-
-/* Optional: Slightly transparent card backgrounds for a modern look */
-.settings-section {
-  background-color: rgba(var(--card-bg-rgb), 0.9) !important;
-  backdrop-filter: blur(5px);
 }
