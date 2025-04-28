@@ -835,9 +835,7 @@ input:checked + .toggle-slider:before {
   }
 }
 
-/* Add this to your existing setting.css */
-
-/* Particle Canvas Fixes */
+/* Particle Canvas - Now appears OVER containers */
 #particle-canvas {
   position: fixed;
   top: 0;
@@ -845,83 +843,46 @@ input:checked + .toggle-slider:before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: -1; /* Keep behind all content */
+  z-index: 10; /* Higher than containers */
 }
 
-/* Make containers semi-transparent */
-.container, 
-.settings-section,
-header {
-  background-color: rgba(var(--card-bg-rgb), 0.85) !important;
-  backdrop-filter: blur(8px);
-}
-
-/* Convert card-bg to RGB for alpha channel */
-:root {
-  --card-bg-rgb: 255, 255, 255;
-}
-
-.dark {
-  --card-bg-rgb: 30, 30, 30;
-}
-
-.moon {
-  --card-bg-rgb: 30, 41, 59;
-}
-
-.emerald {
-  --card-bg-rgb: 4, 120, 87;
-}
-
-.ruby {
-  --card-bg-rgb: 157, 23, 77;
-}
-
-.diamond {
-  --card-bg-rgb: 186, 230, 253;
-}
-
-.crazy {
-  --card-bg-rgb: 255, 237, 213;
-}
-
-/* Adjust header z-index */
-header {
-  z-index: 1000; /* Above particles but below modals */
-}
-
-/* Make sure content containers don't block particles */
-main, 
-.container, 
+/* Make containers transparent (so particles show through) */
+.container,
 .settings-section {
-  position: relative;
-  background: transparent;
+  background-color: transparent !important;
+  position: relative; /* Ensures proper stacking */
 }
 
-/* Form elements should remain opaque */
-.form-group, 
-.form-input, 
-.form-select, 
-.btn, 
-.theme-btn, 
-.toggle-switch {
-  background-color: var(--card-bg) !important;
+/* Header should stay above particles */
+header {
+  z-index: 100; /* Higher than particles */
 }
 
-/* Modal should be above particles */
-.modal {
-  z-index: 2000;
-}
-
-/* Adjust sidebar z-index */
+/* Sidebar should stay above particles */
 .sidebar {
-  z-index: 1500;
+  z-index: 100;
 }
 
-/* Particle settings visibility */
-#particle-settings {
-  background: rgba(var(--card-bg-rgb), 0.9);
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+/* Modal should stay on top of everything */
+.modal {
+  z-index: 1000;
+}
+
+/* Ensure form elements are still visible (opaque) */
+.form-group,
+.form-input,
+.form-select,
+.key-input,
+.btn,
+.theme-btn,
+.toggle-switch,
+.toggle-slider {
+  background-color: var(--card-bg) !important;
+  position: relative; /* Ensures they stay above particles */
+}
+
+/* Optional: Slightly transparent card backgrounds for a modern look */
+.settings-section {
+  background-color: rgba(var(--card-bg-rgb), 0.9) !important;
+  backdrop-filter: blur(5px);
 }
