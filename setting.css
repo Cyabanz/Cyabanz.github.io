@@ -16,6 +16,9 @@
   --border: #e9ecef;
   --gray: #adb5bd;
   --gray-light: #e9ecef;
+  
+  /* New RGB values for transparency */
+  --card-bg-rgb: 255, 255, 255;
 }
 
 /* Dark Theme */
@@ -27,6 +30,7 @@
   --border: #333333;
   --gray: #555555;
   --gray-light: #333333;
+  --card-bg-rgb: 30, 30, 30;
 }
 
 /* Moon Theme */
@@ -38,6 +42,7 @@
   --border: #334155;
   --gray: #64748b;
   --gray-light: #334155;
+  --card-bg-rgb: 30, 41, 59;
 }
 
 /* Emerald Theme */
@@ -49,6 +54,7 @@
   --border: #059669;
   --gray: #34d399;
   --gray-light: #059669;
+  --card-bg-rgb: 4, 120, 87;
 }
 
 /* Ruby Theme */
@@ -60,6 +66,7 @@
   --border: #be185d;
   --gray: #ec4899;
   --gray-light: #be185d;
+  --card-bg-rgb: 157, 23, 77;
 }
 
 /* Diamond Theme */
@@ -71,6 +78,7 @@
   --border: #7dd3fc;
   --gray: #38bdf8;
   --gray-light: #7dd3fc;
+  --card-bg-rgb: 186, 230, 253;
 }
 
 /* Crazy Theme */
@@ -82,9 +90,56 @@
   --border: #fdba74;
   --gray: #fb923c;
   --gray-light: #fdba74;
+  --card-bg-rgb: 255, 237, 213;
 }
 
-/* Base Styles */
+/* Particle Canvas Adjustments */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5; /* Above containers but below interactive elements */
+}
+
+/* Container Transparency */
+.container {
+  background-color: rgba(var(--card-bg-rgb), 0.92) !important;
+  backdrop-filter: blur(4px);
+}
+
+.settings-section {
+  background-color: rgba(var(--card-bg-rgb), 0.92) !important;
+  backdrop-filter: blur(4px);
+}
+
+/* Keep form elements solid */
+.form-group,
+.form-input,
+.form-select,
+.key-input,
+.btn,
+.toggle-switch,
+.theme-btn {
+  background-color: var(--card-bg) !important;
+}
+
+/* Z-index hierarchy */
+header {
+  z-index: 10;
+}
+
+.sidebar {
+  z-index: 15;
+}
+
+.modal {
+  z-index: 100;
+}
+
+/* Rest of your existing CSS below */
 * {
   margin: 0;
   padding: 0;
