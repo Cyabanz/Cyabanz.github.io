@@ -11,92 +11,148 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <style>
-        /* Login prompt styling */
-        .login-prompt {
-            text-align: center;
+        /* Login Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
             padding: 2rem;
-            max-width: 500px;
-            margin: 2rem auto;
-            background: rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            text-align: center;
         }
-        
-        .login-prompt i {
-            font-size: 3rem;
-            color: #4361ee;
+
+        .modal-content h3 {
             margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
-        
-        .login-prompt h2 {
-            margin-bottom: 1rem;
-            color: white;
-        }
-        
-        .login-prompt p {
-            color: rgba(255, 255, 255, 0.8);
+
+        .modal-content p {
             margin-bottom: 1.5rem;
+            color: var(--gray);
         }
-        
-        .btn-glow {
-            background: #4361ee;
-            color: white;
-            border: none;
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
             padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            border: none;
+            border-radius: 12px;
             font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
         }
-        
-        .btn-glow:hover {
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
             transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(67, 97, 238, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        
-        /* Hide content when not logged in */
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+        }
+
+        /* Hide content when not authenticated */
         .auth-content {
             display: none;
         }
-        
+
         /* Show when authenticated */
         .authenticated .auth-content {
             display: block;
         }
-        
-        .authenticated .login-prompt {
-            display: none;
+
+        /* Theme variables for modal */
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --gray: #adb5bd;
+            --gray-light: #e9ecef;
+            --text: #1b263b;
+        }
+
+        .dark {
+            --card-bg: #1e1e1e;
+            --border: #333333;
+            --gray: #555555;
+            --gray-light: #333333;
+            --text: #f8f9fa;
         }
     </style>
 </head>
 <body>
-    <!-- Profile Header -->
-    <header>
-        <div class="user-info">
-            <span id="username-display">Guest</span>
-            <div id="profile-pic-container">
-                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3><i class='bx bx-lock-alt'></i> Sign In Required</h3>
+            <p>Please sign in to view and manage your favorite games</p>
+            <div class="modal-actions">
+                <button id="go-to-login" class="btn btn-primary">
+                    <i class='bx bxl-google'></i> Sign In
+                </button>
+                <button id="go-to-home" class="btn btn-secondary">
+                    <i class='bx bx-home'></i> Go Home
+                </button>
             </div>
         </div>
-    </header>
-
-    <!-- Login Prompt (shown when not authenticated) -->
-    <div class="login-prompt">
-        <i class='bx bx-lock-alt'></i>
-        <h2>Sign In Required</h2>
-        <p>Please sign in to view and manage your favorite games</p>
-        <button id="signInButton" class="btn-glow">
-            <i class='bx bxl-google'></i> Sign In with Google
-        </button>
     </div>
 
-    <!-- Authenticated Content (hidden by default) -->
+    <!-- Authenticated Content -->
     <div class="auth-content">
+        <!-- Profile Header -->
+        <header>
+            <div class="user-info">
+                <span id="username-display">User</span>
+                <div id="profile-pic-container">
+                    <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                </div>
+            </div>
+        </header>
+
         <div class="container">
             <!-- Favorite Games Section -->
             <div class="game-row">
@@ -124,36 +180,35 @@
                 </a>
             </div>
         </div>
+
+        <!-- Hamburger Menu -->
+        <button class="hamburger">
+            <i class='bx bx-menu'></i>
+        </button>
+
+        <!-- Vertical Navbar -->
+        <nav class="navbar closed">
+            <div class="nav-container">
+                <a href="games.html" class="nav-link" data-glow-color="#4fc3f7">
+                    <i class='bx bx-home'></i>
+                </a>
+                <a href="#" class="nav-link" data-glow-color="#ff6e40">
+                    <i class='bx bx-search'></i>
+                </a>
+                <a href="favorites.html" class="nav-link active" data-glow-color="#9575cd">
+                    <i class='bx bx-heart'></i>
+                </a>
+                <a href="profile.html" class="nav-link" data-glow-color="#64dd17">
+                    <i class='bx bx-user'></i>
+                </a>
+                <a href="#" class="nav-link" data-glow-color="#ffd600">
+                    <i class='bx bx-cog'></i>
+                </a>
+                <div class="glow-effect"></div>
+            </div>
+        </nav>
     </div>
 
-    <!-- Hamburger Menu -->
-    <button class="hamburger">
-        <i class='bx bx-menu'></i>
-    </button>
-
-    <!-- Vertical Navbar -->
-    <nav class="navbar closed">
-        <div class="nav-container">
-            <a href="games.html" class="nav-link" data-glow-color="#4fc3f7">
-                <i class='bx bx-home'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#ff6e40">
-                <i class='bx bx-search'></i>
-            </a>
-            <a href="favorites.html" class="nav-link active" data-glow-color="#9575cd">
-                <i class='bx bx-heart'></i>
-            </a>
-            <a href="profile.html" class="nav-link" data-glow-color="#64dd17">
-                <i class='bx bx-user'></i>
-            </a>
-            <a href="#" class="nav-link" data-glow-color="#ffd600">
-                <i class='bx bx-cog'></i>
-            </a>
-            <div class="glow-effect"></div>
-        </div>
-    </nav>
-
-    <script src="script.js"></script>
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -173,45 +228,56 @@
         const db = firebase.firestore();
 
         // DOM Elements
-        const loginPrompt = document.querySelector('.login-prompt');
+        const loginModal = document.getElementById('login-modal');
+        const goToLogin = document.getElementById('go-to-login');
+        const goToHome = document.getElementById('go-to-home');
         const authContent = document.querySelector('.auth-content');
-        const signInButton = document.getElementById('signInButton');
         const usernameDisplay = document.getElementById('username-display');
         const profilePic = document.getElementById('profile-pic');
         const favoritesContainer = document.getElementById('favoritesContainer');
         const noFavoritesMessage = document.querySelector('.no-favorites');
         const clearPinsBtn = document.querySelector('.clear-pins');
 
-        // Check auth state
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // User is signed in
-                document.body.classList.add('authenticated');
-                updateUIForUser(user);
-                loadFavorites(user.uid);
-            } else {
-                // User is signed out
-                document.body.classList.remove('authenticated');
-                usernameDisplay.textContent = 'Guest';
-                profilePic.src = 'https://via.placeholder.com/40';
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up auth state listener
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // User is signed in
+                    document.body.classList.add('authenticated');
+                    loginModal.classList.remove('active');
+                    updateUIForUser(user);
+                    loadFavorites(user.uid);
+                } else {
+                    // User is signed out
+                    document.body.classList.remove('authenticated');
+                    loginModal.classList.add('active');
+                    usernameDisplay.textContent = 'Guest';
+                    profilePic.src = 'https://via.placeholder.com/40';
+                }
+            });
+
+            // Set up event listeners
+            goToLogin.addEventListener('click', signInWithGoogle);
+            goToHome.addEventListener('click', () => window.location.href = 'index.html');
+
+            if (clearPinsBtn) {
+                clearPinsBtn.addEventListener('click', clearAllFavorites);
             }
         });
 
-        // Sign in handler
-        if (signInButton) {
-            signInButton.addEventListener('click', () => {
-                auth.signInWithPopup(provider)
-                    .then(result => {
-                        // Check if new user
-                        if (result.additionalUserInfo.isNewUser) {
-                            return createUserDocument(result.user);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Sign in error:', error);
-                        alert('Sign in failed: ' + error.message);
-                    });
-            });
+        // Sign in with Google
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    if (result.additionalUserInfo.isNewUser) {
+                        return createUserDocument(result.user);
+                    }
+                })
+                .catch(error => {
+                    console.error('Sign in error:', error);
+                    alert('Sign in failed: ' + error.message);
+                });
         }
 
         // Update UI for authenticated user
@@ -247,33 +313,9 @@
 
                     querySnapshot.forEach(doc => {
                         const gameId = doc.data().gameId;
-                        // Here you would fetch the game details and create cards
-                        // This is just a placeholder - you'll need to implement
-                        // the actual game data fetching and card creation
-                        const gameCard = document.createElement('div');
-                        gameCard.className = 'favorite-game-wrapper';
-                        gameCard.innerHTML = `
-                            <div class="favorite-game-card">
-                                <a href="#" class="game-link">
-                                    <div class="thumbnail-container">
-                                        <img src="https://via.placeholder.com/300x200" alt="Game thumbnail" class="game-thumbnail">
-                                    </div>
-                                    <h4 class="game-title">Game ${gameId}</h4>
-                                </a>
-                            </div>
-                            <button class="remove-favorite-btn" title="Remove from favorites" data-game-id="${gameId}">
-                                <i class='bx bx-x'></i>
-                            </button>
-                        `;
+                        // In a real implementation, you would fetch game details here
+                        const gameCard = createFavoriteGameCard(gameId);
                         favoritesContainer.appendChild(gameCard);
-                    });
-
-                    // Add event listeners to remove buttons
-                    document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const gameId = this.getAttribute('data-game-id');
-                            removeFavorite(userId, gameId);
-                        });
                     });
                 })
                 .catch(error => {
@@ -281,11 +323,42 @@
                 });
         }
 
-        // Remove a favorite
-        function removeFavorite(userId, gameId) {
+        // Create a favorite game card (placeholder implementation)
+        function createFavoriteGameCard(gameId) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'favorite-game-wrapper';
+            
+            wrapper.innerHTML = `
+                <div class="favorite-game-card">
+                    <a href="#" class="game-link">
+                        <div class="thumbnail-container">
+                            <img src="https://via.placeholder.com/300x200" alt="Game thumbnail" class="game-thumbnail">
+                        </div>
+                        <h4 class="game-title">Game ${gameId}</h4>
+                    </a>
+                </div>
+                <button class="remove-favorite-btn" title="Remove from favorites" data-game-id="${gameId}">
+                    <i class='bx bx-x'></i>
+                </button>
+            `;
+
+            // Add click handler for remove button
+            wrapper.querySelector('.remove-favorite-btn').addEventListener('click', function() {
+                removeFavorite(auth.currentUser.uid, gameId, wrapper);
+            });
+
+            return wrapper;
+        }
+
+        // Remove a favorite game
+        function removeFavorite(userId, gameId, element) {
             db.collection('users').doc(userId).collection('favorites').doc(String(gameId)).delete()
                 .then(() => {
-                    loadFavorites(userId); // Refresh the list
+                    element.remove();
+                    // Show no favorites message if container is empty
+                    if (favoritesContainer.children.length === 0) {
+                        noFavoritesMessage.style.display = 'block';
+                    }
                 })
                 .catch(error => {
                     console.error('Error removing favorite:', error);
@@ -293,406 +366,29 @@
         }
 
         // Clear all favorites
-        if (clearPinsBtn) {
-            clearPinsBtn.addEventListener('click', () => {
-                if (!auth.currentUser) return;
+        function clearAllFavorites() {
+            if (!auth.currentUser) return;
+            
+            if (confirm('Are you sure you want to clear all favorite games?')) {
+                const userId = auth.currentUser.uid;
+                const batch = db.batch();
                 
-                if (confirm('Are you sure you want to clear all favorites?')) {
-                    const userId = auth.currentUser.uid;
-                    const batch = db.batch();
-                    
-                    db.collection('users').doc(userId).collection('favorites').get()
-                        .then(querySnapshot => {
-                            querySnapshot.forEach(doc => {
-                                batch.delete(doc.ref);
-                            });
-                            return batch.commit();
-                        })
-                        .then(() => {
-                            loadFavorites(userId);
-                        })
-                        .catch(error => {
-                            console.error('Error clearing favorites:', error);
+                db.collection('users').doc(userId).collection('favorites').get()
+                    .then(querySnapshot => {
+                        querySnapshot.forEach(doc => {
+                            batch.delete(doc.ref);
                         });
-                }
-            });
+                        return batch.commit();
+                    })
+                    .then(() => {
+                        favoritesContainer.innerHTML = '';
+                        noFavoritesMessage.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error clearing favorites:', error);
+                    });
+            }
         }
     </script>
 </body>
 </html>
-
-    <!-- Theme & Particles Sync System -->
-    <script>
-        // Global variables
-        let particles = [];
-        let particleCanvas;
-        let particleCtx;
-        
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', function() {
-            applySavedSettings();
-            setupStorageListener();
-            setupPanicKey();
-        });
-        
-        function applySavedSettings() {
-            // Theme
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.body.classList.add(savedTheme);
-            }
-            
-            // Particles
-            if (localStorage.getItem('particlesEnabled') === 'true') {
-                initParticles();
-            }
-            
-            // Background Image
-            const bgImage = localStorage.getItem('backgroundImage');
-            if (bgImage) {
-                applyBackgroundImage(bgImage);
-            }
-        }
-        
-        function setupStorageListener() {
-            window.addEventListener('storage', function(event) {
-                // Theme changed
-                if (event.key === 'theme') {
-                    // Remove all theme classes first
-                    document.body.className = '';
-                    // Apply new theme if exists
-                    if (event.newValue) {
-                        document.body.classList.add(event.newValue);
-                    }
-                }
-                // Particles enabled/disabled
-                else if (event.key === 'particlesEnabled') {
-                    if (event.newValue === 'true') {
-                        initParticles();
-                    } else {
-                        destroyParticles();
-                    }
-                }
-                // Particle settings changed
-                else if (event.key && event.key.startsWith('particle')) {
-                    updateParticles();
-                }
-                // Background image changed
-                else if (event.key === 'backgroundImage') {
-                    if (event.newValue) {
-                        applyBackgroundImage(event.newValue);
-                    } else {
-                        document.body.style.backgroundImage = 'none';
-                    }
-                }
-                // All settings cleared
-                else if (event.key === null && event.newValue === null) {
-                    handleFullReset();
-                }
-            });
-        }
-        
-        function setupPanicKey() {
-            const panicKey = localStorage.getItem('panicKey');
-            const panicUrl = localStorage.getItem('panicUrl');
-            
-            if (panicKey && panicUrl) {
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === panicKey) {
-                        window.location.href = panicUrl;
-                    }
-                });
-            }
-        }
-        
-        function handleFullReset() {
-            // Reset theme
-            document.body.className = '';
-            
-            // Reset particles
-            destroyParticles();
-            
-            // Reset background
-            document.body.style.backgroundImage = 'none';
-            
-            // Reset any other visual settings as needed
-        }
-        
-        function applyBackgroundImage(url) {
-            document.body.style.backgroundImage = `url(${url})`;
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center';
-            document.body.style.backgroundAttachment = 'fixed';
-        }
-
-        /* Particle System Functions */
-        function initParticles() {
-            if (particleCanvas) return;
-            
-            particleCanvas = document.createElement('canvas');
-            particleCanvas.id = 'particle-canvas';
-            document.body.appendChild(particleCanvas);
-            
-            particleCtx = particleCanvas.getContext('2d');
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            
-            createParticles();
-            animateParticles();
-        }
-        
-        function resizeCanvas() {
-            if (particleCanvas) {
-                particleCanvas.width = window.innerWidth;
-                particleCanvas.height = window.innerHeight;
-            }
-        }
-        
-        function createParticles() {
-            const count = parseInt(localStorage.getItem('particleCount')) || 50;
-            const type = localStorage.getItem('particleType') || 'circle';
-            const colors = [
-                localStorage.getItem('particle-color-1') || '#4361ee',
-                localStorage.getItem('particle-color-2') || '#f72585',
-                localStorage.getItem('particle-color-3') || '#4cc9f0'
-            ];
-            const speed = parseInt(localStorage.getItem('particleSpeed')) || 3;
-            
-            particles = [];
-            
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: Math.random() * particleCanvas.width,
-                    y: Math.random() * particleCanvas.height,
-                    size: Math.random() * 5 + 2,
-                    speedX: (Math.random() - 0.5) * speed,
-                    speedY: (Math.random() - 0.5) * speed,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    type: type
-                });
-            }
-        }
-        
-        function animateParticles() {
-            if (!particleCanvas) return;
-            
-            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-            
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                
-                // Update position
-                p.x += p.speedX;
-                p.y += p.speedY;
-                
-                // Bounce off edges
-                if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
-                if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
-                
-                // Draw particle
-                particleCtx.fillStyle = p.color;
-                
-                switch(p.type) {
-                    case 'star':
-                        drawStar(p.x, p.y, 5, p.size, p.size / 2);
-                        break;
-                    case 'triangle':
-                        drawTriangle(p.x, p.y, p.size);
-                        break;
-                    default: // circle
-                        particleCtx.beginPath();
-                        particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        particleCtx.fill();
-                }
-            }
-            
-            requestAnimationFrame(animateParticles);
-        }
-        
-        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
-            let rot = Math.PI / 2 * 3;
-            let x = cx;
-            let y = cy;
-            let step = Math.PI / spikes;
-            
-            particleCtx.beginPath();
-            particleCtx.moveTo(cx, cy - outerRadius);
-            
-            for (let i = 0; i < spikes; i++) {
-                x = cx + Math.cos(rot) * outerRadius;
-                y = cy + Math.sin(rot) * outerRadius;
-                particleCtx.lineTo(x, y);
-                rot += step;
-                
-                x = cx + Math.cos(rot) * innerRadius;
-                y = cy + Math.sin(rot) * innerRadius;
-                particleCtx.lineTo(x, y);
-                rot += step;
-            }
-            
-            particleCtx.lineTo(cx, cy - outerRadius);
-            particleCtx.closePath();
-            particleCtx.fill();
-        }
-        
-        function drawTriangle(x, y, size) {
-            particleCtx.beginPath();
-            particleCtx.moveTo(x, y - size);
-            particleCtx.lineTo(x + size, y + size);
-            particleCtx.lineTo(x - size, y + size);
-            particleCtx.closePath();
-            particleCtx.fill();
-        }
-        
-        function updateParticles() {
-            destroyParticles();
-            if (localStorage.getItem('particlesEnabled') === 'true') {
-                initParticles();
-            }
-        }
-        
-        function destroyParticles() {
-            if (particleCanvas) {
-                particleCanvas.remove();
-                particleCanvas = null;
-                particleCtx = null;
-                window.removeEventListener('resize', resizeCanvas);
-            }
-        }
-    </script>
-
-    <!-- Theme Styles -->
-    <style>
-        /* Light Theme (default) */
-        :root {
-            --text: #1b263b;
-            --text-inverse: #f8f9fa;
-            --background: #f5f7ff;
-            --card-bg: #ffffff;
-            --border: #e9ecef;
-            --gray: #adb5bd;
-            --gray-light: #e9ecef;
-        }
-
-        /* Dark Theme */
-        .dark {
-            --text: #f8f9fa;
-            --text-inverse: #1b263b;
-            --background: #121212;
-            --card-bg: #1e1e1e;
-            --border: #333333;
-            --gray: #555555;
-            --gray-light: #333333;
-        }
-
-        /* Moon Theme */
-        .moon {
-            --text: #e2e8f0;
-            --text-inverse: #0f172a;
-            --background: #0f172a;
-            --card-bg: #1e293b;
-            --border: #334155;
-            --gray: #64748b;
-            --gray-light: #334155;
-        }
-
-        /* Emerald Theme */
-        .emerald {
-            --text: #a7f3d0;
-            --text-inverse: #064e3b;
-            --background: #064e3b;
-            --card-bg: #047857;
-            --border: #059669;
-            --gray: #34d399;
-            --gray-light: #059669;
-        }
-
-        /* Ruby Theme */
-        .ruby {
-            --text: #fbcfe8;
-            --text-inverse: #831843;
-            --background: #831843;
-            --card-bg: #9d174d;
-            --border: #be185d;
-            --gray: #ec4899;
-            --gray-light: #be185d;
-        }
-
-        /* Diamond Theme */
-        .diamond {
-            --text: #082f49;
-            --text-inverse: #bae6fd;
-            --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
-            --card-bg: #bae6fd;
-            --border: #7dd3fc;
-            --gray: #38bdf8;
-            --gray-light: #7dd3fc;
-        }
-
-        /* Crazy Theme */
-        .crazy {
-            --text: #2b0504;
-            --text-inverse: #ffedd5;
-            --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
-            --card-bg: #ffedd5;
-            --border: #fdba74;
-            --gray: #fb923c;
-            --gray-light: #fdba74;
-        }
-        
-        /* Base Styles */
-        body {
-            background: var(--background);
-            color: var(--text);
-            transition: background 0.3s ease, color 0.3s ease;
-            min-height: 100vh;
-        }
-        
-        .game-card, .tab-btn, .search-container input {
-            background: var(--card-bg);
-            color: var(--text);
-            border-color: var(--border);
-        }
-        
-        .game-card:hover {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-        }
-        
-        .dark .game-card:hover,
-        .moon .game-card:hover,
-        .emerald .game-card:hover,
-        .ruby .game-card:hover {
-            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
-        }
-        
-        .row-title {
-            color: var(--text);
-        }
-        
-        .sidebar {
-            background: var(--card-bg);
-            border-color: var(--border);
-        }
-        
-        .navbar {
-            background: var(--card-bg);
-        }
-        
-        /* Particle Canvas */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        /* Background Image */
-        body[style*="background-image"] {
-            background-color: transparent !important;
-        }
-    </style>
-</head>
-<body>
