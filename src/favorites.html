@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <!-- Include your main script file -->
+    <script src="script.js"></script>
     <style>
         /* Login Modal Styling */
         .modal {
@@ -102,6 +104,130 @@
         /* Show when authenticated */
         .authenticated .auth-content {
             display: block;
+        }
+
+        /* Favorite games styling */
+        .favorite-game-wrapper {
+            position: relative;
+            margin: 0.5rem;
+        }
+
+        .favorite-game-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            width: 180px;
+        }
+
+        .favorite-game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            overflow: hidden;
+        }
+
+        .game-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .favorite-game-card:hover .game-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .game-title {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .remove-favorite-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ff4757;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .remove-favorite-btn:hover {
+            transform: scale(1.1);
+            background: #ff6b81;
+        }
+
+        .remove-favorite-btn i {
+            font-size: 1rem;
+        }
+
+        .no-favorites {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+        }
+
+        .no-favorites i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .no-favorites h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .horizontal-game-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .row-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .clear-pins {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .clear-pins:hover {
+            color: var(--primary);
         }
 
         /* Theme variables for modal */
@@ -313,9 +439,11 @@
 
                     querySnapshot.forEach(doc => {
                         const gameId = doc.data().gameId;
-                        // In a real implementation, you would fetch game details here
+                        // Now we'll create a proper game card with all details
                         const gameCard = createFavoriteGameCard(gameId);
-                        favoritesContainer.appendChild(gameCard);
+                        if (gameCard) {
+                            favoritesContainer.appendChild(gameCard);
+                        }
                     });
                 })
                 .catch(error => {
@@ -323,18 +451,26 @@
                 });
         }
 
-        // Create a favorite game card (placeholder implementation)
+        // Create a favorite game card with full details
         function createFavoriteGameCard(gameId) {
+            // Find the game in the gamesData array from script.js
+            const game = findGameById(gameId);
+            if (!game) {
+                console.warn(`Game with ID ${gameId} not found`);
+                return null;
+            }
+
             const wrapper = document.createElement('div');
             wrapper.className = 'favorite-game-wrapper';
             
             wrapper.innerHTML = `
                 <div class="favorite-game-card">
-                    <a href="#" class="game-link">
+                    <a href="${game.url}" class="game-link">
                         <div class="thumbnail-container">
-                            <img src="https://via.placeholder.com/300x200" alt="Game thumbnail" class="game-thumbnail">
+                            ${game.banner ? createBannerElement(game.banner) : ''}
+                            <img src="${game.staticImg}" alt="${game.title}" class="game-thumbnail">
                         </div>
-                        <h4 class="game-title">Game ${gameId}</h4>
+                        <h4 class="game-title">${game.title}</h4>
                     </a>
                 </div>
                 <button class="remove-favorite-btn" title="Remove from favorites" data-game-id="${gameId}">
@@ -348,6 +484,40 @@
             });
 
             return wrapper;
+        }
+
+        // Helper function to find game by ID
+        function findGameById(id) {
+            // This assumes gamesData is available from script.js
+            if (typeof gamesData === 'undefined') {
+                console.error('gamesData not loaded');
+                return null;
+            }
+
+            // Search through all categories for the game
+            for (const category of gamesData) {
+                const foundGame = category.games.find(game => game.id === id);
+                if (foundGame) return foundGame;
+            }
+            return null;
+        }
+
+        // Helper function to create banner element
+        function createBannerElement(bannerType) {
+            const icons = {
+                hot: 'bx bx-hot',
+                new: 'bx bx-star',
+                popular: 'bx bx-trending-up'
+            };
+            
+            const iconClass = icons[bannerType] || 'bx bx-info-circle';
+            
+            return `
+                <div class="ribbon ${bannerType} ${bannerType === 'hot' ? 'pulse' : ''}">
+                    <i class='${iconClass}'></i>
+                    ${bannerType.toUpperCase()}
+                </div>
+            `;
         }
 
         // Remove a favorite game
