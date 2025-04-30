@@ -12,62 +12,116 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     
-    <!-- Theme & Particles Sync System -->
+       <!-- Settings Sync Script -->
     <script>
         // Global variables
         let particles = [];
         let particleCanvas;
         let particleCtx;
+        let currentUser = null;
+        let settingsUnsubscribe = null;
         
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
-            applySavedSettings();
+            // Set up auth state listener
+            auth.onAuthStateChanged(handleAuthStateChange);
+            
+            // Apply any local settings immediately
+            applyLocalSettings();
+            
+            // Set up storage listener for cross-tab sync
             setupStorageListener();
+            
+            // Set up panic key if exists
             setupPanicKey();
         });
         
-        function applySavedSettings() {
-            // Theme
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.body.classList.add(savedTheme);
+        function handleAuthStateChange(user) {
+            currentUser = user;
+            
+            if (user) {
+                // User is signed in - listen to Firestore settings
+                listenToUserSettings(user.uid);
+            } else {
+                // User is signed out - stop listening to Firestore
+                if (settingsUnsubscribe) {
+                    settingsUnsubscribe();
+                    settingsUnsubscribe = null;
+                }
+                
+                // Just use local settings
+                applyLocalSettings();
+            }
+        }
+        
+        function listenToUserSettings(userId) {
+            // Stop any existing listener
+            if (settingsUnsubscribe) {
+                settingsUnsubscribe();
             }
             
-            // Particles
-            if (localStorage.getItem('particlesEnabled') === 'true') {
+            // Start listening to Firestore settings
+            settingsUnsubscribe = db.collection('users').doc(userId).onSnapshot(doc => {
+                if (doc.exists) {
+                    const settings = doc.data().settings || {};
+                    applySettings(settings);
+                    
+                    // Also save to localStorage for offline use
+                    saveSettingsToLocalStorage(settings);
+                }
+            }, error => {
+                console.error('Error listening to settings:', error);
+                // Fall back to local settings if Firestore fails
+                applyLocalSettings();
+            });
+        }
+        
+        function applySettings(settings) {
+            // Apply theme
+            applyTheme(settings.theme || '');
+            
+            // Apply background image
+            if (settings.backgroundImage) {
+                applyBackgroundImage(settings.backgroundImage);
+            } else {
+                document.body.style.backgroundImage = 'none';
+            }
+            
+            // Apply particle effects
+            if (settings.particlesEnabled === true || settings.particlesEnabled === 'true') {
                 initParticles();
+            } else {
+                destroyParticles();
             }
             
-            // Background Image
-            const bgImage = localStorage.getItem('backgroundImage');
-            if (bgImage) {
-                applyBackgroundImage(bgImage);
-            }
+            // Apply other settings as needed...
+        }
+        
+        function applyLocalSettings() {
+            const settings = {
+                theme: localStorage.getItem('theme') || '',
+                backgroundImage: localStorage.getItem('backgroundImage') || '',
+                particlesEnabled: localStorage.getItem('particlesEnabled') || false
+                // Add other settings as needed
+            };
+            
+            applySettings(settings);
+        }
+        
+        function saveSettingsToLocalStorage(settings) {
+            if (settings.theme) localStorage.setItem('theme', settings.theme);
+            if (settings.backgroundImage) localStorage.setItem('backgroundImage', settings.backgroundImage);
+            if (settings.particlesEnabled) localStorage.setItem('particlesEnabled', settings.particlesEnabled);
+            // Save other settings as needed
         }
         
         function setupStorageListener() {
             window.addEventListener('storage', function(event) {
                 // Theme changed
                 if (event.key === 'theme') {
-                    // Remove all theme classes first
-                    document.body.className = '';
-                    // Apply new theme if exists
-                    if (event.newValue) {
-                        document.body.classList.add(event.newValue);
-                    }
+                    applyTheme(event.newValue || '');
                 }
-                // Particles enabled/disabled
-                else if (event.key === 'particlesEnabled') {
-                    if (event.newValue === 'true') {
-                        initParticles();
-                    } else {
-                        destroyParticles();
-                    }
-                }
-                // Particle settings changed
-                else if (event.key && event.key.startsWith('particle')) {
-                    updateParticles();
-                }
+                
                 // Background image changed
                 else if (event.key === 'backgroundImage') {
                     if (event.newValue) {
@@ -76,9 +130,22 @@
                         document.body.style.backgroundImage = 'none';
                     }
                 }
+                
+                // Particles enabled/disabled
+                else if (event.key === 'particlesEnabled') {
+                    if (event.newValue === 'true') {
+                        initParticles();
+                    } else {
+                        destroyParticles();
+                    }
+                }
+                
                 // All settings cleared
                 else if (event.key === null && event.newValue === null) {
-                    handleFullReset();
+                    // Reset to defaults
+                    applyTheme('');
+                    document.body.style.backgroundImage = 'none';
+                    destroyParticles();
                 }
             });
         }
@@ -96,17 +163,11 @@
             }
         }
         
-        function handleFullReset() {
-            // Reset theme
+        function applyTheme(theme) {
             document.body.className = '';
-            
-            // Reset particles
-            destroyParticles();
-            
-            // Reset background
-            document.body.style.backgroundImage = 'none';
-            
-            // Reset any other visual settings as needed
+            if (theme) {
+                document.body.classList.add(theme);
+            }
         }
         
         function applyBackgroundImage(url) {
@@ -115,8 +176,8 @@
             document.body.style.backgroundPosition = 'center';
             document.body.style.backgroundAttachment = 'fixed';
         }
-
-        /* Particle System Functions */
+        
+        /* Particle System Functions (same as before) */
         function initParticles() {
             if (particleCanvas) return;
             
@@ -172,15 +233,12 @@
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
                 
-                // Update position
                 p.x += p.speedX;
                 p.y += p.speedY;
                 
-                // Bounce off edges
                 if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
                 if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
                 
-                // Draw particle
                 particleCtx.fillStyle = p.color;
                 
                 switch(p.type) {
@@ -190,7 +248,7 @@
                     case 'triangle':
                         drawTriangle(p.x, p.y, p.size);
                         break;
-                    default: // circle
+                    default:
                         particleCtx.beginPath();
                         particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                         particleCtx.fill();
@@ -235,13 +293,6 @@
             particleCtx.fill();
         }
         
-        function updateParticles() {
-            destroyParticles();
-            if (localStorage.getItem('particlesEnabled') === 'true') {
-                initParticles();
-            }
-        }
-        
         function destroyParticles() {
             if (particleCanvas) {
                 particleCanvas.remove();
@@ -252,7 +303,7 @@
         }
     </script>
 
-    <!-- Theme Styles -->
+    <!-- Theme Styles (same as before) -->
     <style>
         /* Light Theme (default) */
         :root {
@@ -385,8 +436,7 @@
             background-color: transparent !important;
         }
     </style>
-</head>
-<body>
+    
     <!-- Auth Container (will be populated by JavaScript) -->
     <div id="auth-container" class="auth-container"></div>
 
