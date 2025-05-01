@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - CrazyGames Clone</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <style>
+        /* Theme variables from settings.css */
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --text: #1b263b;
+            --text-inverse: #f8f9fa;
+            --background: #f5f7ff;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --gray: #adb5bd;
+            --gray-light: #e9ecef;
+        }
+
+        /* Dark Theme */
+        .dark {
+            --text: #f8f9fa;
+            --text-inverse: #1b263b;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --border: #333333;
+            --gray: #555555;
+            --gray-light: #333333;
+        }
+
+        /* Moon Theme */
+        .moon {
+            --text: #e2e8f0;
+            --text-inverse: #0f172a;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --gray: #64748b;
+            --gray-light: #334155;
+        }
+
+        /* Emerald Theme */
+        .emerald {
+            --text: #a7f3d0;
+            --text-inverse: #064e3b;
+            --background: #064e3b;
+            --card-bg: #047857;
+            --border: #059669;
+            --gray: #34d399;
+            --gray-light: #059669;
+        }
+
+        /* Ruby Theme */
+        .ruby {
+            --text: #fbcfe8;
+            --text-inverse: #831843;
+            --background: #831843;
+            --card-bg: #9d174d;
+            --border: #be185d;
+            --gray: #ec4899;
+            --gray-light: #be185d;
+        }
+
+        /* Diamond Theme */
+        .diamond {
+            --text: #082f49;
+            --text-inverse: #bae6fd;
+            --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+            --card-bg: #bae6fd;
+            --border: #7dd3fc;
+            --gray: #38bdf8;
+            --gray-light: #7dd3fc;
+        }
+
+        /* Crazy Theme */
+        .crazy {
+            --text: #2b0504;
+            --text-inverse: #ffedd5;
+            --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+            --card-bg: #ffedd5;
+            --border: #fdba74;
+            --gray: #fb923c;
+            --gray-light: #fdba74;
+        }
+
+        /* Apply theme variables to index.html elements */
+        body {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .container {
+            background: var(--card-bg);
+            border-color: var(--border);
+        }
+
+        .game-row, .search-container, .category-tabs {
+            background: var(--card-bg);
+            border-color: var(--border);
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-color: var(--border);
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            border-color: var(--border);
+        }
+
+        .nav-link {
+            color: var(--text);
+        }
+
+        /* Particle canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Container (will be populated by JavaScript) -->
+    <div id="auth-container" class="auth-container"></div>
+
+    <!-- Particle canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="container">
+        <!-- Pinned Games Row (initially hidden) -->
+        <div class="game-row pinned-games-row" style="display: none;">
+            <h3 class="row-title">
+                <i class='bx bxs-bookmark-alt'></i> Favorite Games
+                <span class="clear-pins" title="Clear all favorite games">
+                    <i class='bx bx-trash'></i>
+                </span>
+            </h3>
+            <div class="game-scroll-container">
+                <div class="horizontal-game-grid" id="pinnedGamesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class='bx bx-search'></i>
+            <input type="text" id="searchInput" placeholder="Search games...">
+        </div>
+
+        <!-- Horizontal Category Tabs -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all">
+                <i class='bx bx-game'></i> All Games
+            </button>
+            <button class="tab-btn" data-category="action">
+                <i class='bx bx-run'></i> Action
+            </button>
+            <button class="tab-btn" data-category="puzzle">
+                <i class='bx bx-puzzle'></i> Puzzle
+            </button>
+            <button class="tab-btn" data-category="sports">
+                <i class='bx bx-football'></i> Sports
+            </button>
+            <button class="tab-btn" data-category="io">
+                <i class='bx bx-globe'></i> .IO
+            </button>
+            <button class="tab-btn" data-category="settings" onclick="window.location.href='settings.html'">
+                <i class='bx bx-cog'></i> Settings
+            </button>
+        </div>
+
+        <!-- Game Rows Container -->
+        <div class="games-rows-container" id="gamesContainer">
+            <!-- Rows will be generated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Hamburger Menu -->
+    <button class="hamburger">
+        <i class='bx bx-menu'></i>
+    </button>
+
+    <!-- Vertical Navbar -->
+    <nav class="navbar closed">
+        <div class="nav-container">
+            <a href="#" class="nav-link" data-glow-color="#4fc3f7">
+                <i class='bx bx-home'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ff6e40">
+                <i class='bx bx-search'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#9575cd">
+                <i class='bx bx-heart'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#64dd17">
+                <i class='bx bx-user'></i>
+            </a>
+            <a href="settings.html" class="nav-link" data-glow-color="#ffd600">
+                <i class='bx bx-cog'></i>
+            </a>
+            <div class="glow-effect"></div>
+        </div>
+    </nav>
+
+    <script src="script.js"></script>
+    <script>
+        // Firebase Configuration (same as settings.js)
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Theme and settings management
+        let currentUser = null;
+        let particles = [];
+        let particleCanvas, particleCtx;
+        let activeTheme = '';
+
+        // Initialize settings when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            particleCanvas = document.getElementById('particle-canvas');
+            if (particleCanvas) {
+                particleCtx = particleCanvas.getContext('2d');
+            }
+
+            // Set up auth state listener
+            auth.onAuthStateChanged(function(user) {
+                currentUser = user;
+                if (user) {
+                    loadUserSettings(user.uid);
+                } else {
+                    // Apply default theme for guests
+                    applyTheme('light');
+                }
+            });
+        });
+
+        // Load user settings from Firestore
+        function loadUserSettings(userId) {
+            db.collection('users').doc(userId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const settings = doc.data().settings || {};
+                        applySettings(settings);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading settings:', error);
+                });
+        }
+
+        // Apply settings to the page
+        function applySettings(settings) {
+            // Apply theme
+            if (settings.theme) {
+                activeTheme = settings.theme;
+                applyTheme(settings.theme);
+            }
+
+            // Apply background image
+            if (settings.backgroundImage) {
+                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.className = '';
+                activeTheme = '';
+            }
+
+            // Apply particle effects
+            if (settings.particlesEnabled === true || settings.particlesEnabled === 'true') {
+                initParticles(
+                    settings.particleType || 'circle',
+                    parseInt(settings.particleCount) || 50,
+                    parseInt(settings.particleSpeed) || 3,
+                    [
+                        settings['particle-color-1'] || '#4361ee',
+                        settings['particle-color-2'] || '#f72585',
+                        settings['particle-color-3'] || '#4cc9f0'
+                    ]
+                );
+            } else {
+                destroyParticles();
+            }
+        }
+
+        // Apply theme
+        function applyTheme(theme) {
+            document.body.className = theme;
+            activeTheme = theme;
+            
+            // Remove background image when theme is applied
+            document.body.style.backgroundImage = 'none';
+        }
+
+        // Particle effects system
+        function initParticles(type = 'circle', count = 50, speed = 3, colors = ['#4361ee', '#f72585', '#4cc9f0']) {
+            if (!particleCanvas) return;
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            createParticles(type, count, speed, colors);
+            animateParticles();
+        }
+
+        function resizeCanvas() {
+            if (particleCanvas) {
+                particleCanvas.width = window.innerWidth;
+                particleCanvas.height = window.innerHeight;
+            }
+        }
+
+        function createParticles(type, count, speed, colors) {
+            particles = [];
+            
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * particleCanvas.width,
+                    y: Math.random() * particleCanvas.height,
+                    size: Math.random() * 5 + 2,
+                    speedX: (Math.random() - 0.5) * speed,
+                    speedY: (Math.random() - 0.5) * speed,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    type: type
+                });
+            }
+        }
+
+        function animateParticles() {
+            if (!particleCanvas) return;
+            
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                
+                p.x += p.speedX;
+                p.y += p.speedY;
+                
+                if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
+                
+                particleCtx.fillStyle = p.color;
+                
+                switch(p.type) {
+                    case 'star':
+                        drawStar(p.x, p.y, 5, p.size, p.size / 2);
+                        break;
+                    case 'triangle':
+                        drawTriangle(p.x, p.y, p.size);
+                        break;
+                    default:
+                        particleCtx.beginPath();
+                        particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        particleCtx.fill();
+                }
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+
+        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+            
+            particleCtx.beginPath();
+            particleCtx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+            }
+            
+            particleCtx.lineTo(cx, cy - outerRadius);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function drawTriangle(x, y, size) {
+            particleCtx.beginPath();
+            particleCtx.moveTo(x, y - size);
+            particleCtx.lineTo(x + size, y + size);
+            particleCtx.lineTo(x - size, y + size);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function destroyParticles() {
+            if (particleCanvas && particleCtx) {
+                particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+                window.removeEventListener('resize', resizeCanvas);
+            }
+        }
+    </script>
+</body>
+</html>
