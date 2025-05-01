@@ -1,14 +1,20 @@
-// DOM Elements
-const gamesContainer = document.getElementById('gamesContainer');
-const tabBtns = document.querySelectorAll('.tab-btn');
-const searchInput = document.getElementById('searchInput');
-const pinnedGamesContainer = document.getElementById('pinnedGamesContainer');
-const pinnedGamesRow = document.querySelector('.pinned-games-row');
-const clearPinsBtn = document.querySelector('.clear-pins');
-const hamburger = document.querySelector('.hamburger');
-const navbar = document.querySelector('.navbar');
-const navLinks = document.querySelectorAll('.nav-link');
-const glowEffect = document.querySelector('.glow-effect');
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+  authDomain: "fusioncya-cc20a.firebaseapp.com",
+  databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+  projectId: "fusioncya-cc20a",
+  storageBucket: "fusioncya-cc20a.appspot.com",
+  messagingSenderId: "765164293111",
+  appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+  measurementId: "G-4DT52P7MPB"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
 
 // Complete Game Data - All 60 Games Included
 const gamesData = [
@@ -567,48 +573,68 @@ const gamesData = [
     }
 ];
 
+// DOM Elements
+const gamesContainer = document.getElementById('gamesContainer');
+const tabBtns = document.querySelectorAll('.tab-btn');
+const searchInput = document.getElementById('searchInput');
+const pinnedGamesContainer = document.getElementById('pinnedGamesContainer');
+const pinnedGamesRow = document.querySelector('.pinned-games-row');
+const clearPinsBtn = document.querySelector('.clear-pins');
+const hamburger = document.querySelector('.hamburger');
+const navbar = document.querySelector('.navbar');
+const navLinks = document.querySelectorAll('.nav-link');
+const glowEffect = document.querySelector('.glow-effect');
+const favoritesContainer = document.getElementById('favoritesContainer');
+const signInButton = document.getElementById('signInButton');
+const signOutButton = document.getElementById('signOutButton');
+const usernameDisplay = document.getElementById('username-display');
+const profilePic = document.getElementById('profile-pic');
+const loginView = document.getElementById('login-view');
+const dashboardView = document.getElementById('dashboard-view');
+const dashboardUsername = document.getElementById('dashboard-username');
+const updateUsernameBtn = document.getElementById('update-username-btn');
+const newUsernameInput = document.getElementById('new-username');
+const profilePicUpload = document.getElementById('profile-pic-upload');
+const updateProfilePicBtn = document.getElementById('update-profile-pic-btn');
+const profilePicPreview = document.getElementById('profile-pic-preview');
+
 // State Management
 let currentCategory = 'all';
 let currentSearchTerm = '';
+let currentUser = null;
 let userFavorites = [];
 
 // Initialize Application
 function init() {
-    // Wait for Firebase to initialize (from the HTML script)
-    setTimeout(() => {
-        setupEventListeners();
-        setupNavbar();
-        renderAllGameRows();
-        
-        // Setup auth state listener using the existing Firebase auth from HTML
-        if (typeof auth !== 'undefined') {
-            auth.onAuthStateChanged(handleAuthStateChange);
+    setupEventListeners();
+    setupNavbar();
+    renderAllGameRows();
+    
+    // Set up auth state listener
+    auth.onAuthStateChanged(function(user) {
+        if (user) {
+            currentUser = user;
+            updateUIForUser(user);
+            loadUserData(user.uid);
+            loadUserFavorites(user.uid);
         } else {
-            console.warn('Firebase auth not initialized yet');
+            currentUser = null;
+            userFavorites = [];
+            updateUIForGuest();
         }
-    }, 500); // Small delay to ensure Firebase is initialized
-}
-
-function handleAuthStateChange(user) {
-    currentUser = user;
-    if (user) {
-        loadUserFavorites(user.uid);
-    } else {
-        userFavorites = [];
-        updateFavoritesUI();
-    }
+    });
 }
 
 // Load user favorites from Firestore
 function loadUserFavorites(userId) {
-    return db.collection('users').doc(userId).collection('favorites').get()
+    db.collection('users').doc(userId).collection('favorites').get()
         .then((querySnapshot) => {
             userFavorites = [];
             querySnapshot.forEach((doc) => {
                 userFavorites.push(doc.data().gameId);
             });
             updateFavoritesUI();
-            return userFavorites;
+            if (favoritesContainer) renderFavorites();
         })
         .catch((error) => {
             console.error('Error loading favorites:', error);
@@ -665,6 +691,79 @@ function updateFavoritesUI() {
     });
 }
 
+// Render favorites page
+function renderFavorites() {
+    if (!userFavorites.length) {
+        favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+        return;
+    }
+
+    favoritesContainer.innerHTML = '';
+    userFavorites.forEach(gameId => {
+        const game = findGameById(gameId);
+        if (game) {
+            const gameCard = createFavoriteGameCard(game);
+            favoritesContainer.appendChild(gameCard);
+        }
+    });
+}
+
+function createFavoriteGameCard(game) {
+    const card = document.createElement('div');
+    card.className = 'favorite-game-card';
+    card.dataset.id = game.id;
+    
+    card.innerHTML = `
+        <a href="${game.url}" class="game-link">
+            <div class="thumbnail-container">
+                ${game.banner ? createBannerElement(game.banner) : ''}
+                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+            </div>
+            <div class="game-title">${game.title}</div>
+        </a>
+        <button class="remove-favorite-btn">
+            <i class="bx bx-trash"></i>
+        </button>
+    `;
+    
+    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFavorite(game.id).then(() => {
+            card.remove();
+            if (!favoritesContainer.children.length) {
+                favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+            }
+        });
+    });
+    
+    return card;
+}
+
+// Toggle pin/favorite status of a game
+function togglePinGame(gameId, cardElement = null) {
+    toggleFavorite(gameId).then((isFavorite) => {
+        if (isFavorite === false && !currentUser) return;
+        
+        if (cardElement) {
+            if (isFavorite) {
+                cardElement.classList.add('pinned-highlight');
+                const btn = cardElement.querySelector('.pin-btn');
+                if (btn) {
+                    btn.classList.add('pinned');
+                    btn.innerHTML = '<i class="bx bxs-bookmark"></i>';
+                }
+            } else {
+                cardElement.classList.remove('pinned-highlight');
+                const btn = cardElement.querySelector('.pin-btn');
+                if (btn) {
+                    btn.classList.remove('pinned');
+                    btn.innerHTML = '<i class="bx bx-bookmark"></i>';
+                }
+            }
+        }
+    });
+}
+
 // Find game by ID across all categories
 function findGameById(id) {
     for (const row of gamesData) {
@@ -675,72 +774,50 @@ function findGameById(id) {
 }
 
 // Create a game card element
-function createGameCard(game) {
+function createGameCard(game, isPinned = false) {
     const card = document.createElement('div');
-    card.className = `game-card ${userFavorites.includes(game.id) ? 'pinned-highlight' : ''}`;
+    card.className = `game-card ${isPinned ? 'pinned-highlight' : ''}`;
     card.dataset.category = game.category;
     card.dataset.id = game.id;
     
+    const pinBtn = createPinButton(game.id, isPinned);
+    card.appendChild(pinBtn);
+    
+    card.innerHTML += `
+        <a href="${game.url}" class="game-link">
+            <div class="thumbnail-container">
+                ${game.banner ? createBannerElement(game.banner) : ''}
+                <img src="${game.staticImg}" class="game-thumbnail static" alt="${game.title}">
+                <img src="${game.gifImg}" class="game-thumbnail gif" alt="${game.title} GIF">
+            </div>
+            <div class="game-title">${game.title}</div>
+        </a>
+    `;
+    
+    return card;
+}
+
+// Create pin button element
+function createPinButton(gameId, isPinned = false) {
     const pinBtn = document.createElement('button');
-    pinBtn.className = `pin-btn ${userFavorites.includes(game.id) ? 'pinned' : ''}`;
-    pinBtn.innerHTML = `<i class="bx ${userFavorites.includes(game.id) ? 'bxs-bookmark' : 'bx-bookmark'}"></i>`;
+    pinBtn.className = `pin-btn ${isPinned ? 'pinned' : ''}`;
+    pinBtn.innerHTML = `<i class="bx ${isPinned ? 'bxs-bookmark' : 'bx-bookmark'}"></i>`;
     pinBtn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        toggleFavorite(game.id);
+        togglePinGame(gameId, pinBtn.closest('.game-card'));
     };
-    card.appendChild(pinBtn);
-    
-    const gameLink = document.createElement('a');
-    gameLink.href = game.url;
-    gameLink.className = 'game-link';
-    
-    const thumbnailContainer = document.createElement('div');
-    thumbnailContainer.className = 'thumbnail-container';
-    
-    if (game.banner) {
-        const banner = document.createElement('div');
-        banner.className = `ribbon ${game.banner} ${game.banner === 'hot' ? 'pulse' : ''}`;
-        const icon = document.createElement('i');
-        icon.className = getBannerIcon(game.banner);
-        banner.appendChild(icon);
-        banner.appendChild(document.createTextNode(game.banner.toUpperCase()));
-        thumbnailContainer.appendChild(banner);
-    }
-    
-    const staticImg = document.createElement('img');
-    staticImg.src = game.staticImg;
-    staticImg.className = 'game-thumbnail static';
-    staticImg.alt = game.title;
-    
-    const gifImg = document.createElement('img');
-    gifImg.src = game.gifImg;
-    gifImg.className = 'game-thumbnail gif';
-    gifImg.alt = `${game.title} GIF`;
-    
-    thumbnailContainer.appendChild(staticImg);
-    thumbnailContainer.appendChild(gifImg);
-    gameLink.appendChild(thumbnailContainer);
-    
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'game-title';
-    titleDiv.textContent = game.title;
-    gameLink.appendChild(titleDiv);
-    
-    card.appendChild(gameLink);
-    
-    // Hover effect for GIF
-    card.addEventListener('mouseenter', () => {
-        staticImg.style.display = 'none';
-        gifImg.style.display = 'block';
-    });
-    
-    card.addEventListener('mouseleave', () => {
-        gifImg.style.display = 'none';
-        staticImg.style.display = 'block';
-    });
-    
-    return card;
+    return pinBtn;
+}
+
+// Create banner element
+function createBannerElement(bannerType) {
+    return `
+        <div class="ribbon ${bannerType} ${bannerType === 'hot' ? 'pulse' : ''}">
+            <i class='${getBannerIcon(bannerType)}'></i>
+            ${bannerType.toUpperCase()}
+        </div>
+    `;
 }
 
 // Helper function to get banner icon
@@ -782,51 +859,91 @@ function renderAllGameRows(filterCategory = 'all', searchTerm = '') {
         
         // Only create row if there are games to show
         if (filteredGames.length > 0) {
-            const rowElement = document.createElement('div');
-            rowElement.className = 'game-row';
-            
-            const titleElement = document.createElement('h3');
-            titleElement.className = 'row-title';
-            titleElement.textContent = row.title;
-            rowElement.appendChild(titleElement);
-            
-            const scrollContainer = document.createElement('div');
-            scrollContainer.className = 'game-scroll-container';
-            
-            const gridContainer = document.createElement('div');
-            gridContainer.className = 'horizontal-game-grid';
-            gridContainer.id = row.id;
-            
-            filteredGames.forEach(game => {
-                gridContainer.appendChild(createGameCard(game));
-            });
-            
-            scrollContainer.appendChild(gridContainer);
-            rowElement.appendChild(scrollContainer);
-            gamesContainer.appendChild(rowElement);
+            const rowHTML = `
+                <div class="game-row">
+                    <h3 class="row-title">${row.title}</h3>
+                    <div class="game-scroll-container">
+                        <div class="horizontal-game-grid" id="${row.id}">
+                            ${generateGameCardsHTML(filteredGames)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            gamesContainer.insertAdjacentHTML('beforeend', rowHTML);
         }
+    });
+    
+    // Add event listeners to newly created game cards
+    addGameCardEventListeners();
+}
+
+// Generate HTML for game cards
+function generateGameCardsHTML(games) {
+    return games.map(game => `
+        <div class="game-card ${userFavorites.includes(game.id) ? 'pinned-highlight' : ''}" data-category="${game.category}" data-id="${game.id}">
+            <button class="pin-btn ${userFavorites.includes(game.id) ? 'pinned' : ''}">
+                <i class="bx ${userFavorites.includes(game.id) ? 'bxs-bookmark' : 'bx-bookmark'}"></i>
+            </button>
+            <a href="${game.url}" class="game-link">
+                <div class="thumbnail-container">
+                    ${game.banner ? createBannerElement(game.banner) : ''}
+                    <img src="${game.staticImg}" class="game-thumbnail static" alt="${game.title}">
+                    <img src="${game.gifImg}" class="game-thumbnail gif" alt="${game.title} GIF">
+                </div>
+                <div class="game-title">${game.title}</div>
+            </a>
+        </div>
+    `).join('');
+}
+
+// Add event listeners to game cards
+function addGameCardEventListeners() {
+    document.querySelectorAll('.pin-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const gameCard = this.closest('.game-card');
+            const gameId = parseInt(gameCard.dataset.id);
+            togglePinGame(gameId, gameCard);
+        });
     });
 }
 
 // Set up navbar functionality
 function setupNavbar() {
-    // Hamburger menu toggle
+    // Set initial active link
+    navLinks[0].classList.add('active');
+    updateGlowEffect(navLinks[0]);
+
+    // Toggle navbar visibility
     hamburger.addEventListener('click', function() {
         navbar.classList.toggle('closed');
+        
+        // Change hamburger icon
         const icon = this.querySelector('i');
-        icon.classList.toggle('bx-menu');
-        icon.classList.toggle('bx-menu-alt-right');
+        if (navbar.classList.contains('closed')) {
+            icon.classList.replace('bx-menu', 'bx-menu-alt-right');
+        } else {
+            icon.classList.replace('bx-menu-alt-right', 'bx-menu');
+        }
     });
 
-    // Nav link interactions
+    // Set up nav links
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
+            
+            // Remove active class from all links
             navLinks.forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked link
             this.classList.add('active');
+            
+            // Update glow effect
             updateGlowEffect(this);
         });
 
+        // Hover effect
         link.addEventListener('mouseenter', function() {
             if (!this.classList.contains('active')) {
                 updateGlowEffect(this, true);
@@ -840,17 +957,11 @@ function setupNavbar() {
             }
         });
     });
-
-    // Set initial active link
-    if (navLinks.length > 0) {
-        navLinks[0].classList.add('active');
-        updateGlowEffect(navLinks[0]);
-    }
 }
 
 // Update navbar glow effect
 function updateGlowEffect(element, isHover = false) {
-    if (!element || !glowEffect) return;
+    if (!element) return;
     
     const linkRect = element.getBoundingClientRect();
     const containerRect = element.parentElement.getBoundingClientRect();
@@ -866,28 +977,135 @@ function updateGlowEffect(element, isHover = false) {
 // Set up all event listeners
 function setupEventListeners() {
     // Category tabs
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const category = btn.dataset.category;
-            renderAllGameRows(category, searchInput.value);
+    if (tabBtns) {
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const category = btn.dataset.category;
+                renderAllGameRows(category, searchInput.value);
+            });
         });
-    });
+    }
     
     // Search input
-    searchInput.addEventListener('input', () => {
-        const activeCategory = document.querySelector('.tab-btn.active').dataset.category;
-        renderAllGameRows(activeCategory, searchInput.value);
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const activeCategory = document.querySelector('.tab-btn.active').dataset.category;
+            renderAllGameRows(activeCategory, searchInput.value);
+        });
+    }
     
-    // Clear pins button
+    // Clear pins button (now clears favorites)
     if (clearPinsBtn) {
         clearPinsBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (confirm('Are you sure you want to clear all favorites?')) {
                 clearAllFavorites();
             }
+        });
+    }
+
+    // Google Sign-In
+    if (signInButton) {
+        signInButton.addEventListener('click', function() {
+            auth.signInWithPopup(provider)
+                .then(function(result) {
+                    if (result.additionalUserInfo.isNewUser) {
+                        return createUserDocument(result.user);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Sign in error:', error);
+                    alert('Sign in failed: ' + error.message);
+                });
+        });
+    }
+
+    // Sign Out
+    if (signOutButton) {
+        signOutButton.addEventListener('click', function() {
+            auth.signOut()
+                .catch(function(error) {
+                    console.error('Sign out error:', error);
+                });
+        });
+    }
+
+    // Update Username
+    if (updateUsernameBtn) {
+        updateUsernameBtn.addEventListener('click', function() {
+            const newUsername = newUsernameInput.value.trim();
+            if (newUsername.length < 3) {
+                alert('Username must be at least 3 characters');
+                return;
+            }
+
+            const userId = auth.currentUser.uid;
+            db.collection('users').doc(userId).update({
+                username: newUsername
+            })
+            .then(function() {
+                if (usernameDisplay) usernameDisplay.textContent = newUsername;
+                if (dashboardUsername) dashboardUsername.textContent = newUsername;
+                if (newUsernameInput) newUsernameInput.value = '';
+                alert('Username updated!');
+            })
+            .catch(function(error) {
+                console.error('Error updating username:', error);
+                alert('Update failed: ' + error.message);
+            });
+        });
+    }
+
+    // Profile Picture Preview
+    if (profilePicUpload) {
+        profilePicUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 500 * 1024) {
+                alert('Image must be smaller than 500KB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                if (profilePicPreview) profilePicPreview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Update Profile Picture
+    if (updateProfilePicBtn) {
+        updateProfilePicBtn.addEventListener('click', function() {
+            const file = profilePicUpload.files[0];
+            if (!file) {
+                alert('Please select an image first');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Image = event.target.result;
+                const userId = auth.currentUser.uid;
+                
+                db.collection('users').doc(userId).update({
+                    photoBase64: base64Image
+                })
+                .then(function() {
+                    if (profilePic) profilePic.src = base64Image;
+                    if (profilePicPreview) profilePicPreview.src = base64Image;
+                    if (profilePicUpload) profilePicUpload.value = '';
+                    alert('Profile picture updated!');
+                })
+                .catch(function(error) {
+                    console.error('Error saving image:', error);
+                    alert('Upload failed: ' + error.message);
+                });
+            };
+            reader.readAsDataURL(file);
         });
     }
 }
@@ -909,11 +1127,192 @@ function clearAllFavorites() {
         .then(() => {
             userFavorites = [];
             updateFavoritesUI();
+            if (favoritesContainer) renderFavorites();
         })
         .catch(error => {
             console.error('Error clearing favorites:', error);
         });
 }
 
+// Update UI for logged in user
+function updateUIForUser(user) {
+    if (loginView) loginView.style.display = 'none';
+    if (dashboardView) dashboardView.style.display = 'block';
+    if (usernameDisplay) usernameDisplay.textContent = user.displayName || 'User';
+    if (dashboardUsername) dashboardUsername.textContent = user.displayName || 'User';
+    
+    if (user.photoURL) {
+        if (profilePic) profilePic.src = user.photoURL;
+        if (profilePicPreview) profilePicPreview.src = user.photoURL;
+    }
+}
+
+// Update UI for guest
+function updateUIForGuest() {
+    if (loginView) loginView.style.display = 'block';
+    if (dashboardView) dashboardView.style.display = 'none';
+    if (usernameDisplay) usernameDisplay.textContent = 'Guest';
+    if (profilePic) profilePic.src = 'https://via.placeholder.com/40';
+    if (profilePicPreview) profilePicPreview.src = 'https://via.placeholder.com/150';
+}
+
+// Create user document in Firestore
+function createUserDocument(user) {
+    return db.collection('users').doc(user.uid).set({
+        uid: user.uid,
+        email: user.email,
+        username: user.displayName || 'user' + user.uid.substring(0, 4),
+        photoBase64: user.photoURL || '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .catch(function(error) {
+        console.error('Error creating user document:', error);
+    });
+}
+
+// Load user data from Firestore
+function loadUserData(userId) {
+    db.collection('users').doc(userId).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                const userData = doc.data();
+                
+                if (userData.username) {
+                    if (usernameDisplay) usernameDisplay.textContent = userData.username;
+                    if (dashboardUsername) dashboardUsername.textContent = userData.username;
+                }
+                
+                if (userData.photoBase64) {
+                    if (profilePic) profilePic.src = userData.photoBase64;
+                    if (profilePicPreview) profilePicPreview.src = userData.photoBase64;
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error loading user data:', error);
+        });
+}
+
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', init);
+
+// Add these functions to your existing script.js
+
+/* Favorites Page Specific Functions */
+function renderFavorites() {
+    const favoritesContainer = document.getElementById('favoritesContainer');
+    if (!favoritesContainer) return; // Only run on favorites page
+    
+    if (!userFavorites.length) {
+        favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+        return;
+    }
+
+    favoritesContainer.innerHTML = '';
+    userFavorites.forEach(gameId => {
+        const game = findGameById(gameId);
+        if (game) {
+            const gameCard = createFavoriteGameCard(game, true);
+            favoritesContainer.appendChild(gameCard);
+        }
+    });
+}
+
+function createFavoriteGameCard(game) {
+    const card = document.createElement('div');
+    card.className = 'game-card pinned-highlight';
+    card.dataset.id = game.id;
+    
+    card.innerHTML = `
+        <a href="${game.url}" class="game-link">
+            <div class="thumbnail-container">
+                ${game.banner ? createBannerElement(game.banner) : ''}
+                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+            </div>
+            <div class="game-title">${game.title}</div>
+        </a>
+        <button class="remove-favorite-btn">
+            <i class="bx bx-trash"></i>
+        </button>
+    `;
+    
+    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFavorite(game.id, card);
+    });
+    
+    return card;
+}
+
+function setupFavoritesPage() {
+    const favoritesContainer = document.getElementById('favoritesContainer');
+    if (!favoritesContainer) return; // Only run on favorites page
+    
+    const clearPinsBtn = document.querySelector('.clear-pins');
+    if (clearPinsBtn) {
+        clearPinsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to clear all favorites?')) {
+                clearAllFavorites();
+            }
+        });
+    }
+    
+    renderFavorites();
+}
+
+// Modify your existing auth state handler to include favorites setup
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        currentUser = user;
+        updateUIForUser(user);
+        loadUserData(user.uid);
+        loadUserFavorites(user.uid).then(() => {
+            setupFavoritesPage(); // Initialize favorites page after loading
+        });
+    } else {
+        currentUser = null;
+        userFavorites = [];
+        updateUIForGuest();
+        setupFavoritesPage(); // Initialize favorites page for guest
+    }
+});
+
+// Add this to your existing script.js (at the bottom or with other Firebase functions)
+
+// Track when a game is played
+function trackGamePlay(gameId) {
+    if (!currentUser) return;
+    
+    const userId = currentUser.uid;
+    const historyRef = db.collection('users').doc(userId).collection('history').doc();
+    
+    historyRef.set({
+        gameId: gameId,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .catch(error => {
+        console.error('Error tracking game play:', error);
+    });
+}
+
+// Add game play tracking to game links
+function setupGamePlayTracking() {
+    document.addEventListener('click', function(e) {
+        // Check if a game link was clicked
+        const gameLink = e.target.closest('.game-link');
+        if (!gameLink) return;
+        
+        // Find the game card
+        const gameCard = gameLink.closest('.game-card');
+        if (!gameCard) return;
+        
+        // Get the game ID
+        const gameId = parseInt(gameCard.dataset.id);
+        if (!gameId) return;
+        
+        // Track the game play
+        trackGamePlay(gameId);
+    });
+}
+
