@@ -1,0 +1,341 @@
+/* Base Styles & Variables */
+:root {
+  /* Color Variables */
+  --primary: #4361ee;
+  --primary-light: #4895ef;
+  --secondary: #3f37c9;
+  --success: #4cc9f0;
+  --danger: #f72585;
+  --warning: #f8961e;
+  --info: #4361ee;
+  
+  /* Default Light Theme */
+  --text: #1b263b;
+  --text-light: #4a5568;
+  --text-inverse: #f8f9fa;
+  --background: #f5f7ff;
+  --card-bg: #ffffff;
+  --border: #e9ecef;
+  --gray: #adb5bd;
+  --gray-light: #e9ecef;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Theme Classes */
+body.light {
+  --primary: #4361ee;
+  --text: #1b263b;
+  --background: #f5f7ff;
+  --card-bg: #ffffff;
+  --border: #e9ecef;
+}
+
+body.dark {
+  --primary: #4895ef;
+  --text: #f8f9fa;
+  --background: #121212;
+  --card-bg: #1e1e1e;
+  --border: #333333;
+}
+
+body.moon {
+  --primary: #4cc9f0;
+  --text: #e2e8f0;
+  --background: #0f172a;
+  --card-bg: #1e293b;
+  --border: #334155;
+}
+
+body.emerald {
+  --primary: #10b981;
+  --text: #a7f3d0;
+  --background: #064e3b;
+  --card-bg: #047857;
+  --border: #059669;
+}
+
+body.ruby {
+  --primary: #f72585;
+  --text: #fbcfe8;
+  --background: #831843;
+  --card-bg: #9d174d;
+  --border: #be185d;
+}
+
+body.diamond {
+  --primary: #3b82f6;
+  --text: #082f49;
+  --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+  --card-bg: #bae6fd;
+  --border: #7dd3fc;
+}
+
+body.crazy {
+  --primary: #f72585;
+  --text: #2b0504;
+  --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+  --card-bg: #ffedd5;
+  --border: #fdba74;
+}
+
+/* Layout Components */
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+/* Header Styles */
+header {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  color: white;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+}
+
+.profile-pic {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.profile-pic:hover {
+  transform: scale(1.1);
+}
+
+/* Game Cards */
+.game-card {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+  height: 180px;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+.thumbnail-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.game-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.game-title {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Ribbon Banners */
+.ribbon {
+  position: absolute;
+  right: -25px;
+  top: 20px;
+  width: 100px;
+  padding: 5px 0;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(45deg);
+  z-index: 2;
+}
+
+.ribbon.hot {
+  background: var(--danger);
+}
+
+.ribbon.new {
+  background: var(--success);
+}
+
+.ribbon.popular {
+  background: var(--warning);
+}
+
+/* Navigation */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  z-index: 1000;
+  border-top: 1px solid var(--border);
+}
+
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.nav-link i {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.nav-link.active {
+  color: var(--primary);
+}
+
+/* Form Elements */
+.form-control {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 1rem;
+  background: var(--card-bg);
+  color: var(--text);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.btn {
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--primary);
+  color: white;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background: var(--gray-light);
+  color: var(--text);
+}
+
+.btn-danger {
+  background: var(--danger);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin: 1rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+  
+  .game-card {
+    height: 150px;
+  }
+  
+  .profile-pic {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 1rem;
+  }
+  
+  .game-card {
+    height: 130px;
+  }
+  
+  .btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Particle Effects Canvas */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
