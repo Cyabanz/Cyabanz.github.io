@@ -1,4 +1,4 @@
-// Initialize Firebase
+// Initialize Firebase (make sure this matches script.js)
 const firebaseConfig = {
   apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
   authDomain: "fusioncya-cc20a.firebaseapp.com",
@@ -9,6 +9,56 @@ const firebaseConfig = {
   appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
   measurementId: "G-4DT52P7MPB"
 };
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Add this function to sync settings
+function saveSetting(key, value) {
+  if (!currentUser) return;
+  
+  const updateData = {};
+  updateData[`settings.${key}`] = value;
+  
+  db.collection('users').doc(currentUser.uid).set({
+    settings: {
+      ...(currentSettings || {}),
+      [key]: value
+    }
+  }, { merge: true })
+  .catch(error => {
+    console.error('Error saving setting:', error);
+  });
+}
+
+// Update your handleAuthStateChange function
+function handleAuthStateChange(user) {
+  currentUser = user;
+  
+  if (user) {
+    updateUIForUser(user);
+    setupSettingsListener(user.uid);
+    loginModal.classList.remove('active');
+  } else {
+    showLoginModal();
+    resetAllSettingsToDefault();
+  }
+}
+
+function setupSettingsListener(userId) {
+  db.collection('users').doc(userId)
+    .onSnapshot((doc) => {
+      if (doc.exists) {
+        const settings = doc.data().settings || {};
+        currentSettings = settings;
+        applySettings(settings);
+      }
+    }, (error) => {
+      console.error('Error listening to settings:', error);
+    });
+}
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
