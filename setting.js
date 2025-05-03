@@ -90,7 +90,10 @@ function initEventListeners() {
 
   // Theme selection
   themeButtons.forEach(button => {
-    button.addEventListener('click', () => handleThemeSelection(button.dataset.theme));
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleThemeSelection(button.dataset.theme);
+    });
   });
 
   // Background image
@@ -113,9 +116,9 @@ function initEventListeners() {
   particleCount.addEventListener('input', updateParticleCount);
   particleSpeed.addEventListener('input', updateParticleSpeed);
   particleType.addEventListener('change', updateParticleType);
-  particleColor1.addEventListener('change', updateParticleColors);
-  particleColor2.addEventListener('change', updateParticleColors);
-  particleColor3.addEventListener('change', updateParticleColors);
+  particleColor1.addEventListener('input', updateParticleColors);
+  particleColor2.addEventListener('input', updateParticleColors);
+  particleColor3.addEventListener('input', updateParticleColors);
 
   // Reset all settings
   resetAllSettings.addEventListener('click', confirmResetAllSettings);
@@ -255,6 +258,7 @@ function handleThemeSelection(theme) {
 
 function applyTheme(theme) {
   document.body.className = theme;
+  document.documentElement.setAttribute('data-theme', theme);
 }
 
 // Background Image Management
@@ -315,6 +319,7 @@ function setBackgroundImage(url) {
   document.body.style.backgroundAttachment = 'fixed';
   
   document.body.className = '';
+  document.documentElement.removeAttribute('data-theme');
   saveSetting('theme', '');
   themeButtons.forEach(btn => btn.classList.remove('active'));
   activeTheme = '';
@@ -535,6 +540,8 @@ function createParticles() {
     currentSettings.particleColor3 || '#4cc9f0'
   ];
   
+  const speed = parseInt(currentSettings.particleSpeed) || 3;
+  
   particles = [];
   
   for (let i = 0; i < count; i++) {
@@ -542,8 +549,8 @@ function createParticles() {
       x: Math.random() * particleCanvas.width,
       y: Math.random() * particleCanvas.height,
       size: Math.random() * 5 + 2,
-      speedX: (Math.random() - 0.5) * (parseInt(currentSettings.particleSpeed) || 3),
-      speedY: (Math.random() - 0.5) * (parseInt(currentSettings.particleSpeed) || 3),
+      speedX: (Math.random() - 0.5) * speed,
+      speedY: (Math.random() - 0.5) * speed,
       color: colors[Math.floor(Math.random() * colors.length)],
       type: type
     });
@@ -638,14 +645,12 @@ function destroyParticles() {
 function saveSetting(key, value) {
   if (!currentUser) return;
   
-  const updateData = {};
-  updateData[`settings.${key}`] = value;
+  // Update local settings immediately
+  currentSettings[key] = value;
   
+  // Save to Firebase
   db.collection('users').doc(currentUser.uid).set({
-    settings: {
-      ...currentSettings,
-      [key]: value
-    }
+    settings: currentSettings
   }, { merge: true })
   .catch(error => {
     console.error('Error saving setting:', error);
@@ -672,20 +677,55 @@ function applySettings(settings) {
     document.body.style.backgroundPosition = 'center';
     document.body.style.backgroundAttachment = 'fixed';
     bgImageUrl.value = settings.backgroundImage;
+  } else {
+    document.body.style.backgroundImage = 'none';
+    bgImageUrl.value = '';
   }
   
   // Apply panic key settings
   if (settings.panicKey) {
     panicKeyInput.value = settings.panicKey;
+  } else {
+    panicKeyInput.value = '';
   }
+  
   if (settings.panicUrl) {
     panicUrl.value = settings.panicUrl;
+  } else {
+    panicUrl.value = '';
   }
   
   // Apply particle settings
   if (settings.particlesEnabled) {
-    particlesToggle.checked = settings.particlesEnabled;
+    particlesToggle.checked = true;
     particleSettings.style.display = 'block';
+    
+    if (settings.particleCount) {
+      particleCount.value = settings.particleCount;
+      particleCountValue.textContent = settings.particleCount;
+    }
+    
+    if (settings.particleSpeed) {
+      particleSpeed.value = settings.particleSpeed;
+      particleSpeedValue.textContent = settings.particleSpeed;
+    }
+    
+    if (settings.particleType) {
+      particleType.value = settings.particleType;
+    }
+    
+    if (settings.particleColor1) {
+      particleColor1.value = settings.particleColor1;
+    }
+    
+    if (settings.particleColor2) {
+      particleColor2.value = settings.particleColor2;
+    }
+    
+    if (settings.particleColor3) {
+      particleColor3.value = settings.particleColor3;
+    }
+    
     initParticles();
   } else {
     particlesToggle.checked = false;
@@ -693,39 +733,17 @@ function applySettings(settings) {
     destroyParticles();
   }
   
-  if (settings.particleCount) {
-    particleCount.value = settings.particleCount;
-    particleCountValue.textContent = settings.particleCount;
-  }
-  
-  if (settings.particleSpeed) {
-    particleSpeed.value = settings.particleSpeed;
-    particleSpeedValue.textContent = settings.particleSpeed;
-  }
-  
-  if (settings.particleType) {
-    particleType.value = settings.particleType;
-  }
-  
-  if (settings.particleColor1) {
-    particleColor1.value = settings.particleColor1;
-  }
-  if (settings.particleColor2) {
-    particleColor2.value = settings.particleColor2;
-  }
-  if (settings.particleColor3) {
-    particleColor3.value = settings.particleColor3;
-  }
-  
   // Apply cloaking settings
-  if (settings.cloakUrl) {
-    customCloakUrl.value = settings.cloakUrl;
-  }
-  
   if (settings.cloakSite) {
     cloakSite.value = settings.cloakSite;
     if (settings.cloakSite === 'custom') {
       customCloakContainer.style.display = 'block';
+    }
+    
+    if (settings.cloakUrl) {
+      customCloakUrl.value = settings.cloakUrl;
+      document.title = getCloakTitle(settings.cloakSite);
+      updateFavicon(settings.cloakSite);
     }
   }
 }
@@ -738,6 +756,8 @@ function confirmResetAllSettings() {
 
 function resetAllSettingsToDefault() {
   if (!currentUser) return;
+  
+  currentSettings = {};
   
   db.collection('users').doc(currentUser.uid).update({
     settings: {}
@@ -753,6 +773,7 @@ function resetAllSettingsToDefault() {
 
 function applyDefaultSettings() {
   document.body.className = '';
+  document.documentElement.removeAttribute('data-theme');
   document.body.style.backgroundImage = 'none';
   bgImageUrl.value = '';
   bgImageUpload.value = '';
