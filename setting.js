@@ -1,4 +1,4 @@
-// Initialize Firebase (make sure this matches script.js)
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
   authDomain: "fusioncya-cc20a.firebaseapp.com",
@@ -9,56 +9,6 @@ const firebaseConfig = {
   appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
   measurementId: "G-4DT52P7MPB"
 };
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-// Add this function to sync settings
-function saveSetting(key, value) {
-  if (!currentUser) return;
-  
-  const updateData = {};
-  updateData[`settings.${key}`] = value;
-  
-  db.collection('users').doc(currentUser.uid).set({
-    settings: {
-      ...(currentSettings || {}),
-      [key]: value
-    }
-  }, { merge: true })
-  .catch(error => {
-    console.error('Error saving setting:', error);
-  });
-}
-
-// Update your handleAuthStateChange function
-function handleAuthStateChange(user) {
-  currentUser = user;
-  
-  if (user) {
-    updateUIForUser(user);
-    setupSettingsListener(user.uid);
-    loginModal.classList.remove('active');
-  } else {
-    showLoginModal();
-    resetAllSettingsToDefault();
-  }
-}
-
-function setupSettingsListener(userId) {
-  db.collection('users').doc(userId)
-    .onSnapshot((doc) => {
-      if (doc.exists) {
-        const settings = doc.data().settings || {};
-        currentSettings = settings;
-        applySettings(settings);
-      }
-    }, (error) => {
-      console.error('Error listening to settings:', error);
-    });
-}
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -109,8 +59,9 @@ let particleCanvas;
 let particleCtx;
 let currentUser = null;
 let panicKeyListener = null;
-let activeTheme = '';
+let currentSettings = {};
 let settingsListener = null;
+let activeTheme = '';
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
@@ -196,8 +147,8 @@ function setupSettingsListener(userId) {
   settingsListener = db.collection('users').doc(userId)
     .onSnapshot((doc) => {
       if (doc.exists) {
-        const settings = doc.data().settings || {};
-        applySettings(settings);
+        currentSettings = doc.data().settings || {};
+        applySettings(currentSettings);
       }
     }, (error) => {
       console.error('Error listening to settings:', error);
@@ -303,10 +254,7 @@ function handleThemeSelection(theme) {
 }
 
 function applyTheme(theme) {
-  document.body.className = '';
-  if (theme) {
-    document.body.classList.add(theme);
-  }
+  document.body.className = theme;
 }
 
 // Background Image Management
@@ -579,12 +527,12 @@ function resizeCanvas() {
 }
 
 function createParticles() {
-  const count = parseInt(particleCount.value) || 50;
-  const type = particleType.value;
+  const count = parseInt(currentSettings.particleCount) || 50;
+  const type = currentSettings.particleType || 'circle';
   const colors = [
-    particleColor1.value,
-    particleColor2.value,
-    particleColor3.value
+    currentSettings.particleColor1 || '#4361ee',
+    currentSettings.particleColor2 || '#f72585',
+    currentSettings.particleColor3 || '#4cc9f0'
   ];
   
   particles = [];
@@ -594,8 +542,8 @@ function createParticles() {
       x: Math.random() * particleCanvas.width,
       y: Math.random() * particleCanvas.height,
       size: Math.random() * 5 + 2,
-      speedX: (Math.random() - 0.5) * (parseInt(particleSpeed.value) || 3),
-      speedY: (Math.random() - 0.5) * (parseInt(particleSpeed.value) || 3),
+      speedX: (Math.random() - 0.5) * (parseInt(currentSettings.particleSpeed) || 3),
+      speedY: (Math.random() - 0.5) * (parseInt(currentSettings.particleSpeed) || 3),
       color: colors[Math.floor(Math.random() * colors.length)],
       type: type
     });
@@ -690,9 +638,12 @@ function destroyParticles() {
 function saveSetting(key, value) {
   if (!currentUser) return;
   
+  const updateData = {};
+  updateData[`settings.${key}`] = value;
+  
   db.collection('users').doc(currentUser.uid).set({
     settings: {
-      ...(currentUser.settings || {}),
+      ...currentSettings,
       [key]: value
     }
   }, { merge: true })
@@ -702,6 +653,7 @@ function saveSetting(key, value) {
 }
 
 function applySettings(settings) {
+  // Apply theme
   if (settings.theme) {
     activeTheme = settings.theme;
     applyTheme(settings.theme);
@@ -713,6 +665,7 @@ function applySettings(settings) {
     });
   }
   
+  // Apply background image
   if (settings.backgroundImage) {
     document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
     document.body.style.backgroundSize = 'cover';
@@ -721,6 +674,7 @@ function applySettings(settings) {
     bgImageUrl.value = settings.backgroundImage;
   }
   
+  // Apply panic key settings
   if (settings.panicKey) {
     panicKeyInput.value = settings.panicKey;
   }
@@ -728,14 +682,15 @@ function applySettings(settings) {
     panicUrl.value = settings.panicUrl;
   }
   
+  // Apply particle settings
   if (settings.particlesEnabled) {
     particlesToggle.checked = settings.particlesEnabled;
-    particleSettings.style.display = settings.particlesEnabled ? 'block' : 'none';
-    if (settings.particlesEnabled) {
-      initParticles();
-    } else {
-      destroyParticles();
-    }
+    particleSettings.style.display = 'block';
+    initParticles();
+  } else {
+    particlesToggle.checked = false;
+    particleSettings.style.display = 'none';
+    destroyParticles();
   }
   
   if (settings.particleCount) {
@@ -762,6 +717,7 @@ function applySettings(settings) {
     particleColor3.value = settings.particleColor3;
   }
   
+  // Apply cloaking settings
   if (settings.cloakUrl) {
     customCloakUrl.value = settings.cloakUrl;
   }
@@ -770,11 +726,6 @@ function applySettings(settings) {
     cloakSite.value = settings.cloakSite;
     if (settings.cloakSite === 'custom') {
       customCloakContainer.style.display = 'block';
-    }
-    
-    if (settings.cloakUrl) {
-      document.title = getCloakTitle(settings.cloakSite);
-      updateFavicon(settings.cloakSite);
     }
   }
 }
