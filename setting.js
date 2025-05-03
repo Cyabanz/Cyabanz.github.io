@@ -59,12 +59,13 @@ let particleCanvas;
 let particleCtx;
 let currentUser = null;
 let panicKeyListener = null;
+let activeTheme = '';
+let settingsListener = null;
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
   initEventListeners();
   auth.onAuthStateChanged(handleAuthStateChange);
-  initFromLocalStorage();
 });
 
 function initEventListeners() {
@@ -125,20 +126,36 @@ function initEventListeners() {
 
 function handleAuthStateChange(user) {
   currentUser = user;
+  
+  // Clean up previous listener if exists
+  if (settingsListener) {
+    settingsListener();
+  }
+  
   if (user) {
     updateUIForUser(user);
-    loadUserSettings(user.uid);
+    setupSettingsListener(user.uid);
     loginModal.classList.remove('active');
   } else {
     showLoginModal();
-    // Clear all settings if not signed in
     resetAllSettingsToDefault();
   }
 }
 
+function setupSettingsListener(userId) {
+  settingsListener = db.collection('users').doc(userId)
+    .onSnapshot((doc) => {
+      if (doc.exists) {
+        const settings = doc.data().settings || {};
+        applySettings(settings);
+      }
+    }, (error) => {
+      console.error('Error listening to settings:', error);
+    });
+}
+
 function showLoginModal() {
   loginModal.classList.add('active');
-  // Disable all interactive elements
   disableAllFeatures();
 }
 
@@ -350,6 +367,7 @@ function applyTabCloak() {
 
   if (url) {
     saveSetting('cloakUrl', url);
+    saveSetting('cloakSite', cloakSite.value);
     alert('Tab cloaker applied! Press F11 for full effect.');
     document.title = getCloakTitle(cloakSite.value);
     updateFavicon(cloakSite.value);
@@ -383,6 +401,7 @@ function updateFavicon(site) {
 
 function resetTabCloak() {
   saveSetting('cloakUrl', '');
+  saveSetting('cloakSite', '');
   cloakSite.value = '';
   customCloakUrl.value = '';
   customCloakContainer.style.display = 'none';
@@ -482,9 +501,9 @@ function updateParticleColors() {
   const color2 = particleColor2.value;
   const color3 = particleColor3.value;
   
-  saveSetting('particle-color-1', color1);
-  saveSetting('particle-color-2', color2);
-  saveSetting('particle-color-3', color3);
+  saveSetting('particleColor1', color1);
+  saveSetting('particleColor2', color2);
+  saveSetting('particleColor3', color3);
   
   updateParticles();
 }
@@ -621,38 +640,34 @@ function destroyParticles() {
 function saveSetting(key, value) {
   if (!currentUser) return;
   
-  db.collection('users').doc(currentUser.uid).update({
-    [`settings.${key}`]: value,
-    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(error => {
+  db.collection('users').doc(currentUser.uid).set({
+    settings: {
+      ...(currentUser.settings || {}),
+      [key]: value
+    }
+  }, { merge: true })
+  .catch(error => {
     console.error('Error saving setting:', error);
   });
-  
-  localStorage.setItem(key, value);
-}
-
-function loadUserSettings(userId) {
-  db.collection('users').doc(userId).get()
-    .then(doc => {
-      if (doc.exists) {
-        const settings = doc.data().settings || {};
-        applySettings(settings);
-      }
-    })
-    .catch(error => {
-      console.error('Error loading settings:', error);
-    });
 }
 
 function applySettings(settings) {
   if (settings.theme) {
     activeTheme = settings.theme;
     applyTheme(settings.theme);
-    document.querySelector(`.theme-btn[data-theme="${settings.theme}"]`)?.classList.add('active');
+    themeButtons.forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.theme === settings.theme) {
+        btn.classList.add('active');
+      }
+    });
   }
   
   if (settings.backgroundImage) {
     document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundAttachment = 'fixed';
     bgImageUrl.value = settings.backgroundImage;
   }
   
@@ -663,10 +678,14 @@ function applySettings(settings) {
     panicUrl.value = settings.panicUrl;
   }
   
-  if (settings.particlesEnabled === 'true') {
-    particlesToggle.checked = true;
-    particleSettings.style.display = 'block';
-    initParticles();
+  if (settings.particlesEnabled) {
+    particlesToggle.checked = settings.particlesEnabled;
+    particleSettings.style.display = settings.particlesEnabled ? 'block' : 'none';
+    if (settings.particlesEnabled) {
+      initParticles();
+    } else {
+      destroyParticles();
+    }
   }
   
   if (settings.particleCount) {
@@ -683,14 +702,30 @@ function applySettings(settings) {
     particleType.value = settings.particleType;
   }
   
-  if (settings['particle-color-1']) {
-    particleColor1.value = settings['particle-color-1'];
+  if (settings.particleColor1) {
+    particleColor1.value = settings.particleColor1;
   }
-  if (settings['particle-color-2']) {
-    particleColor2.value = settings['particle-color-2'];
+  if (settings.particleColor2) {
+    particleColor2.value = settings.particleColor2;
   }
-  if (settings['particle-color-3']) {
-    particleColor3.value = settings['particle-color-3'];
+  if (settings.particleColor3) {
+    particleColor3.value = settings.particleColor3;
+  }
+  
+  if (settings.cloakUrl) {
+    customCloakUrl.value = settings.cloakUrl;
+  }
+  
+  if (settings.cloakSite) {
+    cloakSite.value = settings.cloakSite;
+    if (settings.cloakSite === 'custom') {
+      customCloakContainer.style.display = 'block';
+    }
+    
+    if (settings.cloakUrl) {
+      document.title = getCloakTitle(settings.cloakSite);
+      updateFavicon(settings.cloakSite);
+    }
   }
 }
 
@@ -704,12 +739,18 @@ function resetAllSettingsToDefault() {
   if (!currentUser) return;
   
   db.collection('users').doc(currentUser.uid).update({
-    settings: {},
-    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(error => {
+    settings: {}
+  })
+  .then(() => {
+    applyDefaultSettings();
+    alert('All settings have been reset to default.');
+  })
+  .catch(error => {
     console.error('Error resetting settings:', error);
   });
-  
+}
+
+function applyDefaultSettings() {
   document.body.className = '';
   document.body.style.backgroundImage = 'none';
   bgImageUrl.value = '';
@@ -733,9 +774,11 @@ function resetAllSettingsToDefault() {
   themeButtons.forEach(btn => btn.classList.remove('active'));
   activeTheme = '';
   
-  localStorage.clear();
-  
-  alert('All settings have been reset to default.');
+  document.title = 'Settings | Fusion';
+  const favicon = document.querySelector('link[rel="icon"]');
+  if (favicon) {
+    favicon.href = '/favicon.ico';
+  }
 }
 
 function signOut() {
@@ -744,25 +787,4 @@ function signOut() {
   }).catch(error => {
     console.error('Sign out error:', error);
   });
-}
-
-function initFromLocalStorage() {
-  if (localStorage.getItem('particlesEnabled') === 'true') {
-    particlesToggle.checked = true;
-    particleSettings.style.display = 'block';
-    initParticles();
-  }
-  
-  if (localStorage.getItem('panicKey') && localStorage.getItem('panicUrl')) {
-    panicKeyInput.value = localStorage.getItem('panicKey');
-    panicUrl.value = localStorage.getItem('panicUrl');
-    
-    panicKeyListener = function(e) {
-      if (e.key === localStorage.getItem('panicKey')) {
-        window.location.href = localStorage.getItem('panicUrl');
-      }
-    };
-    
-    document.addEventListener('keydown', panicKeyListener);
-  }
 }
