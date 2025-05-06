@@ -152,6 +152,7 @@ function setupSettingsListener(userId) {
       if (doc.exists) {
         currentSettings = doc.data().settings || {};
         applySettings(currentSettings);
+        setupPanicKeyListener(); // Set up panic key listener after settings are loaded
       }
     }, (error) => {
       console.error('Error listening to settings:', error);
@@ -416,7 +417,7 @@ function resetTabCloak() {
   }
 }
 
-// Panic Key System
+// Panic Key System - Improved version
 function setPanicKeyInput(e) {
   e.preventDefault();
   panicKeyInput.value = e.key;
@@ -436,22 +437,30 @@ function savePanicKey() {
     return;
   }
 
+  saveSetting('panicKey', key);
+  saveSetting('panicUrl', url);
+  
+  setupPanicKeyListener();
+  
+  alert(`Panic key set to "${key}". Press this key to redirect to ${url}`);
+}
+
+function setupPanicKeyListener() {
+  // Remove previous listener if exists
   if (panicKeyListener) {
     document.removeEventListener('keydown', panicKeyListener);
   }
 
-  panicKeyListener = function(e) {
-    if (e.key === key) {
-      window.location.href = url;
-    }
-  };
-  
-  document.addEventListener('keydown', panicKeyListener);
-  
-  saveSetting('panicKey', key);
-  saveSetting('panicUrl', url);
-  
-  alert(`Panic key set to "${key}". Press this key to redirect to ${url}`);
+  // Only setup listener if we have valid settings
+  if (currentSettings.panicKey && currentSettings.panicUrl) {
+    panicKeyListener = function(e) {
+      if (e.key === currentSettings.panicKey) {
+        window.location.href = currentSettings.panicUrl;
+      }
+    };
+    
+    document.addEventListener('keydown', panicKeyListener);
+  }
 }
 
 function resetPanicKeySettings() {
