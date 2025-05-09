@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galactic Defender</title>
+    <!-- Boxicons CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* Theme Variables */
+        :root {
+            /* Light Theme (default) */
+            --text: #1b263b;
+            --text-inverse: #f8f9fa;
+            --background: #f5f7ff;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --gray: #adb5bd;
+            --gray-light: #e9ecef;
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+        }
+
+        /* Dark Theme */
+        .dark {
+            --text: #f8f9fa;
+            --text-inverse: #1b263b;
+            --background: #121212;
+            --card-bg: #1a1a1a;
+            --border: #333333;
+            --gray: #555555;
+            --gray-light: #333333;
+        }
+
+        /* Moon Theme */
+        .moon {
+            --text: #e2e8f0;
+            --text-inverse: #0f172a;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --gray: #64748b;
+            --gray-light: #334155;
+        }
+
+        /* Emerald Theme */
+        .emerald {
+            --text: #a7f3d0;
+            --text-inverse: #064e3b;
+            --background: #064e3b;
+            --card-bg: #047857;
+            --border: #059669;
+            --gray: #34d399;
+            --gray-light: #059669;
+        }
+
+        /* Ruby Theme */
+        .ruby {
+            --text: #fbcfe8;
+            --text-inverse: #831843;
+            --background: #831843;
+            --card-bg: #9d174d;
+            --border: #be185d;
+            --gray: #ec4899;
+            --gray-light: #be185d;
+        }
+
+        /* Diamond Theme */
+        .diamond {
+            --text: #082f49;
+            --text-inverse: #bae6fd;
+            --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+            --card-bg: #bae6fd;
+            --border: #7dd3fc;
+            --gray: #38bdf8;
+            --gray-light: #7dd3fc;
+        }
+
+        /* Crazy Theme */
+        .crazy {
+            --text: #2b0504;
+            --text-inverse: #ffedd5;
+            --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+            --card-bg: #ffedd5;
+            --border: #fdba74;
+            --gray: #fb923c;
+            --gray-light: #fdba74;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background);
+            color: var(--text);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--card-bg);
+        }
+        
+        .game-header {
+            background-color: var(--card-bg);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .game-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background-color: var(--gray-light);
+            border: none;
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: var(--gray);
+        }
+        
+        .control-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .bx {
+            font-size: 24px;
+        }
+        
+        .game-frame {
+            width: 100%;
+            height: 450px;
+            border: none;
+            background-color: #000;
+        }
+        
+        .game-info {
+            background-color: var(--card-bg);
+            padding: 15px;
+        }
+        
+        .game-description {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            color: var(--text);
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .rating-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .rating-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .like-btn {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .like-btn.active {
+            opacity: 0.8;
+        }
+        
+        .dislike-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .dislike-btn.active {
+            opacity: 0.8;
+        }
+        
+        .rating-count {
+            font-size: 14px;
+            margin-left: 5px;
+            color: var(--text);
+        }
+        
+        .auth-message {
+            font-size: 14px;
+            color: var(--warning);
+            margin-top: 5px;
+        }
+        
+        .controls-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .key {
+            background-color: var(--gray-light);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--text);
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .auth-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .signin-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .signout-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        /* Comment Section Styles */
+        .comment-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .comment-form {
+            margin-bottom: 20px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text);
+            resize: vertical;
+            margin-bottom: 10px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .comments-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .comment {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .comment-user {
+            flex-grow: 1;
+        }
+
+        .comment-username {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .comment-content {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .comment-action {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .comment-action:hover {
+            color: var(--primary);
+        }
+
+        .comment-action.liked {
+            color: var(--success);
+        }
+
+        .comment-action.disliked {
+            color: var(--danger);
+        }
+
+        .comment-action .bx {
+            font-size: 16px;
+        }
+
+        .user-comments {
+            margin-top: 30px;
+        }
+
+        .no-comments {
+            color: var(--gray);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .comment-error {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .comment-moderation {
+            font-size: 12px;
+            color: var(--warning);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            .controls-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-frame {
+                height: 300px;
+            }
+
+            .comment-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .comment-actions {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Canvas will be created by JavaScript -->
+    
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-title">Galactic Defender</div>
+            <div class="game-controls">
+                <button class="control-btn" id="likeBtn" title="Like">
+                    <i class='bx bx-like'></i>
+                </button>
+                <button class="control-btn" id="dislikeBtn" title="Dislike">
+                    <i class='bx bx-dislike'></i>
+                </button>
+                <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+                    <i class='bx bx-fullscreen'></i>
+                </button>
+            </div>
+        </div>
+        
+        <iframe src="https://example.com/galactic-defender" class="game-frame" allowfullscreen></iframe>
+        
+        <div class="game-info">
+            <div class="game-description">
+                <h3>About the Game</h3>
+                <p>Galactic Defender is an intense space shooter where you protect the galaxy from invading alien forces. Upgrade your ship's weapons and shields as you battle through increasingly difficult waves of enemies!</p>
+            </div>
+            
+            <div class="game-controls-info">
+                <h3>Controls</h3>
+                <div class="controls-list">
+                    <div class="control-item">
+                        <span class="key">↑</span>
+                        <span>Move Up</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">←</span>
+                        <span>Move Left</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↓</span>
+                        <span>Move Down</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">→</span>
+                        <span>Move Right</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">SPACE</span>
+                        <span>Fire Weapons</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">SHIFT</span>
+                        <span>Special Attack</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-stats">
+                <div class="rating-container">
+                    <span id="likeCount" class="rating-count">0 likes</span>
+                    <span id="dislikeCount" class="rating-count">0 dislikes</span>
+                </div>
+                <div id="authMessage" class="auth-message">Sign in to rate this game</div>
+            </div>
+            
+            <div class="auth-buttons" id="authButtons" style="display: none;">
+                <button id="signinBtn" class="auth-btn signin-btn">
+                    <i class='bx bx-log-in'></i> Sign In
+                </button>
+                <button id="signoutBtn" class="auth-btn signout-btn">
+                    <i class='bx bx-log-out'></i> Sign Out
+                </button>
+            </div>
+
+            <!-- Comment Section -->
+            <div class="comment-section">
+                <h3>Comments</h3>
+                
+                <!-- Comment Form -->
+                <div class="comment-form" id="commentForm">
+                    <textarea id="commentInput" placeholder="Add a comment..." rows="3"></textarea>
+                    <button id="submitComment" class="auth-btn signin-btn">Post Comment</button>
+                    <div id="commentError" class="comment-error"></div>
+                </div>
+                
+                <!-- Comments Container -->
+                <div class="comments-container" id="commentsContainer">
+                    <div class="no-comments">No comments yet. Be the first to comment!</div>
+                </div>
+                
+                <!-- User Comments (only shown when signed in) -->
+                <div class="user-comments" id="userComments" style="display: none;">
+                    <h4>Your Comments</h4>
+                    <div class="comments-container" id="userCommentsContainer">
+                        <div class="no-comments">You haven't posted any comments yet.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.firebasestorage.app",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        const db = firebase.firestore();
+        
+        // Reference to the game ratings in the database - CHANGE THIS FOR EACH GAME
+        const gameId = "arsenal"; // Unique identifier for this game
+        const ratingsRef = database.ref(`gameRatings/${gameId}`);
+        
+        // DOM elements
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const likeCount = document.getElementById('likeCount');
+        const dislikeCount = document.getElementById('dislikeCount');
+        const authMessage = document.getElementById('authMessage');
+        const authButtons = document.getElementById('authButtons');
+        const signinBtn = document.getElementById('signinBtn');
+        const signoutBtn = document.getElementById('signoutBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const commentInput = document.getElementById('commentInput');
+        const submitComment = document.getElementById('submitComment');
+        const commentError = document.getElementById('commentError');
+        const commentsContainer = document.getElementById('commentsContainer');
+        const userCommentsContainer = document.getElementById('userCommentsContainer');
+        const userCommentsSection = document.getElementById('userComments');
+        const commentForm = document.getElementById('commentForm');
+        
+        // Track user's vote to prevent multiple votes
+        let userVote = null;
+        let currentUser = null;
+        let currentSettings = {};
+        let settingsListener = null;
+        let panicKeyListener = null;
+        let particles = [];
+        let particleCanvas;
+        let particleCtx;
+
+        // Bad words filter list
+        const badWords = [
+            'badword1', 'badword2', 'badword3', 'shit', 'fuck', 'asshole', 'bitch', 'cunt', 
+            'nigger', 'nigga', 'fag', 'faggot', 'retard', 'whore', 'slut', 'pussy', 'dick',
+            'cock', 'bastard', 'damn', 'hell', 'crap', 'piss', 'douche', 'wanker', 'twat',
+            'arsehole', 'bellend', 'bloody', 'bugger', 'bollocks', 'chink', 'coon', 'dyke',
+            'gook', 'kike', 'paki', 'spic', 'tard', 'tranny', 'vagina', 'penis', 'boobs',
+            'tits', 'anal', 'blowjob', 'clit', 'cum', 'dildo', 'ejaculate', 'fellate', 'fucker',
+            'handjob', 'homo', 'jerkoff', 'jizz', 'labia', 'masturbate', 'orgasm', 'orgy',
+            'pedo', 'porn', 'queer', 'rape', 'rapist', 'scrotum', 'semen', 'sex', 'shemale',
+            'sodomize', 'sperm', 'turd', 'vag', 'vulva', 'wank', 'whore'
+        ];
+
+        // Listen for authentication state changes
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            
+            if (user) {
+                // User is signed in
+                likeBtn.disabled = false;
+                dislikeBtn.disabled = false;
+                authMessage.textContent = "Rate this game";
+                authButtons.style.display = 'flex';
+                signoutBtn.style.display = 'block';
+                signinBtn.style.display = 'none';
+                commentForm.style.display = 'block';
+                userCommentsSection.style.display = 'block';
+                
+                // Check if user has already voted
+                database.ref(`userVotes/${gameId}/${user.uid}`).once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            userVote = snapshot.val();
+                            if (userVote === 'like') {
+                                likeBtn.classList.add('active');
+                            } else if (userVote === 'dislike') {
+                                dislikeBtn.classList.add('active');
+                            }
+                        }
+                    });
+
+                // Set up settings listener
+                setupSettingsListener(user.uid);
+
+                // Load comments
+                loadComments();
+                loadUserComments(user.uid);
+            } else {
+                // User is signed out
+                likeBtn.disabled = true;
+                dislikeBtn.disabled = true;
+                authMessage.textContent = "Sign in to rate this game";
+                authButtons.style.display = 'flex';
+                signoutBtn.style.display = 'none';
+                signinBtn.style.display = 'block';
+                likeBtn.classList.remove('active');
+                dislikeBtn.classList.remove('active');
+                commentForm.style.display = 'none';
+                userCommentsSection.style.display = 'none';
+
+                // Clean up settings listener
+                if (settingsListener) {
+                    settingsListener();
+                    settingsListener = null;
+                }
+
+                // Apply default settings
+                applySettings({
+                    theme: '',
+                    backgroundImage: '',
+                    particlesEnabled: false
+                });
+
+                // Load comments (without user-specific data)
+                loadComments();
+            }
+        });
+        
+        // Listen for rating changes
+        ratingsRef.on('value', (snapshot) => {
+            const ratings = snapshot.val() || { likes: 0, dislikes: 0 };
+            likeCount.textContent = `${ratings.likes || 0} likes`;
+            dislikeCount.textContent = `${ratings.dislikes || 0} dislikes`;
+        });
+        
+        // Handle like button click
+        likeBtn.addEventListener('click', () => {
+            if (!currentUser) return;
+            
+            const userId = currentUser.uid;
+            const userVoteRef = database.ref(`userVotes/${gameId}/${userId}`);
+            
+            if (userVote === 'like') {
+                // User is removing their like
+                ratingsRef.transaction(current => {
+                    return { 
+                        likes: (current?.likes || 0) - 1,
+                        dislikes: current?.dislikes || 0
+                    };
+                });
+                userVoteRef.remove();
+                userVote = null;
+                likeBtn.classList.remove('active');
+            } else {
+                // User is adding/changing to like
+                ratingsRef.transaction(current => {
+                    const update = { 
+                        likes: (current?.likes || 0) + 1,
+                        dislikes: current?.dislikes || 0
+                    };
+                    
+                    // If user previously disliked, remove that dislike
+                    if (userVote === 'dislike') {
+                        update.dislikes = Math.max(0, (current?.dislikes || 0) - 1);
+                        dislikeBtn.classList.remove('active');
+                    }
+                    
+                    return update;
+                });
+                
+                userVoteRef.set('like');
+                userVote = 'like';
+                likeBtn.classList.add('active');
+            }
+        });
+        
+        // Handle dislike button click
+        dislikeBtn.addEventListener('click', () => {
+            if (!currentUser) return;
+            
+            const userId = currentUser.uid;
+            const userVoteRef = database.ref(`userVotes/${gameId}/${userId}`);
+            
+            if (userVote === 'dislike') {
+                // User is removing their dislike
+                ratingsRef.transaction(current => {
+                    return { 
+                        likes: current?.likes || 0,
+                        dislikes: (current?.dislikes || 0) - 1
+                    };
+                });
+                userVoteRef.remove();
+                userVote = null;
+                dislikeBtn.classList.remove('active');
+            } else {
+                // User is adding/changing to dislike
+                ratingsRef.transaction(current => {
+                    const update = { 
+                        likes: current?.likes || 0,
+                        dislikes: (current?.dislikes || 0) + 1
+                    };
+                    
+                    // If user previously liked, remove that like
+                    if (userVote === 'like') {
+                        update.likes = Math.max(0, (current?.likes || 0) - 1);
+                        likeBtn.classList.remove('active');
+                    }
+                    
+                    return update;
+                });
+                
+                userVoteRef.set('dislike');
+                userVote = 'dislike';
+                dislikeBtn.classList.add('active');
+            }
+        });
+        
+        // Fullscreen button functionality
+        fullscreenBtn.addEventListener('click', () => {
+            const iframe = document.querySelector('.game-frame');
+            
+            if (iframe.requestFullscreen) {
+                iframe.requestFullscreen();
+            } else if (iframe.webkitRequestFullscreen) {
+                iframe.webkitRequestFullscreen();
+            } else if (iframe.msRequestFullscreen) {
+                iframe.msRequestFullscreen();
+            }
+        });
+        
+        // Sign in button (using anonymous auth - you can change to other providers)
+        signinBtn.addEventListener('click', () => {
+            auth.signInAnonymously()
+                .catch(error => {
+                    console.error("Sign in error:", error);
+                    authMessage.textContent = "Sign in failed. Please try again.";
+                });
+        });
+        
+        // Sign out button
+        signoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Submit comment handler
+        submitComment.addEventListener('click', () => {
+            if (!currentUser) return;
+            
+            const commentText = commentInput.value.trim();
+            
+            // Validate comment
+            if (commentText.length === 0) {
+                commentError.textContent = "Comment cannot be empty";
+                return;
+            }
+            
+            if (commentText.length > 500) {
+                commentError.textContent = "Comment is too long (max 500 characters)";
+                return;
+            }
+            
+            // Check for bad words
+            const containsBadWord = checkForBadWords(commentText);
+            if (containsBadWord) {
+                commentError.textContent = "Comment contains inappropriate language";
+                return;
+            }
+            
+            commentError.textContent = "";
+            
+            // Create comment object
+            const comment = {
+                userId: currentUser.uid,
+                username: currentUser.displayName || `User${currentUser.uid.substring(0, 6)}`,
+                text: commentText,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                likes: 0,
+                dislikes: 0,
+                moderated: false,
+                userPhotoURL: currentUser.photoURL || null
+            };
+            
+            // Push to database
+            const newCommentRef = database.ref(`gameComments/${gameId}`).push();
+            newCommentRef.set(comment)
+                .then(() => {
+                    commentInput.value = "";
+                    loadUserComments(currentUser.uid);
+                })
+                .catch(error => {
+                    console.error("Error posting comment:", error);
+                    commentError.textContent = "Failed to post comment. Please try again.";
+                });
+        });
+
+        // Check for bad words in text
+        function checkForBadWords(text) {
+            const lowerText = text.toLowerCase();
+            return badWords.some(word => {
+                // Create regex to match whole words only
+                const regex = new RegExp(`\\b${word}\\b`, 'i');
+                return regex.test(lowerText);
+            });
+        }
+
+        // Load all comments for the game
+        function loadComments() {
+            const commentsRef = database.ref(`gameComments/${gameId}`).orderByChild('timestamp');
+            
+            commentsRef.on('value', (snapshot) => {
+                const comments = [];
+                snapshot.forEach(childSnapshot => {
+                    const comment = childSnapshot.val();
+                    comment.id = childSnapshot.key;
+                    if (!comment.moderated) { // Only show non-moderated comments
+                        comments.unshift(comment); // Newest first
+                    }
+                });
+                
+                renderComments(comments, commentsContainer);
+            });
+        }
+
+        // Load comments by a specific user
+        function loadUserComments(userId) {
+            if (!userId) return;
+            
+            const commentsRef = database.ref(`gameComments/${gameId}`).orderByChild('userId').equalTo(userId);
+            
+            commentsRef.on('value', (snapshot) => {
+                const comments = [];
+                snapshot.forEach(childSnapshot => {
+                    const comment = childSnapshot.val();
+                    comment.id = childSnapshot.key;
+                    comments.unshift(comment); // Newest first
+                });
+                
+                renderComments(comments, userCommentsContainer, true);
+            });
+        }
+
+        // Render comments to the DOM
+        function renderComments(comments, container, isUserComments = false) {
+            if (comments.length === 0) {
+                container.innerHTML = `<div class="no-comments">${isUserComments ? "You haven't posted any comments yet." : "No comments yet. Be the first to comment!"}</div>`;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.dataset.commentId = comment.id;
+                
+                // Format date
+                const date = new Date(comment.timestamp);
+                const dateString = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                // Create avatar - use photo if available, otherwise initials
+                let avatarContent = '';
+                let avatarStyle = '';
+                if (comment.userPhotoURL) {
+                    avatarStyle = `background-image: url('${comment.userPhotoURL}')`;
+                } else {
+                    const initials = comment.username.match(/\b\w/g) || [];
+                    avatarContent = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+                }
+                
+                // Check if current user has liked/disliked this comment
+                let likeClass = '';
+                let dislikeClass = '';
+                if (currentUser) {
+                    database.ref(`commentVotes/${comment.id}/${currentUser.uid}`).once('value')
+                        .then(snapshot => {
+                            if (snapshot.exists()) {
+                                const vote = snapshot.val();
+                                if (vote === 'like') {
+                                    likeClass = 'liked';
+                                } else if (vote === 'dislike') {
+                                    dislikeClass = 'disliked';
+                                }
+                                
+                                // Update the buttons
+                                const likeBtn = commentElement.querySelector('.like-action');
+                                const dislikeBtn = commentElement.querySelector('.dislike-action');
+                                if (likeBtn && dislikeBtn) {
+                                    if (vote === 'like') {
+                                        likeBtn.classList.add('liked');
+                                        dislikeBtn.classList.remove('disliked');
+                                    } else if (vote === 'dislike') {
+                                        dislikeBtn.classList.add('disliked');
+                                        likeBtn.classList.remove('liked');
+                                    }
+                                }
+                            }
+                        });
+                }
+                
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <div class="comment-avatar" style="${avatarStyle}">${avatarContent}</div>
+                        <div class="comment-user">
+                            <div class="comment-username">${comment.username}</div>
+                            <div class="comment-date">${dateString}</div>
+                        </div>
+                    </div>
+                    <div class="comment-content">${escapeHtml(comment.text)}</div>
+                    <div class="comment-actions">
+                        <div class="comment-action like-action ${likeClass}" onclick="handleCommentLike('${comment.id}')">
+                            <i class='bx bx-like'></i>
+                            <span class="like-count">${comment.likes || 0}</span>
+                        </div>
+                        <div class="comment-action dislike-action ${dislikeClass}" onclick="handleCommentDislike('${comment.id}')">
+                            <i class='bx bx-dislike'></i>
+                            <span class="dislike-count">${comment.dislikes || 0}</span>
+                        </div>
+                    </div>
+                    ${comment.moderated ? '<div class="comment-moderation">This comment has been moderated</div>' : ''}
+                `;
+                
+                container.appendChild(commentElement);
+            });
+        }
+
+        // Handle comment like
+        function handleCommentLike(commentId) {
+            if (!currentUser) return;
+            
+            const userId = currentUser.uid;
+            const commentRef = database.ref(`gameComments/${gameId}/${commentId}`);
+            const userVoteRef = database.ref(`commentVotes/${commentId}/${userId}`);
+            
+            // Check current vote
+            userVoteRef.once('value')
+                .then(snapshot => {
+                    const currentVote = snapshot.val();
+                    
+                    if (currentVote === 'like') {
+                        // User is removing their like
+                        commentRef.transaction(comment => {
+                            if (comment) {
+                                comment.likes = Math.max(0, (comment.likes || 0) - 1);
+                            }
+                            return comment;
+                        });
+                        userVoteRef.remove();
+                        
+                        // Update UI
+                        updateCommentActionUI(commentId, 'like', false);
+                    } else {
+                        // User is adding/changing to like
+                        commentRef.transaction(comment => {
+                            if (comment) {
+                                comment.likes = (comment.likes || 0) + 1;
+                                
+                                // If user previously disliked, remove that dislike
+                                if (currentVote === 'dislike') {
+                                    comment.dislikes = Math.max(0, (comment.dislikes || 0) - 1);
+                                }
+                            }
+                            return comment;
+                        });
+                        
+                        userVoteRef.set('like');
+                        
+                        // Update UI
+                        updateCommentActionUI(commentId, 'like', true);
+                        if (currentVote === 'dislike') {
+                            updateCommentActionUI(commentId, 'dislike', false);
+                        }
+                    }
+                });
+        }
+
+        // Handle comment dislike
+        function handleCommentDislike(commentId) {
+            if (!currentUser) return;
+            
+            const userId = currentUser.uid;
+            const commentRef = database.ref(`gameComments/${gameId}/${commentId}`);
+            const userVoteRef = database.ref(`commentVotes/${commentId}/${userId}`);
+            
+            // Check current vote
+            userVoteRef.once('value')
+                .then(snapshot => {
+                    const currentVote = snapshot.val();
+                    
+                    if (currentVote === 'dislike') {
+                        // User is removing their dislike
+                        commentRef.transaction(comment => {
+                            if (comment) {
+                                comment.dislikes = Math.max(0, (comment.dislikes || 0) - 1);
+                            }
+                            return comment;
+                        });
+                        userVoteRef.remove();
+                        
+                        // Update UI
+                        updateCommentActionUI(commentId, 'dislike', false);
+                    } else {
+                        // User is adding/changing to dislike
+                        commentRef.transaction(comment => {
+                            if (comment) {
+                                comment.dislikes = (comment.dislikes || 0) + 1;
+                                
+                                // If user previously liked, remove that like
+                                if (currentVote === 'like') {
+                                    comment.likes = Math.max(0, (comment.likes || 0) - 1);
+                                }
+                            }
+                            return comment;
+                        });
+                        
+                        userVoteRef.set('dislike');
+                        
+                        // Update UI
+                        updateCommentActionUI(commentId, 'dislike', true);
+                        if (currentVote === 'like') {
+                            updateCommentActionUI(commentId, 'like', false);
+                        }
+                    }
+                });
+        }
+
+        // Update comment action UI
+        function updateCommentActionUI(commentId, action, isActive) {
+            const commentElement = document.querySelector(`.comment[data-comment-id="${commentId}"]`);
+            if (!commentElement) return;
+            
+            const actionElement = commentElement.querySelector(`.${action}-action`);
+            if (actionElement) {
+                if (isActive) {
+                    actionElement.classList.add(action === 'like' ? 'liked' : 'disliked');
+                } else {
+                    actionElement.classList.remove(action === 'like' ? 'liked' : 'disliked');
+                }
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Particle Effects System
+        function initParticles(settings) {
+            if (!settings.particlesEnabled) {
+                destroyParticles();
+                return;
+            }
+
+            particleCanvas = document.getElementById('particle-canvas');
+            if (!particleCanvas) {
+                particleCanvas = document.createElement('canvas');
+                particleCanvas.id = 'particle-canvas';
+                document.body.insertBefore(particleCanvas, document.body.firstChild);
+            }
+            
+            particleCtx = particleCanvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            createParticles(settings);
+            animateParticles();
+        }
+
+        function resizeCanvas() {
+            if (!particleCanvas) return;
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+        }
+
+        function createParticles(settings) {
+            const count = parseInt(settings.particleCount) || 50;
+            const type = settings.particleType || 'circle';
+            const colors = [
+                settings.particleColor1 || '#4361ee',
+                settings.particleColor2 || '#f72585',
+                settings.particleColor3 || '#4cc9f0'
+            ];
+            
+            const speed = parseInt(settings.particleSpeed) || 3;
+            
+            particles = [];
+            
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * particleCanvas.width,
+                    y: Math.random() * particleCanvas.height,
+                    size: Math.random() * 5 + 2,
+                    speedX: (Math.random() - 0.5) * speed,
+                    speedY: (Math.random() - 0.5) * speed,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    type: type
+                });
+            }
+        }
+
+        function animateParticles() {
+            if (!particleCanvas || !particleCtx) return;
+            
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                
+                p.x += p.speedX;
+                p.y += p.speedY;
+                
+                if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
+                
+                particleCtx.fillStyle = p.color;
+                
+                switch(p.type) {
+                    case 'star':
+                        drawStar(p.x, p.y, 5, p.size, p.size / 2);
+                        break;
+                    case 'triangle':
+                        drawTriangle(p.x, p.y, p.size);
+                        break;
+                    default:
+                        particleCtx.beginPath();
+                        particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        particleCtx.fill();
+                }
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+
+        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+            
+            particleCtx.beginPath();
+            particleCtx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+            }
+            
+            particleCtx.lineTo(cx, cy - outerRadius);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function drawTriangle(x, y, size) {
+            particleCtx.beginPath();
+            particleCtx.moveTo(x, y - size);
+            particleCtx.lineTo(x + size, y + size);
+            particleCtx.lineTo(x - size, y + size);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function destroyParticles() {
+            if (particleCanvas) {
+                particleCanvas.remove();
+                particleCanvas = null;
+                particleCtx = null;
+                window.removeEventListener('resize', resizeCanvas);
+            }
+        }
+
+        // Setup panic key listener
+        function setupPanicKeyListener() {
+            // Remove previous listener if exists
+            if (panicKeyListener) {
+                document.removeEventListener('keydown', panicKeyListener);
+            }
+
+            // Only setup listener if we have valid settings
+            if (currentSettings.panicKey && currentSettings.panicUrl) {
+                panicKeyListener = function(e) {
+                    if (e.key === currentSettings.panicKey) {
+                        window.location.href = currentSettings.panicUrl;
+                    }
+                };
+                
+                document.addEventListener('keydown', panicKeyListener);
+            }
+        }
+
+        // Apply tab cloaking settings
+        function applyTabCloakSettings(settings) {
+            if (settings.cloakSite) {
+                document.title = getCloakTitle(settings.cloakSite);
+                updateFavicon(settings.cloakSite);
+            }
+        }
+
+        function getCloakTitle(site) {
+            const titles = {
+                'google': 'Google Classroom',
+                'clever': 'Clever | Portal',
+                'drive': 'My Drive - Google Drive',
+                'docs': 'Google Docs'
+            };
+            return titles[site] || 'Galactic Defender';
+        }
+
+        function updateFavicon(site) {
+            const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+            favicon.rel = 'icon';
+            
+            const icons = {
+                'google': 'https://www.google.com/favicon.ico',
+                'clever': 'https://clever.com/favicon.ico',
+                'drive': 'https://drive.google.com/favicon.ico',
+                'docs': 'https://docs.google.com/favicon.ico'
+            };
+            
+            favicon.href = icons[site] || 'favicon.ico';
+            document.head.appendChild(favicon);
+        }
+
+        // Settings Listener
+        function setupSettingsListener(userId) {
+            settingsListener = db.collection('users').doc(userId)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        currentSettings = doc.data().settings || {};
+                        applySettings(currentSettings);
+                    }
+                }, (error) => {
+                    console.error('Error listening to settings:', error);
+                });
+        }
+
+        function applySettings(settings) {
+            // Apply theme
+            if (settings.theme) {
+                document.body.className = settings.theme;
+            } else {
+                document.body.className = ''; // Reset to default theme
+            }
+
+            // Apply background image
+            if (settings.backgroundImage) {
+                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+            } else {
+                document.body.style.backgroundImage = 'none';
+            }
+
+            // Apply particle effects
+            if (settings.particlesEnabled) {
+                initParticles(settings);
+            } else {
+                destroyParticles();
+            }
+
+            // Apply panic key settings
+            setupPanicKeyListener();
+
+            // Apply tab cloaking settings
+            applyTabCloakSettings(settings);
+        }
+
+        // Make comment functions available globally
+        window.handleCommentLike = handleCommentLike;
+        window.handleCommentDislike = handleCommentDislike;
+    </script>
+</body>
+</html>
