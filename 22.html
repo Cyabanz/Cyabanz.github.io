@@ -229,6 +229,17 @@
             text-transform: uppercase;
         }
 
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
         @media (max-width: 768px) {
             .stats {
                 flex-direction: column;
@@ -331,6 +342,14 @@
         
         // Track current user
         let currentUser = null;
+        let currentSettings = {};
+        let settingsListener = null;
+        let panicKeyListener = null;
+        
+        // Particle system variables
+        let particleCanvas = null;
+        let particleCtx = null;
+        let particles = [];
 
         // Listen for authentication state changes
         auth.onAuthStateChanged(user => {
@@ -344,6 +363,9 @@
                 
                 // Load comments
                 loadUserComments(user.uid);
+                
+                // Setup settings listener
+                setupSettingsListener(user.uid);
             } else {
                 // User is signed out
                 authButtons.style.display = 'flex';
@@ -352,6 +374,16 @@
                 commentsContainer.innerHTML = '<div class="no-comments">Please sign in to view your comment history</div>';
                 loadingElement.style.display = 'none';
                 statsContainer.style.display = 'none';
+                
+                // Remove settings listener
+                if (settingsListener) {
+                    settingsListener();
+                    settingsListener = null;
+                }
+                
+                // Reset settings
+                currentSettings = {};
+                applySettings(currentSettings);
             }
         });
         
@@ -544,13 +576,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Make delete function available globally
-        window.deleteComment = deleteComment;
-    </script>
-</body>
-</html>
-
- // Particle Effects System
+        // Particle Effects System
         function initParticles(settings) {
             if (!settings.particlesEnabled) {
                 destroyParticles();
@@ -715,7 +741,7 @@
                 'drive': 'My Drive - Google Drive',
                 'docs': 'Google Docs'
             };
-            return titles[site] || 'Galactic Defender';
+            return titles[site] || 'Comment History';
         }
 
         function updateFavicon(site) {
@@ -778,9 +804,8 @@
             applyTabCloakSettings(settings);
         }
 
-        // Make comment functions available globally
-        window.handleCommentLike = handleCommentLike;
-        window.handleCommentDislike = handleCommentDislike;
+        // Make functions available globally
+        window.deleteComment = deleteComment;
     </script>
 </body>
 </html>
