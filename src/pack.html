@@ -39,8 +39,6 @@
             padding: 15px 20px;
             background-color: var(--dark);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 10;
         }
 
         .user-info {
@@ -64,8 +62,6 @@
         /* Favorites Section */
         .favorites-section {
             margin: 30px 0;
-            position: relative;
-            z-index: 1;
         }
 
         .section-header {
@@ -104,8 +100,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
-            position: relative;
-            z-index: 1;
         }
 
         /* Game Card Styling */
@@ -225,8 +219,6 @@
         .back-btn {
             text-align: center;
             margin-top: 30px;
-            position: relative;
-            z-index: 1;
         }
 
         .btn {
@@ -276,8 +268,6 @@
             text-align: center;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border);
-            position: relative;
-            z-index: 1001;
         }
 
         .modal-content h3 {
@@ -373,17 +363,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Particle Canvas */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
         @media (max-width: 768px) {
             .games-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -400,9 +379,6 @@
     </style>
 </head>
 <body>
-    <!-- Particle Canvas -->
-    <canvas id="particle-canvas"></canvas>
-
     <!-- Login Modal -->
     <div id="login-modal" class="modal">
         <div class="modal-content">
@@ -465,7 +441,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="script.js"></script>
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -495,22 +470,108 @@
         const noFavoritesMessage = document.querySelector('.empty-state');
         const clearAllBtn = document.getElementById('clearAllFavorites');
 
-        // Particle System Variables
-        let particleCanvas = document.getElementById('particle-canvas');
-        let particleCtx = particleCanvas.getContext('2d');
-        let particles = [];
-        let settings = {
-            particlesEnabled: true,
-            particleCount: 50,
-            particleType: 'circle',
-            particleColor1: '#4fc3f7',
-            particleColor2: '#ff4757',
-            particleColor3: '#2ecc71',
-            particleSpeed: 2
-        };
+        // All 60 Games Data
+        const allGames = {};
+        const gamesData = [
+            {
+                id: "popular",
+                title: "Popular Games",
+                games: [
+                    { id: 1, title: "Bullet Force", category: "action", staticImg: "https://help.learningmath.infinityfreeapp.com/images/apps/chatgpt.png", url: "https://example.com" },
+                    { id: 2, title: "Cut the Rope", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Cut+the+Rope", url: "#cut-the-rope" },
+                    { id: 3, title: "Basketball Stars", category: "sports", staticImg: "https://via.placeholder.com/300x200/2196F3/fff?text=Basketball+Stars", url: "#basketball-stars" },
+                    { id: 4, title: "Agar.io", category: "io", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Agar.io", url: "#agar-io" },
+                    { id: 5, title: "Slither.io", category: "io", staticImg: "https://via.placeholder.com/300x200/9C27B0/fff?text=Slither.io", url: "#slither-io" },
+                    { id: 6, title: "Zombie Derby", category: "action", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Zombie+Derby", url: "#zombie-derby" },
+                    { id: 7, title: "Sudoku", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Sudoku", url: "#sudoku" },
+                    { id: 8, title: "Soccer Skills", category: "sports", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Soccer+Skills", url: "#soccer-skills" },
+                    { id: 9, title: "Tank Wars", category: "action", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Tank+Wars", url: "#tank-wars" },
+                    { id: 10, title: "2048", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/00BCD4/fff?text=2048", url: "#2048" }
+                ]
+            },
+            {
+                id: "new",
+                title: "New Releases",
+                games: [
+                    { id: 11, title: "Epic Adventure", category: "action", staticImg: "https://via.placeholder.com/300x200/FF5722/fff?text=Epic+Adventure", url: "#epic-adventure" },
+                    { id: 12, title: "Brain Teaser", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/9C27B0/fff?text=Brain+Teaser", url: "#brain-teaser" },
+                    { id: 13, title: "Soccer Pro", category: "sports", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Soccer+Pro", url: "#soccer-pro" },
+                    { id: 14, title: "WormZone.io", category: "io", staticImg: "https://via.placeholder.com/300x200/00BCD4/fff?text=WormZone.io", url: "#wormzone-io" },
+                    { id: 15, title: "Zombie Shooter", category: "action", staticImg: "https://via.placeholder.com/300x200/E91E63/fff?text=Zombie+Shooter", url: "#zombie-shooter" },
+                    { id: 16, title: "Space Warriors", category: "action", staticImg: "https://via.placeholder.com/300x200/3F51B5/fff?text=Space+Warriors", url: "#space-warriors" },
+                    { id: 17, title: "Ninja Combat", category: "action", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Ninja+Combat", url: "#ninja-combat" },
+                    { id: 18, title: "Cyber Strike", category: "action", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Cyber+Strike", url: "#cyber-strike" },
+                    { id: 19, title: "Jigsaw Master", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/8BC34A/fff?text=Jigsaw+Master", url: "#jigsaw-master" },
+                    { id: 20, title: "Memory Challenge", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Memory+Challenge", url: "#memory-challenge" }
+                ]
+            },
+            {
+                id: "action",
+                title: "Action Games",
+                games: [
+                    { id: 21, title: "Commando Raid", category: "action", staticImg: "https://via.placeholder.com/300x200/8D6E63/fff?text=Commando+Raid", url: "#commando-raid" },
+                    { id: 22, title: "Street Fighter", category: "action", staticImg: "https://via.placeholder.com/300x200/5D4037/fff?text=Street+Fighter", url: "#street-fighter" },
+                    { id: 23, title: "Warzone Legends", category: "action", staticImg: "https://via.placeholder.com/300x200/455A64/fff?text=Warzone+Legends", url: "#warzone-legends" },
+                    { id: 24, title: "Shadow Strike", category: "action", staticImg: "https://via.placeholder.com/300x200/263238/fff?text=Shadow+Strike", url: "#shadow-strike" },
+                    { id: 25, title: "Dragon Slayer", category: "action", staticImg: "https://via.placeholder.com/300x200/D32F2F/fff?text=Dragon+Slayer", url: "#dragon-slayer" },
+                    { id: 26, title: "Space Invaders", category: "action", staticImg: "https://via.placeholder.com/300x200/7B1FA2/fff?text=Space+Invaders", url: "#space-invaders" },
+                    { id: 27, title: "Zombie Apocalypse", category: "action", staticImg: "https://via.placeholder.com/300x200/C2185B/fff?text=Zombie+Apocalypse", url: "#zombie-apocalypse" },
+                    { id: 28, title: "Battle Royale", category: "action", staticImg: "https://via.placeholder.com/300x200/0288D1/fff?text=Battle+Royale", url: "#battle-royale" },
+                    { id: 29, title: "Stealth Ops", category: "action", staticImg: "https://via.placeholder.com/300x200/512DA8/fff?text=Stealth+Ops", url: "#stealth-ops" },
+                    { id: 30, title: "Super Soldier", category: "action", staticImg: "https://via.placeholder.com/300x200/303F9F/fff?text=Super+Soldier", url: "#super-soldier" }
+                ]
+            },
+            {
+                id: "puzzle",
+                title: "Puzzle Games",
+                games: [
+                    { id: 31, title: "Block Puzzle", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/009688/fff?text=Block+Puzzle", url: "#block-puzzle" },
+                    { id: 32, title: "Sudoku Pro", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Sudoku+Pro", url: "#sudoku-pro" },
+                    { id: 33, title: "Word Search", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/7E57C2/fff?text=Word+Search", url: "#word-search" },
+                    { id: 34, title: "Crossword", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/EF5350/fff?text=Crossword", url: "#crossword" },
+                    { id: 35, title: "Jewel Match", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/43A047/fff?text=Jewel+Match", url: "#jewel-match" },
+                    { id: 36, title: "Pipe Dream", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/5C6BC0/fff?text=Pipe+Dream", url: "#pipe-dream" },
+                    { id: 37, title: "Mahjong Solitaire", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/26C6DA/fff?text=Mahjong+Solitaire", url: "#mahjong-solitaire" },
+                    { id: 38, title: "Tetris Blitz", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/EC407A/fff?text=Tetris+Blitz", url: "#tetris-blitz" },
+                    { id: 39, title: "Candy Crush", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/AB47BC/fff?text=Candy+Crush", url: "#candy-crush" },
+                    { id: 40, title: "Bubble Shooter", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/FFA000/fff?text=Bubble+Shooter", url: "#bubble-shooter" }
+                ]
+            },
+            {
+                id: "sports",
+                title: "Sports Games",
+                games: [
+                    { id: 41, title: "Basketball Pro", category: "sports", staticImg: "https://via.placeholder.com/300x200/2196F3/fff?text=Basketball+Pro", url: "#basketball-pro" },
+                    { id: 42, title: "Football Legends", category: "sports", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Football+Legends", url: "#football-legends" },
+                    { id: 43, title: "Tennis Championship", category: "sports", staticImg: "https://via.placeholder.com/300x200/FF5722/fff?text=Tennis+Championship", url: "#tennis-championship" },
+                    { id: 44, title: "Golf Masters", category: "sports", staticImg: "https://via.placeholder.com/300x200/009688/fff?text=Golf+Masters", url: "#golf-masters" },
+                    { id: 45, title: "Boxing Knockout", category: "sports", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Boxing+Knockout", url: "#boxing-knockout" },
+                    { id: 46, title: "Hockey Shootout", category: "sports", staticImg: "https://via.placeholder.com/300x200/3F51B5/fff?text=Hockey+Shootout", url: "#hockey-shootout" },
+                    { id: 47, title: "Baseball Pro", category: "sports", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Baseball+Pro", url: "#baseball-pro" },
+                    { id: 48, title: "Soccer Manager", category: "sports", staticImg: "https://via.placeholder.com/300x200/8BC34A/fff?text=Soccer+Manager", url: "#soccer-manager" },
+                    { id: 49, title: "Cricket Challenge", category: "sports", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Cricket+Challenge", url: "#cricket-challenge" },
+                    { id: 50, title: "Extreme Skate", category: "sports", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Extreme+Skate", url: "#extreme-skate" }
+                ]
+            },
+            {
+                id: "io",
+                title: "IO Games",
+                games: [
+                    { id: 51, title: "Diep.io", category: "io", staticImg: "https://via.placeholder.com/300x200/9C27B0/fff?text=Diep.io", url: "#diep-io" },
+                    { id: 52, title: "Moomoo.io", category: "io", staticImg: "https://via.placeholder.com/300x200/00BCD4/fff?text=Moomoo.io", url: "#moomoo-io" },
+                    { id: 53, title: "Krunker.io", category: "io", staticImg: "https://via.placeholder.com/300x200/FF5722/fff?text=Krunker.io", url: "#krunker-io" },
+                    { id: 54, title: "Surviv.io", category: "io", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Surviv.io", url: "#surviv-io" },
+                    { id: 55, title: "ZombsRoyale.io", category: "io", staticImg: "https://via.placeholder.com/300x200/3F51B5/fff?text=ZombsRoyale.io", url: "#zombsroyale-io" },
+                    { id: 56, title: "Bonk.io", category: "io", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Bonk.io", url: "#bonk-io" },
+                    { id: 57, title: "Skribbl.io", category: "io", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Skribbl.io", url: "#skribbl-io" },
+                    { id: 58, title: "Paper.io", category: "io", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Paper.io", url: "#paper-io" },
+                    { id: 59, title: "Wings.io", category: "io", staticImg: "https://via.placeholder.com/300x200/8BC34A/fff?text=Wings.io", url: "#wings-io" },
+                    { id: 60, title: "Spinz.io", category: "io", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Spinz.io", url: "#spinz-io" }
+                ]
+            }
+        ];
 
         // Flatten all games into one object for easy lookup
-        const allGames = {};
         gamesData.forEach(category => {
             category.games.forEach(game => {
                 allGames[game.id] = game;
@@ -526,13 +587,11 @@
                     loginModal.classList.remove('active');
                     updateUIForUser(user);
                     loadFavorites(user.uid);
-                    initParticles(settings);
                 } else {
                     // User is signed out
                     loginModal.classList.add('active');
                     usernameDisplay.textContent = 'Guest';
                     profilePic.src = 'https://via.placeholder.com/40';
-                    initParticles(settings);
                 }
             });
 
@@ -540,10 +599,6 @@
             goToLogin.addEventListener('click', signInWithGoogle);
             goToHome.addEventListener('click', () => window.location.href = 'index.html');
             clearAllBtn.addEventListener('click', clearAllFavorites);
-            
-            // Initialize particle system
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
         });
 
         // Sign in with Google
@@ -698,137 +753,6 @@
                         console.error('Error clearing favorites:', error);
                         alert('Failed to clear favorites. Please try again.');
                     });
-            }
-        }
-
-        // Particle Effects System
-        function initParticles(settings) {
-            if (!settings.particlesEnabled) {
-                destroyParticles();
-                return;
-            }
-
-            particleCanvas = document.getElementById('particle-canvas');
-            if (!particleCanvas) {
-                particleCanvas = document.createElement('canvas');
-                particleCanvas.id = 'particle-canvas';
-                document.body.insertBefore(particleCanvas, document.body.firstChild);
-            }
-            
-            particleCtx = particleCanvas.getContext('2d');
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            
-            createParticles(settings);
-            animateParticles();
-        }
-
-        function resizeCanvas() {
-            if (!particleCanvas) return;
-            particleCanvas.width = window.innerWidth;
-            particleCanvas.height = window.innerHeight;
-        }
-
-        function createParticles(settings) {
-            const count = parseInt(settings.particleCount) || 50;
-            const type = settings.particleType || 'circle';
-            const colors = [
-                settings.particleColor1 || '#4fc3f7',
-                settings.particleColor2 || '#ff4757',
-                settings.particleColor3 || '#2ecc71'
-            ];
-            
-            const speed = parseInt(settings.particleSpeed) || 2;
-            
-            particles = [];
-            
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: Math.random() * particleCanvas.width,
-                    y: Math.random() * particleCanvas.height,
-                    size: Math.random() * 5 + 2,
-                    speedX: (Math.random() - 0.5) * speed,
-                    speedY: (Math.random() - 0.5) * speed,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    type: type
-                });
-            }
-        }
-
-        function animateParticles() {
-            if (!particleCanvas || !particleCtx) return;
-            
-            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-            
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                
-                p.x += p.speedX;
-                p.y += p.speedY;
-                
-                if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
-                if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
-                
-                particleCtx.fillStyle = p.color;
-                
-                switch(p.type) {
-                    case 'star':
-                        drawStar(p.x, p.y, 5, p.size, p.size / 2);
-                        break;
-                    case 'triangle':
-                        drawTriangle(p.x, p.y, p.size);
-                        break;
-                    default:
-                        particleCtx.beginPath();
-                        particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        particleCtx.fill();
-                }
-            }
-            
-            requestAnimationFrame(animateParticles);
-        }
-
-        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
-            let rot = Math.PI / 2 * 3;
-            let x = cx;
-            let y = cy;
-            let step = Math.PI / spikes;
-            
-            particleCtx.beginPath();
-            particleCtx.moveTo(cx, cy - outerRadius);
-            
-            for (let i = 0; i < spikes; i++) {
-                x = cx + Math.cos(rot) * outerRadius;
-                y = cy + Math.sin(rot) * outerRadius;
-                particleCtx.lineTo(x, y);
-                rot += step;
-                
-                x = cx + Math.cos(rot) * innerRadius;
-                y = cy + Math.sin(rot) * innerRadius;
-                particleCtx.lineTo(x, y);
-                rot += step;
-            }
-            
-            particleCtx.lineTo(cx, cy - outerRadius);
-            particleCtx.closePath();
-            particleCtx.fill();
-        }
-
-        function drawTriangle(x, y, size) {
-            particleCtx.beginPath();
-            particleCtx.moveTo(x, y - size);
-            particleCtx.lineTo(x + size, y + size);
-            particleCtx.lineTo(x - size, y + size);
-            particleCtx.closePath();
-            particleCtx.fill();
-        }
-
-        function destroyParticles() {
-            if (particleCanvas) {
-                particleCanvas.remove();
-                particleCanvas = null;
-                particleCtx = null;
-                window.removeEventListener('resize', resizeCanvas);
             }
         }
     </script>
