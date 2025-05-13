@@ -995,5 +995,110 @@ function setupEventListeners() {
             renderAllGameRows(activeCategory, searchInput.value);
         });
     }
+
+    // Add this function to favoritez.js (in the existing file)
+function getGameById(gameId) {
+    for (const category of gamesData) {
+        const game = category.games.find(g => g.id === gameId);
+        if (game) return game;
+    }
+    return null;
+}
+
+// Modify the renderFavorites function to include categories and search
+function renderFavorites(searchTerm = '', filterCategory = 'all') {
+    if (!userFavorites.length) {
+        favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+        return;
+    }
+
+    favoritesContainer.innerHTML = '';
     
+    // Group favorites by category for carousel
+    const favoritesByCategory = {};
+    
+    userFavorites.forEach(gameId => {
+        const game = getGameById(gameId);
+        if (game) {
+            const category = game.category;
+            if (!favoritesByCategory[category]) {
+                favoritesByCategory[category] = [];
+            }
+            favoritesByCategory[category].push(game);
+        }
+    });
+
+    // Add search and filter functionality
+    let filteredFavorites = userFavorites
+        .map(getGameById)
+        .filter(game => game)
+        .filter(game => {
+            const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesCategory = filterCategory === 'all' || game.category === filterCategory;
+            return matchesSearch && matchesCategory;
+        });
+
+    if (filteredFavorites.length === 0) {
+        favoritesContainer.innerHTML = '<p class="no-favorites">No favorites match your search.</p>';
+        return;
+    }
+
+    // Create carousel sections for each category
+    for (const [category, games] of Object.entries(favoritesByCategory)) {
+        if (games.length === 0) continue;
+        
+        const categorySection = document.createElement('div');
+        categorySection.className = 'favorites-category';
+        categorySection.innerHTML = `
+            <h3 class="category-title">${category.charAt(0).toUpperCase() + category.slice(1)} Games</h3>
+            <div class="favorites-carousel" id="carousel-${category}"></div>
+        `;
+        
+        const carousel = categorySection.querySelector('.favorites-carousel');
+        games.forEach(game => {
+            const gameCard = createFavoriteGameCard(game);
+            carousel.appendChild(gameCard);
+        });
+        
+        favoritesContainer.appendChild(categorySection);
+    }
+}
+
+// Update the createFavoriteGameCard function to include hover delete effect
+function createFavoriteGameCard(game) {
+    const card = document.createElement('div');
+    card.className = 'favorite-game-card';
+    card.dataset.id = game.id;
+    
+    card.innerHTML = `
+        <a href="${game.url}" class="game-link">
+            <div class="thumbnail-container">
+                ${game.banner ? createBannerElement(game.banner) : ''}
+                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+                <div class="game-overlay">
+                    <button class="remove-favorite-btn">
+                        <i class="bx bx-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+            <div class="game-info">
+                <div class="game-title">${game.title}</div>
+                <div class="game-category">${game.category}</div>
+            </div>
+        </a>
+    `;
+    
+    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFavorite(game.id).then(() => {
+            card.remove();
+            if (!favoritesContainer.querySelector('.favorite-game-card')) {
+                favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
+            }
+        });
+    });
+    
+    return card;
+}
   
