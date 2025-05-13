@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - Favorites</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="src/style.css">
+    <style>
+        /* Favorites Page Specific Styles */
+        .favorites-page {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            color: white;
+        }
+        
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .favorites-title {
+            font-size: 24px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .favorites-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .clear-all-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .clear-all-btn:hover {
+            background: #ff6b81;
+        }
+        
+        .clear-all-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .filters-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        
+        .search-container input {
+            width: 100%;
+            padding: 10px 15px 10px 35px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .category-tabs .tab-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .category-tabs .tab-btn.active {
+            background: #4361ee;
+        }
+        
+        .category-tabs .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .favorites-carousel {
+            position: relative;
+            width: 100%;
+        }
+        
+        .carousel-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            gap: 15px;
+            padding: 10px 0;
+            scrollbar-width: none;
+            margin: 0 -10px;
+            padding: 10px;
+        }
+        
+        .carousel-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .carousel-slide {
+            flex: 0 0 auto;
+            width: 180px;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        
+        .carousel-slide:hover {
+            transform: translateY(-5px);
+        }
+        
+        .carousel-slide:hover .remove-favorite-btn {
+            opacity: 1;
+        }
+        
+        .remove-favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 2;
+        }
+        
+        .remove-favorite-btn:hover {
+            background: #ff4757;
+        }
+        
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            z-index: 1;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .carousel-arrow:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .carousel-arrow.left {
+            left: -50px;
+        }
+        
+        .carousel-arrow.right {
+            right: -50px;
+        }
+        
+        .carousel-arrow.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .no-favorites {
+            text-align: center;
+            color: #aaa;
+            padding: 40px;
+            font-size: 18px;
+            width: 100%;
+        }
+        
+        /* Game Card Styles */
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        
+        .game-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+        }
+        
+        .game-thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .game-title {
+            padding: 10px;
+            font-size: 14px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Confirmation Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .confirmation-modal {
+            background: #2c2c2c;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-title {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-btn {
+            padding: 8px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .confirm-btn {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            background: #ff6b81;
+        }
+        
+        .cancel-btn {
+            background: #555;
+            color: white;
+        }
+        
+        .cancel-btn:hover {
+            background: #666;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .carousel-arrow.left {
+                left: -20px;
+            }
+            
+            .carousel-arrow.right {
+                right: -20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-arrow {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+            
+            .carousel-arrow.left {
+                left: -15px;
+            }
+            
+            .carousel-arrow.right {
+                right: -15px;
+            }
+            
+            .carousel-slide {
+                width: 150px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .favorites-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .favorites-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-container {
+                max-width: none;
+            }
+            
+            .carousel-arrow {
+                display: none;
+            }
+            
+            .carousel-slide {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Container -->
+    <div id="auth-container" class="auth-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="confirmation-modal">
+            <h3 class="modal-title">Are you sure you want to clear all favorites?</h3>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" id="cancelClear">Cancel</button>
+                <button class="modal-btn confirm-btn" id="confirmClear">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container favorites-page">
+        <div class="favorites-header">
+            <h2 class="favorites-title"><i class='bx bxs-bookmark-alt'></i> Favorite Games</h2>
+            <div class="favorites-controls">
+                <div class="search-container">
+                    <i class='bx bx-search'></i>
+                    <input type="text" id="favoritesSearch" placeholder="Search favorites...">
+                </div>
+                <button class="clear-all-btn" id="clearAllFavorites" disabled>
+                    <i class='bx bx-trash'></i> Clear All
+                </button>
+            </div>
+        </div>
+
+        <div class="filters-container">
+            <div class="category-tabs">
+                <button class="tab-btn active" data-category="all">
+                    <i class='bx bx-game'></i> All
+                </button>
+                <button class="tab-btn" data-category="action">
+                    <i class='bx bx-run'></i> Action
+                </button>
+                <button class="tab-btn" data-category="puzzle">
+                    <i class='bx bx-puzzle'></i> Puzzle
+                </button>
+                <button class="tab-btn" data-category="sports">
+                    <i class='bx bx-football'></i> Sports
+                </button>
+                <button class="tab-btn" data-category="io">
+                    <i class='bx bx-globe'></i> .IO
+                </button>
+            </div>
+        </div>
+
+        <div class="favorites-carousel">
+            <button class="carousel-arrow left hidden" id="carouselLeft">
+                <i class='bx bx-chevron-left'></i>
+            </button>
+            
+            <div class="carousel-container" id="favoritesCarousel">
+                <div class="no-favorites">You have no favorite games yet.</div>
+            </div>
+            
+            <button class="carousel-arrow right hidden" id="carouselRight">
+                <i class='bx bx-chevron-right'></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Hamburger Menu -->
+    <button class="hamburger">
+        <i class='bx bx-menu'></i>
+    </button>
+
+    <!-- Vertical Navbar -->
+    <nav class="navbar closed">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link" data-glow-color="#4fc3f7">
+                <i class='bx bx-home'></i>
+            </a>
+            <a href="#" class="nav-link" data-glow-color="#ff6e40">
+                <i class='bx bx-search'></i>
+            </a>
+            <a href="favorites.html" class="nav-link active" data-glow-color="#9575cd">
+                <i class='bx bx-heart'></i>
+            </a>
+            <a href="settings.html" class="nav-link" data-glow-color="#64dd17">
+                <i class='bx bx-cog'></i>
+            </a>
+            <div class="glow-effect"></div>
+        </div>
+    </nav>
+
+    <script src="src/script.js"></script>
+    <script>
+    // Favorites Page Specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize elements
+        const carousel = document.getElementById('favoritesCarousel');
+        const leftArrow = document.getElementById('carouselLeft');
+        const rightArrow = document.getElementById('carouselRight');
+        const searchInput = document.getElementById('favoritesSearch');
+        const categoryTabs = document.querySelectorAll('.category-tabs .tab-btn');
+        const clearAllBtn = document.getElementById('clearAllFavorites');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmClearBtn = document.getElementById('confirmClear');
+        const cancelClearBtn = document.getElementById('cancelClear');
+        
+        let currentCategory = 'all';
+        let currentSearchTerm = '';
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Carousel navigation
+            leftArrow.addEventListener('click', scrollLeft);
+            rightArrow.addEventListener('click', scrollRight);
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                currentSearchTerm = this.value.toLowerCase();
+                renderFilteredFavorites();
+            });
+            
+            // Category tabs
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = this.dataset.category;
+                    renderFilteredFavorites();
+                });
+            });
+            
+            // Clear all favorites
+            clearAllBtn.addEventListener('click', function() {
+                if (!currentUser) {
+                    alert('Please sign in to manage favorites');
+                    return;
+                }
+                
+                if (!userFavorites.length) {
+                    alert('You have no favorites to clear');
+                    return;
+                }
+                
+                confirmationModal.classList.add('active');
+            });
+            
+            // Confirmation modal buttons
+            confirmClearBtn.addEventListener('click', function() {
+                clearAllFavorites().then(() => {
+                    confirmationModal.classList.remove('active');
+                    renderFilteredFavorites();
+                });
+            });
+            
+            cancelClearBtn.addEventListener('click', function() {
+                confirmationModal.classList.remove('active');
+            });
+            
+            // Update carousel arrows when scrolling
+            carousel.addEventListener('scroll', updateCarouselArrows);
+            window.addEventListener('resize', updateCarouselArrows);
+        }
+        
+        // Scroll carousel left
+        function scrollLeft() {
+            carousel.scrollBy({
+                left: -carousel.offsetWidth * 0.8,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Scroll carousel right
+        function scrollRight() {
+            carousel.scrollBy({
+                left: carousel.offsetWidth * 0.8,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Update carousel arrow visibility
+        function updateCarouselArrows() {
+            if (carousel.scrollWidth <= carousel.offsetWidth) {
+                leftArrow.classList.add('hidden');
+                rightArrow.classList.add('hidden');
+                return;
+            }
+            
+            if (carousel.scrollLeft <= 10) {
+                leftArrow.classList.add('hidden');
+                rightArrow.classList.remove('hidden');
+            } else if (carousel.scrollLeft >= carousel.scrollWidth - carousel.offsetWidth - 10) {
+                leftArrow.classList.remove('hidden');
+                rightArrow.classList.add('hidden');
+            } else {
+                leftArrow.classList.remove('hidden');
+                rightArrow.classList.remove('hidden');
+            }
+        }
+        
+        // Create game card HTML
+        function createGameCard(game) {
+            return `
+                <div class="carousel-slide">
+                    <div class="game-card pinned-highlight" data-category="${game.category}" data-id="${game.id}">
+                        <button class="remove-favorite-btn" title="Remove from favorites">
+                            <i class="bx bx-trash"></i>
+                        </button>
+                        <a href="${game.url}" class="game-link">
+                            <div class="thumbnail-container">
+                                ${game.banner ? createBannerElement(game.banner) : ''}
+                                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}" loading="lazy">
+                            </div>
+                            <div class="game-title">${game.title}</div>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Render favorites based on current filters
+        function renderFilteredFavorites() {
+            if (!userFavorites || !userFavorites.length) {
+                carousel.innerHTML = '<div class="no-favorites">You have no favorite games yet.</div>';
+                clearAllBtn.disabled = true;
+                leftArrow.classList.add('hidden');
+                rightArrow.classList.add('hidden');
+                return;
+            }
+            
+            const filteredGames = userFavorites
+                .map(gameId => findGameById(gameId))
+                .filter(game => {
+                    if (!game) return false;
+                    
+                    // Filter by category
+                    const matchesCategory = currentCategory === 'all' || game.category === currentCategory;
+                    
+                    // Filter by search term
+                    const matchesSearch = game.title.toLowerCase().includes(currentSearchTerm);
+                    
+                    return matchesCategory && matchesSearch;
+                });
+            
+            if (filteredGames.length === 0) {
+                carousel.innerHTML = '<div class="no-favorites">No favorites match your filters.</div>';
+                clearAllBtn.disabled = true;
+                leftArrow.classList.add('hidden');
+                rightArrow.classList.add('hidden');
+                return;
+            }
+            
+            clearAllBtn.disabled = false;
+            
+            // Create carousel slides
+            carousel.innerHTML = filteredGames.map(game => createGameCard(game)).join('');
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const gameCard = this.closest('.game-card');
+                    const gameId = parseInt(gameCard.dataset.id);
+                    toggleFavorite(gameId).then(() => {
+                        renderFilteredFavorites();
+                    });
+                });
+            });
+            
+            // Update carousel arrows
+            updateCarouselArrows();
+        }
+        
+        // Initialize the page
+        setupEventListeners();
+        
+        // When auth state changes, render favorites
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                currentUser = user;
+                loadUserFavorites(user.uid).then(renderFilteredFavorites);
+            } else {
+                currentUser = null;
+                userFavorites = [];
+                renderFilteredFavorites();
+            }
+        });
+    });
+    </script>
+</body>
+</html>
