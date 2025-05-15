@@ -1008,3 +1008,307 @@
     </script>
 </body>
 </html>
+
+   <script>
+    // Particle Effects System
+    let particles = [];
+    let particleCanvas;
+    let particleCtx;
+    let currentSettings = {};
+    let settingsListener = null;
+    let panicKeyListener = null;
+
+    // Initialize particles with settings
+    function initParticles(settings) {
+        if (!settings.particlesEnabled) {
+            destroyParticles();
+            return;
+        }
+
+        particleCanvas = document.getElementById('particle-canvas');
+        if (!particleCanvas) {
+            particleCanvas = document.createElement('canvas');
+            particleCanvas.id = 'particle-canvas';
+            document.body.appendChild(particleCanvas);
+        }
+        
+        particleCtx = particleCanvas.getContext('2d');
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        createParticles(settings);
+        animateParticles();
+    }
+
+    function resizeCanvas() {
+        if (!particleCanvas) return;
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+    }
+
+    function createParticles(settings) {
+        const count = parseInt(settings.particleCount) || 50;
+        const type = settings.particleType || 'circle';
+        const colors = [
+            settings.particleColor1 || '#4361ee',
+            settings.particleColor2 || '#f72585',
+            settings.particleColor3 || '#4cc9f0'
+        ];
+        
+        const speed = parseInt(settings.particleSpeed) || 3;
+        
+        particles = [];
+        
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * particleCanvas.width,
+                y: Math.random() * particleCanvas.height,
+                size: Math.random() * 5 + 2,
+                speedX: (Math.random() - 0.5) * speed,
+                speedY: (Math.random() - 0.5) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                type: type
+            });
+        }
+    }
+
+    function animateParticles() {
+        if (!particleCanvas || !particleCtx) return;
+        
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            
+            p.x += p.speedX;
+            p.y += p.speedY;
+            
+            if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
+            if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
+            
+            particleCtx.fillStyle = p.color;
+            
+            switch(p.type) {
+                case 'star':
+                    drawStar(p.x, p.y, 5, p.size, p.size / 2);
+                    break;
+                case 'triangle':
+                    drawTriangle(p.x, p.y, p.size);
+                    break;
+                default:
+                    particleCtx.beginPath();
+                    particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    particleCtx.fill();
+            }
+        }
+        
+        requestAnimationFrame(animateParticles);
+    }
+
+    function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+        
+        particleCtx.beginPath();
+        particleCtx.moveTo(cx, cy - outerRadius);
+        
+        for (let i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rot) * outerRadius;
+            y = cy + Math.sin(rot) * outerRadius;
+            particleCtx.lineTo(x, y);
+            rot += step;
+            
+            x = cx + Math.cos(rot) * innerRadius;
+            y = cy + Math.sin(rot) * innerRadius;
+            particleCtx.lineTo(x, y);
+            rot += step;
+        }
+        
+        particleCtx.lineTo(cx, cy - outerRadius);
+        particleCtx.closePath();
+        particleCtx.fill();
+    }
+
+    function drawTriangle(x, y, size) {
+        particleCtx.beginPath();
+        particleCtx.moveTo(x, y - size);
+        particleCtx.lineTo(x + size, y + size);
+        particleCtx.lineTo(x - size, y + size);
+        particleCtx.closePath();
+        particleCtx.fill();
+    }
+
+    function destroyParticles() {
+        if (particleCanvas) {
+            particleCanvas.remove();
+            particleCanvas = null;
+            particleCtx = null;
+            window.removeEventListener('resize', resizeCanvas);
+        }
+    }
+
+    // Setup panic key listener
+    function setupPanicKeyListener() {
+        // Remove previous listener if exists
+        if (panicKeyListener) {
+            document.removeEventListener('keydown', panicKeyListener);
+        }
+
+        // Only setup listener if we have valid settings
+        if (currentSettings.panicKey && currentSettings.panicUrl) {
+            panicKeyListener = function(e) {
+                if (e.key === currentSettings.panicKey) {
+                    window.location.href = currentSettings.panicUrl;
+                }
+            };
+            
+            document.addEventListener('keydown', panicKeyListener);
+        }
+    }
+
+    // Apply tab cloaking settings
+    function applyTabCloakSettings(settings) {
+        if (settings.cloakSite) {
+            document.title = getCloakTitle(settings.cloakSite);
+            updateFavicon(settings.cloakSite);
+        }
+    }
+
+    function getCloakTitle(site) {
+        const titles = {
+            'google': 'Google Classroom',
+            'clever': 'Clever | Portal',
+            'drive': 'My Drive - Google Drive',
+            'docs': 'Google Docs'
+        };
+        return titles[site] || 'GameHub - CrazyGames Clone';
+    }
+
+    function updateFavicon(site) {
+        const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+        favicon.rel = 'icon';
+        
+        const icons = {
+            'google': 'https://www.google.com/favicon.ico',
+            'clever': 'https://clever.com/favicon.ico',
+            'drive': 'https://drive.google.com/favicon.ico',
+            'docs': 'https://docs.google.com/favicon.ico'
+        };
+        
+        favicon.href = icons[site] || 'favicon.ico';
+        document.head.appendChild(favicon);
+    }
+
+    // Settings Listener
+    function setupSettingsListener(userId) {
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase if not already initialized
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.firestore();
+        
+        settingsListener = db.collection('users').doc(userId)
+            .onSnapshot((doc) => {
+                if (doc.exists) {
+                    currentSettings = doc.data().settings || {};
+                    applySettings(currentSettings);
+                }
+            }, (error) => {
+                console.error('Error listening to settings:', error);
+            });
+    }
+
+    function applySettings(settings) {
+        // Apply theme
+        if (settings.theme) {
+            document.body.className = settings.theme;
+        }
+
+        // Apply background image
+        if (settings.backgroundImage) {
+            document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+        } else {
+            document.body.style.backgroundImage = 'none';
+        }
+
+        // Apply particle effects
+        if (settings.particlesEnabled) {
+            initParticles(settings);
+        } else {
+            destroyParticles();
+        }
+
+        // Apply panic key settings
+        setupPanicKeyListener();
+
+        // Apply tab cloaking settings
+        applyTabCloakSettings(settings);
+    }
+
+    // Initialize Firebase and set up auth state listener
+    document.addEventListener('DOMContentLoaded', function() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Set up auth state listener
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                // Clean up previous listener if exists
+                if (settingsListener) {
+                    settingsListener();
+                }
+                setupSettingsListener(user.uid);
+            } else {
+                // Apply default settings for guests
+                applySettings({
+                    theme: '',
+                    backgroundImage: '',
+                    particlesEnabled: false
+                });
+                if (settingsListener) {
+                    settingsListener();
+                    settingsListener = null;
+                }
+                // Remove panic key listener if exists
+                if (panicKeyListener) {
+                    document.removeEventListener('keydown', panicKeyListener);
+                    panicKeyListener = null;
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>
+
+ <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
