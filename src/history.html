@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game History</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4fc3f7;
+            --danger: #ff4757;
+            --success: #2ecc71;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --gray: #a4b0be;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e272e;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .history-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .history-btn {
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .clear-history {
+            background-color: var(--danger);
+        }
+        
+        .export-history {
+            background-color: var(--success);
+        }
+        
+        .history-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background-color: #3a4042;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .history-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .history-tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .history-section {
+            margin-bottom: 30px;
+        }
+        
+        .history-date-header {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 1px solid #3a4042;
+            padding-bottom: 5px;
+        }
+        
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .history-item {
+            background-color: var(--dark);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .history-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .history-info {
+            padding: 15px;
+        }
+        
+        .history-game-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--light);
+        }
+        
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-time {
+            font-size: 12px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .history-play-count {
+            font-size: 12px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .history-category {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        
+        .no-history {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-size: 18px;
+        }
+        
+        .loading-history {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-size: 18px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        /* Game categories color coding */
+        .category-action { background-color: #e74c3c; }
+        .category-puzzle { background-color: #3498db; }
+        .category-sports { background-color: #2ecc71; }
+        .category-io { background-color: #9b59b6; }
+
+        /* Login Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2d3436;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a4042;
+            text-align: center;
+        }
+
+        .modal h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .history-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .history-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="modal active" id="login-modal">
+        <div class="modal-content">
+            <h2>Sign In Required</h2>
+            <p>Please sign in to access your game history</p>
+            <a href="index.html" class="btn" id="go-to-login">
+                <i class='bx bx-log-in'></i> Go to Login
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until signed in) -->
+    <div id="main-content" style="display: none;">
+        <div class="history-container">
+            <div class="history-header">
+                <h2>Your Game History</h2>
+                <div class="history-actions">
+                    <button class="history-btn export-history" id="exportHistoryBtn">
+                        <i class="bx bx-export"></i> Export
+                    </button>
+                    <button class="history-btn clear-history" id="clearHistoryBtn">
+                        <i class="bx bx-trash"></i> Clear All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="history-tabs">
+                <div class="history-tab active" data-tab="recent">Recent Plays</div>
+                <div class="history-tab" data-tab="most-played">Most Played</div>
+            </div>
+            
+            <div id="historyList">
+                <div class="loading-history">
+                    <p>Loading your game history...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (must match version used in other files) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Include the shared auth.js file -->
+    <script src="auth.js"></script>
+    
+    <script>
+        // ===== GLOBAL VARIABLES =====
+        let currentUser = null;
+        let gameStats = {}; // { gameId: { playCount, lastPlayed } }
+        let allGames = []; // Will store all games from gamesData
+
+        // ===== PAGE INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Firebase (already done in auth.js)
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // Set up auth state listener
+            auth.onAuthStateChanged(function(user) {
+                currentUser = user;
+                handleAuthStateChange(user);
+                
+                if (user) {
+                    // Load game data and user history
+                    loadGameData().then(() => {
+                        loadGameHistory(user.uid);
+                        loadGameStats(user.uid);
+                    });
+                }
+            });
+
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Load game data from script.js
+        function loadGameData() {
+            return new Promise((resolve) => {
+                // Flatten the gamesData structure
+                allGames = [];
+                gamesData.forEach(category => {
+                    allGames = allGames.concat(category.games);
+                });
+                resolve();
+            });
+        }
+
+        // Handle auth state changes
+        function handleAuthStateChange(user) {
+            const loginModal = document.getElementById('login-modal');
+            const mainContent = document.getElementById('main-content');
+            
+            if (user) {
+                // User is signed in
+                loginModal.classList.remove('active');
+                mainContent.style.display = 'block';
+            } else {
+                // User is signed out
+                loginModal.classList.add('active');
+                mainContent.style.display = 'none';
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+        function setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.history-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    const tabType = tab.dataset.tab;
+                    if (currentUser) {
+                        if (tabType === 'recent') {
+                            loadGameHistory(currentUser.uid);
+                        } else if (tabType === 'most-played') {
+                            displayMostPlayedGames();
+                        }
+                    }
+                });
+            });
+            
+            // Clear history
+            document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+                if (confirm('Clear ALL your game history? This cannot be undone!')) {
+                    clearGameHistory();
+                }
+            });
+            
+            // Export history
+            document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
+
+            // Login button
+            document.getElementById('go-to-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'index.html';
+            });
+
+            // Game link click tracking
+            document.addEventListener('click', function(e) {
+                const gameLink = e.target.closest('.game-link');
+                if (gameLink) {
+                    e.preventDefault();
+                    const gameId = getGameIdFromUrl(gameLink.href);
+                    if (gameId && currentUser) {
+                        trackGamePlay(gameId).then(() => {
+                            window.location.href = gameLink.href;
+                        });
+                    } else {
+                        window.location.href = gameLink.href;
+                    }
+                }
+            });
+        }
+
+        // Helper function to extract game ID from URL
+        function getGameIdFromUrl(url) {
+            const gameUrl = url.split('#')[1];
+            if (!gameUrl) return null;
+            
+            // Find the game that matches this URL
+            for (const game of allGames) {
+                if (game.url === `#${gameUrl}`) {
+                    return game.id;
+                }
+            }
+            return null;
+        }
+
+        // ===== GAME HISTORY FUNCTIONS =====
+        function loadGameHistory(userId) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="loading-history"><p>Loading your history...</p></div>';
+            
+            const db = firebase.firestore();
+            db.collection('users').doc(userId).collection('history')
+                .orderBy('timestamp', 'desc')
+                .get()
+                .then(querySnapshot => {
+                    if (querySnapshot.empty) {
+                        historyList.innerHTML = `
+                            <div class="no-history">
+                                <p>No game history found. Play some games to see them here!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Group by date
+                    const historyByDate = {};
+                    querySnapshot.forEach(doc => {
+                        const historyItem = doc.data();
+                        const date = historyItem.timestamp.toDate();
+                        const dateStr = date.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+                        
+                        if (!historyByDate[dateStr]) {
+                            historyByDate[dateStr] = [];
+                        }
+                        
+                        historyByDate[dateStr].push(historyItem);
+                    });
+                    
+                    // Display grouped history
+                    historyList.innerHTML = '';
+                    for (const [date, items] of Object.entries(historyByDate)) {
+                        const section = document.createElement('div');
+                        section.className = 'history-section';
+                        section.innerHTML = `
+                            <h3 class="history-date-header">${date}</h3>
+                            <div class="history-grid"></div>
+                        `;
+                        
+                        const grid = section.querySelector('.history-grid');
+                        items.forEach(item => {
+                            const game = findGameById(item.gameId);
+                            if (game) {
+                                const element = createHistoryElement(game, item.timestamp);
+                                grid.appendChild(element);
+                            }
+                        });
+                        
+                        historyList.appendChild(section);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading history:', error);
+                    historyList.innerHTML = `
+                        <div class="no-history">
+                            <p>Error loading history. Please refresh the page.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function loadGameStats(userId) {
+            const db = firebase.firestore();
+            db.collection('users').doc(userId).collection('stats')
+                .get()
+                .then(querySnapshot => {
+                    gameStats = {};
+                    querySnapshot.forEach(doc => {
+                        gameStats[doc.id] = doc.data();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading game stats:', error);
+                });
+        }
+
+        function displayMostPlayedGames() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="loading-history"><p>Loading most played games...</p></div>';
+            
+            // Convert stats to array and sort by play count
+            const statsArray = Object.entries(gameStats)
+                .map(([gameId, stats]) => ({
+                    gameId: parseInt(gameId),
+                    playCount: stats.playCount || 0,
+                    lastPlayed: stats.lastPlayed
+                }))
+                .sort((a, b) => b.playCount - a.playCount);
+            
+            if (statsArray.length === 0) {
+                historyList.innerHTML = `
+                    <div class="no-history">
+                        <p>No play stats available yet. Play some games!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            historyList.innerHTML = '<div class="history-grid"></div>';
+            const grid = historyList.querySelector('.history-grid');
+            
+            statsArray.forEach(stat => {
+                const game = findGameById(stat.gameId);
+                if (game) {
+                    const element = createHistoryElement(game, stat.lastPlayed);
+                    const playCountEl = document.createElement('div');
+                    playCountEl.className = 'history-play-count';
+                    playCountEl.innerHTML = `<i class="bx bx-play"></i> ${stat.playCount}`;
+                    element.querySelector('.history-meta').appendChild(playCountEl);
+                    grid.appendChild(element);
+                }
+            });
+        }
+
+        function trackGamePlay(gameId) {
+            if (!currentUser) return Promise.resolve();
+            
+            const userId = currentUser.uid;
+            const db = firebase.firestore();
+            
+            // Record history
+            const historyPromise = db.collection('users').doc(userId).collection('history').add({
+                gameId: gameId,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Update play count
+            const statsPromise = db.collection('users').doc(userId).collection('stats')
+                .doc(gameId.toString()).set({
+                    playCount: firebase.firestore.FieldValue.increment(1),
+                    lastPlayed: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            
+            return Promise.all([historyPromise, statsPromise]);
+        }
+
+        function createHistoryElement(game, timestamp) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            const date = timestamp ? timestamp.toDate() : new Date();
+            const timeStr = timestamp ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never';
+            
+            historyItem.innerHTML = `
+                <a href="${game.url}" class="game-link">
+                    <div class="history-category category-${game.category}">${game.category}</div>
+                    <img src="${game.staticImg}" alt="${game.title}" class="history-thumbnail">
+                    <div class="history-info">
+                        <h3 class="history-game-title">${game.title}</h3>
+                        <div class="history-meta">
+                            <div class="history-time">
+                                <i class="bx bx-time"></i>
+                                ${timeStr}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            `;
+            
+            return historyItem;
+        }
+
+        function clearGameHistory() {
+            if (!currentUser) return;
+            
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="loading-history"><p>Clearing history...</p></div>';
+            const db = firebase.firestore();
+            
+            db.collection('users').doc(currentUser.uid).collection('history').get()
+                .then(querySnapshot => {
+                    const batch = db.batch();
+                    querySnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    return batch.commit();
+                })
+                .then(() => {
+                    historyList.innerHTML = `
+                        <div class="no-history">
+                            <p>Your game history has been cleared</p>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error clearing history:', error);
+                    historyList.innerHTML = `
+                        <div class="no-history">
+                            <p>Failed to clear history. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function exportHistory() {
+            if (!currentUser) return;
+            
+            const db = firebase.firestore();
+            db.collection('users').doc(currentUser.uid).collection('history')
+                .orderBy('timestamp', 'desc')
+                .get()
+                .then(querySnapshot => {
+                    let csvContent = "Game Title,Category,Date Played,Time Played\n";
+                    
+                    querySnapshot.forEach(doc => {
+                        const historyItem = doc.data();
+                        const game = findGameById(historyItem.gameId);
+                        if (game) {
+                            const date = historyItem.timestamp.toDate();
+                            const dateStr = date.toLocaleDateString();
+                            const timeStr = date.toLocaleTimeString();
+                            csvContent += `"${game.title}","${game.category}","${dateStr}","${timeStr}"\n`;
+                        }
+                    });
+                    
+                    // Create download link
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `game-history-${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(error => {
+                    console.error('Error exporting history:', error);
+                    alert('Failed to export history. Please try again.');
+                });
+        }
+
+        function findGameById(id) {
+            return allGames.find(game => game.id === id);
+        }
+    </script>
+</body>
+</html>
