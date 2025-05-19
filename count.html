@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - Play History</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a56d4;
+            --primary-light: #e0e7ff;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* History Page Styles */
+        .history-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-top: 20px;
+        }
+
+        .history-header h1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .history-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: var(--card-bg);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            min-width: 120px;
+            transition: transform 0.2s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-box i {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box span {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stat-box small {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .history-controls {
+            margin-bottom: 2rem;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 20px 12px 40px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            background-color: var(--card-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .history-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .history-item {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: transform 0.2s;
+            display: flex;
+            box-shadow: var(--box-shadow);
+        }
+
+        .history-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .history-item .game-link {
+            display: flex;
+            width: 100%;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .history-item .thumbnail-container {
+            width: 120px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+
+        .history-item .thumbnail-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .history-item .game-info {
+            padding: 0.8rem;
+            flex-grow: 1;
+        }
+
+        .history-item .game-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        .history-item .game-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .history-item .game-meta i {
+            margin-right: 0.3rem;
+        }
+
+        .history-item .game-category {
+            text-transform: capitalize;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .no-history {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: color 0.3s;
+        }
+
+        .nav-link i {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .history-item {
+                flex-direction: column;
+            }
+
+            .history-item .thumbnail-container {
+                width: 100%;
+                height: 120px;
+            }
+
+            .history-stats {
+                gap: 1rem;
+            }
+
+            .stat-box {
+                padding: 0.8rem 1rem;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="history-header">
+            <h1><i class='bx bx-history'></i> Play History</h1>
+            <div class="history-stats">
+                <div class="stat-box">
+                    <i class='bx bx-play-circle'></i>
+                    <span id="total-plays">0</span>
+                    <small>Total Plays</small>
+                </div>
+                <div class="stat-box">
+                    <i class='bx bx-game'></i>
+                    <span id="unique-games">0</span>
+                    <small>Unique Games</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="history-controls">
+            <div class="search-container">
+                <i class='bx bx-search'></i>
+                <input type="text" id="historySearch" placeholder="Search history...">
+            </div>
+            
+            <div class="category-tabs">
+                <button class="tab-btn active" data-category="all">
+                    <i class='bx bx-game'></i> All
+                </button>
+                <button class="tab-btn" data-category="action">
+                    <i class='bx bx-run'></i> Action
+                </button>
+                <button class="tab-btn" data-category="puzzle">
+                    <i class='bx bx-puzzle'></i> Puzzle
+                </button>
+                <button class="tab-btn" data-category="sports">
+                    <i class='bx bx-football'></i> Sports
+                </button>
+                <button class="tab-btn" data-category="io">
+                    <i class='bx bx-globe'></i> .IO
+                </button>
+            </div>
+        </div>
+
+        <!-- History List -->
+        <div class="history-list" id="historyContainer">
+            <!-- History items will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-link">
+            <i class='bx bx-home'></i>
+            <span>Home</span>
+        </a>
+        <a href="history.html" class="nav-link active">
+            <i class='bx bx-history'></i>
+            <span>History</span>
+        </a>
+        <a href="favorites.html" class="nav-link">
+            <i class='bx bx-heart'></i>
+            <span>Favorites</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+            <i class='bx bx-cog'></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- Include script.js to get game data -->
+    <script src="src/script.js"></script>
+    
+    <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+        authDomain: "fusioncya-cc20a.firebaseapp.com",
+        databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+        projectId: "fusioncya-cc20a",
+        storageBucket: "fusioncya-cc20a.appspot.com",
+        messagingSenderId: "765164293111",
+        appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+        measurementId: "G-4DT52P7MPB"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // State
+    let currentHistory = [];
+    let currentCategory = 'all';
+    let currentSearchTerm = '';
+    let currentSettings = {};
+    let allGames = [];
+
+    // DOM Elements
+    const historyContainer = document.getElementById('historyContainer');
+    const totalPlaysEl = document.getElementById('total-plays');
+    const uniqueGamesEl = document.getElementById('unique-games');
+    const historySearch = document.getElementById('historySearch');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const particleCanvas = document.getElementById('particle-canvas');
+
+    // Get all games from script.js data
+    function getAllGames() {
+        const games = [];
+        gamesData.forEach(row => {
+            row.games.forEach(game => {
+                games.push(game);
+            });
+        });
+        return games;
+    }
+
+    // Find game by ID
+    function findGameById(id) {
+        return allGames.find(game => game.id === id);
+    }
+
+    // Load history
+    function loadHistory() {
+        if (!auth.currentUser) {
+            historyContainer.innerHTML = '<p class="no-history">Please sign in to view your play history</p>';
+            return;
+        }
+
+        const userId = auth.currentUser.uid;
+        
+        db.collection('users').doc(userId).collection('history')
+            .orderBy('timestamp', 'desc')
+            .get()
+            .then(querySnapshot => {
+                currentHistory = [];
+                querySnapshot.forEach(doc => {
+                    currentHistory.push(doc.data());
+                });
+                renderHistory();
+                updateStats();
+            })
+            .catch(error => {
+                console.error('Error loading history:', error);
+                historyContainer.innerHTML = '<p class="no-history">Error loading history. Please try again.</p>';
+            });
+    }
+
+    // Render history
+    function renderHistory() {
+        if (!currentHistory.length) {
+            historyContainer.innerHTML = '<p class="no-history">No games played yet</p>';
+            return;
+        }
+
+        // Filter by category and search
+        const filtered = currentHistory.filter(item => {
+            const game = findGameById(item.gameId);
+            if (!game) return false;
+            
+            const matchesCategory = currentCategory === 'all' || game.category === currentCategory;
+            const matchesSearch = game.title.toLowerCase().includes(currentSearchTerm.toLowerCase());
+            
+            return matchesCategory && matchesSearch;
+        });
+
+        // Group by game ID with play count
+        const grouped = {};
+        filtered.forEach(item => {
+            if (!grouped[item.gameId]) {
+                grouped[item.gameId] = {
+                    game: findGameById(item.gameId),
+                    count: 0,
+                    lastPlayed: 0
+                };
+            }
+            grouped[item.gameId].count++;
+            
+            const timestamp = item.timestamp?.seconds || 0;
+            if (timestamp > grouped[item.gameId].lastPlayed) {
+                grouped[item.gameId].lastPlayed = timestamp;
+            }
+        });
+
+        // Convert to array and sort by last played
+        const sorted = Object.values(grouped).sort((a, b) => b.lastPlayed - a.lastPlayed);
+
+        // Render
+        historyContainer.innerHTML = sorted.map(item => createHistoryItem(item)).join('');
+    }
+
+    // Create history item HTML
+    function createHistoryItem(item) {
+        const game = item.game;
+        if (!game) return '';
+        
+        const lastPlayed = item.lastPlayed ? new Date(item.lastPlayed * 1000).toLocaleDateString() : 'Unknown';
+        
+        return `
+            <div class="history-item" data-category="${game.category}" data-id="${game.id}">
+                <a href="${game.url}" class="game-link">
+                    <div class="thumbnail-container">
+                        <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
+                    </div>
+                    <div class="game-info">
+                        <h3>${game.title}</h3>
+                        <div class="game-meta">
+                            <span><i class='bx bx-play'></i> ${item.count} ${item.count === 1 ? 'play' : 'plays'}</span>
+                            <span><i class='bx bx-time'></i> ${lastPlayed}</span>
+                            <span class="game-category">${game.category}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        `;
+    }
+
+    // Update stats
+    function updateStats() {
+        if (!currentHistory.length) {
+            totalPlaysEl.textContent = '0';
+            uniqueGamesEl.textContent = '0';
+            return;
+        }
+
+        totalPlaysEl.textContent = currentHistory.length;
+        
+        const uniqueGames = new Set(currentHistory.map(item => item.gameId)).size;
+        uniqueGamesEl.textContent = uniqueGames;
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Category tabs
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderHistory();
+            });
+        });
+        
+        // Search
+        historySearch.addEventListener('input', () => {
+            currentSearchTerm = historySearch.value;
+            renderHistory();
+        });
+    }
+
+    // Particle Effects System (from turn.html)
+    let particles = [];
+    let particleCtx;
+
+    function initParticles(settings) {
+        if (!settings.particlesEnabled) {
+            destroyParticles();
+            return;
+        }
+
+        particleCtx = particleCanvas.getContext('2d');
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        createParticles(settings);
+        animateParticles();
+    }
+
+    function resizeCanvas() {
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+    }
+
+    function createParticles(settings) {
+        const count = parseInt(settings.particleCount) || 50;
+        const type = settings.particleType || 'circle';
+        const colors = [
+            settings.particleColor1 || '#4361ee',
+            settings.particleColor2 || '#f72585',
+            settings.particleColor3 || '#4cc9f0'
+        ];
+        const speed = parseInt(settings.particleSpeed) || 3;
+        
+        particles = [];
+        
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * particleCanvas.width,
+                y: Math.random() * particleCanvas.height,
+                size: Math.random() * 5 + 2,
+                speedX: (Math.random() - 0.5) * speed,
+                speedY: (Math.random() - 0.5) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                type: type
+            });
+        }
+    }
+
+    function animateParticles() {
+        if (!particleCanvas || !particleCtx) return;
+        
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            
+            p.x += p.speedX;
+            p.y += p.speedY;
+            
+            if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
+            if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
+            
+            particleCtx.fillStyle = p.color;
+            
+            switch(p.type) {
+                case 'star':
+                    drawStar(p.x, p.y, 5, p.size, p.size / 2);
+                    break;
+                case 'triangle':
+                    drawTriangle(p.x, p.y, p.size);
+                    break;
+                default:
+                    particleCtx.beginPath();
+                    particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    particleCtx.fill();
+            }
+        }
+        
+        requestAnimationFrame(animateParticles);
+    }
+
+    function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+        
+        particleCtx.beginPath();
+        particleCtx.moveTo(cx, cy - outerRadius);
+        
+        for (let i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rot) * outerRadius;
+            y = cy + Math.sin(rot) * outerRadius;
+            particleCtx.lineTo(x, y);
+            rot += step;
+            
+            x = cx + Math.cos(rot) * innerRadius;
+            y = cy + Math.sin(rot) * innerRadius;
+            particleCtx.lineTo(x, y);
+            rot += step;
+        }
+        
+        particleCtx.lineTo(cx, cy - outerRadius);
+        particleCtx.closePath();
+        particleCtx.fill();
+    }
+
+    function drawTriangle(x, y, size) {
+        particleCtx.beginPath();
+        particleCtx.moveTo(x, y - size);
+        particleCtx.lineTo(x + size, y + size);
+        particleCtx.lineTo(x - size, y + size);
+        particleCtx.closePath();
+        particleCtx.fill();
+    }
+
+    function destroyParticles() {
+        if (particleCanvas) {
+            window.removeEventListener('resize', resizeCanvas);
+            particleCtx = null;
+        }
+    }
+
+    // Apply theme settings
+    function applyTheme(theme) {
+        document.body.setAttribute('data-theme', theme || 'light');
+    }
+
+    // Apply background image
+    function applyBackgroundImage(imageUrl) {
+        if (imageUrl) {
+            document.body.style.backgroundImage = `url(${imageUrl})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+        } else {
+            document.body.style.backgroundImage = 'none';
+        }
+    }
+
+    // Setup panic key listener
+    function setupPanicKeyListener(settings) {
+        document.removeEventListener('keydown', panicKeyHandler);
+        
+        if (settings.panicKey && settings.panicUrl) {
+            document.addEventListener('keydown', panicKeyHandler);
+        }
+
+        function panicKeyHandler(e) {
+            if (e.key === settings.panicKey) {
+                window.location.href = settings.panicUrl;
+            }
+        }
+    }
+
+    // Apply tab cloaking settings
+    function applyTabCloakSettings(settings) {
+        if (settings.cloakSite) {
+            document.title = getCloakTitle(settings.cloakSite);
+            updateFavicon(settings.cloakSite);
+        }
+    }
+
+    function getCloakTitle(site) {
+        const titles = {
+            'google': 'Google Classroom',
+            'clever': 'Clever | Portal',
+            'drive': 'My Drive - Google Drive',
+            'docs': 'Google Docs'
+        };
+        return titles[site] || 'GameHub - Play History';
+    }
+
+    function updateFavicon(site) {
+        const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+        favicon.rel = 'icon';
+        
+        const icons = {
+            'google': 'https://www.google.com/favicon.ico',
+            'clever': 'https://clever.com/favicon.ico',
+            'drive': 'https://drive.google.com/favicon.ico',
+            'docs': 'https://docs.google.com/favicon.ico'
+        };
+        
+        favicon.href = icons[site] || 'favicon.ico';
+        document.head.appendChild(favicon);
+    }
+
+    // Load user settings
+    function loadUserSettings(userId) {
+        db.collection('users').doc(userId).get()
+            .then(doc => {
+                if (doc.exists) {
+                    currentSettings = doc.data().settings || {};
+                    applySettings(currentSettings);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading settings:', error);
+            });
+    }
+
+    // Apply all settings
+    function applySettings(settings) {
+        applyTheme(settings.theme);
+        applyBackgroundImage(settings.backgroundImage);
+        initParticles(settings);
+        setupPanicKeyListener(settings);
+        applyTabCloakSettings(settings);
+    }
+
+    // Initialize
+    function init() {
+        allGames = getAllGames();
+        setupEventListeners();
+        
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loadHistory();
+                loadUserSettings(user.uid);
+            } else {
+                historyContainer.innerHTML = '<p class="no-history">Please sign in to view your play history</p>';
+                totalPlaysEl.textContent = '0';
+                uniqueGamesEl.textContent = '0';
+                applySettings({}); // Apply default settings for guests
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
