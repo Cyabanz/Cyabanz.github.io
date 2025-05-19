@@ -1315,3 +1315,52 @@ function setupGamePlayTracking() {
         trackGamePlay(gameId);
     });
 }
+
+// Track game play history
+function trackGamePlay(gameId) {
+    if (!currentUser) return;
+    
+    const userId = currentUser.uid;
+    const historyRef = db.collection('users').doc(userId).collection('history').doc();
+    
+    return historyRef.set({
+        gameId: gameId,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .catch(error => {
+        console.error('Error tracking game play:', error);
+    });
+}
+
+// Load game history
+function loadGameHistory(userId) {
+    return db.collection('users').doc(userId).collection('history')
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then(querySnapshot => {
+            const history = [];
+            querySnapshot.forEach(doc => {
+                history.push(doc.data());
+            });
+            return history;
+        });
+}
+
+// Setup game play tracking for all game links
+function setupGamePlayTracking() {
+    document.addEventListener('click', function(e) {
+        const gameLink = e.target.closest('.game-link');
+        if (!gameLink) return;
+        
+        const gameCard = gameLink.closest('.game-card');
+        if (!gameCard) return;
+        
+        const gameId = parseInt(gameCard.dataset.id);
+        if (!gameId) return;
+        
+        trackGamePlay(gameId);
+    });
+}
+
+// Call this in your init function
+setupGamePlayTracking();
