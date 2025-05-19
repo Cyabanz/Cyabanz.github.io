@@ -609,6 +609,7 @@ function init() {
     setupEventListeners();
     setupNavbar();
     renderAllGameRows();
+    setupGamePlayTracking();
     
     // Set up auth state listener
     auth.onAuthStateChanged(function(user) {
@@ -625,9 +626,55 @@ function init() {
     });
 }
 
+// Track game play history
+function trackGamePlay(gameId) {
+    if (!currentUser) return;
+    
+    const userId = currentUser.uid;
+    const historyRef = db.collection('users').doc(userId).collection('history').doc();
+    
+    return historyRef.set({
+        gameId: gameId,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .catch(error => {
+        console.error('Error tracking game play:', error);
+    });
+}
+
+// Setup game play tracking for all game links
+function setupGamePlayTracking() {
+    document.addEventListener('click', function(e) {
+        const gameLink = e.target.closest('.game-link');
+        if (!gameLink) return;
+        
+        const gameCard = gameLink.closest('.game-card');
+        if (!gameCard) return;
+        
+        const gameId = parseInt(gameCard.dataset.id);
+        if (!gameId) return;
+        
+        trackGamePlay(gameId);
+    });
+}
+
+// Load game history
+function loadGameHistory(userId) {
+    return db.collection('users').doc(userId).collection('history')
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then(querySnapshot => {
+            const history = [];
+            querySnapshot.forEach(doc => {
+                history.push(doc.data());
+            });
+            return history;
+        });
+}
+
 // Load user favorites from Firestore
 function loadUserFavorites(userId) {
-    db.collection('users').doc(userId).collection('favorites').get()
+    return db.collection('users').doc(userId).collection('favorites').get()
         .then((querySnapshot) => {
             userFavorites = [];
             querySnapshot.forEach((doc) => {
@@ -693,6 +740,8 @@ function updateFavoritesUI() {
 
 // Render favorites page
 function renderFavorites() {
+    if (!favoritesContainer) return;
+    
     if (!userFavorites.length) {
         favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
         return;
@@ -1195,172 +1244,3 @@ function loadUserData(userId) {
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', init);
-
-// Add these functions to your existing script.js
-
-/* Favorites Page Specific Functions */
-function renderFavorites() {
-    const favoritesContainer = document.getElementById('favoritesContainer');
-    if (!favoritesContainer) return; // Only run on favorites page
-    
-    if (!userFavorites.length) {
-        favoritesContainer.innerHTML = '<p class="no-favorites">You have no favorite games yet.</p>';
-        return;
-    }
-
-    favoritesContainer.innerHTML = '';
-    userFavorites.forEach(gameId => {
-        const game = findGameById(gameId);
-        if (game) {
-            const gameCard = createFavoriteGameCard(game, true);
-            favoritesContainer.appendChild(gameCard);
-        }
-    });
-}
-
-function createFavoriteGameCard(game) {
-    const card = document.createElement('div');
-    card.className = 'game-card pinned-highlight';
-    card.dataset.id = game.id;
-    
-    card.innerHTML = `
-        <a href="${game.url}" class="game-link">
-            <div class="thumbnail-container">
-                ${game.banner ? createBannerElement(game.banner) : ''}
-                <img src="${game.staticImg}" class="game-thumbnail" alt="${game.title}">
-            </div>
-            <div class="game-title">${game.title}</div>
-        </a>
-        <button class="remove-favorite-btn">
-            <i class="bx bx-trash"></i>
-        </button>
-    `;
-    
-    card.querySelector('.remove-favorite-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleFavorite(game.id, card);
-    });
-    
-    return card;
-}
-
-function setupFavoritesPage() {
-    const favoritesContainer = document.getElementById('favoritesContainer');
-    if (!favoritesContainer) return; // Only run on favorites page
-    
-    const clearPinsBtn = document.querySelector('.clear-pins');
-    if (clearPinsBtn) {
-        clearPinsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (confirm('Are you sure you want to clear all favorites?')) {
-                clearAllFavorites();
-            }
-        });
-    }
-    
-    renderFavorites();
-}
-
-// Modify your existing auth state handler to include favorites setup
-auth.onAuthStateChanged(function(user) {
-    if (user) {
-        currentUser = user;
-        updateUIForUser(user);
-        loadUserData(user.uid);
-        loadUserFavorites(user.uid).then(() => {
-            setupFavoritesPage(); // Initialize favorites page after loading
-        });
-    } else {
-        currentUser = null;
-        userFavorites = [];
-        updateUIForGuest();
-        setupFavoritesPage(); // Initialize favorites page for guest
-    }
-});
-
-// Add this to your existing script.js (at the bottom or with other Firebase functions)
-
-// Track when a game is played
-function trackGamePlay(gameId) {
-    if (!currentUser) return;
-    
-    const userId = currentUser.uid;
-    const historyRef = db.collection('users').doc(userId).collection('history').doc();
-    
-    historyRef.set({
-        gameId: gameId,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .catch(error => {
-        console.error('Error tracking game play:', error);
-    });
-}
-
-// Add game play tracking to game links
-function setupGamePlayTracking() {
-    document.addEventListener('click', function(e) {
-        // Check if a game link was clicked
-        const gameLink = e.target.closest('.game-link');
-        if (!gameLink) return;
-        
-        // Find the game card
-        const gameCard = gameLink.closest('.game-card');
-        if (!gameCard) return;
-        
-        // Get the game ID
-        const gameId = parseInt(gameCard.dataset.id);
-        if (!gameId) return;
-        
-        // Track the game play
-        trackGamePlay(gameId);
-    });
-}
-
-// Track game play history
-function trackGamePlay(gameId) {
-    if (!currentUser) return;
-    
-    const userId = currentUser.uid;
-    const historyRef = db.collection('users').doc(userId).collection('history').doc();
-    
-    return historyRef.set({
-        gameId: gameId,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .catch(error => {
-        console.error('Error tracking game play:', error);
-    });
-}
-
-// Load game history
-function loadGameHistory(userId) {
-    return db.collection('users').doc(userId).collection('history')
-        .orderBy('timestamp', 'desc')
-        .get()
-        .then(querySnapshot => {
-            const history = [];
-            querySnapshot.forEach(doc => {
-                history.push(doc.data());
-            });
-            return history;
-        });
-}
-
-// Setup game play tracking for all game links
-function setupGamePlayTracking() {
-    document.addEventListener('click', function(e) {
-        const gameLink = e.target.closest('.game-link');
-        if (!gameLink) return;
-        
-        const gameCard = gameLink.closest('.game-card');
-        if (!gameCard) return;
-        
-        const gameId = parseInt(gameCard.dataset.id);
-        if (!gameId) return;
-        
-        trackGamePlay(gameId);
-    });
-}
-
-// Call this in your init function
-setupGamePlayTracking();
