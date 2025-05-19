@@ -11,306 +11,283 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-// Wait for DOM to load
-document.addEventListener('DOMContentLoaded', function() {
-    // Get DOM elements
-    const signInButton = document.getElementById('signInButton');
-    const signOutButton = document.getElementById('signOutButton');
-    const usernameDisplay = document.getElementById('username-display');
-    const profilePic = document.getElementById('profile-pic');
-    const loginView = document.getElementById('login-view');
-    const dashboardView = document.getElementById('dashboard-view');
-    const dashboardUsername = document.getElementById('dashboard-username');
-    const updateUsernameBtn = document.getElementById('update-username-btn');
-    const newUsernameInput = document.getElementById('new-username');
-    const profilePicUpload = document.getElementById('profile-pic-upload');
-    const updateProfilePicBtn = document.getElementById('update-profile-pic-btn');
-    const profilePicPreview = document.getElementById('profile-pic-preview');
-    const userBioTextarea = document.getElementById('user-bio');
-    const updateBioBtn = document.getElementById('update-bio-btn');
-    const bioCharCount = document.getElementById('bio-char-count');
+// Global auth state handler
+function handleAuthStateChange(user) {
+  const signInButton = document.getElementById('signInButton');
+  const signOutButton = document.getElementById('signOutButton');
+  const usernameDisplay = document.getElementById('username-display');
+  const profilePic = document.getElementById('profile-pic');
+  const loginView = document.getElementById('login-view');
+  const dashboardView = document.getElementById('dashboard-view');
+  const dashboardUsername = document.getElementById('dashboard-username');
 
-    // Auth state listener
-    auth.onAuthStateChanged(function(user) {
-        if (user) {
-            // User is signed in
-            updateUIForUser(user);
-            loadUserData(user.uid);
-        } else {
-            // User is signed out
-            updateUIForGuest();
-        }
-    });
-
-    // Google Sign-In
-    signInButton.addEventListener('click', function() {
-        auth.signInWithPopup(provider)
-            .then(function(result) {
-                if (result.additionalUserInfo.isNewUser) {
-                    return createUserDocument(result.user);
-                }
-            })
-            .catch(function(error) {
-                console.error('Sign in error:', error);
-                alert('Sign in failed: ' + error.message);
-            });
-    });
-
-    // Sign Out
-    signOutButton.addEventListener('click', function() {
-        auth.signOut()
-            .catch(function(error) {
-                console.error('Sign out error:', error);
-            });
-    });
-
-    // Update Username
-    updateUsernameBtn.addEventListener('click', function() {
-        const newUsername = newUsernameInput.value.trim();
-        if (newUsername.length < 3) {
-            alert('Username must be at least 3 characters');
-            return;
-        }
-
-        const userId = auth.currentUser.uid;
-        db.collection('users').doc(userId).update({
-            username: newUsername,
-            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(function() {
-            usernameDisplay.textContent = newUsername;
-            dashboardUsername.textContent = newUsername;
-            newUsernameInput.value = '';
-            alert('Username updated!');
-        })
-        .catch(function(error) {
-            console.error('Error updating username:', error);
-            alert('Update failed: ' + error.message);
-        });
-    });
-
-    // Profile Picture Preview
-    profilePicUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (file.size > 500 * 1024) {
-            alert('Image must be smaller than 500KB');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            profilePicPreview.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // Update Profile Picture
-    updateProfilePicBtn.addEventListener('click', function() {
-        const file = profilePicUpload.files[0];
-        if (!file) {
-            alert('Please select an image first');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const base64Image = event.target.result;
-            const userId = auth.currentUser.uid;
-            
-            db.collection('users').doc(userId).update({
-                photoBase64: base64Image,
-                lastActive: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(function() {
-                profilePic.src = base64Image;
-                profilePicPreview.src = base64Image;
-                profilePicUpload.value = '';
-                alert('Profile picture updated!');
-            })
-            .catch(function(error) {
-                console.error('Error saving image:', error);
-                alert('Upload failed: ' + error.message);
-            });
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // Bio character counter
-    userBioTextarea.addEventListener('input', function() {
-        bioCharCount.textContent = this.value.length;
-    });
-
-    // Update Bio
-    updateBioBtn.addEventListener('click', function() {
-        const newBio = userBioTextarea.value.trim();
-        
-        if (newBio.length > 200) {
-            alert('Bio must be 200 characters or less');
-            return;
-        }
-        
-        const userId = auth.currentUser.uid;
-        db.collection('users').doc(userId).update({
-            bio: newBio,
-            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(function() {
-            alert('Bio updated successfully!');
-        })
-        .catch(function(error) {
-            console.error('Error updating bio:', error);
-            alert('Update failed: ' + error.message);
-        });
-    });
-
-    // Helper Functions
-    function updateUIForUser(user) {
-        loginView.style.display = 'none';
-        dashboardView.style.display = 'block';
-        usernameDisplay.textContent = user.displayName || 'User';
-        dashboardUsername.textContent = user.displayName || 'User';
-        
-        if (user.photoURL) {
-            profilePic.src = user.photoURL;
-            profilePicPreview.src = user.photoURL;
-        }
+  if (user) {
+    // User is signed in
+    if (loginView) loginView.style.display = 'none';
+    if (dashboardView) dashboardView.style.display = 'block';
+    if (usernameDisplay) usernameDisplay.textContent = user.displayName || 'User';
+    if (dashboardUsername) dashboardUsername.textContent = user.displayName || 'User';
+    
+    if (user.photoURL && profilePic) {
+      profilePic.src = user.photoURL;
     }
 
-    function updateUIForGuest() {
-        loginView.style.display = 'block';
-        dashboardView.style.display = 'none';
-        usernameDisplay.textContent = 'Guest';
-        profilePic.src = 'https://via.placeholder.com/40';
-        profilePicPreview.src = 'https://via.placeholder.com/150';
-    }
-
-    function createUserDocument(user) {
-        return db.collection('users').doc(user.uid).set({
-            uid: user.uid,
-            email: user.email,
-            username: user.displayName || 'user' + user.uid.substring(0, 4),
-            photoBase64: user.photoURL || '',
-            bio: '',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .catch(function(error) {
-            console.error('Error creating user document:', error);
-        });
-    }
-
-    function loadUserData(userId) {
-        db.collection('users').doc(userId).get()
-            .then(function(doc) {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    
-                    if (userData.username) {
-                        usernameDisplay.textContent = userData.username;
-                        dashboardUsername.textContent = userData.username;
-                    }
-                    
-                    if (userData.photoBase64) {
-                        profilePic.src = userData.photoBase64;
-                        profilePicPreview.src = userData.photoBase64;
-                    }
-                    
-                    if (userData.bio) {
-                        userBioTextarea.value = userData.bio;
-                        bioCharCount.textContent = userData.bio.length;
-                    }
-                }
-            })
-            .catch(function(error) {
-                console.error('Error loading user data:', error);
-            });
-    }
-
-    // Profile Sharing System
-    setupProfileSharing();
-});
-
-// ======================
-// Favorites System
-// ======================
-
-// Get user's favorites
-async function getFavorites(userId) {
-  try {
-    const docRef = doc(db, "users", userId);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().favorites?.games || [] : [];
-  } catch (error) {
-    console.error("Error getting favorites:", error);
-    return [];
-  }
-}
-
-// Add to favorites
-async function addFavorite(userId, gameId) {
-  const userRef = doc(db, "users", userId);
-  await updateDoc(userRef, {
-    "favorites.games": arrayUnion(gameId),
-    "favorites.lastUpdated": serverTimestamp()
-  });
-}
-
-// Remove from favorites
-async function removeFavorite(userId, gameId) {
-  const userRef = doc(db, "users", userId);
-  await updateDoc(userRef, {
-    "favorites.games": arrayRemove(gameId),
-    "favorites.lastUpdated": serverTimestamp()
-  });
-}
-
-// Toggle favorite status
-async function toggleFavorite(gameId) {
-  if (!auth.currentUser) return showLoginPrompt();
-  
-  const userId = auth.currentUser.uid;
-  const favorites = await getFavorites(userId);
-  
-  if (favorites.includes(gameId)) {
-    await removeFavorite(userId, gameId);
+    // Load additional user data
+    loadUserData(user.uid);
   } else {
-    await addFavorite(userId, gameId);
+    // User is signed out
+    if (loginView) loginView.style.display = 'block';
+    if (dashboardView) dashboardView.style.display = 'none';
+    if (usernameDisplay) usernameDisplay.textContent = 'Guest';
+    if (profilePic) profilePic.src = 'https://via.placeholder.com/40';
   }
 }
 
-// Setup real-time listener
-function setupFavoritesListener(userId) {
-  const userRef = doc(db, "users", userId);
-  
-  onSnapshot(userRef, (doc) => {
-    const favorites = doc.data()?.favorites?.games || [];
-    updateFavoritesUI(favorites);
+// Load user data from Firestore
+function loadUserData(userId) {
+  const newUsernameInput = document.getElementById('new-username');
+  const profilePicPreview = document.getElementById('profile-pic-preview');
+  const userBioTextarea = document.getElementById('user-bio');
+  const bioCharCount = document.getElementById('bio-char-count');
+
+  db.collection('users').doc(userId).get()
+    .then(function(doc) {
+      if (doc.exists) {
+        const userData = doc.data();
+        
+        // Update username displays
+        const usernameDisplay = document.getElementById('username-display');
+        const dashboardUsername = document.getElementById('dashboard-username');
+        if (userData.username && usernameDisplay) {
+          usernameDisplay.textContent = userData.username;
+        }
+        if (userData.username && dashboardUsername) {
+          dashboardUsername.textContent = userData.username;
+        }
+        
+        // Update profile picture
+        if (userData.photoBase64) {
+          const profilePic = document.getElementById('profile-pic');
+          if (profilePic) profilePic.src = userData.photoBase64;
+          if (profilePicPreview) profilePicPreview.src = userData.photoBase64;
+        }
+        
+        // Update bio
+        if (userData.bio && userBioTextarea) {
+          userBioTextarea.value = userData.bio;
+          if (bioCharCount) bioCharCount.textContent = userData.bio.length;
+        }
+      }
+    })
+    .catch(function(error) {
+      console.error('Error loading user data:', error);
+    });
+}
+
+// Create user document in Firestore
+function createUserDocument(user) {
+  return db.collection('users').doc(user.uid).set({
+    uid: user.uid,
+    email: user.email,
+    username: user.displayName || 'user' + user.uid.substring(0, 4),
+    photoBase64: user.photoURL || '',
+    bio: '',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    lastActive: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .catch(function(error) {
+    console.error('Error creating user document:', error);
   });
+}
+
+// Initialize authentication system
+function initAuth() {
+  // Set up auth state listener
+  auth.onAuthStateChanged(handleAuthStateChange);
+
+  // Google Sign-In
+  const signInButton = document.getElementById('signInButton');
+  if (signInButton) {
+    signInButton.addEventListener('click', function() {
+      auth.signInWithPopup(provider)
+        .then(function(result) {
+          if (result.additionalUserInfo.isNewUser) {
+            return createUserDocument(result.user);
+          }
+        })
+        .catch(function(error) {
+          console.error('Sign in error:', error);
+          alert('Sign in failed: ' + error.message);
+        });
+    });
+  }
+
+  // Sign Out
+  const signOutButton = document.getElementById('signOutButton');
+  if (signOutButton) {
+    signOutButton.addEventListener('click', function() {
+      auth.signOut()
+        .catch(function(error) {
+          console.error('Sign out error:', error);
+        });
+    });
+  }
+
+  // Update Username
+  const updateUsernameBtn = document.getElementById('update-username-btn');
+  if (updateUsernameBtn) {
+    updateUsernameBtn.addEventListener('click', function() {
+      const newUsernameInput = document.getElementById('new-username');
+      const newUsername = newUsernameInput.value.trim();
+      if (newUsername.length < 3) {
+        alert('Username must be at least 3 characters');
+        return;
+      }
+
+      const userId = auth.currentUser.uid;
+      db.collection('users').doc(userId).update({
+        username: newUsername,
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(function() {
+        const usernameDisplay = document.getElementById('username-display');
+        const dashboardUsername = document.getElementById('dashboard-username');
+        if (usernameDisplay) usernameDisplay.textContent = newUsername;
+        if (dashboardUsername) dashboardUsername.textContent = newUsername;
+        if (newUsernameInput) newUsernameInput.value = '';
+        alert('Username updated!');
+      })
+      .catch(function(error) {
+        console.error('Error updating username:', error);
+        alert('Update failed: ' + error.message);
+      });
+    });
+  }
+
+  // Profile Picture Upload
+  const profilePicUpload = document.getElementById('profile-pic-upload');
+  if (profilePicUpload) {
+    profilePicUpload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 500 * 1024) {
+        alert('Image must be smaller than 500KB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const profilePicPreview = document.getElementById('profile-pic-preview');
+        if (profilePicPreview) profilePicPreview.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Update Profile Picture
+  const updateProfilePicBtn = document.getElementById('update-profile-pic-btn');
+  if (updateProfilePicBtn) {
+    updateProfilePicBtn.addEventListener('click', function() {
+      const profilePicUpload = document.getElementById('profile-pic-upload');
+      const file = profilePicUpload.files[0];
+      if (!file) {
+        alert('Please select an image first');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64Image = event.target.result;
+        const userId = auth.currentUser.uid;
+        
+        db.collection('users').doc(userId).update({
+          photoBase64: base64Image,
+          lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(function() {
+          const profilePic = document.getElementById('profile-pic');
+          const profilePicPreview = document.getElementById('profile-pic-preview');
+          if (profilePic) profilePic.src = base64Image;
+          if (profilePicPreview) profilePicPreview.src = base64Image;
+          if (profilePicUpload) profilePicUpload.value = '';
+          alert('Profile picture updated!');
+        })
+        .catch(function(error) {
+          console.error('Error saving image:', error);
+          alert('Upload failed: ' + error.message);
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Bio character counter
+  const userBioTextarea = document.getElementById('user-bio');
+  if (userBioTextarea) {
+    userBioTextarea.addEventListener('input', function() {
+      const bioCharCount = document.getElementById('bio-char-count');
+      if (bioCharCount) bioCharCount.textContent = this.value.length;
+    });
+  }
+
+  // Update Bio
+  const updateBioBtn = document.getElementById('update-bio-btn');
+  if (updateBioBtn) {
+    updateBioBtn.addEventListener('click', function() {
+      const userBioTextarea = document.getElementById('user-bio');
+      const newBio = userBioTextarea.value.trim();
+      
+      if (newBio.length > 200) {
+        alert('Bio must be 200 characters or less');
+        return;
+      }
+      
+      const userId = auth.currentUser.uid;
+      db.collection('users').doc(userId).update({
+        bio: newBio,
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(function() {
+        alert('Bio updated successfully!');
+      })
+      .catch(function(error) {
+        console.error('Error updating bio:', error);
+        alert('Update failed: ' + error.message);
+      });
+    });
+  }
+
+  // Profile Sharing System
+  setupProfileSharing();
 }
 
 // Profile Sharing Function
 function setupProfileSharing() {
-    const profileLink = document.getElementById('public-profile-link');
-    const copyBtn = document.getElementById('copy-profile-link');
-    
-    if (!profileLink || !copyBtn) return;
-    
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            profileLink.value = `${window.location.origin}/profile.html?id=${user.uid}`;
-        }
-    });
-    
-    copyBtn.addEventListener('click', () => {
-        profileLink.select();
-        document.execCommand('copy');
-        alert('Profile link copied to clipboard!');
-    });
+  const profileLink = document.getElementById('public-profile-link');
+  const copyBtn = document.getElementById('copy-profile-link');
+  
+  if (!profileLink || !copyBtn) return;
+  
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      profileLink.value = `${window.location.origin}/profile.html?id=${user.uid}`;
+    }
+  });
+  
+  copyBtn.addEventListener('click', () => {
+    profileLink.select();
+    document.execCommand('copy');
+    alert('Profile link copied to clipboard!');
+  });
 }
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initAuth);
