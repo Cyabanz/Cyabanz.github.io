@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile System</title>
-    <link rel="stylesheet" href="style.css">
     <!-- Firebase SDK (using version 8 for compatibility) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -12,7 +11,7 @@
     <!-- Boxicons for icons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        /* Original Styles */
+        /* Base Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -26,7 +25,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             padding: 10px 20px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             position: fixed;
             top: 0;
@@ -35,6 +34,15 @@
             height: 60px;
             z-index: 999;
             transition: left 0.3s;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+            display: none;
         }
 
         .user-info {
@@ -171,7 +179,7 @@
             height: 100vh;
             background: var(--sidebar-bg);
             color: var(--sidebar-text);
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             overflow: hidden;
             z-index: 1000;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
@@ -298,22 +306,53 @@
             left: var(--sidebar-collapsed-width);
         }
 
-        @media (max-width: 768px) {
-            .sidebar.visible {
-                width: 100%;
-                z-index: 1001;
-            }
-
-            .sidebar.visible.collapsed {
-                width: 70px;
-            }
-
+        /* Responsive Styles */
+        @media (max-width: 992px) {
             .sidebar.visible ~ header,
-            .sidebar.visible.collapsed ~ header,
-            .sidebar.visible ~ main,
-            .sidebar.visible.collapsed ~ main {
+            .sidebar.visible ~ main {
                 left: 0;
             }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                left: -250px;
+                z-index: 1001;
+            }
+            
+            .sidebar.visible {
+                left: 0;
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .sidebar.visible.collapsed {
+                left: -70px;
+            }
+            
+            .sidebar.visible ~ .sidebar-overlay {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                margin: 70px 15px 15px;
+                padding: 15px;
+            }
+        }
+
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            display: none;
         }
     </style>
 </head>
@@ -321,7 +360,7 @@
     <!-- Sidebar Navigation - Hidden by default -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo">ProfileSys</div>
+            <div class="logo">Menu</div>
             <button class="toggle-btn" id="toggle-btn">
                 <i class='bx bx-chevron-left'></i>
             </button>
@@ -330,15 +369,36 @@
             <li class="active">
                 <a href="#">
                     <i class='bx bx-home icon'></i>
-                    <span class="title">Dashboard</span>
-                    <span class="tooltip">Dashboard</span>
+                    <span class="title">Home</span>
+                    <span class="tooltip">Home</span>
                 </a>
             </li>
             <li>
                 <a href="#">
-                    <i class='bx bx-user icon'></i>
-                    <span class="title">Profile</span>
-                    <span class="tooltip">Profile</span>
+                    <i class='bx bx-game icon'></i>
+                    <span class="title">Games</span>
+                    <span class="tooltip">Games</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-grid-alt icon'></i>
+                    <span class="title">Apps</span>
+                    <span class="tooltip">Apps</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-history icon'></i>
+                    <span class="title">History</span>
+                    <span class="tooltip">History</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-star icon'></i>
+                    <span class="title">Favorites</span>
+                    <span class="tooltip">Favorites</span>
                 </a>
             </li>
             <li>
@@ -348,24 +408,16 @@
                     <span class="tooltip">Settings</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-share-alt icon'></i>
-                    <span class="title">Share</span>
-                    <span class="tooltip">Share</span>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-help-circle icon'></i>
-                    <span class="title">Help</span>
-                    <span class="tooltip">Help</span>
-                </a>
-            </li>
         </ul>
     </div>
+    
+    <!-- Overlay for mobile sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <header>
+        <button class="menu-toggle" id="menu-toggle">
+            <i class='bx bx-menu'></i>
+        </button>
         <div class="user-info">
             <span id="username-display">Guest</span>
             <div id="profile-pic-container">
@@ -438,10 +490,8 @@
         </div>
     </main>
 
-    <script src="auth.js"></script>
     <script>
-        // Initialize Firebase (should be in your auth.js)
-        // Replace with your actual Firebase config
+        // Initialize Firebase (replace with your actual config)
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -456,12 +506,13 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Sidebar functionality
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('toggle-btn');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
             
-            // Toggle sidebar
+            // Toggle sidebar collapse/expand
             toggleBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 
@@ -476,18 +527,36 @@
                 }
             });
             
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.add('visible');
+                sidebarOverlay.style.display = 'block';
+            });
+            
+            // Close sidebar when overlay is clicked
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('visible');
+                sidebarOverlay.style.display = 'none';
+            });
+            
             // Set active menu item
             const menuItems = document.querySelectorAll('.sidebar-menu li');
             menuItems.forEach(item => {
                 item.addEventListener('click', function() {
                     menuItems.forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
+                    
+                    // On mobile, close sidebar after selection
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.remove('visible');
+                        sidebarOverlay.style.display = 'none';
+                    }
                 });
             });
             
             // Auto-collapse on mobile
             function handleResize() {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 992) {
                     sidebar.classList.add('collapsed');
                     toggleBtn.querySelector('i').classList.remove('bx-chevron-left');
                     toggleBtn.querySelector('i').classList.add('bx-chevron-right');
@@ -500,7 +569,6 @@
 
             // Auth state listener
             auth.onAuthStateChanged(user => {
-                const sidebar = document.getElementById('sidebar');
                 const loginView = document.getElementById('login-view');
                 const dashboardView = document.getElementById('dashboard-view');
                 
@@ -508,14 +576,13 @@
                     // User is signed in
                     loginView.style.display = 'none';
                     dashboardView.style.display = 'block';
-                    sidebar.classList.add('visible');
                     
                     // Update user info
                     document.getElementById('username-display').textContent = user.displayName || 'User';
                     document.getElementById('dashboard-username').textContent = user.displayName || 'User';
                     
                     // Initialize collapsed state based on screen size
-                    if (window.innerWidth <= 768) {
+                    if (window.innerWidth <= 992) {
                         sidebar.classList.add('collapsed');
                         document.getElementById('toggle-btn').querySelector('i').classList.add('bx-chevron-right');
                         document.getElementById('toggle-btn').querySelector('i').classList.remove('bx-chevron-left');
@@ -524,8 +591,11 @@
                     // User is signed out
                     loginView.style.display = 'block';
                     dashboardView.style.display = 'none';
-                    sidebar.classList.remove('visible');
                     document.getElementById('username-display').textContent = 'Guest';
+                    
+                    // Ensure sidebar is hidden when signed out
+                    sidebar.classList.remove('visible');
+                    sidebarOverlay.style.display = 'none';
                 }
             });
 
