@@ -11,8 +11,360 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <!-- Boxicons for icons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* Original Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            transition: margin-left 0.3s;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 60px;
+            z-index: 999;
+            transition: left 0.3s;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 80px auto 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .google-btn {
+            background-color: #4285F4;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .sign-out-btn {
+            background-color: #f44336;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .profile-pic-preview {
+            margin: 10px 0;
+        }
+
+        .profile-pic-preview img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .file-info {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .char-count {
+            font-size: 0.9em;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .share-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .share-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .share-note {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Sidebar Styles */
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
+            --sidebar-active: #3498db;
+            --sidebar-hover: #34495e;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            transition: all 0.3s;
+            overflow: hidden;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .sidebar.visible {
+            display: block;
+            left: 0;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 15px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .logo {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--sidebar-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: auto;
+        }
+
+        .sidebar-menu {
+            padding: 10px 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            position: relative;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.3s;
+            white-space: nowrap;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu li a:hover {
+            background: var(--sidebar-hover);
+        }
+
+        .sidebar-menu li.active a {
+            background: var(--sidebar-active);
+            border-left: 3px solid var(--sidebar-text);
+        }
+
+        .sidebar-menu li a .icon {
+            font-size: 1.4rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .sidebar-menu li a {
+            justify-content: center;
+            padding: 15px 0;
+        }
+
+        .sidebar.collapsed .sidebar-menu li a .title {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-menu li.active a {
+            border-left: none;
+            border-radius: 5px;
+        }
+
+        .sidebar-menu li a .tooltip {
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--sidebar-bg);
+            padding: 8px 15px;
+            border-radius: 4px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            white-space: nowrap;
+            z-index: 1001;
+        }
+
+        .sidebar.collapsed .sidebar-menu li:hover a .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar.visible ~ header,
+        .sidebar.visible ~ main {
+            left: var(--sidebar-width);
+        }
+
+        .sidebar.visible.collapsed ~ header,
+        .sidebar.visible.collapsed ~ main {
+            left: var(--sidebar-collapsed-width);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar.visible {
+                width: 100%;
+                z-index: 1001;
+            }
+
+            .sidebar.visible.collapsed {
+                width: 70px;
+            }
+
+            .sidebar.visible ~ header,
+            .sidebar.visible.collapsed ~ header,
+            .sidebar.visible ~ main,
+            .sidebar.visible.collapsed ~ main {
+                left: 0;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Sidebar Navigation - Hidden by default -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">ProfileSys</div>
+            <button class="toggle-btn" id="toggle-btn">
+                <i class='bx bx-chevron-left'></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active">
+                <a href="#">
+                    <i class='bx bx-home icon'></i>
+                    <span class="title">Dashboard</span>
+                    <span class="tooltip">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-user icon'></i>
+                    <span class="title">Profile</span>
+                    <span class="tooltip">Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-cog icon'></i>
+                    <span class="title">Settings</span>
+                    <span class="tooltip">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-share-alt icon'></i>
+                    <span class="title">Share</span>
+                    <span class="tooltip">Share</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-help-circle icon'></i>
+                    <span class="title">Help</span>
+                    <span class="tooltip">Help</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
     <header>
         <div class="user-info">
             <span id="username-display">Guest</span>
@@ -87,5 +439,110 @@
     </main>
 
     <script src="auth.js"></script>
+    <script>
+        // Initialize Firebase (should be in your auth.js)
+        // Replace with your actual Firebase config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Sidebar functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('toggle-btn');
+            
+            // Toggle sidebar
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                
+                // Change the icon based on state
+                const icon = toggleBtn.querySelector('i');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('bx-chevron-left');
+                    icon.classList.add('bx-chevron-right');
+                } else {
+                    icon.classList.remove('bx-chevron-right');
+                    icon.classList.add('bx-chevron-left');
+                }
+            });
+            
+            // Set active menu item
+            const menuItems = document.querySelectorAll('.sidebar-menu li');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Auto-collapse on mobile
+            function handleResize() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    toggleBtn.querySelector('i').classList.remove('bx-chevron-left');
+                    toggleBtn.querySelector('i').classList.add('bx-chevron-right');
+                }
+            }
+            
+            // Check on load and resize
+            handleResize();
+            window.addEventListener('resize', handleResize);
+
+            // Auth state listener
+            auth.onAuthStateChanged(user => {
+                const sidebar = document.getElementById('sidebar');
+                const loginView = document.getElementById('login-view');
+                const dashboardView = document.getElementById('dashboard-view');
+                
+                if (user) {
+                    // User is signed in
+                    loginView.style.display = 'none';
+                    dashboardView.style.display = 'block';
+                    sidebar.classList.add('visible');
+                    
+                    // Update user info
+                    document.getElementById('username-display').textContent = user.displayName || 'User';
+                    document.getElementById('dashboard-username').textContent = user.displayName || 'User';
+                    
+                    // Initialize collapsed state based on screen size
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.add('collapsed');
+                        document.getElementById('toggle-btn').querySelector('i').classList.add('bx-chevron-right');
+                        document.getElementById('toggle-btn').querySelector('i').classList.remove('bx-chevron-left');
+                    }
+                } else {
+                    // User is signed out
+                    loginView.style.display = 'block';
+                    dashboardView.style.display = 'none';
+                    sidebar.classList.remove('visible');
+                    document.getElementById('username-display').textContent = 'Guest';
+                }
+            });
+
+            // Sign in handler
+            document.getElementById('signInButton').addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .catch(error => {
+                        console.error("Sign in error:", error);
+                    });
+            });
+
+            // Sign out handler
+            document.getElementById('signOutButton').addEventListener('click', () => {
+                auth.signOut();
+            });
+        });
+    </script>
 </body>
 </html>
