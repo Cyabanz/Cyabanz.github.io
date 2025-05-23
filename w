@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        /* Theme classes */
+        .theme-dark {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+
+        .theme-light {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .theme-blue {
+            background-color: #e6f2ff;
+            color: #003366;
+        }
+
+        .theme-green {
+            background-color: #e6ffe6;
+            color: #006600;
+        }
+
+        /* Navigation styles */
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-dark .navbar {
+            background-color: #1a1a2e;
+        }
+
+        .theme-light .navbar {
+            background-color: #2c3e50;
+        }
+
+        .theme-blue .navbar {
+            background-color: #1976d2;
+        }
+
+        .theme-green .navbar {
+            background-color: #2e7d32;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #3498db;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: #3498db;
+        }
+
+        .nav-links a i {
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .username-display {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        .profile-pic-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #3498db;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mobile menu styles */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: white;
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
+
+        /* Main content styles */
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-dark .container {
+            background-color: rgba(30, 30, 30, 0.9);
+            color: #f0f0f0;
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .theme-dark h1 {
+            color: #f0f0f0;
+        }
+
+        /* Button styles */
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .google-btn {
+            background-color: #4285F4;
+        }
+
+        .google-btn:hover {
+            background-color: #357ABD;
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            padding: 2px;
+            border-radius: 2px;
+        }
+
+        .sign-out-btn {
+            background-color: #e74c3c;
+        }
+
+        .sign-out-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            background-color: white;
+            color: #333;
+        }
+
+        .theme-dark input[type="text"],
+        .theme-dark input[type="email"],
+        .theme-dark input[type="password"],
+        .theme-dark textarea {
+            background-color: #333;
+            color: #f0f0f0;
+            border-color: #555;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .profile-pic-preview {
+            margin: 1rem 0;
+        }
+
+        .profile-pic-preview img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #3498db;
+        }
+
+        .file-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .theme-dark .file-info {
+            color: #aaa;
+        }
+
+        .char-count {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: right;
+        }
+
+        .theme-dark .char-count {
+            color: #aaa;
+        }
+
+        /* Share controls */
+        .share-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .share-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .theme-dark .share-input {
+            background-color: #333;
+            color: #f0f0f0;
+            border-color: #555;
+        }
+
+        .share-note {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .theme-dark .share-note {
+            color: #aaa;
+        }
+
+        /* Dashboard view */
+        .dashboard-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .account-actions,
+        .profile-sharing {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .theme-dark .account-actions,
+        .theme-dark .profile-sharing {
+            border-bottom-color: #444;
+        }
+
+        /* Particle canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: #2c3e50;
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                transition: left 0.3s;
+            }
+
+            .theme-dark .nav-links {
+                background-color: #1a1a2e;
+            }
+
+            .theme-blue .nav-links {
+                background-color: #1976d2;
+            }
+
+            .theme-green .nav-links {
+                background-color: #2e7d32;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
+
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <nav class="navbar">
+        <a href="#" class="logo">Profile<span>System</span></a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="#"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="user-info">
+                <span class="username-display" id="username-display">Guest</span>
+                <div class="profile-pic-container" id="profile-pic-container">
+                    <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Login View -->
+            <div id="login-view">
+                <h1>Welcome</h1>
+                <button id="signInButton" class="btn google-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+                    Sign in with Google
+                </button>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" style="display:none">
+                <h1>Your Dashboard</h1>
+                <div class="dashboard-content">
+                    <p>Welcome, <span id="dashboard-username"></span>!</p>
+                    
+                    <div class="account-actions">
+                        <h2>Profile Settings</h2>
+                        
+                        <div class="form-group">
+                            <label for="new-username">Change Username:</label>
+                            <input type="text" id="new-username" placeholder="New username (min 3 chars)">
+                            <button id="update-username-btn" class="btn">Update</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Profile Picture:</label>
+                            <div class="profile-pic-preview">
+                                <img id="profile-pic-preview" src="https://via.placeholder.com/150">
+                            </div>
+                            <input type="file" id="profile-pic-upload" accept="image/*">
+                            <button id="update-profile-pic-btn" class="btn">Upload</button>
+                            <p class="file-info">Max 500KB (JPG/PNG)</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user-bio">Your Bio:</label>
+                            <textarea id="user-bio" placeholder="Tell others about yourself (max 200 characters)" maxlength="200"></textarea>
+                            <button id="update-bio-btn" class="btn">Update Bio</button>
+                            <p class="char-count"><span id="bio-char-count">0</span>/200 characters</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-sharing">
+                        <h2>Profile Sharing</h2>
+                        <p>Share your public profile with this link:</p>
+                        <div class="share-controls">
+                            <input type="text" id="public-profile-link" readonly class="share-input">
+                            <button id="copy-profile-link" class="btn">
+                                <i class='bx bx-copy'></i> Copy Link
+                            </button>
+                        </div>
+                        <p class="share-note">Your public profile includes your username, bio, and profile picture</p>
+                    </div>
+                 
+                    <button id="signOutButton" class="btn sign-out-btn">
+                        <i class='bx bx-log-out'></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK (using version 8 for compatibility) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Global variables
+        let currentUser = null;
+        let settingsListener = null;
+        let currentSettings = {};
+        let panicKeyListener = null;
+        let particles = [];
+        let particleCanvas = null;
+        let particleCtx = null;
+
+        // DOM elements
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const signInButton = document.getElementById('signInButton');
+        const signOutButton = document.getElementById('signOutButton');
+        const usernameDisplay = document.getElementById('username-display');
+        const dashboardUsername = document.getElementById('dashboard-username');
+        const profilePic = document.getElementById('profile-pic');
+        const profilePicPreview = document.getElementById('profile-pic-preview');
+        const newUsernameInput = document.getElementById('new-username');
+        const updateUsernameBtn = document.getElementById('update-username-btn');
+        const profilePicUpload = document.getElementById('profile-pic-upload');
+        const updateProfilePicBtn = document.getElementById('update-profile-pic-btn');
+        const userBio = document.getElementById('user-bio');
+        const updateBioBtn = document.getElementById('update-bio-btn');
+        const bioCharCount = document.getElementById('bio-char-count');
+        const publicProfileLink = document.getElementById('public-profile-link');
+        const copyProfileLink = document.getElementById('copy-profile-link');
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            auth.onAuthStateChanged(handleAuthStateChange);
+        });
+
+        function initEventListeners() {
+            // Mobile menu toggle
+            document.getElementById('mobile-menu').addEventListener('click', function() {
+                document.getElementById('nav-links').classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    document.getElementById('nav-links').classList.remove('active');
+                });
+            });
+
+            // Auth buttons
+            signInButton.addEventListener('click', signInWithGoogle);
+            signOutButton.addEventListener('click', signOut);
+
+            // Profile update buttons
+            updateUsernameBtn.addEventListener('click', updateUsername);
+            updateProfilePicBtn.addEventListener('click', updateProfilePicture);
+            updateBioBtn.addEventListener('click', updateBio);
+
+            // Bio character count
+            userBio.addEventListener('input', updateBioCharCount);
+
+            // Copy profile link
+            copyProfileLink.addEventListener('click', copyProfileLinkToClipboard);
+        }
+
+        function handleAuthStateChange(user) {
+            currentUser = user;
+            
+            // Clean up previous listener if exists
+            if (settingsListener) {
+                settingsListener();
+            }
+            
+            if (user) {
+                // User is signed in
+                loginView.style.display = 'none';
+                dashboardView.style.display = 'block';
+                
+                // Update UI with user info
+                updateUserInfo(user);
+                
+                // Set up settings listener
+                setupSettingsListener(user.uid);
+                
+                // Generate public profile link
+                publicProfileLink.value = `${window.location.origin}${window.location.pathname}?uid=${user.uid}`;
+            } else {
+                // User is signed out
+                loginView.style.display = 'block';
+                dashboardView.style.display = 'none';
+                usernameDisplay.textContent = 'Guest';
+                
+                // Apply default settings
+                applySettings({
+                    theme: 'theme-light',
+                    backgroundImage: '',
+                    particlesEnabled: false
+                });
+                
+                // Remove panic key listener if exists
+                if (panicKeyListener) {
+                    document.removeEventListener('keydown', panicKeyListener);
+                    panicKeyListener = null;
+                }
+            }
+        }
+
+        function setupSettingsListener(userId) {
+            settingsListener = db.collection('users').doc(userId)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        currentSettings = doc.data().settings || {};
+                        applySettings(currentSettings);
+                        
+                        // Set up panic key listener after settings are loaded
+                        setupPanicKeyListener();
+                    }
+                }, (error) => {
+                    console.error('Error listening to settings:', error);
+                });
+        }
+
+        function applySettings(settings) {
+            // Apply theme
+            if (settings.theme) {
+                document.body.className = settings.theme;
+            } else {
+                document.body.className = 'theme-light';
+            }
+
+            // Apply background image
+            if (settings.backgroundImage) {
+                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+            } else {
+                document.body.style.backgroundImage = 'none';
+            }
+
+            // Apply particle effects
+            if (settings.particlesEnabled) {
+                initParticles(settings);
+            } else {
+                destroyParticles();
+            }
+
+            // Apply tab cloaking settings
+            if (settings.cloakSite) {
+                document.title = getCloakTitle(settings.cloakSite);
+                updateFavicon(settings.cloakSite);
+            }
+        }
+
+        function getCloakTitle(site) {
+            const titles = {
+                'google': 'Google Classroom',
+                'clever': 'Clever | Portal',
+                'drive': 'My Drive - Google Drive',
+                'docs': 'Google Docs'
+            };
+            return titles[site] || 'Profile System';
+        }
+
+        function updateFavicon(site) {
+            const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+            favicon.rel = 'icon';
+            
+            const icons = {
+                'google': 'https://www.google.com/favicon.ico',
+                'clever': 'https://clever.com/favicon.ico',
+                'drive': 'https://drive.google.com/favicon.ico',
+                'docs': 'https://docs.google.com/favicon.ico'
+            };
+            
+            favicon.href = icons[site] || 'favicon.ico';
+            document.head.appendChild(favicon);
+        }
+
+        function setupPanicKeyListener() {
+            // Remove previous listener if exists
+            if (panicKeyListener) {
+                document.removeEventListener('keydown', panicKeyListener);
+            }
+
+            // Only setup listener if we have valid settings
+            if (currentSettings.panicKey && currentSettings.panicUrl) {
+                panicKeyListener = function(e) {
+                    if (e.key === currentSettings.panicKey) {
+                        window.location.href = currentSettings.panicUrl;
+                    }
+                };
+                
+                document.addEventListener('keydown', panicKeyListener);
+            }
+        }
+
+        // Auth functions
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    console.error('Sign in error:', error);
+                    alert('Error signing in: ' + error.message);
+                });
+        }
+
+        function signOut() {
+            auth.signOut()
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Sign out error:', error);
+                });
+        }
+
+        // User profile functions
+        function updateUserInfo(user) {
+            usernameDisplay.textContent = user.displayName || 'User';
+            dashboardUsername.textContent = user.displayName || 'User';
+            
+            if (user.photoURL) {
+                profilePic.src = user.photoURL;
+                profilePicPreview.src = user.photoURL;
+            }
+            
+            // Load user data from Firestore
+            db.collection('users').doc(user.uid).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        if (userData.bio) {
+                            userBio.value = userData.bio;
+                            updateBioCharCount();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error getting user data:', error);
+                });
+        }
+
+        function updateUsername() {
+            const newUsername = newUsernameInput.value.trim();
+            if (newUsername.length < 3) {
+                alert('Username must be at least 3 characters long');
+                return;
+            }
+
+            currentUser.updateProfile({
+                displayName: newUsername
+            })
+            .then(() => {
+                usernameDisplay.textContent = newUsername;
+                dashboardUsername.textContent = newUsername;
+                newUsernameInput.value = '';
+                alert('Username updated successfully!');
+                
+                // Update in Firestore
+                return db.collection('users').doc(currentUser.uid).set({
+                    displayName: newUsername
+                }, { merge: true });
+            })
+            .catch(error => {
+                console.error('Error updating username:', error);
+                alert('Error updating username: ' + error.message);
+            });
+        }
+
+        function updateProfilePicture() {
+            const file = profilePicUpload.files[0];
+            if (!file) {
+                alert('Please select an image file');
+                return;
+            }
+
+            if (file.size > 500 * 1024) {
+                alert('Image must be smaller than 500KB');
+                return;
+            }
+
+            const storageRef = storage.ref(`profile_pictures/${currentUser.uid}`);
+            const uploadTask = storageRef.put(file);
+
+            uploadTask.on('state_changed', 
+                null, 
+                error => {
+                    console.error('Upload error:', error);
+                    alert('Error uploading image: ' + error.message);
+                }, 
+                () => {
+                    uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
+                        currentUser.updateProfile({
+                            photoURL: downloadURL
+                        })
+                        .then(() => {
+                            profilePic.src = downloadURL;
+                            profilePicPreview.src = downloadURL;
+                            profilePicUpload.value = '';
+                            alert('Profile picture updated successfully!');
+                        })
+                        .catch(error => {
+                            console.error('Error updating profile picture:', error);
+                            alert('Error updating profile picture: ' + error.message);
+                        });
+                    });
+                }
+            );
+        }
+
+        function updateBio() {
+            const bio = userBio.value.trim();
+            if (bio.length > 200) {
+                alert('Bio must be 200 characters or less');
+                return;
+            }
+
+            db.collection('users').doc(currentUser.uid).set({
+                bio: bio
+            }, { merge: true })
+            .then(() => {
+                alert('Bio updated successfully!');
+            })
+            .catch(error => {
+                console.error('Error updating bio:', error);
+                alert('Error updating bio: ' + error.message);
+            });
+        }
+
+        function updateBioCharCount() {
+            bioCharCount.textContent = userBio.value.length;
+        }
+
+        function copyProfileLinkToClipboard() {
+            publicProfileLink.select();
+            document.execCommand('copy');
+            alert('Profile link copied to clipboard!');
+        }
+
+        // Particle Effects System
+        function initParticles(settings) {
+            if (!settings.particlesEnabled) {
+                destroyParticles();
+                return;
+            }
+
+            particleCanvas = document.getElementById('particle-canvas');
+            if (!particleCanvas) {
+                particleCanvas = document.createElement('canvas');
+                particleCanvas.id = 'particle-canvas';
+                document.body.appendChild(particleCanvas);
+            }
+            
+            particleCtx = particleCanvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            createParticles(settings);
+            animateParticles();
+        }
+
+        function resizeCanvas() {
+            if (!particleCanvas) return;
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+        }
+
+        function createParticles(settings) {
+            const count = parseInt(settings.particleCount) || 50;
+            const type = settings.particleType || 'circle';
+            const colors = [
+                settings.particleColor1 || '#4361ee',
+                settings.particleColor2 || '#f72585',
+                settings.particleColor3 || '#4cc9f0'
+            ];
+            
+            const speed = parseInt(settings.particleSpeed) || 3;
+            
+            particles = [];
+            
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * particleCanvas.width,
+                    y: Math.random() * particleCanvas.height,
+                    size: Math.random() * 5 + 2,
+                    speedX: (Math.random() - 0.5) * speed,
+                    speedY: (Math.random() - 0.5) * speed,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    type: type
+                });
+            }
+        }
+
+        function animateParticles() {
+            if (!particleCanvas || !particleCtx) return;
+            
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                
+                p.x += p.speedX;
+                p.y += p.speedY;
+                
+                if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
+                
+                particleCtx.fillStyle = p.color;
+                
+                switch(p.type) {
+                    case 'star':
+                        drawStar(p.x, p.y, 5, p.size, p.size / 2);
+                        break;
+                    case 'triangle':
+                        drawTriangle(p.x, p.y, p.size);
+                        break;
+                    default:
+                        particleCtx.beginPath();
+                        particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        particleCtx.fill();
+                }
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+
+        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+            
+            particleCtx.beginPath();
+            particleCtx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+            }
+            
+            particleCtx.lineTo(cx, cy - outerRadius);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function drawTriangle(x, y, size) {
+            particleCtx.beginPath();
+            particleCtx.moveTo(x, y - size);
+            particleCtx.lineTo(x + size, y + size);
+            particleCtx.lineTo(x - size, y + size);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function destroyParticles() {
+            if (particleCanvas) {
+                particleCanvas.remove();
+                particleCanvas = null;
+                particleCtx = null;
+                window.removeEventListener('resize', resizeCanvas);
+            }
+        }
+    </script>
+</body>
+</html>
