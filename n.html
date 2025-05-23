@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - CrazyGames Clone</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="src/style.css">
+    <link rel="stylesheet" href="setting.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <style>
+        /* Navbar styles from index.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--navbar-bg);
+            color: var(--navbar-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navbar-text);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a i {
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .username-display {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            color: var(--navbar-text);
+        }
+
+        .profile-pic-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: var(--navbar-text);
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: var(--navbar-bg);
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
+        }
+
+        /* Theme classes for navbar */
+        .light {
+            --text: #1b263b;
+            --text-inverse: #f8f9fa;
+            --background: #f5f7ff;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --gray: #adb5bd;
+            --gray-light: #e9ecef;
+            --navbar-bg: #2c3e50;
+            --navbar-text: white;
+            --primary: #4285F4;
+            --primary-light: #357ABD;
+            --danger: #e74c3c;
+        }
+
+        .dark {
+            --text: #f8f9fa;
+            --text-inverse: #1b263b;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --border: #333333;
+            --gray: #555555;
+            --gray-light: #333333;
+            --navbar-bg: #1a1a2e;
+            --navbar-text: white;
+            --primary: #4285F4;
+            --primary-light: #357ABD;
+            --danger: #e74c3c;
+        }
+
+        .moon {
+            --text: #e2e8f0;
+            --text-inverse: #0f172a;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --gray: #64748b;
+            --gray-light: #334155;
+            --navbar-bg: #1e293b;
+            --navbar-text: #e2e8f0;
+            --primary: #4285F4;
+            --primary-light: #357ABD;
+            --danger: #e74c3c;
+        }
+
+        .emerald {
+            --text: #a7f3d0;
+            --text-inverse: #064e3b;
+            --background: #064e3b;
+            --card-bg: #047857;
+            --border: #059669;
+            --gray: #34d399;
+            --gray-light: #059669;
+            --navbar-bg: #047857;
+            --navbar-text: #a7f3d0;
+            --primary: #4285F4;
+            --primary-light: #357ABD;
+            --danger: #e74c3c;
+        }
+
+        .ruby {
+            --text: #fbcfe8;
+            --text-inverse: #831843;
+            --background: #831843;
+            --card-bg: #9d174d;
+            --border: #be185d;
+            --gray: #ec4899;
+            --gray-light: #be185d;
+            --navbar-bg: #9d174d;
+            --navbar-text: #fbcfe8;
+            --primary: #4285F4;
+            --primary-light: #357ABD;
+            --danger: #e74c3c;
+        }
+
+        .diamond {
+            --text: #082f49;
+            --text-inverse: #bae6fd;
+            --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+            --card-bg: #bae6fd;
+            --border: #7dd3fc;
+            --gray: #38bdf8;
+            --gray-light: #7dd3fc;
+            --navbar-bg: #0ea5e9;
+            --navbar-text: #082f49;
+            --primary: #4285F4;
+            --primary-light: #357ABD;
+            --danger: #e74c3c;
+        }
+
+        .crazy {
+            --text: #2b0504;
+            --text-inverse: #ffedd5;
+            --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+            --card-bg: #ffedd5;
+            --border: #fdba74;
+            --gray: #fb923c;
+            --gray-light: #fdba74;
+            --navbar-bg: #ff3e00;
+            --navbar-text: #2b0504;
+            --primary: #4285F4;
+            --primary-light: #357ABD;
+            --danger: #e74c3c;
+        }
+    </style>
+</head>
+<body class="light">
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- New Navbar from index.html -->
+    <nav class="navbar">
+        <a href="#" class="logo">Game<span>Hub</span></a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="#"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="user-info">
+                <span class="username-display" id="username-display">Guest</span>
+                <div class="profile-pic-container" id="profile-pic-container">
+                    <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Auth Container (will be populated by JavaScript) -->
+    <div id="auth-container" class="auth-container"></div>
+
+    <div class="container">
+        <!-- Pinned Games Row (initially hidden) -->
+        <div class="game-row pinned-games-row" style="display: none;">
+            <h3 class="row-title">
+                <i class='bx bxs-bookmark-alt'></i> Favorite Games
+                <span class="clear-pins" title="Clear all favorite games">
+                    <i class='bx bx-trash'></i>
+                </span>
+            </h3>
+            <div class="game-scroll-container">
+                <div class="horizontal-game-grid" id="pinnedGamesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class='bx bx-search'></i>
+            <input type="text" id="searchInput" placeholder="Search games...">
+        </div>
+
+        <!-- Horizontal Category Tabs -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all">
+                <i class='bx bx-game'></i> All Games
+            </button>
+            <button class="tab-btn" data-category="action">
+                <i class='bx bx-run'></i> Action
+            </button>
+            <button class="tab-btn" data-category="puzzle">
+                <i class='bx bx-puzzle'></i> Puzzle
+            </button>
+            <button class="tab-btn" data-category="sports">
+                <i class='bx bx-football'></i> Sports
+            </button>
+            <button class="tab-btn" data-category="io">
+                <i class='bx bx-globe'></i> .IO
+            </button>
+        </div>
+
+        <!-- Game Rows Container -->
+        <div class="games-rows-container" id="gamesContainer">
+            <!-- Rows will be generated by JavaScript -->
+        </div>
+    </div>
+
+    <script src="src/script.js"></script>
+    <script>
+    // Particle Effects System
+    let particles = [];
+    let particleCanvas;
+    let particleCtx;
+    let currentSettings = {};
+    let settingsListener = null;
+    let panicKeyListener = null;
+
+    // Initialize particles with settings
+    function initParticles(settings) {
+        if (!settings.particlesEnabled) {
+            destroyParticles();
+            return;
+        }
+
+        particleCanvas = document.getElementById('particle-canvas');
+        if (!particleCanvas) {
+            particleCanvas = document.createElement('canvas');
+            particleCanvas.id = 'particle-canvas';
+            document.body.appendChild(particleCanvas);
+        }
+        
+        particleCtx = particleCanvas.getContext('2d');
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        createParticles(settings);
+        animateParticles();
+    }
+
+    function resizeCanvas() {
+        if (!particleCanvas) return;
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+    }
+
+    function createParticles(settings) {
+        const count = parseInt(settings.particleCount) || 50;
+        const type = settings.particleType || 'circle';
+        const colors = [
+            settings.particleColor1 || '#4361ee',
+            settings.particleColor2 || '#f72585',
+            settings.particleColor3 || '#4cc9f0'
+        ];
+        
+        const speed = parseInt(settings.particleSpeed) || 3;
+        
+        particles = [];
+        
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * particleCanvas.width,
+                y: Math.random() * particleCanvas.height,
+                size: Math.random() * 5 + 2,
+                speedX: (Math.random() - 0.5) * speed,
+                speedY: (Math.random() - 0.5) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                type: type
+            });
+        }
+    }
+
+    function animateParticles() {
+        if (!particleCanvas || !particleCtx) return;
+        
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            
+            p.x += p.speedX;
+            p.y += p.speedY;
+            
+            if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
+            if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
+            
+            particleCtx.fillStyle = p.color;
+            
+            switch(p.type) {
+                case 'star':
+                    drawStar(p.x, p.y, 5, p.size, p.size / 2);
+                    break;
+                case 'triangle':
+                    drawTriangle(p.x, p.y, p.size);
+                    break;
+                default:
+                    particleCtx.beginPath();
+                    particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    particleCtx.fill();
+            }
+        }
+        
+        requestAnimationFrame(animateParticles);
+    }
+
+    function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+        
+        particleCtx.beginPath();
+        particleCtx.moveTo(cx, cy - outerRadius);
+        
+        for (let i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rot) * outerRadius;
+            y = cy + Math.sin(rot) * outerRadius;
+            particleCtx.lineTo(x, y);
+            rot += step;
+            
+            x = cx + Math.cos(rot) * innerRadius;
+            y = cy + Math.sin(rot) * innerRadius;
+            particleCtx.lineTo(x, y);
+            rot += step;
+        }
+        
+        particleCtx.lineTo(cx, cy - outerRadius);
+        particleCtx.closePath();
+        particleCtx.fill();
+    }
+
+    function drawTriangle(x, y, size) {
+        particleCtx.beginPath();
+        particleCtx.moveTo(x, y - size);
+        particleCtx.lineTo(x + size, y + size);
+        particleCtx.lineTo(x - size, y + size);
+        particleCtx.closePath();
+        particleCtx.fill();
+    }
+
+    function destroyParticles() {
+        if (particleCanvas) {
+            particleCanvas.remove();
+            particleCanvas = null;
+            particleCtx = null;
+            window.removeEventListener('resize', resizeCanvas);
+        }
+    }
+
+    // Setup panic key listener
+    function setupPanicKeyListener() {
+        // Remove previous listener if exists
+        if (panicKeyListener) {
+            document.removeEventListener('keydown', panicKeyListener);
+        }
+
+        // Only setup listener if we have valid settings
+        if (currentSettings.panicKey && currentSettings.panicUrl) {
+            panicKeyListener = function(e) {
+                if (e.key === currentSettings.panicKey) {
+                    window.location.href = currentSettings.panicUrl;
+                }
+            };
+            
+            document.addEventListener('keydown', panicKeyListener);
+        }
+    }
+
+    // Apply tab cloaking settings
+    function applyTabCloakSettings(settings) {
+        if (settings.cloakSite) {
+            document.title = getCloakTitle(settings.cloakSite);
+            updateFavicon(settings.cloakSite);
+        }
+    }
+
+    function getCloakTitle(site) {
+        const titles = {
+            'google': 'Google Classroom',
+            'clever': 'Clever | Portal',
+            'drive': 'My Drive - Google Drive',
+            'docs': 'Google Docs'
+        };
+        return titles[site] || 'GameHub - CrazyGames Clone';
+    }
+
+    function updateFavicon(site) {
+        const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+        favicon.rel = 'icon';
+        
+        const icons = {
+            'google': 'https://www.google.com/favicon.ico',
+            'clever': 'https://clever.com/favicon.ico',
+            'drive': 'https://drive.google.com/favicon.ico',
+            'docs': 'https://docs.google.com/favicon.ico'
+        };
+        
+        favicon.href = icons[site] || 'favicon.ico';
+        document.head.appendChild(favicon);
+    }
+
+    // Settings Listener
+    function setupSettingsListener(userId) {
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase if not already initialized
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.firestore();
+        
+        settingsListener = db.collection('users').doc(userId)
+            .onSnapshot((doc) => {
+                if (doc.exists) {
+                    currentSettings = doc.data().settings || {};
+                    applySettings(currentSettings);
+                }
+            }, (error) => {
+                console.error('Error listening to settings:', error);
+            });
+    }
+
+    function applySettings(settings) {
+        // Apply theme
+        if (settings.theme) {
+            document.body.className = settings.theme;
+        }
+
+        // Apply background image
+        if (settings.backgroundImage) {
+            document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+        } else {
+            document.body.style.backgroundImage = 'none';
+        }
+
+        // Apply particle effects
+        if (settings.particlesEnabled) {
+            initParticles(settings);
+        } else {
+            destroyParticles();
+        }
+
+        // Apply panic key settings
+        setupPanicKeyListener();
+
+        // Apply tab cloaking settings
+        applyTabCloakSettings(settings);
+    }
+
+    // Initialize Firebase and set up auth state listener
+    document.addEventListener('DOMContentLoaded', function() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Set up auth state listener
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                // Clean up previous listener if exists
+                if (settingsListener) {
+                    settingsListener();
+                }
+                setupSettingsListener(user.uid);
+            } else {
+                // Apply default settings for guests
+                applySettings({
+                    theme: '',
+                    backgroundImage: '',
+                    particlesEnabled: false
+                });
+                if (settingsListener) {
+                    settingsListener();
+                    settingsListener = null;
+                }
+                // Remove panic key listener if exists
+                if (panicKeyListener) {
+                    document.removeEventListener('keydown', panicKeyListener);
+                    panicKeyListener = null;
+                }
+            }
+        });
+
+        // Mobile menu toggle functionality
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navLinks = document.getElementById('nav-links');
+        
+        if (mobileMenu && navLinks) {
+            mobileMenu.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+        }
+
+        // Initialize games display immediately
+        setTimeout(() => {
+            const allGamesTab = document.querySelector('.tab-btn[data-category="all"]');
+            if (allGamesTab) {
+                allGamesTab.click();
+            }
+        }, 100);
+    });
+    </script>
+</body>
+</html>
