@@ -5,9 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game History</title>
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Additional styles specific to history page */
+        /* Navigation Bar Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Theme classes */
+        .light {
+            --text: #1b263b;
+            --text-inverse: #f8f9fa;
+            --background: #f5f7ff;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --gray: #adb5bd;
+            --gray-light: #e9ecef;
+            --navbar-bg: #2c3e50;
+            --navbar-text: white;
+        }
+
+        .dark {
+            --text: #f8f9fa;
+            --text-inverse: #1b263b;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --border: #333333;
+            --gray: #555555;
+            --gray-light: #333333;
+            --navbar-bg: #1a1a2e;
+            --navbar-text: white;
+        }
+
+        .moon {
+            --text: #e2e8f0;
+            --text-inverse: #0f172a;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --gray: #64748b;
+            --gray-light: #334155;
+            --navbar-bg: #1e293b;
+            --navbar-text: #e2e8f0;
+        }
+
+        .emerald {
+            --text: #a7f3d0;
+            --text-inverse: #064e3b;
+            --background: #064e3b;
+            --card-bg: #047857;
+            --border: #059669;
+            --gray: #34d399;
+            --gray-light: #059669;
+            --navbar-bg: #047857;
+            --navbar-text: #a7f3d0;
+        }
+
+        .ruby {
+            --text: #fbcfe8;
+            --text-inverse: #831843;
+            --background: #831843;
+            --card-bg: #9d174d;
+            --border: #be185d;
+            --gray: #ec4899;
+            --gray-light: #be185d;
+            --navbar-bg: #9d174d;
+            --navbar-text: #fbcfe8;
+        }
+
+        .diamond {
+            --text: #082f49;
+            --text-inverse: #bae6fd;
+            --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+            --card-bg: #bae6fd;
+            --border: #7dd3fc;
+            --gray: #38bdf8;
+            --gray-light: #7dd3fc;
+            --navbar-bg: #0ea5e9;
+            --navbar-text: #082f49;
+        }
+
+        .crazy {
+            --text: #2b0504;
+            --text-inverse: #ffedd5;
+            --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+            --card-bg: #ffedd5;
+            --border: #fdba74;
+            --gray: #fb923c;
+            --gray-light: #fdba74;
+            --navbar-bg: #ff3e00;
+            --navbar-text: #2b0504;
+        }
+
+        /* Apply theme variables */
+        body {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        /* Navigation styles */
+        .navbar {
+            background-color: var(--navbar-bg);
+            color: var(--navbar-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navbar-text);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a i {
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .username-display {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            color: var(--navbar-text);
+        }
+
+        .profile-pic-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mobile menu styles */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: var(--navbar-text);
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
+
+        /* Main content styles */
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Game History Styles */
+        :root {
+            --primary: #4fc3f7;
+            --danger: #ff4757;
+            --success: #2ecc71;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --gray: #a4b0be;
+        }
+        
         .history-container {
             padding: 20px;
             max-width: 1200px;
@@ -19,21 +244,67 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
-        .clear-history {
-            background-color: #ff4757;
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .history-btn {
             color: white;
             border: none;
             padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
-        .clear-history:hover {
-            background-color: #ff6b81;
+        .clear-history {
+            background-color: var(--danger);
+        }
+        
+        .export-history {
+            background-color: var(--success);
+        }
+        
+        .history-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background-color: #3a4042;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .history-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .history-tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .history-section {
+            margin-bottom: 30px;
+        }
+        
+        .history-date-header {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 1px solid #3a4042;
+            padding-bottom: 5px;
         }
         
         .history-grid {
@@ -43,15 +314,23 @@
         }
         
         .history-item {
-            background-color: #2d3436;
+            background-color: var(--dark);
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s;
+            position: relative;
         }
         
         .history-item:hover {
             transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
         
         .history-thumbnail {
@@ -67,46 +346,230 @@
         .history-game-title {
             font-size: 16px;
             margin-bottom: 8px;
-            color: #f5f6fa;
+            color: var(--light);
+        }
+        
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .history-time {
             font-size: 12px;
-            color: #a4b0be;
+            color: var(--gray);
             display: flex;
             align-items: center;
+            gap: 5px;
         }
         
-        .history-time i {
-            margin-right: 5px;
+        .history-play-count {
+            font-size: 12px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .history-category {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
         }
         
         .no-history {
             text-align: center;
             padding: 40px;
-            color: #a4b0be;
+            color: var(--gray);
             font-size: 18px;
         }
         
+        .loading-history {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-size: 18px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        /* Game categories color coding */
+        .category-action { background-color: #e74c3c; }
+        .category-puzzle { background-color: #3498db; }
+        .category-sports { background-color: #2ecc71; }
+        .category-io { background-color: #9b59b6; }
+
+        /* Login Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2d3436;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a4042;
+            text-align: center;
+        }
+
+        .modal h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+        }
+
         @media (max-width: 768px) {
             .history-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
+            
+            .history-tabs {
+                flex-wrap: wrap;
+            }
+
+            /* Mobile menu styles */
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: var(--navbar-bg);
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="history-container">
-        <div class="history-header">
-            <h2>Your Game History</h2>
-            <button class="clear-history" id="clearHistoryBtn">
-                <i class="bx bx-trash"></i> Clear All
-            </button>
+<body class="light">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="logo">Game<span>Hub</span></a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
         
-        <div id="historyList">
-            <div class="no-history">
-                <p>No game history found. Play some games to see them here!</p>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="llj.html" class="active"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="user-info">
+                <span class="username-display" id="username-display">Guest</span>
+                <div class="profile-pic-container" id="profile-pic-container">
+                    <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal active" id="login-modal">
+        <div class="modal-content">
+            <h2>Sign In Required</h2>
+            <p>Please sign in to access your game history</p>
+            <a href="index.html" class="btn" id="go-to-login">
+                <i class='bx bx-log-in'></i> Go to Login
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until signed in) -->
+    <div id="main-content" style="display: none;">
+        <div class="history-container">
+            <div class="history-header">
+                <h2>Your Game History</h2>
+                <div class="history-actions">
+                    <button class="history-btn export-history" id="exportHistoryBtn">
+                        <i class="bx bx-export"></i> Export
+                    </button>
+                    <button class="history-btn clear-history" id="clearHistoryBtn">
+                        <i class="bx bx-trash"></i> Clear All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="history-tabs">
+                <div class="history-tab active" data-tab="recent">Recent Plays</div>
+                <div class="history-tab" data-tab="most-played">Most Played</div>
+            </div>
+            
+            <div id="historyList">
+                <div class="loading-history">
+                    <p>Loading your game history...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -114,9 +577,108 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="src/script.js"></script>
     <script>
-        // Initialize Firebase with your existing config
+        // ===== ALL 60 GAMES DATA =====
+        const gamesData = [
+            {
+                id: "popular",
+                title: "Popular Games",
+                games: [
+                    { id: 1, title: "Bullet Force", category: "action", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Bullet+Force", url: "#bullet-force" },
+                    { id: 2, title: "Cut the Rope", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Cut+the+Rope", url: "#cut-the-rope" },
+                    { id: 3, title: "Basketball Stars", category: "sports", staticImg: "https://via.placeholder.com/300x200/2196F3/fff?text=Basketball+Stars", url: "#basketball-stars" },
+                    { id: 4, title: "Agar.io", category: "io", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Agar.io", url: "#agar-io" },
+                    { id: 5, title: "Slither.io", category: "io", staticImg: "https://via.placeholder.com/300x200/9C27B0/fff?text=Slither.io", url: "#slither-io" },
+                    { id: 6, title: "Zombie Derby", category: "action", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Zombie+Derby", url: "#zombie-derby" },
+                    { id: 7, title: "Sudoku", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Sudoku", url: "#sudoku" },
+                    { id: 8, title: "Soccer Skills", category: "sports", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Soccer+Skills", url: "#soccer-skills" },
+                    { id: 9, title: "Tank Wars", category: "action", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Tank+Wars", url: "#tank-wars" },
+                    { id: 10, title: "2048", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/00BCD4/fff?text=2048", url: "#2048" }
+                ]
+            },
+            {
+                id: "new",
+                title: "New Releases",
+                games: [
+                    { id: 11, title: "Epic Adventure", category: "action", staticImg: "https://via.placeholder.com/300x200/FF5722/fff?text=Epic+Adventure", url: "#epic-adventure" },
+                    { id: 12, title: "Brain Teaser", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/9C27B0/fff?text=Brain+Teaser", url: "#brain-teaser" },
+                    { id: 13, title: "Soccer Pro", category: "sports", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Soccer+Pro", url: "#soccer-pro" },
+                    { id: 14, title: "WormZone.io", category: "io", staticImg: "https://via.placeholder.com/300x200/00BCD4/fff?text=WormZone.io", url: "#wormzone-io" },
+                    { id: 15, title: "Zombie Shooter", category: "action", staticImg: "https://via.placeholder.com/300x200/E91E63/fff?text=Zombie+Shooter", url: "#zombie-shooter" },
+                    { id: 16, title: "Space Warriors", category: "action", staticImg: "https://via.placeholder.com/300x200/3F51B5/fff?text=Space+Warriors", url: "#space-warriors" },
+                    { id: 17, title: "Ninja Combat", category: "action", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Ninja+Combat", url: "#ninja-combat" },
+                    { id: 18, title: "Cyber Strike", category: "action", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Cyber+Strike", url: "#cyber-strike" },
+                    { id: 19, title: "Jigsaw Master", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/8BC34A/fff?text=Jigsaw+Master", url: "#jigsaw-master" },
+                    { id: 20, title: "Memory Challenge", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Memory+Challenge", url: "#memory-challenge" }
+                ]
+            },
+            {
+                id: "action",
+                title: "Action Games",
+                games: [
+                    { id: 21, title: "Commando Raid", category: "action", staticImg: "https://via.placeholder.com/300x200/8D6E63/fff?text=Commando+Raid", url: "#commando-raid" },
+                    { id: 22, title: "Street Fighter", category: "action", staticImg: "https://via.placeholder.com/300x200/5D4037/fff?text=Street+Fighter", url: "#street-fighter" },
+                    { id: 23, title: "Warzone Legends", category: "action", staticImg: "https://via.placeholder.com/300x200/455A64/fff?text=Warzone+Legends", url: "#warzone-legends" },
+                    { id: 24, title: "Shadow Strike", category: "action", staticImg: "https://via.placeholder.com/300x200/263238/fff?text=Shadow+Strike", url: "#shadow-strike" },
+                    { id: 25, title: "Dragon Slayer", category: "action", staticImg: "https://via.placeholder.com/300x200/D32F2F/fff?text=Dragon+Slayer", url: "#dragon-slayer" },
+                    { id: 26, title: "Space Invaders", category: "action", staticImg: "https://via.placeholder.com/300x200/7B1FA2/fff?text=Space+Invaders", url: "#space-invaders" },
+                    { id: 27, title: "Zombie Apocalypse", category: "action", staticImg: "https://via.placeholder.com/300x200/C2185B/fff?text=Zombie+Apocalypse", url: "#zombie-apocalypse" },
+                    { id: 28, title: "Battle Royale", category: "action", staticImg: "https://via.placeholder.com/300x200/0288D1/fff?text=Battle+Royale", url: "#battle-royale" },
+                    { id: 29, title: "Stealth Ops", category: "action", staticImg: "https://via.placeholder.com/300x200/512DA8/fff?text=Stealth+Ops", url: "#stealth-ops" },
+                    { id: 30, title: "Super Soldier", category: "action", staticImg: "https://via.placeholder.com/300x200/303F9F/fff?text=Super+Soldier", url: "#super-soldier" }
+                ]
+            },
+            {
+                id: "puzzle",
+                title: "Puzzle Games",
+                games: [
+                    { id: 31, title: "Block Puzzle", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/009688/fff?text=Block+Puzzle", url: "#block-puzzle" },
+                    { id: 32, title: "Sudoku Pro", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Sudoku+Pro", url: "#sudoku-pro" },
+                    { id: 33, title: "Word Search", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/7E57C2/fff?text=Word+Search", url: "#word-search" },
+                    { id: 34, title: "Crossword", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/EF5350/fff?text=Crossword", url: "#crossword" },
+                    { id: 35, title: "Jewel Match", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/43A047/fff?text=Jewel+Match", url: "#jewel-match" },
+                    { id: 36, title: "Pipe Dream", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/5C6BC0/fff?text=Pipe+Dream", url: "#pipe-dream" },
+                    { id: 37, title: "Mahjong Solitaire", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/26C6DA/fff?text=Mahjong+Solitaire", url: "#mahjong-solitaire" },
+                    { id: 38, title: "Tetris Blitz", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/EC407A/fff?text=Tetris+Blitz", url: "#tetris-blitz" },
+                    { id: 39, title: "Candy Crush", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/AB47BC/fff?text=Candy+Crush", url: "#candy-crush" },
+                    { id: 40, title: "Bubble Shooter", category: "puzzle", staticImg: "https://via.placeholder.com/300x200/FFA000/fff?text=Bubble+Shooter", url: "#bubble-shooter" }
+                ]
+            },
+            {
+                id: "sports",
+                title: "Sports Games",
+                games: [
+                    { id: 41, title: "Basketball Pro", category: "sports", staticImg: "https://via.placeholder.com/300x200/2196F3/fff?text=Basketball+Pro", url: "#basketball-pro" },
+                    { id: 42, title: "Football Legends", category: "sports", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Football+Legends", url: "#football-legends" },
+                    { id: 43, title: "Tennis Championship", category: "sports", staticImg: "https://via.placeholder.com/300x200/FF5722/fff?text=Tennis+Championship", url: "#tennis-championship" },
+                    { id: 44, title: "Golf Masters", category: "sports", staticImg: "https://via.placeholder.com/300x200/009688/fff?text=Golf+Masters", url: "#golf-masters" },
+                    { id: 45, title: "Boxing Knockout", category: "sports", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Boxing+Knockout", url: "#boxing-knockout" },
+                    { id: 46, title: "Hockey Shootout", category: "sports", staticImg: "https://via.placeholder.com/300x200/3F51B5/fff?text=Hockey+Shootout", url: "#hockey-shootout" },
+                    { id: 47, title: "Baseball Pro", category: "sports", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Baseball+Pro", url: "#baseball-pro" },
+                    { id: 48, title: "Soccer Manager", category: "sports", staticImg: "https://via.placeholder.com/300x200/8BC34A/fff?text=Soccer+Manager", url: "#soccer-manager" },
+                    { id: 49, title: "Cricket Challenge", category: "sports", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Cricket+Challenge", url: "#cricket-challenge" },
+                    { id: 50, title: "Extreme Skate", category: "sports", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Extreme+Skate", url: "#extreme-skate" }
+                ]
+            },
+            {
+                id: "io",
+                title: "IO Games",
+                games: [
+                    { id: 51, title: "Diep.io", category: "io", staticImg: "https://via.placeholder.com/300x200/9C27B0/fff?text=Diep.io", url: "#diep-io" },
+                    { id: 52, title: "Moomoo.io", category: "io", staticImg: "https://via.placeholder.com/300x200/00BCD4/fff?text=Moomoo.io", url: "#moomoo-io" },
+                    { id: 53, title: "Krunker.io", category: "io", staticImg: "https://via.placeholder.com/300x200/FF5722/fff?text=Krunker.io", url: "#krunker-io" },
+                    { id: 54, title: "Surviv.io", category: "io", staticImg: "https://via.placeholder.com/300x200/4CAF50/fff?text=Surviv.io", url: "#surviv-io" },
+                    { id: 55, title: "ZombsRoyale.io", category: "io", staticImg: "https://via.placeholder.com/300x200/3F51B5/fff?text=ZombsRoyale.io", url: "#zombsroyale-io" },
+                    { id: 56, title: "Bonk.io", category: "io", staticImg: "https://via.placeholder.com/300x200/F44336/fff?text=Bonk.io", url: "#bonk-io" },
+                    { id: 57, title: "Skribbl.io", category: "io", staticImg: "https://via.placeholder.com/300x200/FFC107/fff?text=Skribbl.io", url: "#skribbl-io" },
+                    { id: 58, title: "Paper.io", category: "io", staticImg: "https://via.placeholder.com/300x200/607D8B/fff?text=Paper.io", url: "#paper-io" },
+                    { id: 59, title: "Wings.io", category: "io", staticImg: "https://via.placeholder.com/300x200/8BC34A/fff?text=Wings.io", url: "#wings-io" },
+                    { id: 60, title: "Spinz.io", category: "io", staticImg: "https://via.placeholder.com/300x200/795548/fff?text=Spinz.io", url: "#spinz-io" }
+                ]
+            }
+        ];
+
+        // ===== FIREBASE INIT =====
         const firebaseConfig = {
             apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
             authDomain: "fusioncya-cc20a.firebaseapp.com",
@@ -128,45 +690,173 @@
             measurementId: "G-4DT52P7MPB"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Load and display game history when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    loadGameHistory(user.uid);
-                } else {
-                    document.getElementById('historyList').innerHTML = `
-                        <div class="no-history">
-                            <p>Please sign in to view your game history</p>
-                        </div>
-                    `;
-                    document.getElementById('clearHistoryBtn').style.display = 'none';
-                }
-            });
+        // ===== GLOBAL VARIABLES =====
+        let currentUser = null;
+        let gameStats = {}; // { gameId: { playCount, lastPlayed } }
+        let settingsListener = null;
+        let currentSettings = {};
 
-            // Clear history button
-            document.getElementById('clearHistoryBtn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to clear all your game history? This cannot be undone.')) {
-                    const user = auth.currentUser;
-                    if (user) {
-                        clearGameHistory(user.uid);
+        // ===== PAGE LOAD =====
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            auth.onAuthStateChanged(handleAuthStateChange);
+            
+            // Setup game click tracking for the entire document
+            document.addEventListener('click', function(e) {
+                const gameLink = e.target.closest('.game-link');
+                if (gameLink) {
+                    e.preventDefault();
+                    const gameId = getGameIdFromUrl(gameLink.href);
+                    if (gameId && currentUser) {
+                        trackGamePlay(gameId).then(() => {
+                            window.location.href = gameLink.href;
+                        });
+                    } else {
+                        window.location.href = gameLink.href;
                     }
                 }
             });
+
+            // Mobile menu toggle
+            document.getElementById('mobile-menu').addEventListener('click', function() {
+                document.getElementById('nav-links').classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    document.getElementById('nav-links').classList.remove('active');
+                });
+            });
         });
 
-        // Load game history from Firestore
+        // Helper function to extract game ID from URL
+        function getGameIdFromUrl(url) {
+            const gameUrl = url.split('#')[1];
+            if (!gameUrl) return null;
+            
+            // Find the game that matches this URL
+            for (const category of gamesData) {
+                for (const game of category.games) {
+                    if (game.url === `#${gameUrl}`) {
+                        return game.id;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // ===== EVENT LISTENERS =====
+        function setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.history-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    const tabType = tab.dataset.tab;
+                    if (currentUser) {
+                        if (tabType === 'recent') {
+                            loadGameHistory(currentUser.uid);
+                        } else if (tabType === 'most-played') {
+                            displayMostPlayedGames();
+                        }
+                    }
+                });
+            });
+            
+            // Clear history
+            document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+                if (confirm('Clear ALL your game history? This cannot be undone!')) {
+                    clearGameHistory();
+                }
+            });
+            
+            // Export history
+            document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
+
+            // Login button
+            document.getElementById('go-to-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'index.html';
+            });
+        }
+
+        // ===== AUTH HANDLER =====
+        function handleAuthStateChange(user) {
+            const historyList = document.getElementById('historyList');
+            const loginModal = document.getElementById('login-modal');
+            const mainContent = document.getElementById('main-content');
+            
+            if (user) {
+                currentUser = user;
+                loginModal.classList.remove('active');
+                mainContent.style.display = 'block';
+                loadGameHistory(user.uid);
+                loadGameStats(user.uid);
+                updateUserInfo(user);
+                setupSettingsListener(user.uid);
+            } else {
+                currentUser = null;
+                loginModal.classList.add('active');
+                mainContent.style.display = 'none';
+                document.getElementById('username-display').textContent = 'Guest';
+                document.getElementById('profile-pic').src = 'https://via.placeholder.com/40';
+            }
+        }
+
+        function updateUserInfo(user) {
+            document.getElementById('username-display').textContent = user.displayName || 'User';
+            
+            if (user.photoURL) {
+                document.getElementById('profile-pic').src = user.photoURL;
+            }
+        }
+
+        function setupSettingsListener(userId) {
+            settingsListener = db.collection('users').doc(userId)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        currentSettings = doc.data().settings || {};
+                        applySettings(currentSettings);
+                    }
+                }, (error) => {
+                    console.error('Error listening to settings:', error);
+                });
+        }
+
+        function applySettings(settings) {
+            // Apply theme
+            if (settings.theme) {
+                document.body.className = settings.theme;
+            } else {
+                document.body.className = 'light';
+            }
+
+            // Apply background image
+            if (settings.backgroundImage) {
+                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+            } else {
+                document.body.style.backgroundImage = 'none';
+            }
+        }
+
+        // ===== LOAD GAME HISTORY =====
         function loadGameHistory(userId) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="loading-history"><p>Loading your history...</p></div>';
+            
             db.collection('users').doc(userId).collection('history')
                 .orderBy('timestamp', 'desc')
                 .get()
                 .then(querySnapshot => {
-                    const historyList = document.getElementById('historyList');
-                    
                     if (querySnapshot.empty) {
                         historyList.innerHTML = `
                             <div class="no-history">
@@ -176,50 +866,151 @@
                         return;
                     }
                     
-                    historyList.innerHTML = '<div class="history-grid"></div>';
-                    const grid = historyList.querySelector('.history-grid');
-                    
+                    // Group by date
+                    const historyByDate = {};
                     querySnapshot.forEach(doc => {
                         const historyItem = doc.data();
-                        const game = findGameById(historyItem.gameId);
+                        const date = historyItem.timestamp.toDate();
+                        const dateStr = date.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
                         
-                        if (game) {
-                            const historyElement = createHistoryElement(game, historyItem.timestamp);
-                            grid.appendChild(historyElement);
+                        if (!historyByDate[dateStr]) {
+                            historyByDate[dateStr] = [];
                         }
+                        
+                        historyByDate[dateStr].push(historyItem);
                     });
+                    
+                    // Display grouped history
+                    historyList.innerHTML = '';
+                    for (const [date, items] of Object.entries(historyByDate)) {
+                        const section = document.createElement('div');
+                        section.className = 'history-section';
+                        section.innerHTML = `
+                            <h3 class="history-date-header">${date}</h3>
+                            <div class="history-grid"></div>
+                        `;
+                        
+                        const grid = section.querySelector('.history-grid');
+                        items.forEach(item => {
+                            const game = findGameById(item.gameId);
+                            if (game) {
+                                const element = createHistoryElement(game, item.timestamp);
+                                grid.appendChild(element);
+                            }
+                        });
+                        
+                        historyList.appendChild(section);
+                    }
                 })
                 .catch(error => {
-                    console.error('Error loading game history:', error);
+                    console.error('Error loading history:', error);
+                    historyList.innerHTML = `
+                        <div class="no-history">
+                            <p>Error loading history. Please refresh the page.</p>
+                        </div>
+                    `;
                 });
         }
 
-        // Helper function to find game by ID (replicated from main script)
-        function findGameById(id) {
-            // This should match the gamesData structure from your main script
-            const allGames = [];
-            gamesData.forEach(category => {
-                allGames.push(...category.games);
-            });
-            return allGames.find(game => game.id === id);
+        // ===== LOAD GAME STATS (FOR MOST PLAYED) =====
+        function loadGameStats(userId) {
+            db.collection('users').doc(userId).collection('stats')
+                .get()
+                .then(querySnapshot => {
+                    gameStats = {};
+                    querySnapshot.forEach(doc => {
+                        gameStats[doc.id] = doc.data();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading game stats:', error);
+                });
         }
 
-        // Create HTML element for a history item
+        // ===== DISPLAY MOST PLAYED GAMES =====
+        function displayMostPlayedGames() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="loading-history"><p>Loading most played games...</p></div>';
+            
+            // Convert stats to array and sort by play count
+            const statsArray = Object.entries(gameStats)
+                .map(([gameId, stats]) => ({
+                    gameId: parseInt(gameId),
+                    playCount: stats.playCount || 0,
+                    lastPlayed: stats.lastPlayed
+                }))
+                .sort((a, b) => b.playCount - a.playCount);
+            
+            if (statsArray.length === 0) {
+                historyList.innerHTML = `
+                    <div class="no-history">
+                        <p>No play stats available yet. Play some games!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            historyList.innerHTML = '<div class="history-grid"></div>';
+            const grid = historyList.querySelector('.history-grid');
+            
+            statsArray.forEach(stat => {
+                const game = findGameById(stat.gameId);
+                if (game) {
+                    const element = createHistoryElement(game, stat.lastPlayed);
+                    const playCountEl = document.createElement('div');
+                    playCountEl.className = 'history-play-count';
+                    playCountEl.innerHTML = `<i class="bx bx-play"></i> ${stat.playCount}`;
+                    element.querySelector('.history-meta').appendChild(playCountEl);
+                    grid.appendChild(element);
+                }
+            });
+        }
+
+        // ===== TRACK GAME PLAY =====
+        function trackGamePlay(gameId) {
+            if (!currentUser) return Promise.resolve();
+            
+            const userId = currentUser.uid;
+            
+            // Record history
+            const historyPromise = db.collection('users').doc(userId).collection('history').add({
+                gameId: gameId,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Update play count
+            const statsPromise = db.collection('users').doc(userId).collection('stats')
+                .doc(gameId.toString()).set({
+                    playCount: firebase.firestore.FieldValue.increment(1),
+                    lastPlayed: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            
+            return Promise.all([historyPromise, statsPromise]);
+        }
+
+        // ===== CREATE HISTORY ITEM ELEMENT =====
         function createHistoryElement(game, timestamp) {
             const historyItem = document.createElement('div');
             historyItem.className = 'history-item';
             
-            const date = timestamp.toDate();
-            const formattedDate = date.toLocaleString();
+            const date = timestamp ? timestamp.toDate() : new Date();
+            const timeStr = timestamp ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never';
             
             historyItem.innerHTML = `
                 <a href="${game.url}" class="game-link">
+                    <div class="history-category category-${game.category}">${game.category}</div>
                     <img src="${game.staticImg}" alt="${game.title}" class="history-thumbnail">
                     <div class="history-info">
                         <h3 class="history-game-title">${game.title}</h3>
-                        <div class="history-time">
-                            <i class="bx bx-time"></i>
-                            ${formattedDate}
+                        <div class="history-meta">
+                            <div class="history-time">
+                                <i class="bx bx-time"></i>
+                                ${timeStr}
+                            </div>
                         </div>
                     </div>
                 </a>
@@ -228,9 +1019,14 @@
             return historyItem;
         }
 
-        // Clear all game history
-        function clearGameHistory(userId) {
-            db.collection('users').doc(userId).collection('history').get()
+        // ===== CLEAR HISTORY =====
+        function clearGameHistory() {
+            if (!currentUser) return;
+            
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="loading-history"><p>Clearing history...</p></div>';
+            
+            db.collection('users').doc(currentUser.uid).collection('history').get()
                 .then(querySnapshot => {
                     const batch = db.batch();
                     querySnapshot.forEach(doc => {
@@ -239,7 +1035,7 @@
                     return batch.commit();
                 })
                 .then(() => {
-                    document.getElementById('historyList').innerHTML = `
+                    historyList.innerHTML = `
                         <div class="no-history">
                             <p>Your game history has been cleared</p>
                         </div>
@@ -247,8 +1043,58 @@
                 })
                 .catch(error => {
                     console.error('Error clearing history:', error);
-                    alert('Failed to clear history. Please try again.');
+                    historyList.innerHTML = `
+                        <div class="no-history">
+                            <p>Failed to clear history. Please try again.</p>
+                        </div>
+                    `;
                 });
+        }
+
+        // ===== EXPORT HISTORY =====
+        function exportHistory() {
+            if (!currentUser) return;
+            
+            db.collection('users').doc(currentUser.uid).collection('history')
+                .orderBy('timestamp', 'desc')
+                .get()
+                .then(querySnapshot => {
+                    let csvContent = "Game Title,Category,Date Played,Time Played\n";
+                    
+                    querySnapshot.forEach(doc => {
+                        const historyItem = doc.data();
+                        const game = findGameById(historyItem.gameId);
+                        if (game) {
+                            const date = historyItem.timestamp.toDate();
+                            const dateStr = date.toLocaleDateString();
+                            const timeStr = date.toLocaleTimeString();
+                            csvContent += `"${game.title}","${game.category}","${dateStr}","${timeStr}"\n`;
+                        }
+                    });
+                    
+                    // Create download link
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `game-history-${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(error => {
+                    console.error('Error exporting history:', error);
+                    alert('Failed to export history. Please try again.');
+                });
+        }
+
+        // ===== HELPER FUNCTIONS =====
+        function findGameById(id) {
+            for (const category of gamesData) {
+                const game = category.games.find(g => g.id === id);
+                if (game) return game;
+            }
+            return null;
         }
     </script>
 </body>
