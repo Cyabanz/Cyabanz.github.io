@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Fusion</title>
+    <link rel="stylesheet" href="setting.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* Navigation styles from index.html */
+        .navbar {
+            background-color: var(--navbar-bg);
+            color: var(--navbar-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navbar-text);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a i {
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .username-display-nav {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            color: var(--navbar-text);
+        }
+
+        .profile-pic-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .profile-pic-nav {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mobile menu styles */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: var(--navbar-text);
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: var(--navbar-bg);
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body class="light">
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation from index.html -->
+    <nav class="navbar">
+        <a href="#" class="logo">Profile<span>System</span></a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="#"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="user-info">
+                <span class="username-display-nav" id="username-display-nav">Guest</span>
+                <div class="profile-pic-container" id="profile-pic-container-nav">
+                    <img id="profile-pic-nav" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic-nav">
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <button id="sidebarToggle" class="sidebar-toggle">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="index.html"><i class='bx bx-home'></i> Home</a></li>
+            <li><a href="settings.html" class="active"><i class='bx bx-cog'></i> Settings</a></li>
+            <li><a href="profile.html"><i class='bx bx-user'></i> Profile</a></li>
+            <li class="divider"></li>
+            <li>
+                <button id="aboutBlankBtn" class="about-blank-btn">
+                    <i class='bx bx-shield'></i> About Blank
+                </button>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-info-small">
+                <img id="sidebar-profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic-small">
+                <span id="sidebar-username">Guest</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div id="settings-view">
+                <div class="settings-header">
+                    <h1><i class='bx bx-cog'></i> Settings</h1>
+                    <p class="subtitle">Customize your experience</p>
+                </div>
+
+                <!-- Theme Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-palette'></i> Appearance</h2>
+                    
+                    <div class="form-group">
+                        <label>Color Theme</label>
+                        <div class="theme-options">
+                            <button class="theme-btn" data-theme="light">
+                                <div class="theme-preview light"></div>
+                                Light
+                            </button>
+                            <button class="theme-btn" data-theme="dark">
+                                <div class="theme-preview dark"></div>
+                                Dark
+                            </button>
+                            <button class="theme-btn" data-theme="moon">
+                                <div class="theme-preview moon"></div>
+                                Moon
+                            </button>
+                            <button class="theme-btn" data-theme="emerald">
+                                <div class="theme-preview emerald"></div>
+                                Emerald
+                            </button>
+                            <button class="theme-btn" data-theme="ruby">
+                                <div class="theme-preview ruby"></div>
+                                Ruby
+                            </button>
+                            <button class="theme-btn" data-theme="diamond">
+                                <div class="theme-preview diamond"></div>
+                                Diamond
+                            </button>
+                            <button class="theme-btn" data-theme="crazy">
+                                <div class="theme-preview crazy"></div>
+                                Crazy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Custom Background</label>
+                        <div class="bg-image-controls">
+                            <input type="text" id="bg-image-url" placeholder="Image URL" class="share-input">
+                            <span class="or-divider">OR</span>
+                            <label class="file-upload-btn">
+                                <input type="file" id="bg-image-upload" accept="image/*">
+                                <i class='bx bx-upload'></i> Upload
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button id="apply-bg-image" class="btn">Apply Background</button>
+                            <button id="reset-bg" class="btn btn-secondary">Reset</button>
+                        </div>
+                        <p class="file-info">Max 2MB (JPG/PNG)</p>
+                    </div>
+                </div>
+
+                <!-- Privacy Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-shield'></i> Privacy & Security</h2>
+                    
+                    <div class="form-group">
+                        <label>Tab Cloaker</label>
+                        <select id="cloak-site" class="form-select">
+                            <option value="">-- Select Site --</option>
+                            <option value="google">Google Classroom</option>
+                            <option value="clever">Clever Portal</option>
+                            <option value="drive">Google Drive</option>
+                            <option value="docs">Google Docs</option>
+                            <option value="custom">Custom URL</option>
+                        </select>
+                        <div id="custom-cloak-container" style="display:none">
+                            <input type="url" id="custom-cloak-url" placeholder="https://example.com" class="form-input">
+                        </div>
+                        <div class="form-actions">
+                            <button id="apply-cloak" class="btn">Apply Cloak</button>
+                            <button id="reset-cloak" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Panic Key</label>
+                        <div class="panic-key-container">
+                            <div class="input-group">
+                                <label>Key:</label>
+                                <input type="text" id="panic-key-input" placeholder="Press any key" readonly class="key-input">
+                            </div>
+                            <div class="input-group">
+                                <label>URL:</label>
+                                <input type="url" id="panic-url" placeholder="https://example.com" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="set-panic-key" class="btn">Set Panic Key</button>
+                            <button id="reset-panic-key" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Effects Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-atom'></i> Effects</h2>
+                    
+                    <div class="form-group toggle-group">
+                        <label class="toggle-label">
+                            <span class="toggle-text">Particle Effects</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="particles-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </label>
+                    </div>
+                    
+                    <div id="particle-settings" style="display:none">
+                        <div class="form-group">
+                            <label>Particle Type</label>
+                            <select id="particle-type" class="form-select">
+                                <option value="circle">Circles</option>
+                                <option value="star">Stars</option>
+                                <option value="triangle">Triangles</option>
+                                <option value="image">Custom Image</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group range-group">
+                            <label>Particle Count: <span id="particle-count-value">50</span></label>
+                            <input type="range" id="particle-count" min="10" max="200" value="50" class="form-range">
+                        </div>
+                        
+                        <div class="form-group range-group">
+                            <label>Particle Speed: <span id="particle-speed-value">3</span></label>
+                            <input type="range" id="particle-speed" min="1" max="10" value="3" class="form-range">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Particle Colors</label>
+                            <div class="color-picker">
+                                <input type="color" id="particle-color-1" value="#4361ee" title="Color 1">
+                                <input type="color" id="particle-color-2" value="#f72585" title="Color 2">
+                                <input type="color" id="particle-color-3" value="#4cc9f0" title="Color 3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-user'></i> Account</h2>
+                    <div class="form-actions vertical">
+                        <button id="sign-out-btn" class="btn btn-danger">
+                            <i class='bx bx-log-out'></i> Sign Out
+                        </button>
+                        <button id="reset-all-settings" class="btn btn-secondary">
+                            <i class='bx bx-reset'></i> Reset All Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal (hidden by default) -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>Sign In Required</h3>
+            <p>Please sign in to access all settings features.</p>
+            <div class="modal-actions">
+                <button id="go-to-login" class="btn">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="setting.js"></script>
+    <script>
+        // Mobile menu toggle for the navbar
+        document.getElementById('mobile-menu').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('nav-links').classList.remove('active');
+            });
+        });
+
+        // Update user info in navbar when auth state changes
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('username-display-nav').textContent = user.displayName || 'User';
+                if (user.photoURL) {
+                    document.getElementById('profile-pic-nav').src = user.photoURL;
+                }
+            } else {
+                document.getElementById('username-display-nav').textContent = 'Guest';
+                document.getElementById('profile-pic-nav').src = 'https://via.placeholder.com/40';
+            }
+        });
+    </script>
+</body>
+</html>
