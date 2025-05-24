@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Profile System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            padding-top: 60px; /* Add padding to account for fixed navbar */
+        }
+
+        /* Theme classes */
+        .light {
+            --text: #1b263b;
+            --text-inverse: #f8f9fa;
+            --background: #f5f7ff;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --gray: #adb5bd;
+            --gray-light: #e9ecef;
+            --navbar-bg: #2c3e50;
+            --navbar-text: white;
+            --primary: #3498db;
+            --primary-light: #5dade2;
+            --danger: #e74c3c;
+        }
+
+        .dark {
+            --text: #f8f9fa;
+            --text-inverse: #1b263b;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --border: #333333;
+            --gray: #555555;
+            --gray-light: #333333;
+            --navbar-bg: #1a1a2e;
+            --navbar-text: white;
+            --primary: #2980b9;
+            --primary-light: #3498db;
+            --danger: #c0392b;
+        }
+
+        .moon {
+            --text: #e2e8f0;
+            --text-inverse: #0f172a;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --gray: #64748b;
+            --gray-light: #334155;
+            --navbar-bg: #1e293b;
+            --navbar-text: #e2e8f0;
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --danger: #dc2626;
+        }
+
+        .emerald {
+            --text: #a7f3d0;
+            --text-inverse: #064e3b;
+            --background: #064e3b;
+            --card-bg: #047857;
+            --border: #059669;
+            --gray: #34d399;
+            --gray-light: #059669;
+            --navbar-bg: #047857;
+            --navbar-text: #a7f3d0;
+            --primary: #059669;
+            --primary-light: #10b981;
+            --danger: #b91c1c;
+        }
+
+        .ruby {
+            --text: #fbcfe8;
+            --text-inverse: #831843;
+            --background: #831843;
+            --card-bg: #9d174d;
+            --border: #be185d;
+            --gray: #ec4899;
+            --gray-light: #be185d;
+            --navbar-bg: #9d174d;
+            --navbar-text: #fbcfe8;
+            --primary: #be185d;
+            --primary-light: #db2777;
+            --danger: #9f1239;
+        }
+
+        .diamond {
+            --text: #082f49;
+            --text-inverse: #bae6fd;
+            --background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+            --card-bg: #bae6fd;
+            --border: #7dd3fc;
+            --gray: #38bdf8;
+            --gray-light: #7dd3fc;
+            --navbar-bg: #0ea5e9;
+            --navbar-text: #082f49;
+            --primary: #0369a1;
+            --primary-light: #0ea5e9;
+            --danger: #1e40af;
+        }
+
+        .crazy {
+            --text: #2b0504;
+            --text-inverse: #ffedd5;
+            --background: linear-gradient(135deg, #ff3e00, #ffbe0b);
+            --card-bg: #ffedd5;
+            --border: #fdba74;
+            --gray: #fb923c;
+            --gray-light: #fdba74;
+            --navbar-bg: #ff3e00;
+            --navbar-text: #2b0504;
+            --primary: #ea580c;
+            --primary-light: #f97316;
+            --danger: #9a3412;
+        }
+
+        /* Apply theme variables */
+        body {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        /* Navigation styles */
+        .navbar {
+            background-color: var(--navbar-bg);
+            color: var(--navbar-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navbar-text);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a i {
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .username-display {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            color: var(--navbar-text);
+        }
+
+        .profile-pic-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mobile menu styles */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: var(--navbar-text);
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
+
+        /* Main content styles */
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        /* Settings specific styles */
+        .settings-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-header h1 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .theme-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: 3px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-light);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: var(--navbar-bg);
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
+
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="light">
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <nav class="navbar">
+        <a href="#" class="logo">Profile<span>System</span></a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="#"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="user-info">
+                <span class="username-display" id="username-display">Guest</span>
+                <div class="profile-pic-container" id="profile-pic-container">
+                    <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div id="settings-view">
+                <div class="settings-header">
+                    <h1><i class='bx bx-cog'></i> Settings</h1>
+                    <p class="subtitle">Customize your experience</p>
+                </div>
+
+                <!-- Theme Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-palette'></i> Appearance</h2>
+                    
+                    <div class="form-group">
+                        <label>Color Theme</label>
+                        <div class="theme-options">
+                            <button class="theme-btn" data-theme="light">
+                                <div class="theme-preview light"></div>
+                                Light
+                            </button>
+                            <button class="theme-btn" data-theme="dark">
+                                <div class="theme-preview dark"></div>
+                                Dark
+                            </button>
+                            <button class="theme-btn" data-theme="moon">
+                                <div class="theme-preview moon"></div>
+                                Moon
+                            </button>
+                            <button class="theme-btn" data-theme="emerald">
+                                <div class="theme-preview emerald"></div>
+                                Emerald
+                            </button>
+                            <button class="theme-btn" data-theme="ruby">
+                                <div class="theme-preview ruby"></div>
+                                Ruby
+                            </button>
+                            <button class="theme-btn" data-theme="diamond">
+                                <div class="theme-preview diamond"></div>
+                                Diamond
+                            </button>
+                            <button class="theme-btn" data-theme="crazy">
+                                <div class="theme-preview crazy"></div>
+                                Crazy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Custom Background</label>
+                        <div class="bg-image-controls">
+                            <input type="text" id="bg-image-url" placeholder="Image URL" class="share-input">
+                            <span class="or-divider">OR</span>
+                            <label class="file-upload-btn">
+                                <input type="file" id="bg-image-upload" accept="image/*">
+                                <i class='bx bx-upload'></i> Upload
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button id="apply-bg-image" class="btn">Apply Background</button>
+                            <button id="reset-bg" class="btn btn-secondary">Reset</button>
+                        </div>
+                        <p class="file-info">Max 2MB (JPG/PNG)</p>
+                    </div>
+                </div>
+
+                <!-- Privacy Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-shield'></i> Privacy & Security</h2>
+                    
+                    <div class="form-group">
+                        <label>Tab Cloaker</label>
+                        <select id="cloak-site" class="form-select">
+                            <option value="">-- Select Site --</option>
+                            <option value="google">Google Classroom</option>
+                            <option value="clever">Clever Portal</option>
+                            <option value="drive">Google Drive</option>
+                            <option value="docs">Google Docs</option>
+                            <option value="custom">Custom URL</option>
+                        </select>
+                        <div id="custom-cloak-container" style="display:none">
+                            <input type="url" id="custom-cloak-url" placeholder="https://example.com" class="form-input">
+                        </div>
+                        <div class="form-actions">
+                            <button id="apply-cloak" class="btn">Apply Cloak</button>
+                            <button id="reset-cloak" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Panic Key</label>
+                        <div class="panic-key-container">
+                            <div class="input-group">
+                                <label>Key:</label>
+                                <input type="text" id="panic-key-input" placeholder="Press any key" readonly class="key-input">
+                            </div>
+                            <div class="input-group">
+                                <label>URL:</label>
+                                <input type="url" id="panic-url" placeholder="https://example.com" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="set-panic-key" class="btn">Set Panic Key</button>
+                            <button id="reset-panic-key" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Effects Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-atom'></i> Effects</h2>
+                    
+                    <div class="form-group toggle-group">
+                        <label class="toggle-label">
+                            <span class="toggle-text">Particle Effects</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="particles-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </label>
+                    </div>
+                    
+                    <div id="particle-settings" style="display:none">
+                        <div class="form-group">
+                            <label>Particle Type</label>
+                            <select id="particle-type" class="form-select">
+                                <option value="circle">Circles</option>
+                                <option value="star">Stars</option>
+                                <option value="triangle">Triangles</option>
+                                <option value="image">Custom Image</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group range-group">
+                            <label>Particle Count: <span id="particle-count-value">50</span></label>
+                            <input type="range" id="particle-count" min="10" max="200" value="50" class="form-range">
+                        </div>
+                        
+                        <div class="form-group range-group">
+                            <label>Particle Speed: <span id="particle-speed-value">3</span></label>
+                            <input type="range" id="particle-speed" min="1" max="10" value="3" class="form-range">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Particle Colors</label>
+                            <div class="color-picker">
+                                <input type="color" id="particle-color-1" value="#4361ee" title="Color 1">
+                                <input type="color" id="particle-color-2" value="#f72585" title="Color 2">
+                                <input type="color" id="particle-color-3" value="#4cc9f0" title="Color 3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-user'></i> Account</h2>
+                    <div class="form-actions vertical">
+                        <button id="sign-out-btn" class="btn btn-danger">
+                            <i class='bx bx-log-out'></i> Sign Out
+                        </button>
+                        <button id="reset-all-settings" class="btn btn-secondary">
+                            <i class='bx bx-reset'></i> Reset All Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal (hidden by default) -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>Sign In Required</h3>
+            <p>Please sign in to access all settings features.</p>
+            <div class="modal-actions">
+                <button id="go-to-login" class="btn">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
