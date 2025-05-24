@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Fusion</title>
+    <link rel="stylesheet" href="setting.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* Additional styles for the integrated navbar */
+        .navbar {
+            background-color: var(--navbar-bg);
+            color: var(--navbar-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navbar-text);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a i {
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .username-display {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            color: var(--navbar-text);
+        }
+
+        .profile-pic-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mobile menu styles */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: var(--navbar-text);
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: var(--navbar-bg);
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="logo">Fusion</a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="#"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="user-info">
+                <span class="username-display" id="username-display-nav">Guest</span>
+                <div class="profile-pic-container" id="profile-pic-container-nav">
+                    <img id="profile-pic-nav" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Navigation Sidebar -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <button id="sidebarToggle" class="sidebar-toggle">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="index.html"><i class='bx bx-home'></i> Home</a></li>
+            <li><a href="settings.html" class="active"><i class='bx bx-cog'></i> Settings</a></li>
+            <li><a href="profile.html"><i class='bx bx-user'></i> Profile</a></li>
+            <li class="divider"></li>
+            <li>
+                <button id="aboutBlankBtn" class="about-blank-btn">
+                    <i class='bx bx-shield'></i> About Blank
+                </button>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-info-small">
+                <img id="sidebar-profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic-small">
+                <span id="sidebar-username">Guest</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div id="settings-view">
+                <div class="settings-header">
+                    <h1><i class='bx bx-cog'></i> Settings</h1>
+                    <p class="subtitle">Customize your experience</p>
+                </div>
+
+                <!-- Theme Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-palette'></i> Appearance</h2>
+                    
+                    <div class="form-group">
+                        <label>Color Theme</label>
+                        <div class="theme-options">
+                            <button class="theme-btn" data-theme="light">
+                                <div class="theme-preview light"></div>
+                                Light
+                            </button>
+                            <button class="theme-btn" data-theme="dark">
+                                <div class="theme-preview dark"></div>
+                                Dark
+                            </button>
+                            <button class="theme-btn" data-theme="moon">
+                                <div class="theme-preview moon"></div>
+                                Moon
+                            </button>
+                            <button class="theme-btn" data-theme="emerald">
+                                <div class="theme-preview emerald"></div>
+                                Emerald
+                            </button>
+                            <button class="theme-btn" data-theme="ruby">
+                                <div class="theme-preview ruby"></div>
+                                Ruby
+                            </button>
+                            <button class="theme-btn" data-theme="diamond">
+                                <div class="theme-preview diamond"></div>
+                                Diamond
+                            </button>
+                            <button class="theme-btn" data-theme="crazy">
+                                <div class="theme-preview crazy"></div>
+                                Crazy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Custom Background</label>
+                        <div class="bg-image-controls">
+                            <input type="text" id="bg-image-url" placeholder="Image URL" class="share-input">
+                            <span class="or-divider">OR</span>
+                            <label class="file-upload-btn">
+                                <input type="file" id="bg-image-upload" accept="image/*">
+                                <i class='bx bx-upload'></i> Upload
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button id="apply-bg-image" class="btn">Apply Background</button>
+                            <button id="reset-bg" class="btn btn-secondary">Reset</button>
+                        </div>
+                        <p class="file-info">Max 2MB (JPG/PNG)</p>
+                    </div>
+                </div>
+
+                <!-- Privacy Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-shield'></i> Privacy & Security</h2>
+                    
+                    <div class="form-group">
+                        <label>Tab Cloaker</label>
+                        <select id="cloak-site" class="form-select">
+                            <option value="">-- Select Site --</option>
+                            <option value="google">Google Classroom</option>
+                            <option value="clever">Clever Portal</option>
+                            <option value="drive">Google Drive</option>
+                            <option value="docs">Google Docs</option>
+                            <option value="custom">Custom URL</option>
+                        </select>
+                        <div id="custom-cloak-container" style="display:none">
+                            <input type="url" id="custom-cloak-url" placeholder="https://example.com" class="form-input">
+                        </div>
+                        <div class="form-actions">
+                            <button id="apply-cloak" class="btn">Apply Cloak</button>
+                            <button id="reset-cloak" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Panic Key</label>
+                        <div class="panic-key-container">
+                            <div class="input-group">
+                                <label>Key:</label>
+                                <input type="text" id="panic-key-input" placeholder="Press any key" readonly class="key-input">
+                            </div>
+                            <div class="input-group">
+                                <label>URL:</label>
+                                <input type="url" id="panic-url" placeholder="https://example.com" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="set-panic-key" class="btn">Set Panic Key</button>
+                            <button id="reset-panic-key" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Effects Section -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-atom'></i> Effects</h2>
+                    
+                    <div class="form-group toggle-group">
+                        <label class="toggle-label">
+                            <span class="toggle-text">Particle Effects</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="particles-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </label>
+                    </div>
+                    
+                    <div id="particle-settings" style="display:none">
+                        <div class="form-group">
+                            <label>Particle Type</label>
+                            <select id="particle-type" class="form-select">
+                                <option value="circle">Circles</option>
+                                <option value="star">Stars</option>
+                                <option value="triangle">Triangles</option>
+                                <option value="image">Custom Image</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group range-group">
+                            <label>Particle Count: <span id="particle-count-value">50</span></label>
+                            <input type="range" id="particle-count" min="10" max="200" value="50" class="form-range">
+                        </div>
+                        
+                        <div class="form-group range-group">
+                            <label>Particle Speed: <span id="particle-speed-value">3</span></label>
+                            <input type="range" id="particle-speed" min="1" max="10" value="3" class="form-range">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Particle Colors</label>
+                            <div class="color-picker">
+                                <input type="color" id="particle-color-1" value="#4361ee" title="Color 1">
+                                <input type="color" id="particle-color-2" value="#f72585" title="Color 2">
+                                <input type="color" id="particle-color-3" value="#4cc9f0" title="Color 3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="settings-section">
+                    <h2><i class='bx bx-user'></i> Account</h2>
+                    <div class="form-actions vertical">
+                        <button id="sign-out-btn" class="btn btn-danger">
+                            <i class='bx bx-log-out'></i> Sign Out
+                        </button>
+                        <button id="reset-all-settings" class="btn btn-secondary">
+                            <i class='bx bx-reset'></i> Reset All Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal (hidden by default) -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>Sign In Required</h3>
+            <p>Please sign in to access all settings features.</p>
+            <div class="modal-actions">
+                <button id="go-to-login" class="btn">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Global Variables
+        let particles = [];
+        let particleCanvas;
+        let particleCtx;
+        let currentUser = null;
+        let panicKeyListener = null;
+        let currentSettings = {};
+        let settingsListener = null;
+        let activeTheme = '';
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarToggleMobile = document.getElementById('sidebarToggleMobile');
+        const aboutBlankBtn = document.getElementById('aboutBlankBtn');
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const bgImageUrl = document.getElementById('bg-image-url');
+        const bgImageUpload = document.getElementById('bg-image-upload');
+        const applyBgImage = document.getElementById('apply-bg-image');
+        const resetBg = document.getElementById('reset-bg');
+        const cloakSite = document.getElementById('cloak-site');
+        const customCloakContainer = document.getElementById('custom-cloak-container');
+        const customCloakUrl = document.getElementById('custom-cloak-url');
+        const applyCloak = document.getElementById('apply-cloak');
+        const resetCloak = document.getElementById('reset-cloak');
+        const panicKeyInput = document.getElementById('panic-key-input');
+        const panicUrl = document.getElementById('panic-url');
+        const setPanicKey = document.getElementById('set-panic-key');
+        const resetPanicKey = document.getElementById('reset-panic-key');
+        const particlesToggle = document.getElementById('particles-toggle');
+        const particleSettings = document.getElementById('particle-settings');
+        const particleType = document.getElementById('particle-type');
+        const particleCount = document.getElementById('particle-count');
+        const particleCountValue = document.getElementById('particle-count-value');
+        const particleSpeed = document.getElementById('particle-speed');
+        const particleSpeedValue = document.getElementById('particle-speed-value');
+        const particleColor1 = document.getElementById('particle-color-1');
+        const particleColor2 = document.getElementById('particle-color-2');
+        const particleColor3 = document.getElementById('particle-color-3');
+        const resetAllSettings = document.getElementById('reset-all-settings');
+        const usernameDisplay = document.getElementById('username-display-nav');
+        const profilePic = document.getElementById('profile-pic-nav');
+        const sidebarUsername = document.getElementById('sidebar-username');
+        const sidebarProfilePic = document.getElementById('sidebar-profile-pic');
+        const loginModal = document.getElementById('login-modal');
+        const goToLogin = document.getElementById('go-to-login');
+        const signOutBtn = document.getElementById('sign-out-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navLinks = document.getElementById('nav-links');
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            auth.onAuthStateChanged(handleAuthStateChange);
+        });
+
+        function initEventListeners() {
+            // Mobile menu toggle
+            mobileMenu.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+            
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                });
+            });
+
+            // Sidebar toggle
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            sidebarToggleMobile.addEventListener('click', toggleSidebar);
+            
+            // Close sidebar when clicking outside
+            document.addEventListener('click', (e) => {
+                if (sidebar.classList.contains('active') && 
+                    !sidebar.contains(e.target) && 
+                    e.target !== sidebarToggleMobile) {
+                    toggleSidebar();
+                }
+            });
+
+            // About blank button
+            aboutBlankBtn.addEventListener('click', () => {
+                window.open('about:blank', '_blank');
+            });
+
+            // Theme selection
+            themeButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleThemeSelection(button.dataset.theme);
+                });
+            });
+
+            // Background image
+            applyBgImage.addEventListener('click', applyBackgroundImage);
+            resetBg.addEventListener('click', resetBackground);
+            bgImageUpload.addEventListener('change', handleImageUpload);
+
+            // Tab cloaker
+            cloakSite.addEventListener('change', handleCloakSiteChange);
+            applyCloak.addEventListener('click', applyTabCloak);
+            resetCloak.addEventListener('click', resetTabCloak);
+
+            // Panic key
+            panicKeyInput.addEventListener('keydown', setPanicKeyInput);
+            setPanicKey.addEventListener('click', savePanicKey);
+            resetPanicKey.addEventListener('click', resetPanicKeySettings);
+
+            // Particle effects
+            particlesToggle.addEventListener('change', toggleParticleEffects);
+            particleCount.addEventListener('input', updateParticleCount);
+            particleSpeed.addEventListener('input', updateParticleSpeed);
+            particleType.addEventListener('change', updateParticleType);
+            particleColor1.addEventListener('input', updateParticleColors);
+            particleColor2.addEventListener('input', updateParticleColors);
+            particleColor3.addEventListener('input', updateParticleColors);
+
+            // Reset all settings
+            resetAllSettings.addEventListener('click', confirmResetAllSettings);
+
+            // Auth related
+            goToLogin.addEventListener('click', () => window.location.href = 'index.html');
+            signOutBtn.addEventListener('click', signOut);
+        }
+
+        function handleAuthStateChange(user) {
+            currentUser = user;
+            
+            // Clean up previous listener if exists
+            if (settingsListener) {
+                settingsListener();
+            }
+            
+            if (user) {
+                updateUIForUser(user);
+                setupSettingsListener(user.uid);
+                loginModal.classList.remove('active');
+            } else {
+                showLoginModal();
+                resetAllSettingsToDefault();
+            }
+        }
+
+        function setupSettingsListener(userId) {
+            settingsListener = db.collection('users').doc(userId)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        currentSettings = doc.data().settings || {};
+                        applySettings(currentSettings);
+                        setupPanicKeyListener(); // Set up panic key listener after settings are loaded
+                    }
+                }, (error) => {
+                    console.error('Error listening to settings:', error);
+                });
+        }
+
+        function showLoginModal() {
+            loginModal.classList.add('active');
+            disableAllFeatures();
+        }
+
+        function disableAllFeatures() {
+            const interactiveElements = [
+                themeButtons,
+                applyBgImage,
+                resetBg,
+                bgImageUpload,
+                applyCloak,
+                resetCloak,
+                setPanicKey,
+                resetPanicKey,
+                particlesToggle,
+                resetAllSettings
+            ];
+            
+            interactiveElements.forEach(element => {
+                if (Array.isArray(element)) {
+                    element.forEach(el => el.disabled = true);
+                } else {
+                    element.disabled = true;
+                }
+            });
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+            
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.classList.replace('bx-menu', 'bx-x');
+            } else {
+                icon.classList.replace('bx-x', 'bx-menu');
+            }
+        }
+
+        function updateUIForUser(user) {
+            usernameDisplay.textContent = user.displayName || 'User';
+            sidebarUsername.textContent = user.displayName || 'User';
+            
+            if (user.photoURL) {
+                profilePic.src = user.photoURL;
+                sidebarProfilePic.src = user.photoURL;
+            }
+            
+            // Re-enable all interactive elements
+            const interactiveElements = [
+                themeButtons,
+                applyBgImage,
+                resetBg,
+                bgImageUpload,
+                applyCloak,
+                resetCloak,
+                setPanicKey,
+                resetPanicKey,
+                particlesToggle,
+                resetAllSettings
+            ];
+            
+            interactiveElements.forEach(element => {
+                if (Array.isArray(element)) {
+                    element.forEach(el => el.disabled = false);
+                } else {
+                    element.disabled = false;
+                }
+            });
+        }
+
+        // Theme Management
+        function handleThemeSelection(theme) {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+            
+            activeTheme = theme;
+            applyTheme(theme);
+            saveSetting('theme', theme);
+            
+            // Reset background image when selecting a theme
+            document.body.style.backgroundImage = 'none';
+            saveSetting('backgroundImage', '');
+            bgImageUrl.value = '';
+            bgImageUpload.value = '';
+            
+            // Update active button
+            themeButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === theme) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function applyTheme(theme) {
+            document.body.className = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        // Background Image Management
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Image must be smaller than 2MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                bgImageUrl.value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyBackgroundImage() {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            let imageUrl = bgImageUrl.value.trim();
+            const file = bgImageUpload.files[0];
+
+            if (file) {
+                // Upload to Firebase Storage
+                const storageRef = storage.ref(`backgrounds/${currentUser.uid}/${file.name}`);
+                const uploadTask = storageRef.put(file);
+
+                uploadTask.on('state_changed', 
+                    null, 
+                    (error) => {
+                        console.error('Upload error:', error);
+                        alert('Error uploading image: ' + error.message);
+                    }, 
+                    () => {
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            imageUrl = downloadURL;
+                            setBackgroundImage(imageUrl);
+                        });
+                    }
+                );
+            } else if (imageUrl) {
+                setBackgroundImage(imageUrl);
+            } else {
+                alert('Please select an image or enter a URL');
+            }
+        }
+
+        function setBackgroundImage(url) {
+            document.body.style.backgroundImage = `url(${url})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+            
+            document.body.className = '';
+            document.documentElement.removeAttribute('data-theme');
+            saveSetting('theme', '');
+            themeButtons.forEach(btn => btn.classList.remove('active'));
+            activeTheme = '';
+            
+            saveSetting('backgroundImage', url);
+        }
+
+        function resetBackground() {
+            document.body.style.backgroundImage = 'none';
+            saveSetting('backgroundImage', '');
+            bgImageUrl.value = '';
+            bgImageUpload.value = '';
+        }
+
+        // Tab Cloaker
+        function handleCloakSiteChange() {
+            customCloakContainer.style.display = this.value === 'custom' ? 'block' : 'none';
+        }
+
+        function applyTabCloak() {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            let url = '';
+            
+            switch(cloakSite.value) {
+                case 'google':
+                    url = 'https://classroom.google.com';
+                    break;
+                case 'clever':
+                    url = 'https://clever.com';
+                    break;
+                case 'drive':
+                    url = 'https://drive.google.com';
+                    break;
+                case 'docs':
+                    url = 'https://docs.google.com';
+                    break;
+                case 'custom':
+                    url = customCloakUrl.value.trim();
+                    break;
+                default:
+                    alert('Please select a site to cloak');
+                    return;
+            }
+
+            if (url) {
+                saveSetting('cloakUrl', url);
+                saveSetting('cloakSite', cloakSite.value);
+                alert('Tab cloaker applied! Press F11 for full effect.');
+                document.title = getCloakTitle(cloakSite.value);
+                updateFavicon(cloakSite.value);
+            }
+        }
+
+        function getCloakTitle(site) {
+            const titles = {
+                'google': 'Google Classroom',
+                'clever': 'Clever | Portal',
+                'drive': 'My Drive - Google Drive',
+                'docs': 'Google Docs'
+            };
+            return titles[site] || 'My School';
+        }
+
+        function updateFavicon(site) {
+            const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+            favicon.rel = 'icon';
+            
+            const icons = {
+                'google': 'https://www.google.com/favicon.ico',
+                'clever': 'https://clever.com/favicon.ico',
+                'drive': 'https://drive.google.com/favicon.ico',
+                'docs': 'https://docs.google.com/favicon.ico'
+            };
+            
+            favicon.href = icons[site] || '/favicon.ico';
+            document.head.appendChild(favicon);
+        }
+
+        function resetTabCloak() {
+            saveSetting('cloakUrl', '');
+            saveSetting('cloakSite', '');
+            cloakSite.value = '';
+            customCloakUrl.value = '';
+            customCloakContainer.style.display = 'none';
+            document.title = 'Settings | Fusion';
+            
+            const favicon = document.querySelector('link[rel="icon"]');
+            if (favicon) {
+                favicon.href = '/favicon.ico';
+            }
+        }
+
+        // Panic Key System - Improved version
+        function setPanicKeyInput(e) {
+            e.preventDefault();
+            panicKeyInput.value = e.key;
+        }
+
+        function savePanicKey() {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            const key = panicKeyInput.value;
+            const url = panicUrl.value.trim();
+            
+            if (!key || !url) {
+                alert('Please set both a panic key and a URL');
+                return;
+            }
+
+            saveSetting('panicKey', key);
+            saveSetting('panicUrl', url);
+            
+            setupPanicKeyListener();
+            
+            alert(`Panic key set to "${key}". Press this key to redirect to ${url}`);
+        }
+
+        function setupPanicKeyListener() {
+            // Remove previous listener if exists
+            if (panicKeyListener) {
+                document.removeEventListener('keydown', panicKeyListener);
+            }
+
+            // Only setup listener if we have valid settings
+            if (currentSettings.panicKey && currentSettings.panicUrl) {
+                panicKeyListener = function(e) {
+                    if (e.key === currentSettings.panicKey) {
+                        window.location.href = currentSettings.panicUrl;
+                    }
+                };
+                
+                document.addEventListener('keydown', panicKeyListener);
+            }
+        }
+
+        function resetPanicKeySettings() {
+            if (panicKeyListener) {
+                document.removeEventListener('keydown', panicKeyListener);
+                panicKeyListener = null;
+            }
+            
+            saveSetting('panicKey', '');
+            saveSetting('panicUrl', '');
+            panicKeyInput.value = '';
+            panicUrl.value = '';
+        }
+
+        // Particle Effects System
+        function toggleParticleEffects() {
+            const enabled = particlesToggle.checked;
+            particleSettings.style.display = enabled ? 'block' : 'none';
+            saveSetting('particlesEnabled', enabled);
+            
+            if (enabled) {
+                initParticles();
+            } else {
+                destroyParticles();
+            }
+        }
+
+        function updateParticleCount() {
+            const count = particleCount.value;
+            particleCountValue.textContent = count;
+            saveSetting('particleCount', count);
+            updateParticles();
+        }
+
+        function updateParticleSpeed() {
+            const speed = particleSpeed.value;
+            particleSpeedValue.textContent = speed;
+            saveSetting('particleSpeed', speed);
+            updateParticles();
+        }
+
+        function updateParticleType() {
+            const type = particleType.value;
+            saveSetting('particleType', type);
+            updateParticles();
+        }
+
+        function updateParticleColors() {
+            const color1 = particleColor1.value;
+            const color2 = particleColor2.value;
+            const color3 = particleColor3.value;
+            
+            saveSetting('particleColor1', color1);
+            saveSetting('particleColor2', color2);
+            saveSetting('particleColor3', color3);
+            
+            updateParticles();
+        }
+
+        function initParticles() {
+            if (particleCanvas) return;
+            
+            particleCanvas = document.createElement('canvas');
+            particleCanvas.id = 'particle-canvas';
+            document.body.appendChild(particleCanvas);
+            
+            particleCtx = particleCanvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            createParticles();
+            animateParticles();
+        }
+
+        function resizeCanvas() {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+        }
+
+        function createParticles() {
+            const count = parseInt(currentSettings.particleCount) || 50;
+            const type = currentSettings.particleType || 'circle';
+            const colors = [
+                currentSettings.particleColor1 || '#4361ee',
+                currentSettings.particleColor2 || '#f72585',
+                currentSettings.particleColor3 || '#4cc9f0'
+            ];
+            
+            const speed = parseInt(currentSettings.particleSpeed) || 3;
+            
+            particles = [];
+            
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * particleCanvas.width,
+                    y: Math.random() * particleCanvas.height,
+                    size: Math.random() * 5 + 2,
+                    speedX: (Math.random() - 0.5) * speed,
+                    speedY: (Math.random() - 0.5) * speed,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    type: type
+                });
+            }
+        }
+
+        function animateParticles() {
+            if (!particleCanvas) return;
+            
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                
+                p.x += p.speedX;
+                p.y += p.speedY;
+                
+                if (p.x < 0 || p.x > particleCanvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > particleCanvas.height) p.speedY *= -1;
+                
+                particleCtx.fillStyle = p.color;
+                
+                switch(p.type) {
+                    case 'star':
+                        drawStar(p.x, p.y, 5, p.size, p.size / 2);
+                        break;
+                    case 'triangle':
+                        drawTriangle(p.x, p.y, p.size);
+                        break;
+                    default:
+                        particleCtx.beginPath();
+                        particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        particleCtx.fill();
+                }
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+
+        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+            
+            particleCtx.beginPath();
+            particleCtx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                particleCtx.lineTo(x, y);
+                rot += step;
+            }
+            
+            particleCtx.lineTo(cx, cy - outerRadius);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function drawTriangle(x, y, size) {
+            particleCtx.beginPath();
+            particleCtx.moveTo(x, y - size);
+            particleCtx.lineTo(x + size, y + size);
+            particleCtx.lineTo(x - size, y + size);
+            particleCtx.closePath();
+            particleCtx.fill();
+        }
+
+        function updateParticles() {
+            destroyParticles();
+            if (particlesToggle.checked) {
+                initParticles();
+            }
+        }
+
+        function destroyParticles() {
+            if (particleCanvas) {
+                particleCanvas.remove();
+                particleCanvas = null;
+                particleCtx = null;
+                window.removeEventListener('resize', resizeCanvas);
+            }
+        }
+
+        // Settings Management
+        function saveSetting(key, value) {
+            if (!currentUser) return;
+            
+            // Update local settings immediately
+            currentSettings[key] = value;
+            
+            // Save to Firebase
+            db.collection('users').doc(currentUser.uid).set({
+                settings: currentSettings
+            }, { merge: true })
+            .catch(error => {
+                console.error('Error saving setting:', error);
+            });
+        }
+
+        function applySettings(settings) {
+            // Apply theme
+            if (settings.theme) {
+                activeTheme = settings.theme;
+                applyTheme(settings.theme);
+                themeButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.theme === settings.theme) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            // Apply background image
+            if (settings.backgroundImage) {
+                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                bgImageUrl.value = settings.backgroundImage;
+            } else {
+                document.body.style.backgroundImage = 'none';
+                bgImageUrl.value = '';
+            }
+            
+            // Apply panic key settings
+            if (settings.panicKey) {
+                panicKeyInput.value = settings.panicKey;
+            } else {
+                panicKeyInput.value = '';
+            }
+            
+            if (settings.panicUrl) {
+                panicUrl.value = settings.panicUrl;
+            } else {
+                panicUrl.value = '';
+            }
+            
+            // Apply particle settings
+            if (settings.particlesEnabled) {
+                particlesToggle.checked = true;
+                particleSettings.style.display = 'block';
+                
+                if (settings.particleCount) {
+                    particleCount.value = settings.particleCount;
+                    particleCountValue.textContent = settings.particleCount;
+                }
+                
+                if (settings.particleSpeed) {
+                    particleSpeed.value = settings.particleSpeed;
+                    particleSpeedValue.textContent = settings.particleSpeed;
+                }
+                
+                if (settings.particleType) {
+                    particleType.value = settings.particleType;
+                }
+                
+                if (settings.particleColor1) {
+                    particleColor1.value = settings.particleColor1;
+                }
+                
+                if (settings.particleColor2) {
+                    particleColor2.value = settings.particleColor2;
+                }
+                
+                if (settings.particleColor3) {
+                    particleColor3.value = settings.particleColor3;
+                }
+                
+                initParticles();
+            } else {
+                particlesToggle.checked = false;
+                particleSettings.style.display = 'none';
+                destroyParticles();
+            }
+            
+            // Apply cloaking settings
+            if (settings.cloakSite) {
+                cloakSite.value = settings.cloakSite;
+                if (settings.cloakSite === 'custom') {
+                    customCloakContainer.style.display = 'block';
+                }
+                
+                if (settings.cloakUrl) {
+                    customCloakUrl.value = settings.cloakUrl;
+                    document.title = getCloakTitle(settings.cloakSite);
+                    updateFavicon(settings.cloakSite);
+                }
+            }
+        }
+
+        function confirmResetAllSettings() {
+            if (confirm('Are you sure you want to reset all settings to default?')) {
+                resetAllSettingsToDefault();
+            }
+        }
+
+        function resetAllSettingsToDefault() {
+            if (!currentUser) return;
+            
+            currentSettings = {};
+            
+            db.collection('users').doc(currentUser.uid).update({
+                settings: {}
+            })
+            .then(() => {
+                applyDefaultSettings();
+                alert('All settings have been reset to default.');
+            })
+            .catch(error => {
+                console.error('Error resetting settings:', error);
+            });
+        }
+
+        function applyDefaultSettings() {
+            document.body.className = '';
+            document.documentElement.removeAttribute('data-theme');
+            document.body.style.backgroundImage = 'none';
+            bgImageUrl.value = '';
+            bgImageUpload.value = '';
+            
+            particlesToggle.checked = false;
+            particleSettings.style.display = 'none';
+            destroyParticles();
+            
+            panicKeyInput.value = '';
+            panicUrl.value = '';
+            if (panicKeyListener) {
+                document.removeEventListener('keydown', panicKeyListener);
+                panicKeyListener = null;
+            }
+            
+            cloakSite.value = '';
+            customCloakUrl.value = '';
+            customCloakContainer.style.display = 'none';
+            
+            themeButtons.forEach(btn => btn.classList.remove('active'));
+            activeTheme = '';
+            
+            document.title = 'Settings | Fusion';
+            const favicon = document.querySelector('link[rel="icon"]');
+            if (favicon) {
+                favicon.href = '/favicon.ico';
+            }
+        }
+
+        function signOut() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch(error => {
+                console.error('Sign out error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
