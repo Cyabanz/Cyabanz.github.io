@@ -4,57 +4,200 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | Fusion</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="setting.css">
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
-    <!-- Boxicons -->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <!-- Favicon -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* Navbar styles */
+        .main-navbar {
+            background-color: var(--navbar-bg);
+            color: var(--navbar-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+        }
+        
+        .main-navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navbar-text);
+            text-decoration: none;
+        }
+        
+        .main-navbar .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .main-navbar .nav-links li {
+            margin-left: 1.5rem;
+        }
+        
+        .main-navbar .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .main-navbar .nav-links a i {
+            font-size: 1.2rem;
+        }
+        
+        .main-navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .main-navbar .profile-pic-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+        }
+        
+        .main-navbar .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .main-navbar .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .main-navbar .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: var(--navbar-text);
+            margin: 3px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .main-navbar .menu-toggle {
+                display: flex;
+            }
+            
+            .main-navbar .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: var(--navbar-bg);
+                flex-direction: column;
+                padding: 2rem 0;
+                transition: left 0.3s;
+            }
+            
+            .main-navbar .nav-links.active {
+                left: 0;
+            }
+            
+            .main-navbar .nav-links li {
+                margin: 1rem 0;
+            }
+        }
+        
+        /* Adjust main content spacing */
+        main {
+            padding-top: 20px;
+        }
+        
+        /* Ensure sidebar appears above navbar */
+        .sidebar {
+            z-index: 1200;
+        }
+        
+        /* Adjust for sidebar */
+        body.sidebar-open {
+            overflow: hidden;
+        }
+        
+        body.sidebar-open::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+        }
+    </style>
 </head>
 <body>
-  <!-- Navigation Sidebar -->
-<nav id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-        <button id="sidebarToggle" class="sidebar-toggle">
-            <i class='bx bx-x'></i>
-        </button>
-    </div>
-    <ul class="sidebar-menu">
-        <li><a href="index.html"><i class='bx bx-home'></i> Home</a></li>
-        <li><a href="settings.html" class="active"><i class='bx bx-cog'></i> Settings</a></li>
-        <li><a href="profile.html"><i class='bx bx-user'></i> Profile</a></li>
-        <li class="divider"></li>
-        <li>
-            <button id="aboutBlankBtn" class="about-blank-btn">
-                <i class='bx bx-shield'></i> About Blank
-            </button>
-        </li>
-    </ul>
-    <div class="sidebar-footer">
-        <div class="user-info-small">
-            <img id="sidebar-profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic-small">
-            <span id="sidebar-username">Guest</span>
-        </div>
-    </div>
-</nav>
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
 
-    <!-- Main Header -->
-    <header>
-        <button id="sidebarToggleMobile" class="sidebar-toggle mobile">
-            <i class='bx bx-menu'></i>
-        </button>
-        <h1 class="logo">Fusion</h1>
-        <div class="user-info">
-            <span id="username-display">Guest</span>
-            <div id="profile-pic-container">
-                <img id="profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+    <!-- Main Navigation Bar -->
+    <nav class="main-navbar">
+        <a href="#" class="logo">Fusion</a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="#"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+            <li class="user-info">
+                <span class="username-display" id="username-display-nav">Guest</span>
+                <div class="profile-pic-container">
+                    <img id="profile-pic-nav" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Settings Sidebar -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <button id="sidebarToggle" class="sidebar-toggle">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="index.html"><i class='bx bx-home'></i> Home</a></li>
+            <li><a href="settings.html" class="active"><i class='bx bx-cog'></i> Settings</a></li>
+            <li><a href="profile.html"><i class='bx bx-user'></i> Profile</a></li>
+            <li class="divider"></li>
+            <li>
+                <button id="aboutBlankBtn" class="about-blank-btn">
+                    <i class='bx bx-shield'></i> About Blank
+                </button>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-info-small">
+                <img id="sidebar-profile-pic" src="https://via.placeholder.com/40" alt="Profile" class="profile-pic-small">
+                <span id="sidebar-username">Guest</span>
             </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Main Content -->
     <main>
@@ -237,5 +380,47 @@
     </div>
 
     <script src="setting.js"></script>
+    <script>
+        // Mobile menu toggle for main navbar
+        document.getElementById('mobile-menu').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+        
+        // Close mobile menu when clicking on links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('nav-links').classList.remove('active');
+            });
+        });
+        
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADCVIINCBgvTBvClWqWI5o3SlVS47IJnw",
+            authDomain: "fusioncya-cc20a.firebaseapp.com",
+            databaseURL: "https://fusioncya-cc20a-default-rtdb.firebaseio.com",
+            projectId: "fusioncya-cc20a",
+            storageBucket: "fusioncya-cc20a.appspot.com",
+            messagingSenderId: "765164293111",
+            appId: "1:765164293111:web:43e051c755c4690c0c3cf2",
+            measurementId: "G-4DT52P7MPB"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        
+        // Listen for auth state changes and update all user info displays
+        firebase.auth().onAuthStateChanged(user => {
+            const username = user ? (user.displayName || 'User') : 'Guest';
+            const photoURL = user ? (user.photoURL || 'https://via.placeholder.com/40') : 'https://via.placeholder.com/40';
+            
+            // Update main navbar
+            document.getElementById('username-display-nav').textContent = username;
+            document.getElementById('profile-pic-nav').src = photoURL;
+            
+            // Update settings page elements
+            if (typeof updateUIForUser === 'function') {
+                updateUIForUser(user);
+            }
+        });
+    </script>
 </body>
 </html>
