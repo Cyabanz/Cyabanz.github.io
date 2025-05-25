@@ -52,6 +52,8 @@ const sidebarProfilePic = document.getElementById('sidebar-profile-pic');
 const loginModal = document.getElementById('login-modal');
 const goToLogin = document.getElementById('go-to-login');
 const signOutBtn = document.getElementById('sign-out-btn');
+const usernameDisplayNav = document.getElementById('username-display-nav');
+const profilePicNav = document.getElementById('profile-pic-nav');
 
 // Global Variables
 let particles = [];
@@ -71,12 +73,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initEventListeners() {
   // Sidebar toggle
-  sidebarToggle.addEventListener('click', toggleSidebar);
-  sidebarToggleMobile.addEventListener('click', toggleSidebar);
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', toggleSidebar);
+  }
+  if (sidebarToggleMobile) {
+    sidebarToggleMobile.addEventListener('click', toggleSidebar);
+  }
   
   // Close sidebar when clicking outside
   document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('active') && 
+    if (sidebar && sidebar.classList.contains('active') && 
         !sidebar.contains(e.target) && 
         e.target !== sidebarToggleMobile) {
       toggleSidebar();
@@ -84,9 +90,11 @@ function initEventListeners() {
   });
 
   // About blank button
-  aboutBlankBtn.addEventListener('click', () => {
-    window.open('about:blank', '_blank');
-  });
+  if (aboutBlankBtn) {
+    aboutBlankBtn.addEventListener('click', () => {
+      window.open('about:blank', '_blank');
+    });
+  }
 
   // Theme selection
   themeButtons.forEach(button => {
@@ -97,35 +105,35 @@ function initEventListeners() {
   });
 
   // Background image
-  applyBgImage.addEventListener('click', applyBackgroundImage);
-  resetBg.addEventListener('click', resetBackground);
-  bgImageUpload.addEventListener('change', handleImageUpload);
+  if (applyBgImage) applyBgImage.addEventListener('click', applyBackgroundImage);
+  if (resetBg) resetBg.addEventListener('click', resetBackground);
+  if (bgImageUpload) bgImageUpload.addEventListener('change', handleImageUpload);
 
   // Tab cloaker
-  cloakSite.addEventListener('change', handleCloakSiteChange);
-  applyCloak.addEventListener('click', applyTabCloak);
-  resetCloak.addEventListener('click', resetTabCloak);
+  if (cloakSite) cloakSite.addEventListener('change', handleCloakSiteChange);
+  if (applyCloak) applyCloak.addEventListener('click', applyTabCloak);
+  if (resetCloak) resetCloak.addEventListener('click', resetTabCloak);
 
   // Panic key
-  panicKeyInput.addEventListener('keydown', setPanicKeyInput);
-  setPanicKey.addEventListener('click', savePanicKey);
-  resetPanicKey.addEventListener('click', resetPanicKeySettings);
+  if (panicKeyInput) panicKeyInput.addEventListener('keydown', setPanicKeyInput);
+  if (setPanicKey) setPanicKey.addEventListener('click', savePanicKey);
+  if (resetPanicKey) resetPanicKey.addEventListener('click', resetPanicKeySettings);
 
   // Particle effects
-  particlesToggle.addEventListener('change', toggleParticleEffects);
-  particleCount.addEventListener('input', updateParticleCount);
-  particleSpeed.addEventListener('input', updateParticleSpeed);
-  particleType.addEventListener('change', updateParticleType);
-  particleColor1.addEventListener('input', updateParticleColors);
-  particleColor2.addEventListener('input', updateParticleColors);
-  particleColor3.addEventListener('input', updateParticleColors);
+  if (particlesToggle) particlesToggle.addEventListener('change', toggleParticleEffects);
+  if (particleCount) particleCount.addEventListener('input', updateParticleCount);
+  if (particleSpeed) particleSpeed.addEventListener('input', updateParticleSpeed);
+  if (particleType) particleType.addEventListener('change', updateParticleType);
+  if (particleColor1) particleColor1.addEventListener('input', updateParticleColors);
+  if (particleColor2) particleColor2.addEventListener('input', updateParticleColors);
+  if (particleColor3) particleColor3.addEventListener('input', updateParticleColors);
 
   // Reset all settings
-  resetAllSettings.addEventListener('click', confirmResetAllSettings);
+  if (resetAllSettings) resetAllSettings.addEventListener('click', confirmResetAllSettings);
 
   // Auth related
-  goToLogin.addEventListener('click', () => window.location.href = 'index.html');
-  signOutBtn.addEventListener('click', signOut);
+  if (goToLogin) goToLogin.addEventListener('click', () => window.location.href = 'index.html');
+  if (signOutBtn) signOutBtn.addEventListener('click', signOut);
 }
 
 function handleAuthStateChange(user) {
@@ -139,9 +147,9 @@ function handleAuthStateChange(user) {
   if (user) {
     updateUIForUser(user);
     setupSettingsListener(user.uid);
-    loginModal.classList.remove('active');
+    if (loginModal) loginModal.classList.remove('active');
   } else {
-    showLoginModal();
+    if (loginModal) showLoginModal();
     resetAllSettingsToDefault();
   }
 }
@@ -152,7 +160,7 @@ function setupSettingsListener(userId) {
       if (doc.exists) {
         currentSettings = doc.data().settings || {};
         applySettings(currentSettings);
-        setupPanicKeyListener(); // Set up panic key listener after settings are loaded
+        setupPanicKeyListener();
       }
     }, (error) => {
       console.error('Error listening to settings:', error);
@@ -160,7 +168,7 @@ function setupSettingsListener(userId) {
 }
 
 function showLoginModal() {
-  loginModal.classList.add('active');
+  if (loginModal) loginModal.classList.add('active');
   disableAllFeatures();
 }
 
@@ -180,33 +188,47 @@ function disableAllFeatures() {
   
   interactiveElements.forEach(element => {
     if (Array.isArray(element)) {
-      element.forEach(el => el.disabled = true);
-    } else {
+      element.forEach(el => {
+        if (el) el.disabled = true;
+      });
+    } else if (element) {
       element.disabled = true;
     }
   });
 }
 
 function toggleSidebar() {
+  if (!sidebar) return;
+  
   sidebar.classList.toggle('active');
   document.body.classList.toggle('sidebar-open');
   
-  const icon = sidebarToggle.querySelector('i');
-  if (sidebar.classList.contains('active')) {
-    icon.classList.replace('bx-menu', 'bx-x');
-  } else {
-    icon.classList.replace('bx-x', 'bx-menu');
+  if (sidebarToggle) {
+    const icon = sidebarToggle.querySelector('i');
+    if (icon) {
+      if (sidebar.classList.contains('active')) {
+        icon.classList.replace('bx-menu', 'bx-x');
+      } else {
+        icon.classList.replace('bx-x', 'bx-menu');
+      }
+    }
   }
 }
 
 function updateUIForUser(user) {
-  usernameDisplay.textContent = user.displayName || 'User';
-  sidebarUsername.textContent = user.displayName || 'User';
+  const username = user.displayName || 'User';
+  const photoURL = user.photoURL || 'https://via.placeholder.com/40';
   
-  if (user.photoURL) {
-    profilePic.src = user.photoURL;
-    sidebarProfilePic.src = user.photoURL;
-  }
+  // Update main navbar
+  if (usernameDisplayNav) usernameDisplayNav.textContent = username;
+  if (profilePicNav) profilePicNav.src = photoURL;
+  
+  // Update settings page elements
+  if (usernameDisplay) usernameDisplay.textContent = username;
+  if (sidebarUsername) sidebarUsername.textContent = username;
+  
+  if (profilePic) profilePic.src = photoURL;
+  if (sidebarProfilePic) sidebarProfilePic.src = photoURL;
   
   // Re-enable all interactive elements
   const interactiveElements = [
@@ -224,8 +246,10 @@ function updateUIForUser(user) {
   
   interactiveElements.forEach(element => {
     if (Array.isArray(element)) {
-      element.forEach(el => el.disabled = false);
-    } else {
+      element.forEach(el => {
+        if (el) el.disabled = false;
+      });
+    } else if (element) {
       element.disabled = false;
     }
   });
@@ -245,14 +269,16 @@ function handleThemeSelection(theme) {
   // Reset background image when selecting a theme
   document.body.style.backgroundImage = 'none';
   saveSetting('backgroundImage', '');
-  bgImageUrl.value = '';
-  bgImageUpload.value = '';
+  if (bgImageUrl) bgImageUrl.value = '';
+  if (bgImageUpload) bgImageUpload.value = '';
   
   // Update active button
   themeButtons.forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.dataset.theme === theme) {
-      btn.classList.add('active');
+    if (btn) {
+      btn.classList.remove('active');
+      if (btn.dataset.theme === theme) {
+        btn.classList.add('active');
+      }
     }
   });
 }
@@ -274,7 +300,7 @@ function handleImageUpload(e) {
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    bgImageUrl.value = e.target.result;
+    if (bgImageUrl) bgImageUrl.value = e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -285,8 +311,8 @@ function applyBackgroundImage() {
     return;
   }
 
-  let imageUrl = bgImageUrl.value.trim();
-  const file = bgImageUpload.files[0];
+  let imageUrl = bgImageUrl ? bgImageUrl.value.trim() : '';
+  const file = bgImageUpload ? bgImageUpload.files[0] : null;
 
   if (file) {
     // Upload to Firebase Storage
@@ -322,7 +348,9 @@ function setBackgroundImage(url) {
   document.body.className = '';
   document.documentElement.removeAttribute('data-theme');
   saveSetting('theme', '');
-  themeButtons.forEach(btn => btn.classList.remove('active'));
+  themeButtons.forEach(btn => {
+    if (btn) btn.classList.remove('active');
+  });
   activeTheme = '';
   
   saveSetting('backgroundImage', url);
@@ -331,12 +359,13 @@ function setBackgroundImage(url) {
 function resetBackground() {
   document.body.style.backgroundImage = 'none';
   saveSetting('backgroundImage', '');
-  bgImageUrl.value = '';
-  bgImageUpload.value = '';
+  if (bgImageUrl) bgImageUrl.value = '';
+  if (bgImageUpload) bgImageUpload.value = '';
 }
 
 // Tab Cloaker
 function handleCloakSiteChange() {
+  if (!customCloakContainer) return;
   customCloakContainer.style.display = this.value === 'custom' ? 'block' : 'none';
 }
 
@@ -347,6 +376,8 @@ function applyTabCloak() {
   }
 
   let url = '';
+  
+  if (!cloakSite) return;
   
   switch(cloakSite.value) {
     case 'google':
@@ -362,7 +393,7 @@ function applyTabCloak() {
       url = 'https://docs.google.com';
       break;
     case 'custom':
-      url = customCloakUrl.value.trim();
+      url = customCloakUrl ? customCloakUrl.value.trim() : '';
       break;
     default:
       alert('Please select a site to cloak');
@@ -406,9 +437,9 @@ function updateFavicon(site) {
 function resetTabCloak() {
   saveSetting('cloakUrl', '');
   saveSetting('cloakSite', '');
-  cloakSite.value = '';
-  customCloakUrl.value = '';
-  customCloakContainer.style.display = 'none';
+  if (cloakSite) cloakSite.value = '';
+  if (customCloakUrl) customCloakUrl.value = '';
+  if (customCloakContainer) customCloakContainer.style.display = 'none';
   document.title = 'Settings | Fusion';
   
   const favicon = document.querySelector('link[rel="icon"]');
@@ -417,10 +448,10 @@ function resetTabCloak() {
   }
 }
 
-// Panic Key System - Improved version
+// Panic Key System
 function setPanicKeyInput(e) {
   e.preventDefault();
-  panicKeyInput.value = e.key;
+  if (panicKeyInput) panicKeyInput.value = e.key;
 }
 
 function savePanicKey() {
@@ -429,8 +460,8 @@ function savePanicKey() {
     return;
   }
 
-  const key = panicKeyInput.value;
-  const url = panicUrl.value.trim();
+  const key = panicKeyInput ? panicKeyInput.value : '';
+  const url = panicUrl ? panicUrl.value.trim() : '';
   
   if (!key || !url) {
     alert('Please set both a panic key and a URL');
@@ -449,6 +480,7 @@ function setupPanicKeyListener() {
   // Remove previous listener if exists
   if (panicKeyListener) {
     document.removeEventListener('keydown', panicKeyListener);
+    panicKeyListener = null;
   }
 
   // Only setup listener if we have valid settings
@@ -471,12 +503,14 @@ function resetPanicKeySettings() {
   
   saveSetting('panicKey', '');
   saveSetting('panicUrl', '');
-  panicKeyInput.value = '';
-  panicUrl.value = '';
+  if (panicKeyInput) panicKeyInput.value = '';
+  if (panicUrl) panicUrl.value = '';
 }
 
 // Particle Effects System
 function toggleParticleEffects() {
+  if (!particlesToggle || !particleSettings) return;
+  
   const enabled = particlesToggle.checked;
   particleSettings.style.display = enabled ? 'block' : 'none';
   saveSetting('particlesEnabled', enabled);
@@ -489,6 +523,8 @@ function toggleParticleEffects() {
 }
 
 function updateParticleCount() {
+  if (!particleCount || !particleCountValue) return;
+  
   const count = particleCount.value;
   particleCountValue.textContent = count;
   saveSetting('particleCount', count);
@@ -496,6 +532,8 @@ function updateParticleCount() {
 }
 
 function updateParticleSpeed() {
+  if (!particleSpeed || !particleSpeedValue) return;
+  
   const speed = particleSpeed.value;
   particleSpeedValue.textContent = speed;
   saveSetting('particleSpeed', speed);
@@ -503,15 +541,17 @@ function updateParticleSpeed() {
 }
 
 function updateParticleType() {
+  if (!particleType) return;
+  
   const type = particleType.value;
   saveSetting('particleType', type);
   updateParticles();
 }
 
 function updateParticleColors() {
-  const color1 = particleColor1.value;
-  const color2 = particleColor2.value;
-  const color3 = particleColor3.value;
+  const color1 = particleColor1 ? particleColor1.value : '#4361ee';
+  const color2 = particleColor2 ? particleColor2.value : '#f72585';
+  const color3 = particleColor3 ? particleColor3.value : '#4cc9f0';
   
   saveSetting('particleColor1', color1);
   saveSetting('particleColor2', color2);
@@ -536,6 +576,7 @@ function initParticles() {
 }
 
 function resizeCanvas() {
+  if (!particleCanvas) return;
   particleCanvas.width = window.innerWidth;
   particleCanvas.height = window.innerHeight;
 }
@@ -567,7 +608,7 @@ function createParticles() {
 }
 
 function animateParticles() {
-  if (!particleCanvas) return;
+  if (!particleCanvas || !particleCtx) return;
   
   particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
   
@@ -636,7 +677,7 @@ function drawTriangle(x, y, size) {
 
 function updateParticles() {
   destroyParticles();
-  if (particlesToggle.checked) {
+  if (particlesToggle && particlesToggle.checked) {
     initParticles();
   }
 }
@@ -672,9 +713,11 @@ function applySettings(settings) {
     activeTheme = settings.theme;
     applyTheme(settings.theme);
     themeButtons.forEach(btn => {
-      btn.classList.remove('active');
-      if (btn.dataset.theme === settings.theme) {
-        btn.classList.add('active');
+      if (btn) {
+        btn.classList.remove('active');
+        if (btn.dataset.theme === settings.theme) {
+          btn.classList.add('active');
+        }
       }
     });
   }
@@ -685,72 +728,72 @@ function applySettings(settings) {
     document.body.style.backgroundSize = 'cover';
     document.body.style.backgroundPosition = 'center';
     document.body.style.backgroundAttachment = 'fixed';
-    bgImageUrl.value = settings.backgroundImage;
+    if (bgImageUrl) bgImageUrl.value = settings.backgroundImage;
   } else {
     document.body.style.backgroundImage = 'none';
-    bgImageUrl.value = '';
+    if (bgImageUrl) bgImageUrl.value = '';
   }
   
   // Apply panic key settings
-  if (settings.panicKey) {
+  if (settings.panicKey && panicKeyInput) {
     panicKeyInput.value = settings.panicKey;
-  } else {
+  } else if (panicKeyInput) {
     panicKeyInput.value = '';
   }
   
-  if (settings.panicUrl) {
+  if (settings.panicUrl && panicUrl) {
     panicUrl.value = settings.panicUrl;
-  } else {
+  } else if (panicUrl) {
     panicUrl.value = '';
   }
   
   // Apply particle settings
   if (settings.particlesEnabled) {
-    particlesToggle.checked = true;
-    particleSettings.style.display = 'block';
+    if (particlesToggle) particlesToggle.checked = true;
+    if (particleSettings) particleSettings.style.display = 'block';
     
     if (settings.particleCount) {
-      particleCount.value = settings.particleCount;
-      particleCountValue.textContent = settings.particleCount;
+      if (particleCount) particleCount.value = settings.particleCount;
+      if (particleCountValue) particleCountValue.textContent = settings.particleCount;
     }
     
     if (settings.particleSpeed) {
-      particleSpeed.value = settings.particleSpeed;
-      particleSpeedValue.textContent = settings.particleSpeed;
+      if (particleSpeed) particleSpeed.value = settings.particleSpeed;
+      if (particleSpeedValue) particleSpeedValue.textContent = settings.particleSpeed;
     }
     
-    if (settings.particleType) {
+    if (settings.particleType && particleType) {
       particleType.value = settings.particleType;
     }
     
-    if (settings.particleColor1) {
+    if (settings.particleColor1 && particleColor1) {
       particleColor1.value = settings.particleColor1;
     }
     
-    if (settings.particleColor2) {
+    if (settings.particleColor2 && particleColor2) {
       particleColor2.value = settings.particleColor2;
     }
     
-    if (settings.particleColor3) {
+    if (settings.particleColor3 && particleColor3) {
       particleColor3.value = settings.particleColor3;
     }
     
     initParticles();
   } else {
-    particlesToggle.checked = false;
-    particleSettings.style.display = 'none';
+    if (particlesToggle) particlesToggle.checked = false;
+    if (particleSettings) particleSettings.style.display = 'none';
     destroyParticles();
   }
   
   // Apply cloaking settings
   if (settings.cloakSite) {
-    cloakSite.value = settings.cloakSite;
-    if (settings.cloakSite === 'custom') {
-      customCloakContainer.style.display = 'block';
+    if (cloakSite) cloakSite.value = settings.cloakSite;
+    if (customCloakContainer) {
+      customCloakContainer.style.display = settings.cloakSite === 'custom' ? 'block' : 'none';
     }
     
     if (settings.cloakUrl) {
-      customCloakUrl.value = settings.cloakUrl;
+      if (customCloakUrl) customCloakUrl.value = settings.cloakUrl;
       document.title = getCloakTitle(settings.cloakSite);
       updateFavicon(settings.cloakSite);
     }
@@ -784,25 +827,27 @@ function applyDefaultSettings() {
   document.body.className = '';
   document.documentElement.removeAttribute('data-theme');
   document.body.style.backgroundImage = 'none';
-  bgImageUrl.value = '';
-  bgImageUpload.value = '';
+  if (bgImageUrl) bgImageUrl.value = '';
+  if (bgImageUpload) bgImageUpload.value = '';
   
-  particlesToggle.checked = false;
-  particleSettings.style.display = 'none';
+  if (particlesToggle) particlesToggle.checked = false;
+  if (particleSettings) particleSettings.style.display = 'none';
   destroyParticles();
   
-  panicKeyInput.value = '';
-  panicUrl.value = '';
+  if (panicKeyInput) panicKeyInput.value = '';
+  if (panicUrl) panicUrl.value = '';
   if (panicKeyListener) {
     document.removeEventListener('keydown', panicKeyListener);
     panicKeyListener = null;
   }
   
-  cloakSite.value = '';
-  customCloakUrl.value = '';
-  customCloakContainer.style.display = 'none';
+  if (cloakSite) cloakSite.value = '';
+  if (customCloakUrl) customCloakUrl.value = '';
+  if (customCloakContainer) customCloakContainer.style.display = 'none';
   
-  themeButtons.forEach(btn => btn.classList.remove('active'));
+  themeButtons.forEach(btn => {
+    if (btn) btn.classList.remove('active');
+  });
   activeTheme = '';
   
   document.title = 'Settings | Fusion';
