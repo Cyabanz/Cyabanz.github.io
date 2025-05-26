@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/defaults.css" />
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: "Inter", Arial, sans-serif;
+        background: transparent;
+        color: white;
+      }
+
+      .content {
+        padding-top: 20px;
+        height: 100%;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        padding-bottom: 60px;
+      }
+
+      .filter-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        width: auto;
+        margin-top: 10px;
+      }
+
+      .search-input {
+        width: 450px;
+        padding: 10px;
+        border-radius: 15px;
+        background-color: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 12px 15px;
+        margin-right: 4px;
+        border: none;
+        font-size: 18px;
+        outline: none;
+        color: rgba(255, 255, 255, 0.8);
+        transition: width 0.2s ease;
+      }
+
+      .search-input:focus {
+        width: 475px;
+      }
+
+      .search-input::placeholder {
+        transition: opacity 0.2s ease;
+        opacity: 1;
+      }
+
+      .search-input:focus::placeholder {
+        opacity: 0;
+      }
+      .game-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 320px);
+        gap: 15px;
+        justify-content: center;
+        padding: 20px;
+        margin-top: 0px;
+      }
+
+      .game {
+        position: relative;
+        width: 320px;
+        aspect-ratio: 16 / 5;
+        background-size: cover;
+        background-position: center;
+        border-radius: 20px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.15s ease, transform 0.25s ease;
+        text-align: left;
+      }
+
+      .game:hover {
+        transform: scale(1.03);
+      }
+
+      .game:hover .overlay {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(0px);
+      }
+
+      .game:hover .movie-title {
+        font-size: 20px;
+        filter: blur(10px);
+        opacity: 0;
+        font-weight: 700;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 15px;
+        transition: 0.15s;
+      }
+
+      .overlay .movie-title {
+        margin: 0;
+        font-size: 25px;
+        transition: all 0.15s ease, opacity 0.25s ease;
+      }
+    </style>
+    <style>
+      #particles-js {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: -99;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="/scripts/particle.js"></script>
+  </head>
+  <body>
+    <div id="particles-js"></div>
+    <div class="content">
+      <div class="filter-container">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search movies"
+          id="searchInput"
+        />
+      </div>
+      <div class="game-grid" id="gameGrid"></div>
+    </div>
+    <script src="movies.js"></script>
+    <script>
+      const searchInput = document.getElementById("searchInput"),
+        gameGrid = document.getElementById("gameGrid");
+      async function getPopularMov() {
+        const e = await fetch(
+          `https://api.themoviedb.org/3/movie/popular?api_key=${movSec}`
+        );
+        displayMov((await e.json()).results);
+      }
+      async function searchMov(e) {
+        const t = await fetch(
+          `https://api.themoviedb.org/3/search/movie?api_key=${movSec}&query=${encodeURIComponent(
+            e
+          )}`
+        );
+        displayMov((await t.json()).results);
+      }
+      function displayMov(e) {
+        (gameGrid.innerHTML = ""),
+          e.forEach((e) => {
+            const t = document.createElement("div");
+            t.classList.add("game"),
+              (t.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${e.poster_path})`),
+              (t.innerHTML = `\n            <div class="overlay">\n              <div class="movie-title">${e.title}</div>\n            </div>\n          `),
+              t.addEventListener("click", () => {
+                window.location.href = `/_a/mov/p.html#${e.id}`;
+              }),
+              gameGrid.appendChild(t);
+          });
+      }
+      searchInput.addEventListener("keypress", function (e) {
+        if ("Enter" === e.key) {
+          const e = searchInput.value;
+          e ? searchMov(e) : getPopularMov();
+        }
+      }),
+        getPopularMov();
+    </script>
+  </body>
+</html>
