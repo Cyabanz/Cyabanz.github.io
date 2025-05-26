@@ -171,7 +171,7 @@
               (t.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${e.poster_path})`),
               (t.innerHTML = `\n            <div class="overlay">\n              <div class="movie-title">${e.title}</div>\n            </div>\n          `),
               t.addEventListener("click", () => {
-                window.location.href = `/_a/mov/p.html#${e.id}`;
+                window.location.href = `p.html#${e.id}`;
               }),
               gameGrid.appendChild(t);
           });
