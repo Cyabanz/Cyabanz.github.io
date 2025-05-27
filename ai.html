@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyperbeam Browser Sessions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      .title,
+      button {
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: Inter;
+      }
+
+      body,
+      html {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      body {
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #0a111d;
+        color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .content-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px;
+        padding: 16px;
+        gap: 25px;
+      }
+
+      .left-container,
+      .right-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.06);
+        width: 35%;
+        height: 500px;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: left;
+        justify-content: space-between;
+      }
+
+      .button-container,
+      .footer,
+      .session-status,
+      .status {
+        text-align: center;
+      }
+
+      .title {
+        font-size: 30px;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .body-text {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 20px;
+      }
+
+      .session-status {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .button-container {
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        background-color: #4c75f2;
+        border: none;
+        border-radius: 10px;
+        transition: 0.2s;
+      }
+
+      button:hover {
+        background-color: #3a5bc0;
+      }
+
+      button:disabled {
+        background-color: rgba(255, 255, 255, 0.2);
+        cursor: not-allowed;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      #createSession {
+        padding: 20px 36px;
+        font-size: 22px;
+        font-weight: 600;
+        background-color: rgba(255, 255, 255, 0.06);
+      }
+
+      #createSession:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        transform: scale(1.02);
+      }
+
+      .iframe-container {
+        width: 100%;
+        height: calc(100vh - 100px);
+        position: relative;
+        background-color: none;
+        border-radius: 10px;
+        overflow: hidden;
+        display: none;
+        z-index: 1;
+      }
+
+      .footer,
+      .status,
+      .timer-controls,
+      iframe {
+        position: absolute;
+      }
+
+      .end-session-btn,
+      .timer {
+        color: rgba(255, 255, 255, 0.8);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 8px 14px;
+      }
+
+      iframe {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .timer-controls {
+        top: 12px;
+        width: calc(100% - 24px);
+        display: flex;
+        justify-content: space-between;
+        z-index: 10;
+      }
+
+      .end-session-btn,
+      .status,
+      .timer {
+        backdrop-filter: blur(4px);
+        border-radius: 10px;
+        display: none;
+        font-size: 14px;
+      }
+
+      .end-session-btn {
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .end-session-btn:hover {
+        background-color: rgba(255, 107, 107, 0.2);
+      }
+
+      .countdown {
+        font-weight: 700;
+        color: #4c75f2;
+      }
+
+      .status {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 12px 16px;
+        color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.08);
+        max-width: 320px;
+        z-index: 100;
+      }
+
+      .footer {
+        margin-top: 16px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        bottom: 8px;
+      }
+
+      .footer-image {
+        margin-top: auto;
+        text-align: center;
+        padding-top: 20px;
+      }
+
+      .footer-image img {
+        width: 100%;
+        border-radius: 4px;
+        filter: brightness(0.9);
+      }
+
+      .loading-icon {
+        animation: 1s linear infinite spin;
+        margin-right: 4px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #ad {
+        border-radius: 10px;
+      }
+
+      .ad-wrapper {
+        position: absolute;
+        bottom: 275px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content-container" id="introContainer">
+      <div class="left-container">
+        <div class="title">Hyperbeam Private Sessions</div>
+        <div class="body-text">
+          Hyperbeam provides isolated, personal browsers available in the cloud.<br /><br />
+          Need to search something? Need to test a sketchy site? Try our private sessions.<br /><br />
+          12 minutes of uninterrupted browsing. Ran out of time? In a single click, 
+          create a new session right away.
+        </div>
+        <div class="footer-image">
+          <img
+            src="https://hyperbeam.com/images/social.png"
+            alt="Screenshot of the isolated browser."
+          />
+        </div>
+      </div>
+
+      <div class="right-container">
+        <div class="button-container">
+          <button id="createSession">
+            <i class="fa-solid fa-desktop" style="margin-right: 5px"></i>
+            Start Session
+          </button>
+        </div>
+        <div class="ad-wrapper">
+          <iframe
+            id="ad"
+            data-aa="2395464"
+            src="//ad.a-ads.com/2395464?size=300x250"
+            style="width:300px; height:250px; border:0; padding:0; overflow:hidden; background-color:transparent;"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div id="status" class="status"></div>
+    <div id="iframeContainer" class="iframe-container">
+      <iframe id="hyperFrame" allowfullscreen="true"></iframe>
+    </div>
+    <div class="timer-controls">
+      <button id="endSessionBtn" class="end-session-btn">
+        <i class="fa-solid fa-stop-circle"></i> End Session
+      </button>
+      <div id="timer" class="timer">
+        <i class="fas fa-clock"></i> Time left:
+        <span id="countdown" class="countdown">30</span>s
+      </div>
+    </div>
+
+    <script>
+      const createSessionBtn = document.getElementById("createSession");
+      const iframeContainer = document.getElementById("iframeContainer");
+      const hyperFrame = document.getElementById("hyperFrame");
+      const timer = document.getElementById("timer");
+      const countdown = document.getElementById("countdown");
+      const status = document.getElementById("status");
+      const endSessionBtn = document.getElementById("endSessionBtn");
+      
+      // Hyperbeam API configuration
+      const HYPERBEAM_API_KEY = "sk_test_IfATh9MlCs7QtUVFbNlzgj4HPxOoGQQuwqb8-hpYwq0"; // Replace with your actual API key
+      const HYPERBEAM_API_URL = "https://engine.hyperbeam.com/v0/vm";
+      
+      let countdownInterval;
+      let currentSessionId = null;
+      let isTerminating = false;
+      let sessionExpiryTime = null;
+
+      function updateCountdownDisplay(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        countdown.textContent = `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+      }
+
+      async function endSession(showUI = true) {
+        if (isTerminating || !currentSessionId) return;
+        
+        isTerminating = true;
+        
+        if (showUI) {
+          status.innerHTML = '<i class="fas fa-spinner loading-icon"></i> Ending session...';
+          status.style.display = "block";
+        }
+
+        try {
+          const response = await fetch(`${HYPERBEAM_API_URL}/${currentSessionId}`, {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${HYPERBEAM_API_KEY}`,
+              "Content-Type": "application/json"
+            }
+          });
+
+          if (showUI) {
+            if (response.ok) {
+              status.innerHTML = '<i class="fas fa-check-circle"></i> Session ended';
+            } else {
+              status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Session ended (cleanup may be delayed)';
+            }
+            
+            setTimeout(() => {
+              status.style.display = "none";
+            }, 2000);
+          }
+
+        } catch (error) {
+          console.error("Error terminating session:", error);
+          if (showUI) {
+            status.innerHTML = '<i class="fas fa-times-circle"></i> Session ended (cleanup may be delayed)';
+            setTimeout(() => {
+              status.style.display = "none";
+            }, 2000);
+          }
+        }
+
+        resetSessionUI();
+        isTerminating = false;
+      }
+
+      function resetSessionUI() {
+        currentSessionId = null;
+        sessionExpiryTime = null;
+        hyperFrame.src = "";
+        iframeContainer.style.display = "none";
+        timer.style.display = "none";
+        endSessionBtn.style.display = "none";
+        createSessionBtn.style.display = "block";
+        createSessionBtn.disabled = false;
+        createSessionBtn.innerHTML = '<i class="fas fa-desktop"></i> Start Session';
+        countdown.style.color = "#4C75F2";
+        document.getElementById("introContainer").style.display = "flex";
+        
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+        }
+      }
+
+      // Handle page/tab closing
+      window.addEventListener("beforeunload", (e) => {
+        if (currentSessionId && !isTerminating) {
+          const data = JSON.stringify({ sessionId: currentSessionId });
+          navigator.sendBeacon(`${HYPERBEAM_API_URL}/${currentSessionId}`, data);
+        }
+      });
+
+      // Session controls
+      endSessionBtn.addEventListener("click", () => {
+        endSession(true);
+      });
+
+      createSessionBtn.addEventListener("click", async () => {
+        createSessionBtn.disabled = true;
+        createSessionBtn.innerHTML = '<i class="fas fa-circle-notch loading-icon"></i> Creating session...';
+        status.style.display = "none";
+        document.getElementById("introContainer").style.display = "none";
+
+        try {
+          const response = await fetch(HYPERBEAM_API_URL, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${HYPERBEAM_API_KEY}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              duration: 720, // 12 minutes in seconds
+              region: "auto", // Let Hyperbeam choose the best region
+              features: {
+                "cookies": true,
+                "session_storage": true,
+                "local_storage": true
+              }
+            })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to create session");
+          }
+
+          currentSessionId = data.id;
+          const embedUrl = data.embed_url;
+          sessionExpiryTime = new Date(data.expires_at);
+          
+          hyperFrame.src = embedUrl;
+          iframeContainer.style.display = "block";
+          createSessionBtn.style.display = "none";
+
+          // Calculate initial time left
+          const now = new Date();
+          let timeLeft = Math.floor((sessionExpiryTime - now) / 1000);
+          updateCountdownDisplay(timeLeft);
+          timer.style.display = "block";
+          endSessionBtn.style.display = "block";
+          
+          status.innerHTML = '<i class="fas fa-spinner loading-icon"></i> Loading browser...';
+          status.style.display = "block";
+
+          hyperFrame.onload = () => {
+            status.style.display = "none";
+          };
+
+          // Start countdown timer
+          countdownInterval = setInterval(() => {
+            const now = new Date();
+            timeLeft = Math.floor((sessionExpiryTime - now) / 1000);
+            
+            if (timeLeft <= 0) {
+              clearInterval(countdownInterval);
+              endSession(true);
+              return;
+            }
+            
+            updateCountdownDisplay(timeLeft);
+            
+            if (timeLeft <= 60) {
+              countdown.style.color = "#ff6b6b";
+            }
+          }, 1000);
+
+        } catch (error) {
+          console.error("Error creating session:", error);
+          status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${error.message || 'Failed to create session'}`;
+          status.style.display = "block";
+          createSessionBtn.disabled = false;
+          createSessionBtn.innerHTML = '<i class="fas fa-redo"></i> Try Again';
+          document.getElementById("introContainer").style.display = "flex";
+          
+          setTimeout(() => {
+            status.style.display = "none";
+          }, 5000);
+        }
+      });
+    </script>
+  </body>
+</html>
