@@ -368,3 +368,95 @@ body {
     margin-left: 5px;
     text-transform: uppercase;
 }
+
+/* Message styles */
+.message {
+  display: flex;
+  padding: 10px 15px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background-color: #36393f;
+}
+
+.message.current-user {
+  background-color: #2f3136;
+}
+
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+  object-fit: cover;
+}
+
+.message-content {
+  flex: 1;
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.message-username {
+  font-weight: 600;
+  margin-right: 10px;
+  color: #fff;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: #72767d;
+}
+
+.message-text {
+  color: #dcddde;
+  line-height: 1.4;
+}
+
+/* Loading and error states */
+.loading, .error, .welcome-message {
+  padding: 40px 20px;
+  text-align: center;
+  color: #72767d;
+}
+
+.error {
+  color: #f04747;
+}
+
+/* User profile */
+.user-profile {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+/* Login/logout buttons */
+#google-login, #logout-btn {
+  background-color: #7289da;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+#google-login:hover, #logout-btn:hover {
+  background-color: #677bc4;
+}
