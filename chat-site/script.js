@@ -13,6 +13,9 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// For Realtime Database presence
+const rtdb = firebase.database();
+
 let currentUser = null;
 let currentChannel = 'general';
 let lastMessageTime = 0;
@@ -473,22 +476,22 @@ function banUser() {
         });
 }
 
+// ----- FIXED PRESENCE CODE USING REALTIME DATABASE -----
 function trackUserActivity() {
     if (!currentUser) return;
-    const userStatusRef = db.collection('status').doc(currentUser.uid);
+    const userStatusDatabaseRef = rtdb.ref('/status/' + currentUser.uid);
 
-    // Set up presence detection (requires Firebase Realtime Database)
-    firebase.database().ref('.info/connected').on('value', (snapshot) => {
+    rtdb.ref('.info/connected').on('value', function(snapshot) {
         if (snapshot.val() === false) {
             return;
         }
-        userStatusRef.set({
-            state: 'online',
-            lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-        userStatusRef.onDisconnect().set({
+        userStatusDatabaseRef.onDisconnect().set({
             state: 'offline',
-            lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
+            lastChanged: firebase.database.ServerValue.TIMESTAMP,
+        });
+        userStatusDatabaseRef.set({
+            state: 'online',
+            lastChanged: firebase.database.ServerValue.TIMESTAMP,
         });
     });
     loadActiveUsers();
@@ -498,12 +501,12 @@ function loadActiveUsers() {
     const { activeUsersList } = getDOM();
     if (!activeUsersList) return;
 
-    db.collection('status')
-        .where('state', '==', 'online')
-        .onSnapshot(snapshot => {
+    rtdb.ref('/status')
+        .orderByChild('state').equalTo('online')
+        .on('value', snapshot => {
             activeUsersList.innerHTML = '';
-            snapshot.forEach(doc => {
-                const userId = doc.id;
+            snapshot.forEach(childSnap => {
+                const userId = childSnap.key;
                 db.collection('users').doc(userId).get().then(userDoc => {
                     if (userDoc.exists) {
                         const userData = userDoc.data();
