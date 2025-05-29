@@ -21,7 +21,7 @@ let cooldownActive = false;
 let bannedWords = ['badword1', 'badword2', 'badword3'];
 let adminUsers = ['admin@example.com'];
 
-// DOM Elements (get fresh each time for dynamic elements)
+// DOM Elements
 function getDOM() {
     return {
         messagesContainer: document.getElementById('messages-container'),
@@ -280,7 +280,6 @@ function loadMessages() {
     unsubscribeMessages = db.collection('messages')
         .where('channel', '==', currentChannel)
         .orderBy('timestamp', 'asc')
-        .orderBy(firebase.firestore.FieldPath.documentId(), 'asc')
         .onSnapshot(async snapshot => {
             const docs = [];
             snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
@@ -298,22 +297,30 @@ function loadMessages() {
             let html = '';
             docs.forEach(message => {
                 if (message.isBanned) return;
+                
                 const userData = userDocs[message.userId] || {};
+                const isCurrentUser = currentUser && message.userId === currentUser.uid;
+                
                 html += `
-                <div class="message${currentUser && message.userId === currentUser.uid ? ' current-user' : ''}" data-user-id="${message.userId || ''}" data-user-email="${message.userEmail || ''}" data-message-id="${message.id}">
-                    <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="message-avatar" alt="Avatar">
+                <div class="message ${isCurrentUser ? 'current-user' : ''}" 
+                     data-user-id="${message.userId || ''}" 
+                     data-user-email="${message.userEmail || ''}" 
+                     data-message-id="${message.id}">
+                    <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" 
+                         class="message-avatar" alt="Avatar">
                     <div class="message-content">
                         <div class="message-header">
                             <span class="message-username">${userData.username || 'Unknown'}</span>
                             ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
                             <span class="message-time">${formatTime(message.timestamp)}</span>
                         </div>
-                        <div class="message-text">${message.text || ''}</div>
+                        ${message.text ? `<div class="message-text">${message.text}</div>` : ''}
                         ${message.imageUrl ? `<img src="${message.imageUrl}" class="message-image" alt="Uploaded image">` : ''}
                     </div>
                 </div>
                 `;
             });
+            
             messagesContainer.innerHTML = html || `
                 <div class="welcome-message">
                     <h2>Welcome to #${currentChannel}!</h2>
