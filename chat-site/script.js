@@ -3,7 +3,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyDNUmJcXRL_6pkqpCRwiZ5V9m0d_K28GQo",
     authDomain: "chatsite-f0fb9.firebaseapp.com",
     projectId: "chatsite-f0fb9",
-    storageBucket: "chatsite-f0fb9.firebasestorage.app",
+    storageBucket: "chatsite-f0fb9.appspot.com",
     messagingSenderId: "834593399363",
     appId: "1:834593399363:web:d60c035f9fe86fd16e2af6"
 };
@@ -13,29 +13,33 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM Elements
-const messagesContainer = document.getElementById('messages-container');
-const messageForm = document.getElementById('message-form');
-const messageInput = document.getElementById('message-input');
-const googleLoginBtn = document.getElementById('google-login');
-const profileModal = document.getElementById('profile-modal');
-const closeModal = document.querySelector('.close-modal');
-const saveProfileBtn = document.getElementById('save-profile');
-const usernameInput = document.getElementById('username');
-const profilePicInput = document.getElementById('profile-pic');
-const clearChatBtn = document.getElementById('clear-chat');
-const banUserBtn = document.getElementById('ban-user');
-const activeUsersList = document.getElementById('active-users-list');
-const moderationPanel = document.getElementById('moderation-panel');
-const channels = document.querySelectorAll('.channel');
-
 // App State
 let currentUser = null;
 let currentChannel = 'general';
 let lastMessageTime = 0;
 let cooldownActive = false;
-let bannedWords = ['badword1', 'badword2', 'badword3']; // Add your banned words here
-let adminUsers = ['admin@example.com']; // Add admin emails here
+let bannedWords = ['badword1', 'badword2', 'badword3'];
+let adminUsers = ['admin@example.com'];
+
+// DOM Elements (get fresh each time for dynamic elements)
+function getDOM() {
+    return {
+        messagesContainer: document.getElementById('messages-container'),
+        messageForm: document.getElementById('message-form'),
+        messageInput: document.getElementById('message-input'),
+        profileModal: document.getElementById('profile-modal'),
+        closeModal: document.querySelector('.close-modal'),
+        saveProfileBtn: document.getElementById('save-profile'),
+        usernameInput: document.getElementById('username'),
+        profilePicInput: document.getElementById('profile-pic'),
+        clearChatBtn: document.getElementById('clear-chat'),
+        banUserBtn: document.getElementById('ban-user'),
+        activeUsersList: document.getElementById('active-users-list'),
+        moderationPanel: document.getElementById('moderation-panel'),
+        channels: document.querySelectorAll('.channel'),
+        userInfo: document.getElementById('user-info')
+    };
+}
 
 // Initialize the app
 function init() {
@@ -46,6 +50,11 @@ function init() {
 
 // Set up event listeners
 function setupEventListeners() {
+    const {
+        channels, profileModal, closeModal, saveProfileBtn,
+        clearChatBtn, banUserBtn, messageForm
+    } = getDOM();
+
     // Channel selection
     channels.forEach(channel => {
         channel.addEventListener('click', () => {
@@ -56,14 +65,11 @@ function setupEventListeners() {
     });
 
     // Message form
-    messageForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        sendMessage();
-    });
-
-    // Auth buttons
-    if (googleLoginBtn) {
-        googleLoginBtn.addEventListener('click', signInWithGoogle);
+    if (messageForm) {
+        messageForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            sendMessage();
+        });
     }
 
     // Profile modal
@@ -92,6 +98,19 @@ function setupEventListeners() {
             profileModal.style.display = 'none';
         }
     });
+
+    // Attach Google login (for static login button on main page)
+    attachLoginListener();
+}
+
+function attachLoginListener() {
+    // Attach to the current login button (in case re-rendered)
+    setTimeout(() => {
+        const loginBtn = document.getElementById('google-login');
+        if (loginBtn) {
+            loginBtn.onclick = signInWithGoogle;
+        }
+    }, 0);
 }
 
 // Check auth state
@@ -116,7 +135,7 @@ function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
         .then(result => {
-            console.log('Login successful', result.user);
+            // Success, handled by onAuthStateChanged
         })
         .catch(error => {
             console.error('Login error:', error);
@@ -139,8 +158,9 @@ function checkUserProfile(uid) {
 
 // Show profile modal
 function showProfileModal() {
+    const { profileModal, usernameInput, profilePicInput } = getDOM();
     if (!profileModal) return;
-    
+
     usernameInput.value = currentUser.displayName || '';
     profilePicInput.value = currentUser.photoURL || '';
     profileModal.style.display = 'block';
@@ -148,6 +168,7 @@ function showProfileModal() {
 
 // Save profile
 function saveProfile() {
+    const { profileModal, usernameInput, profilePicInput } = getDOM();
     const username = usernameInput.value.trim();
     const profilePic = profilePicInput.value.trim();
 
@@ -165,7 +186,7 @@ function saveProfile() {
     .then(() => {
         profileModal.style.display = 'none';
         updateUserPanel();
-        loadMessages(); // Refresh to show new profile info
+        loadMessages();
     })
     .catch(error => {
         console.error('Error saving profile:', error);
@@ -175,25 +196,27 @@ function saveProfile() {
 
 // Update UI for logged in user
 function updateUIForLoggedInUser() {
+    const { messageInput, messageForm, moderationPanel } = getDOM();
     const loginPrompt = document.querySelector('.login-prompt');
     if (loginPrompt) loginPrompt.style.display = 'none';
-    
+
     if (messageInput) messageInput.disabled = false;
     if (messageForm) messageForm.querySelector('button').disabled = false;
-    
     updateUserPanel();
-    
+
     // Show moderation panel for admins
-    if (adminUsers.includes(currentUser.email)) {
+    if (currentUser && adminUsers.includes(currentUser.email)) {
         if (moderationPanel) moderationPanel.style.display = 'block';
+    } else if (moderationPanel) {
+        moderationPanel.style.display = 'none';
     }
 }
 
 // Update user panel
 function updateUserPanel() {
-    const userInfo = document.getElementById('user-info');
+    const { userInfo } = getDOM();
     if (!userInfo) return;
-    
+
     db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
             if (doc.exists) {
@@ -206,12 +229,9 @@ function updateUserPanel() {
                     </div>
                     <button id="logout-btn">Logout</button>
                 `;
-                
                 const logoutBtn = document.getElementById('logout-btn');
                 if (logoutBtn) {
-                    logoutBtn.addEventListener('click', () => {
-                        auth.signOut();
-                    });
+                    logoutBtn.onclick = () => auth.signOut();
                 }
             }
         });
@@ -219,30 +239,27 @@ function updateUserPanel() {
 
 // Update UI for logged out user
 function updateUIForLoggedOutUser() {
+    const { messageInput, messageForm, moderationPanel, userInfo } = getDOM();
     const loginPrompt = document.querySelector('.login-prompt');
     if (loginPrompt) loginPrompt.style.display = 'block';
-    
+
     if (messageInput) messageInput.disabled = true;
     if (messageForm) messageForm.querySelector('button').disabled = true;
     if (moderationPanel) moderationPanel.style.display = 'none';
-    
-    const userInfo = document.getElementById('user-info');
+
     if (userInfo) {
         userInfo.innerHTML = `
             <div class="login-prompt">
                 <button id="google-login">Login with Google</button>
             </div>
         `;
-        
-        const loginBtn = document.getElementById('google-login');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', signInWithGoogle);
-        }
+        attachLoginListener();
     }
 }
 
 // Update active channel UI
 function updateActiveChannel() {
+    const { channels } = getDOM();
     channels.forEach(channel => {
         channel.classList.remove('active');
         if (channel.dataset.channel === currentChannel) {
@@ -252,21 +269,24 @@ function updateActiveChannel() {
 }
 
 // Load messages for current channel
+let unsubscribeMessages = null;
 function loadMessages() {
+    const { messagesContainer } = getDOM();
     if (!currentUser) {
         clearMessages();
         return;
     }
-
     clearMessages();
 
-    db.collection('messages')
+    if (unsubscribeMessages) unsubscribeMessages();
+
+    unsubscribeMessages = db.collection('messages')
         .where('channel', '==', currentChannel)
         .orderBy('timestamp', 'asc')
         .onSnapshot(snapshot => {
             snapshot.docChanges().forEach(change => {
                 if (change.type === 'added') {
-                    displayMessage(change.doc.data());
+                    displayMessage(change.doc.data(), change.doc.id);
                 }
             });
             scrollToBottom();
@@ -276,25 +296,24 @@ function loadMessages() {
 }
 
 // Display a message
-function displayMessage(message) {
+function displayMessage(message, docId) {
+    const { messagesContainer } = getDOM();
     if (!messagesContainer) return;
-    
-    // Skip if message is from a banned user
     if (message.isBanned) return;
 
     const messageElement = document.createElement('div');
     messageElement.classList.add('message');
-    
+    messageElement.dataset.userId = message.userId;
+    messageElement.dataset.userEmail = message.userEmail;
+    messageElement.dataset.messageId = docId;
+
     if (currentUser && message.userId === currentUser.uid) {
         messageElement.classList.add('current-user');
     }
 
-    const userDoc = db.collection('users').doc(message.userId);
-    userDoc.get().then(doc => {
+    db.collection('users').doc(message.userId).get().then(doc => {
         if (!doc.exists) return;
-        
         const userData = doc.data();
-        
         messageElement.innerHTML = `
             <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="message-avatar" alt="Avatar">
             <div class="message-content">
@@ -307,7 +326,6 @@ function displayMessage(message) {
                 ${message.imageUrl ? `<img src="${message.imageUrl}" class="message-image" alt="Uploaded image">` : ''}
             </div>
         `;
-        
         messagesContainer.appendChild(messageElement);
         scrollToBottom();
     }).catch(error => {
@@ -324,8 +342,8 @@ function formatTime(timestamp) {
 
 // Clear messages
 function clearMessages() {
+    const { messagesContainer } = getDOM();
     if (!messagesContainer) return;
-    
     messagesContainer.innerHTML = `
         <div class="welcome-message">
             <h2>Welcome to #${currentChannel}!</h2>
@@ -336,34 +354,34 @@ function clearMessages() {
 
 // Send message
 function sendMessage() {
+    const { messageInput } = getDOM();
     if (!currentUser || cooldownActive || !messageInput) return;
-    
+
     const messageText = messageInput.value.trim();
     const isImageChannel = currentChannel === 'images';
-    
+
     if (!messageText && !isImageChannel) return;
-    
+
     // Check for banned words
     if (containsBannedWords(messageText)) {
         alert('Your message contains inappropriate language');
         return;
     }
-    
+
     // Check cooldown
     const now = Date.now();
     if (now - lastMessageTime < 2500) {
         showCooldownNotice();
         return;
     }
-    
+
     lastMessageTime = now;
     startCooldown();
-    
+
     // Get user data
     db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
             if (!doc.exists) return;
-            
             const message = {
                 text: isImageChannel && isValidImageUrl(messageText) ? '' : messageText,
                 imageUrl: isImageChannel && isValidImageUrl(messageText) ? messageText : '',
@@ -373,7 +391,6 @@ function sendMessage() {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 isBanned: false
             };
-            
             return db.collection('messages').add(message);
         })
         .then(() => {
@@ -400,30 +417,32 @@ function isValidImageUrl(url) {
 
 // Show cooldown notice
 function showCooldownNotice() {
+    const { messageForm } = getDOM();
     if (!messageForm) return;
-    
+
     const existingNotice = messageForm.querySelector('.cooldown-notice');
     if (existingNotice) return;
-    
+
     const notice = document.createElement('div');
     notice.classList.add('cooldown-notice');
     notice.textContent = 'Please wait 2.5 seconds before sending another message';
     messageForm.appendChild(notice);
-    
+
     notice.style.display = 'block';
     setTimeout(() => {
         notice.style.display = 'none';
         setTimeout(() => {
-            messageForm.removeChild(notice);
+            if (notice.parentNode) notice.parentNode.removeChild(notice);
         }, 300);
     }, 2000);
 }
 
 // Start cooldown timer
 function startCooldown() {
+    const { messageForm } = getDOM();
     cooldownActive = true;
     if (messageForm) messageForm.querySelector('button').disabled = true;
-    
+
     setTimeout(() => {
         cooldownActive = false;
         if (currentUser && messageForm) {
@@ -435,9 +454,8 @@ function startCooldown() {
 // Clear chat
 function clearChat() {
     if (!currentUser || !adminUsers.includes(currentUser.email)) return;
-    
     if (!confirm('Are you sure you want to clear all messages in this channel?')) return;
-    
+
     db.collection('messages')
         .where('channel', '==', currentChannel)
         .get()
@@ -460,25 +478,23 @@ function clearChat() {
 // Ban user
 function banUser() {
     if (!currentUser || !adminUsers.includes(currentUser.email)) return;
-    
-    const messages = messagesContainer.querySelectorAll('.message:not(.current-user)');
+    const { messagesContainer } = getDOM();
+
+    const messages = Array.from(messagesContainer.querySelectorAll('.message:not(.current-user)'));
     if (messages.length === 0) {
         alert('No messages to ban users from');
         return;
     }
-    
     const lastMessage = messages[messages.length - 1];
     const userId = lastMessage.dataset.userId;
     const userEmail = lastMessage.dataset.userEmail;
-    
+
     if (!userId || !userEmail) {
         alert('Could not identify user to ban');
         return;
     }
-    
     if (!confirm(`Ban user ${userEmail}? All their messages will be hidden.`)) return;
-    
-    // Mark all user's messages as banned
+
     db.collection('messages')
         .where('userId', '==', userId)
         .get()
@@ -501,46 +517,40 @@ function banUser() {
 // Track user activity
 function trackUserActivity() {
     if (!currentUser) return;
-    
     const userStatusRef = db.collection('status').doc(currentUser.uid);
-    
-    // Set up presence detection
+
+    // Set up presence detection (requires Firebase Realtime Database)
     firebase.database().ref('.info/connected').on('value', (snapshot) => {
         if (snapshot.val() === false) {
             return;
         }
-        
         userStatusRef.set({
             state: 'online',
             lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
         });
-        
         userStatusRef.onDisconnect().set({
             state: 'offline',
             lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
         });
     });
-    
     // Load active users
     loadActiveUsers();
 }
 
 // Load active users
 function loadActiveUsers() {
+    const { activeUsersList } = getDOM();
     if (!activeUsersList) return;
-    
+
     db.collection('status')
         .where('state', '==', 'online')
         .onSnapshot(snapshot => {
             activeUsersList.innerHTML = '';
-            
             snapshot.forEach(doc => {
                 const userId = doc.id;
-                
                 db.collection('users').doc(userId).get().then(userDoc => {
                     if (userDoc.exists) {
                         const userData = userDoc.data();
-                        
                         const userItem = document.createElement('li');
                         userItem.innerHTML = `
                             <img src="${userData.profilePic || 'https://via.placeholder.com/30'}" 
@@ -548,7 +558,6 @@ function loadActiveUsers() {
                             <span>${userData.username || 'User'}</span>
                             ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
                         `;
-                        
                         activeUsersList.appendChild(userItem);
                     }
                 });
@@ -563,6 +572,7 @@ function loadChannels() {
 
 // Scroll to bottom of messages
 function scrollToBottom() {
+    const { messagesContainer } = getDOM();
     if (!messagesContainer) return;
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
