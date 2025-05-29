@@ -1,503 +1,502 @@
-// Firebase configuration
+// Initialize Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyDNUmJcXRL_6pkqpCRwiZ5V9m0d_K28GQo",
-  authDomain: "chatsite-f0fb9.firebaseapp.com",
-  projectId: "chatsite-f0fb9",
-  storageBucket: "chatsite-f0fb9.firebasestorage.app",
-  messagingSenderId: "834593399363",
-  appId: "1:834593399363:web:d60c035f9fe86fd16e2af6"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
+const db = firebase.firestore();
 
-// DOM Elements
+// DOM elements
+const messagesContainer = document.getElementById('messages-container');
 const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
-const messagesContainer = document.getElementById('messages-container');
-const channels = document.querySelectorAll('.channel');
 const googleLoginBtn = document.getElementById('google-login');
-const userInfoDiv = document.getElementById('user-info');
 const profileModal = document.getElementById('profile-modal');
+const closeModal = document.querySelector('.close-modal');
+const saveProfileBtn = document.getElementById('save-profile');
 const usernameInput = document.getElementById('username');
 const profilePicInput = document.getElementById('profile-pic');
-const saveProfileBtn = document.getElementById('save-profile');
-const closeModal = document.querySelector('.close-modal');
+const clearChatBtn = document.getElementById('clear-chat');
+const banUserBtn = document.getElementById('ban-user');
+const activeUsersList = document.getElementById('active-users-list');
+const moderationPanel = document.getElementById('moderation-panel');
+const channels = document.querySelectorAll('.channel');
 
-// App State
-let currentChannel = 'general';
+// App state
 let currentUser = null;
+let currentChannel = 'general';
 let lastMessageTime = 0;
-const messageCooldown = 2500;
-let messageListener = null;
+let cooldownActive = false;
+let bannedWords = ['badword1', 'badword2', 'badword3']; // Add your banned words here
+let adminUsers = ['admin@example.com']; // Add admin emails here
 
 // Initialize the app
 function init() {
-  setupEventListeners();
-  setupAuthStateListener();
-  addStyles();
+    setupEventListeners();
+    checkAuthState();
+    loadChannels();
 }
 
 // Set up event listeners
 function setupEventListeners() {
-  // Channel selection
-  channels.forEach(channel => {
-    channel.addEventListener('click', () => {
-      channels.forEach(c => c.classList.remove('active'));
-      channel.classList.add('active');
-      currentChannel = channel.getAttribute('data-channel');
-      loadMessages();
+    // Channel selection
+    channels.forEach(channel => {
+        channel.addEventListener('click', () => {
+            currentChannel = channel.dataset.channel;
+            updateActiveChannel();
+            loadMessages();
+        });
     });
-  });
 
-  // Message submission
-  messageForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    await sendMessage();
-  });
+    // Message form
+    messageForm.addEventListener('submit', sendMessage);
 
-  // Google login
-  googleLoginBtn.addEventListener('click', () => {
-    auth.signInWithPopup(provider).catch(error => {
-      console.error("Login error:", error);
-      alert("Login failed: " + error.message);
+    // Auth buttons
+    googleLoginBtn.addEventListener('click', signInWithGoogle);
+
+    // Profile modal
+    closeModal.addEventListener('click', () => {
+        profileModal.style.display = 'none';
     });
-  });
+    saveProfileBtn.addEventListener('click', saveProfile);
 
-  // Profile saving
-  saveProfileBtn.addEventListener('click', saveProfile);
+    // Moderation tools
+    clearChatBtn.addEventListener('click', clearChat);
+    banUserBtn.addEventListener('click', banUser);
 
-  // Close modal
-  closeModal.addEventListener('click', () => {
-    profileModal.style.display = 'none';
-  });
-
-  // Window click handler for modal
-  window.addEventListener('click', (e) => {
-    if (e.target === profileModal) {
-      profileModal.style.display = 'none';
-    }
-  });
-}
-
-// Handle authentication state changes
-function setupAuthStateListener() {
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      // User is signed in
-      currentUser = user;
-      await setupUserProfile();
-      loadMessages();
-    } else {
-      // User is signed out
-      currentUser = null;
-      showLoginUI();
-      clearMessages();
-    }
-  });
-}
-
-// Set up user profile
-async function setupUserProfile() {
-  try {
-    const userDoc = await db.collection('users').doc(currentUser.uid).get();
-    
-    if (!userDoc.exists) {
-      // New user - show profile setup
-      showProfileModal();
-    } else {
-      // Existing user - update UI
-      updateUserUI(userDoc.data());
-    }
-  } catch (error) {
-    console.error("Error checking user profile:", error);
-  }
-}
-
-// Save user profile
-async function saveProfile() {
-  const username = usernameInput.value.trim();
-  const profilePic = profilePicInput.value.trim();
-
-  if (!username) {
-    alert("Please enter a username");
-    return;
-  }
-
-  try {
-    await db.collection('users').doc(currentUser.uid).set({
-      uid: currentUser.uid,
-      email: currentUser.email,
-      username: username,
-      profilePic: profilePic || currentUser.photoURL,
-      lastActive: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    profileModal.style.display = 'none';
-    updateUserUI({
-      username: username,
-      profilePic: profilePic || currentUser.photoURL
+    // Click outside modal to close
+    window.addEventListener('click', (e) => {
+        if (e.target === profileModal) {
+            profileModal.style.display = 'none';
+        }
     });
-  } catch (error) {
-    console.error("Error saving profile:", error);
-    alert("Error saving profile: " + error.message);
-  }
 }
 
-// Update user UI
-function updateUserUI(userData) {
-  userInfoDiv.innerHTML = `
-    <div class="user-profile">
-      <img src="${userData.profilePic || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}" 
-           alt="Profile" class="user-avatar">
-      <span class="user-name">${userData.username || currentUser.email}</span>
-    </div>
-    <button id="logout-btn">Logout</button>
-  `;
-
-  document.getElementById('logout-btn').addEventListener('click', () => {
-    auth.signOut();
-  });
-
-  // Enable message input
-  messageInput.disabled = false;
-  messageForm.querySelector('button').disabled = false;
+// Check auth state
+function checkAuthState() {
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            checkUserProfile(user.uid);
+            updateUIForLoggedInUser();
+            loadMessages();
+            trackUserActivity();
+        } else {
+            currentUser = null;
+            updateUIForLoggedOutUser();
+            clearMessages();
+        }
+    });
 }
 
-// Show login UI
-function showLoginUI() {
-  userInfoDiv.innerHTML = `
-    <div class="login-prompt">
-      <button id="google-login">Login with Google</button>
-    </div>
-  `;
-  document.getElementById('google-login').addEventListener('click', () => {
-    auth.signInWithPopup(provider);
-  });
+// Sign in with Google
+function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .catch(error => {
+            console.error('Login error:', error);
+            alert('Login failed: ' + error.message);
+        });
+}
 
-  // Disable message input
-  messageInput.disabled = true;
-  messageForm.querySelector('button').disabled = true;
-  
-  // Clean up message listener
-  if (messageListener) {
-    messageListener();
-    messageListener = null;
-  }
+// Check if user has a profile
+function checkUserProfile(uid) {
+    db.collection('users').doc(uid).get()
+        .then(doc => {
+            if (!doc.exists) {
+                showProfileModal();
+            }
+        });
 }
 
 // Show profile modal
 function showProfileModal() {
-  usernameInput.value = currentUser.displayName || '';
-  profilePicInput.value = currentUser.photoURL || '';
-  profileModal.style.display = 'block';
+    usernameInput.value = currentUser.displayName || '';
+    profilePicInput.value = currentUser.photoURL || '';
+    profileModal.style.display = 'block';
+}
+
+// Save profile
+function saveProfile() {
+    const username = usernameInput.value.trim();
+    const profilePic = profilePicInput.value.trim();
+
+    if (!username) {
+        alert('Please enter a username');
+        return;
+    }
+
+    db.collection('users').doc(currentUser.uid).set({
+        username: username,
+        profilePic: profilePic,
+        email: currentUser.email,
+        isAdmin: adminUsers.includes(currentUser.email)
+    })
+    .then(() => {
+        profileModal.style.display = 'none';
+        loadMessages(); // Refresh to show new profile info
+    })
+    .catch(error => {
+        console.error('Error saving profile:', error);
+        alert('Error saving profile: ' + error.message);
+    });
+}
+
+// Update UI for logged in user
+function updateUIForLoggedInUser() {
+    document.querySelector('.login-prompt').style.display = 'none';
+    messageInput.disabled = false;
+    messageForm.querySelector('button').disabled = false;
+    
+    // Show moderation panel for admins
+    if (adminUsers.includes(currentUser.email)) {
+        moderationPanel.style.display = 'block';
+    }
+}
+
+// Update UI for logged out user
+function updateUIForLoggedOutUser() {
+    document.querySelector('.login-prompt').style.display = 'block';
+    messageInput.disabled = true;
+    messageForm.querySelector('button').disabled = true;
+    moderationPanel.style.display = 'none';
+}
+
+// Update active channel UI
+function updateActiveChannel() {
+    channels.forEach(channel => {
+        channel.classList.remove('active');
+        if (channel.dataset.channel === currentChannel) {
+            channel.classList.add('active');
+        }
+    });
 }
 
 // Load messages for current channel
 function loadMessages() {
-  // Clear previous listener
-  if (messageListener) {
-    messageListener();
-  }
+    if (!currentUser) {
+        return;
+    }
 
-  // Clear messages container
-  messagesContainer.innerHTML = '<div class="loading">Loading messages...</div>';
+    clearMessages();
 
-  // Set up new listener
-  messageListener = db.collection('messages')
-    .where('channel', '==', currentChannel)
-    .orderBy('timestamp', 'asc')
-    .onSnapshot(
-      (snapshot) => {
-        messagesContainer.innerHTML = ''; // Clear loading message
-        
-        if (snapshot.empty) {
-          messagesContainer.innerHTML = `
-            <div class="empty-state">
-              No messages yet in #${currentChannel}.
-              Be the first to send one!
-            </div>
-          `;
-          return;
-        }
-        
-        snapshot.forEach((doc) => {
-          displayMessage(doc.data());
+    db.collection('messages')
+        .where('channel', '==', currentChannel)
+        .orderBy('timestamp', 'asc')
+        .onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(change => {
+                if (change.type === 'added') {
+                    displayMessage(change.doc.data());
+                }
+            });
+            scrollToBottom();
         });
-        
-        // Scroll to bottom
-        setTimeout(() => {
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
-      },
-      (error) => {
-        console.error("Error loading messages:", error);
-        messagesContainer.innerHTML = `
-          <div class="error">
-            ${error.code === 'permission-denied' 
-              ? 'Please login to view messages' 
-              : 'Failed to load messages. Please refresh.'}
-          </div>
-        `;
-      }
-    );
 }
 
 // Display a message
 function displayMessage(message) {
-  const messageElement = document.createElement('div');
-  messageElement.className = 'message';
-  
-  // Highlight current user's messages
-  if (currentUser && message.userId === currentUser.uid) {
-    messageElement.classList.add('current-user');
-  }
-  
-  // Format timestamp
-  const timestamp = message.timestamp?.toDate() || new Date();
-  const timeString = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // Skip if message is from a banned user
+    if (message.isBanned) return;
 
-  messageElement.innerHTML = `
-    <img src="${message.userProfilePic || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}" 
-         alt="Avatar" class="message-avatar">
-    <div class="message-content">
-      <div class="message-header">
-        <span class="message-username">${message.username || message.userEmail}</span>
-        <span class="message-time">${timeString}</span>
-      </div>
-      <div class="message-text">${message.text}</div>
-    </div>
-  `;
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    
+    if (currentUser && message.userId === currentUser.uid) {
+        messageElement.classList.add('current-user');
+    }
 
-  messagesContainer.appendChild(messageElement);
-}
-
-// Send a new message
-async function sendMessage() {
-  const messageText = messageInput.value.trim();
-  if (!messageText) return;
-
-  // Check cooldown
-  const now = Date.now();
-  if (now - lastMessageTime < messageCooldown) {
-    alert(`Please wait ${(messageCooldown - (now - lastMessageTime)) / 1000} seconds before sending another message`);
-    return;
-  }
-
-  try {
-    // Create message object
-    const message = {
-      text: messageText,
-      channel: currentChannel,
-      userId: currentUser.uid,
-      userEmail: currentUser.email,
-      username: currentUser.displayName || currentUser.email,
-      userProfilePic: currentUser.photoURL,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    // Add to Firestore
-    await db.collection('messages').add(message);
-
-    // Clear input and update last message time
-    messageInput.value = '';
-    lastMessageTime = now;
-
-    // Update last active time
-    await db.collection('users').doc(currentUser.uid).update({
-      lastActive: firebase.firestore.FieldValue.serverTimestamp()
+    const userDoc = db.collection('users').doc(message.userId);
+    userDoc.get().then(doc => {
+        const userData = doc.data();
+        
+        messageElement.innerHTML = `
+            <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="message-avatar" alt="Avatar">
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-username">${userData.username || 'Unknown'}</span>
+                    ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                    <span class="message-time">${formatTime(message.timestamp)}</span>
+                </div>
+                <div class="message-text">${message.text}</div>
+                ${message.imageUrl ? `<img src="${message.imageUrl}" class="message-image" alt="Uploaded image">` : ''}
+            </div>
+        `;
+        
+        messagesContainer.appendChild(messageElement);
+        scrollToBottom();
     });
-
-  } catch (error) {
-    console.error("Error sending message:", error);
-    alert("Error sending message: " + error.message);
-  }
 }
 
-// Clear all messages
+// Format timestamp
+function formatTime(timestamp) {
+    const date = timestamp.toDate();
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// Clear messages
 function clearMessages() {
-  messagesContainer.innerHTML = `
-    <div class="welcome-message">
-      <h2>Welcome to the Chat App</h2>
-      <p>Please login to view and send messages.</p>
-    </div>
-  `;
+    messagesContainer.innerHTML = `
+        <div class="welcome-message">
+            <h2>Welcome to #${currentChannel}!</h2>
+            <p>Start chatting in this channel.</p>
+        </div>
+    `;
 }
 
-// Add dynamic styles
-function addStyles() {
-  const style = document.createElement('style');
-  style.textContent = `
-    /* Message styles */
-    .message {
-      display: flex;
-      padding: 10px 15px;
-      margin-bottom: 5px;
-      border-radius: 5px;
-      background-color: #36393f;
+// Send message
+function sendMessage(e) {
+    e.preventDefault();
+    
+    if (!currentUser || cooldownActive) return;
+    
+    const messageText = messageInput.value.trim();
+    const isImageChannel = currentChannel === 'images';
+    
+    if (!messageText && !isImageChannel) return;
+    
+    // Check for banned words
+    if (containsBannedWords(messageText)) {
+        alert('Your message contains inappropriate language');
+        return;
     }
     
-    .message.current-user {
-      background-color: #2f3136;
+    // Check cooldown
+    const now = Date.now();
+    if (now - lastMessageTime < 2500) {
+        showCooldownNotice();
+        return;
     }
     
-    .message-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 15px;
-      object-fit: cover;
-    }
+    lastMessageTime = now;
+    startCooldown();
     
-    .message-content {
-      flex: 1;
-    }
-    
-    .message-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-    
-    .message-username {
-      font-weight: 600;
-      margin-right: 10px;
-      color: #fff;
-    }
-    
-    .message-time {
-      font-size: 0.75rem;
-      color: #72767d;
-      margin-left: auto;
-    }
-    
-    .message-text {
-      color: #dcddde;
-      line-height: 1.4;
-    }
-    
-    /* Loading and error states */
-    .loading, .error, .welcome-message, .empty-state {
-      padding: 40px 20px;
-      text-align: center;
-      color: #72767d;
-    }
-    
-    .error {
-      color: #f04747;
-    }
-    
-    /* User profile */
-    .user-profile {
-      display: flex;
-      align-items: center;
-    }
-    
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-      object-fit: cover;
-    }
-    
-    .user-name {
-      font-weight: 500;
-    }
-    
-    /* Login/logout buttons */
-    #google-login, #logout-btn {
-      background-color: #7289da;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-weight: 500;
-      margin-top: 10px;
-    }
-    
-    #google-login:hover, #logout-btn:hover {
-      background-color: #677bc4;
-    }
-    
-    /* Modal styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.7);
-    }
-    
-    .modal-content {
-      background-color: #36393f;
-      margin: 15% auto;
-      padding: 20px;
-      border-radius: 5px;
-      width: 400px;
-      max-width: 90%;
-    }
-    
-    .close-modal {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    
-    .close-modal:hover {
-      color: #fff;
-    }
-    
-    .profile-form {
-      margin-top: 20px;
-    }
-    
-    .form-group {
-      margin-bottom: 15px;
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 0.9rem;
-      color: #b9bbbe;
-    }
-    
-    .form-group input {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 3px;
-      border: 1px solid #202225;
-      background-color: #202225;
-      color: #dcddde;
-    }
-    
-    #save-profile {
-      background-color: #7289da;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-weight: 500;
-      width: 100%;
-    }
-    
-    #save-profile:hover {
-      background-color: #677bc4;
-    }
-  `;
-  document.head.appendChild(style);
+    // Get user data
+    db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            const userData = doc.data();
+            
+            const message = {
+                text: isImageChannel && isValidImageUrl(messageText) ? '' : messageText,
+                imageUrl: isImageChannel && isValidImageUrl(messageText) ? messageText : '',
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                channel: currentChannel,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                isBanned: false
+            };
+            
+            return db.collection('messages').add(message);
+        })
+        .then(() => {
+            messageInput.value = '';
+        })
+        .catch(error => {
+            console.error('Error sending message:', error);
+            alert('Error sending message: ' + error.message);
+        });
 }
 
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
+// Check for banned words
+function containsBannedWords(text) {
+    if (!text) return false;
+    const lowerText = text.toLowerCase();
+    return bannedWords.some(word => lowerText.includes(word.toLowerCase()));
+}
+
+// Validate image URL
+function isValidImageUrl(url) {
+    if (!url) return false;
+    return /\.(jpeg|jpg|gif|png|webp)$/.test(url.toLowerCase());
+}
+
+// Show cooldown notice
+function showCooldownNotice() {
+    const notice = document.createElement('div');
+    notice.classList.add('cooldown-notice');
+    notice.textContent = 'Please wait 2.5 seconds before sending another message';
+    messageForm.appendChild(notice);
+    
+    notice.style.display = 'block';
+    setTimeout(() => {
+        notice.style.display = 'none';
+        setTimeout(() => {
+            messageForm.removeChild(notice);
+        }, 300);
+    }, 2000);
+}
+
+// Start cooldown timer
+function startCooldown() {
+    cooldownActive = true;
+    messageForm.querySelector('button').disabled = true;
+    
+    setTimeout(() => {
+        cooldownActive = false;
+        if (currentUser) {
+            messageForm.querySelector('button').disabled = false;
+        }
+    }, 2500);
+}
+
+// Clear chat
+function clearChat() {
+    if (!currentUser || !adminUsers.includes(currentUser.email)) return;
+    
+    if (!confirm('Are you sure you want to clear all messages in this channel?')) return;
+    
+    db.collection('messages')
+        .where('channel', '==', currentChannel)
+        .get()
+        .then(snapshot => {
+            const batch = db.batch();
+            snapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
+        })
+        .catch(error => {
+            console.error('Error clearing chat:', error);
+            alert('Error clearing chat: ' + error.message);
+        });
+}
+
+// Ban user
+function banUser() {
+    if (!currentUser || !adminUsers.includes(currentUser.email)) return;
+    
+    const lastMessage = messagesContainer.querySelector('.message:not(.current-user):last-child');
+    if (!lastMessage) {
+        alert('No messages to ban users from');
+        return;
+    }
+    
+    const userId = lastMessage.dataset.userId;
+    const userEmail = lastMessage.dataset.userEmail;
+    
+    if (!confirm(`Ban user ${userEmail}? All their messages will be hidden.`)) return;
+    
+    // Mark all user's messages as banned
+    db.collection('messages')
+        .where('userId', '==', userId)
+        .get()
+        .then(snapshot => {
+            const batch = db.batch();
+            snapshot.forEach(doc => {
+                batch.update(doc.ref, { isBanned: true });
+            });
+            return batch.commit();
+        })
+        .then(() => {
+            alert(`User ${userEmail} has been banned`);
+        })
+        .catch(error => {
+            console.error('Error banning user:', error);
+            alert('Error banning user: ' + error.message);
+        });
+}
+
+// Track user activity
+function trackUserActivity() {
+    if (!currentUser) return;
+    
+    const userStatusRef = db.collection('status').doc(currentUser.uid);
+    const isOfflineForFirestore = {
+        state: 'offline',
+        lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    
+    const isOnlineForFirestore = {
+        state: 'online',
+        lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    
+    // Set up realtime listener for user's own status
+    db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+        if (doc.exists) {
+            const userData = doc.data();
+            document.getElementById('user-info').innerHTML = `
+                <div class="user-profile">
+                    <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="user-avatar" alt="Avatar">
+                    <span class="user-name">${userData.username || 'User'}</span>
+                </div>
+                <button id="logout-btn">Logout</button>
+            `;
+            
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                auth.signOut();
+            });
+        }
+    });
+    
+    // Set up presence detection
+    const userRef = db.collection('users').doc(currentUser.uid);
+    
+    db.collection('status').doc(currentUser.uid).onSnapshot(doc => {
+        if (doc.exists) {
+            console.log('Current status: ', doc.data().state);
+        }
+    });
+    
+    // Monitor connection state
+    firebase.database().ref('.info/connected').on('value', (snapshot) => {
+        if (snapshot.val() === false) {
+            return;
+        }
+        
+        userStatusRef.onDisconnect().set(isOfflineForFirestore).then(() => {
+            userStatusRef.set(isOnlineForFirestore);
+        });
+    });
+    
+    // Load active users
+    loadActiveUsers();
+}
+
+// Load active users
+function loadActiveUsers() {
+    db.collection('status')
+        .where('state', '==', 'online')
+        .onSnapshot(snapshot => {
+            activeUsersList.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const userId = doc.id;
+                
+                db.collection('users').doc(userId).get().then(userDoc => {
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        const userItem = document.createElement('li');
+                        userItem.innerHTML = `
+                            <img src="${userData.profilePic || 'https://via.placeholder.com/30'}" 
+                                 class="active-users-avatar" alt="Avatar">
+                            <span>${userData.username || 'User'}</span>
+                            ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                        `;
+                        
+                        activeUsersList.appendChild(userItem);
+                    }
+                });
+            });
+        });
+}
+
+// Load channels
+function loadChannels() {
+    // In a more complex app, you might load these from Firestore
+    updateActiveChannel();
+}
+
+// Scroll to bottom of messages
+function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Initialize the app
+init();
