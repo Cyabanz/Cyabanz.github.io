@@ -13,7 +13,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// App State
 let currentUser = null;
 let currentChannel = 'general';
 let lastMessageTime = 0;
@@ -21,7 +20,6 @@ let cooldownActive = false;
 let bannedWords = ['badword1', 'badword2', 'badword3'];
 let adminUsers = ['admin@example.com'];
 
-// DOM Elements
 function getDOM() {
     return {
         messagesContainer: document.getElementById('messages-container'),
@@ -41,14 +39,12 @@ function getDOM() {
     };
 }
 
-// Initialize the app
 function init() {
     setupEventListeners();
     checkAuthState();
     loadChannels();
 }
 
-// Set up event listeners
 function setupEventListeners() {
     const {
         channels, profileModal, closeModal, saveProfileBtn,
@@ -78,28 +74,22 @@ function setupEventListeners() {
             profileModal.style.display = 'none';
         });
     }
-
     if (saveProfileBtn) {
         saveProfileBtn.addEventListener('click', saveProfile);
     }
-
-    // Moderation tools
     if (clearChatBtn) {
         clearChatBtn.addEventListener('click', clearChat);
     }
-
     if (banUserBtn) {
         banUserBtn.addEventListener('click', banUser);
     }
 
-    // Click outside modal to close
     window.addEventListener('click', (e) => {
         if (e.target === profileModal) {
             profileModal.style.display = 'none';
         }
     });
 
-    // Attach Google login (for static login button on main page)
     attachLoginListener();
 }
 
@@ -112,7 +102,6 @@ function attachLoginListener() {
     }, 0);
 }
 
-// Check auth state
 function checkAuthState() {
     auth.onAuthStateChanged(user => {
         if (user) {
@@ -129,18 +118,15 @@ function checkAuthState() {
     });
 }
 
-// Sign in with Google
 function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-        .then(result => {})
         .catch(error => {
             console.error('Login error:', error);
             alert('Login failed: ' + error.message);
         });
 }
 
-// Check if user has a profile
 function checkUserProfile(uid) {
     db.collection('users').doc(uid).get()
         .then(doc => {
@@ -153,17 +139,14 @@ function checkUserProfile(uid) {
         });
 }
 
-// Show profile modal
 function showProfileModal() {
     const { profileModal, usernameInput, profilePicInput } = getDOM();
     if (!profileModal) return;
-
     usernameInput.value = currentUser.displayName || '';
     profilePicInput.value = currentUser.photoURL || '';
     profileModal.style.display = 'block';
 }
 
-// Save profile
 function saveProfile() {
     const { profileModal, usernameInput, profilePicInput } = getDOM();
     const username = usernameInput.value.trim();
@@ -191,7 +174,6 @@ function saveProfile() {
     });
 }
 
-// Update UI for logged in user
 function updateUIForLoggedInUser() {
     const { messageInput, messageForm, moderationPanel } = getDOM();
     const loginPrompt = document.querySelector('.login-prompt');
@@ -209,7 +191,6 @@ function updateUIForLoggedInUser() {
     }
 }
 
-// Update user panel
 function updateUserPanel() {
     const { userInfo } = getDOM();
     if (!userInfo) return;
@@ -234,7 +215,6 @@ function updateUserPanel() {
         });
 }
 
-// Update UI for logged out user
 function updateUIForLoggedOutUser() {
     const { messageInput, messageForm, moderationPanel, userInfo } = getDOM();
     const loginPrompt = document.querySelector('.login-prompt');
@@ -254,7 +234,6 @@ function updateUIForLoggedOutUser() {
     }
 }
 
-// Update active channel UI
 function updateActiveChannel() {
     const { channels } = getDOM();
     channels.forEach(channel => {
@@ -297,10 +276,8 @@ function loadMessages() {
             let html = '';
             docs.forEach(message => {
                 if (message.isBanned) return;
-                
                 const userData = userDocs[message.userId] || {};
                 const isCurrentUser = currentUser && message.userId === currentUser.uid;
-                
                 html += `
                 <div class="message ${isCurrentUser ? 'current-user' : ''}" 
                      data-user-id="${message.userId || ''}" 
@@ -320,7 +297,7 @@ function loadMessages() {
                 </div>
                 `;
             });
-            
+
             messagesContainer.innerHTML = html || `
                 <div class="welcome-message">
                     <h2>Welcome to #${currentChannel}!</h2>
@@ -333,14 +310,12 @@ function loadMessages() {
         });
 }
 
-// Format timestamp
 function formatTime(timestamp) {
     if (!timestamp || !timestamp.toDate) return '';
     const date = timestamp.toDate();
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// Clear messages
 function clearMessages() {
     const { messagesContainer } = getDOM();
     if (!messagesContainer) return;
@@ -352,7 +327,6 @@ function clearMessages() {
     `;
 }
 
-// Send message
 function sendMessage() {
     const { messageInput } = getDOM();
     if (!currentUser || cooldownActive || !messageInput) return;
@@ -378,7 +352,7 @@ function sendMessage() {
     lastMessageTime = now;
     startCooldown();
 
-    // Get user data
+    // Get user data and send message
     db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
             if (!doc.exists) return;
@@ -402,24 +376,20 @@ function sendMessage() {
         });
 }
 
-// Check for banned words
 function containsBannedWords(text) {
     if (!text) return false;
     const lowerText = text.toLowerCase();
     return bannedWords.some(word => lowerText.includes(word.toLowerCase()));
 }
 
-// Validate image URL
 function isValidImageUrl(url) {
     if (!url) return false;
     return /\.(jpeg|jpg|gif|png|webp)$/.test(url.toLowerCase());
 }
 
-// Show cooldown notice
 function showCooldownNotice() {
     const { messageForm } = getDOM();
     if (!messageForm) return;
-
     const existingNotice = messageForm.querySelector('.cooldown-notice');
     if (existingNotice) return;
 
@@ -437,12 +407,10 @@ function showCooldownNotice() {
     }, 2000);
 }
 
-// Start cooldown timer
 function startCooldown() {
     const { messageForm } = getDOM();
     cooldownActive = true;
     if (messageForm) messageForm.querySelector('button').disabled = true;
-
     setTimeout(() => {
         cooldownActive = false;
         if (currentUser && messageForm) {
@@ -451,7 +419,6 @@ function startCooldown() {
     }, 2500);
 }
 
-// Clear chat
 function clearChat() {
     if (!currentUser || !adminUsers.includes(currentUser.email)) return;
     if (!confirm('Are you sure you want to clear all messages in this channel?')) return;
@@ -475,7 +442,6 @@ function clearChat() {
         });
 }
 
-// Ban user
 function banUser() {
     if (!currentUser || !adminUsers.includes(currentUser.email)) return;
     const { messagesContainer } = getDOM();
@@ -488,7 +454,6 @@ function banUser() {
     const lastMessage = messages[messages.length - 1];
     const userId = lastMessage.dataset.userId;
     const userEmail = lastMessage.dataset.userEmail;
-
     if (!userId || !userEmail) {
         alert('Could not identify user to ban');
         return;
@@ -514,7 +479,6 @@ function banUser() {
         });
 }
 
-// Track user activity
 function trackUserActivity() {
     if (!currentUser) return;
     const userStatusRef = db.collection('status').doc(currentUser.uid);
@@ -533,11 +497,9 @@ function trackUserActivity() {
             lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
         });
     });
-    // Load active users
     loadActiveUsers();
 }
 
-// Load active users
 function loadActiveUsers() {
     const { activeUsersList } = getDOM();
     if (!activeUsersList) return;
@@ -565,19 +527,16 @@ function loadActiveUsers() {
         });
 }
 
-// Load channels
 function loadChannels() {
     updateActiveChannel();
 }
 
-// Scroll to bottom of messages
 function scrollToBottom() {
     const { messagesContainer } = getDOM();
     if (!messagesContainer) return;
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
