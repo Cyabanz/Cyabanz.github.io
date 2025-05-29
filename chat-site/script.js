@@ -104,7 +104,6 @@ function setupEventListeners() {
 }
 
 function attachLoginListener() {
-    // Attach to the current login button (in case re-rendered)
     setTimeout(() => {
         const loginBtn = document.getElementById('google-login');
         if (loginBtn) {
@@ -134,9 +133,7 @@ function checkAuthState() {
 function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-        .then(result => {
-            // Success, handled by onAuthStateChanged
-        })
+        .then(result => {})
         .catch(error => {
             console.error('Login error:', error);
             alert('Login failed: ' + error.message);
@@ -268,7 +265,7 @@ function updateActiveChannel() {
     });
 }
 
-// Load messages for current channel
+// Batch render all messages after fetching user data for each
 let unsubscribeMessages = null;
 function loadMessages() {
     const { messagesContainer } = getDOM();
@@ -280,58 +277,53 @@ function loadMessages() {
 
     if (unsubscribeMessages) unsubscribeMessages();
 
-    // Compound ordering: first by timestamp, then by documentId (which always exists)
     unsubscribeMessages = db.collection('messages')
         .where('channel', '==', currentChannel)
         .orderBy('timestamp', 'asc')
         .orderBy(firebase.firestore.FieldPath.documentId(), 'asc')
-        .onSnapshot(snapshot => {
-            messagesContainer.innerHTML = ''; // Always clear and re-add
-            snapshot.forEach(doc => {
-                displayMessage(doc.data(), doc.id);
+        .onSnapshot(async snapshot => {
+            const docs = [];
+            snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+
+            // Get all user docs in parallel
+            const userIds = Array.from(new Set(docs.map(m => m.userId))).filter(Boolean);
+            const userDocs = {};
+            await Promise.all(userIds.map(uid =>
+                db.collection('users').doc(uid).get().then(userDoc => {
+                    userDocs[uid] = userDoc.exists ? userDoc.data() : null;
+                })
+            ));
+
+            // Build HTML
+            let html = '';
+            docs.forEach(message => {
+                if (message.isBanned) return;
+                const userData = userDocs[message.userId] || {};
+                html += `
+                <div class="message${currentUser && message.userId === currentUser.uid ? ' current-user' : ''}" data-user-id="${message.userId || ''}" data-user-email="${message.userEmail || ''}" data-message-id="${message.id}">
+                    <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="message-avatar" alt="Avatar">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-username">${userData.username || 'Unknown'}</span>
+                            ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                            <span class="message-time">${formatTime(message.timestamp)}</span>
+                        </div>
+                        <div class="message-text">${message.text || ''}</div>
+                        ${message.imageUrl ? `<img src="${message.imageUrl}" class="message-image" alt="Uploaded image">` : ''}
+                    </div>
+                </div>
+                `;
             });
+            messagesContainer.innerHTML = html || `
+                <div class="welcome-message">
+                    <h2>Welcome to #${currentChannel}!</h2>
+                    <p>Start chatting in this channel.</p>
+                </div>
+            `;
             scrollToBottom();
         }, error => {
             console.error('Error loading messages:', error);
         });
-}
-
-// Display a message
-function displayMessage(message, docId) {
-    const { messagesContainer } = getDOM();
-    if (!messagesContainer) return;
-    if (message.isBanned) return;
-
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message');
-    messageElement.dataset.userId = message.userId;
-    messageElement.dataset.userEmail = message.userEmail;
-    messageElement.dataset.messageId = docId;
-
-    if (currentUser && message.userId === currentUser.uid) {
-        messageElement.classList.add('current-user');
-    }
-
-    db.collection('users').doc(message.userId).get().then(doc => {
-        if (!doc.exists) return;
-        const userData = doc.data();
-        messageElement.innerHTML = `
-            <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="message-avatar" alt="Avatar">
-            <div class="message-content">
-                <div class="message-header">
-                    <span class="message-username">${userData.username || 'Unknown'}</span>
-                    ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
-                    <span class="message-time">${formatTime(message.timestamp)}</span>
-                </div>
-                <div class="message-text">${message.text}</div>
-                ${message.imageUrl ? `<img src="${message.imageUrl}" class="message-image" alt="Uploaded image">` : ''}
-            </div>
-        `;
-        messagesContainer.appendChild(messageElement);
-        scrollToBottom();
-    }).catch(error => {
-        console.error('Error loading user data:', error);
-    });
 }
 
 // Format timestamp
