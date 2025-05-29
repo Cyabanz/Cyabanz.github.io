@@ -280,14 +280,15 @@ function loadMessages() {
 
     if (unsubscribeMessages) unsubscribeMessages();
 
+    // Compound ordering: first by timestamp, then by documentId (which always exists)
     unsubscribeMessages = db.collection('messages')
         .where('channel', '==', currentChannel)
         .orderBy('timestamp', 'asc')
+        .orderBy(firebase.firestore.FieldPath.documentId(), 'asc')
         .onSnapshot(snapshot => {
-            snapshot.docChanges().forEach(change => {
-                if (change.type === 'added') {
-                    displayMessage(change.doc.data(), change.doc.id);
-                }
+            messagesContainer.innerHTML = ''; // Always clear and re-add
+            snapshot.forEach(doc => {
+                displayMessage(doc.data(), doc.id);
             });
             scrollToBottom();
         }, error => {
