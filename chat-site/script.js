@@ -1,4 +1,4 @@
-// Firebase Configuration - Replace with your actual config
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDNUmJcXRL_6pkqpCRwiZ5V9m0d_K28GQo",
     authDomain: "chatsite-f0fb9.firebaseapp.com",
@@ -244,7 +244,6 @@ function updateActiveChannel() {
     });
 }
 
-// Batch render all messages after fetching user data for each
 let unsubscribeMessages = null;
 function loadMessages() {
     const { messagesContainer } = getDOM();
@@ -263,7 +262,6 @@ function loadMessages() {
             const docs = [];
             snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
 
-            // Get all user docs in parallel
             const userIds = Array.from(new Set(docs.map(m => m.userId))).filter(Boolean);
             const userDocs = {};
             await Promise.all(userIds.map(uid =>
@@ -272,7 +270,6 @@ function loadMessages() {
                 })
             ));
 
-            // Build HTML
             let html = '';
             docs.forEach(message => {
                 if (message.isBanned) return;
@@ -336,13 +333,11 @@ function sendMessage() {
 
     if (!messageText && !isImageChannel) return;
 
-    // Check for banned words
     if (containsBannedWords(messageText)) {
         alert('Your message contains inappropriate language');
         return;
     }
 
-    // Check cooldown
     const now = Date.now();
     if (now - lastMessageTime < 2500) {
         showCooldownNotice();
@@ -352,7 +347,6 @@ function sendMessage() {
     lastMessageTime = now;
     startCooldown();
 
-    // Get user data and send message
     db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
             if (!doc.exists) return;
