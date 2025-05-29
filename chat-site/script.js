@@ -1,18 +1,19 @@
-// Initialize Firebase
+// Firebase Configuration - Replace with your actual config
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDNUmJcXRL_6pkqpCRwiZ5V9m0d_K28GQo",
+    authDomain: "chatsite-f0fb9.firebaseapp.com",
+    projectId: "chatsite-f0fb9",
+    storageBucket: "chatsite-f0fb9.firebasestorage.app",
+    messagingSenderId: "834593399363",
+    appId: "1:834593399363:web:d60c035f9fe86fd16e2af6"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM elements
+// DOM Elements
 const messagesContainer = document.getElementById('messages-container');
 const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
@@ -28,7 +29,7 @@ const activeUsersList = document.getElementById('active-users-list');
 const moderationPanel = document.getElementById('moderation-panel');
 const channels = document.querySelectorAll('.channel');
 
-// App state
+// App State
 let currentUser = null;
 let currentChannel = 'general';
 let lastMessageTime = 0;
@@ -55,20 +56,35 @@ function setupEventListeners() {
     });
 
     // Message form
-    messageForm.addEventListener('submit', sendMessage);
+    messageForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendMessage();
+    });
 
     // Auth buttons
-    googleLoginBtn.addEventListener('click', signInWithGoogle);
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', signInWithGoogle);
+    }
 
     // Profile modal
-    closeModal.addEventListener('click', () => {
-        profileModal.style.display = 'none';
-    });
-    saveProfileBtn.addEventListener('click', saveProfile);
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            profileModal.style.display = 'none';
+        });
+    }
+
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', saveProfile);
+    }
 
     // Moderation tools
-    clearChatBtn.addEventListener('click', clearChat);
-    banUserBtn.addEventListener('click', banUser);
+    if (clearChatBtn) {
+        clearChatBtn.addEventListener('click', clearChat);
+    }
+
+    if (banUserBtn) {
+        banUserBtn.addEventListener('click', banUser);
+    }
 
     // Click outside modal to close
     window.addEventListener('click', (e) => {
@@ -99,6 +115,9 @@ function checkAuthState() {
 function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
+        .then(result => {
+            console.log('Login successful', result.user);
+        })
         .catch(error => {
             console.error('Login error:', error);
             alert('Login failed: ' + error.message);
@@ -112,11 +131,16 @@ function checkUserProfile(uid) {
             if (!doc.exists) {
                 showProfileModal();
             }
+        })
+        .catch(error => {
+            console.error('Error checking user profile:', error);
         });
 }
 
 // Show profile modal
 function showProfileModal() {
+    if (!profileModal) return;
+    
     usernameInput.value = currentUser.displayName || '';
     profilePicInput.value = currentUser.photoURL || '';
     profileModal.style.display = 'block';
@@ -137,9 +161,10 @@ function saveProfile() {
         profilePic: profilePic,
         email: currentUser.email,
         isAdmin: adminUsers.includes(currentUser.email)
-    })
+    }, { merge: true })
     .then(() => {
         profileModal.style.display = 'none';
+        updateUserPanel();
         loadMessages(); // Refresh to show new profile info
     })
     .catch(error => {
@@ -150,22 +175,70 @@ function saveProfile() {
 
 // Update UI for logged in user
 function updateUIForLoggedInUser() {
-    document.querySelector('.login-prompt').style.display = 'none';
-    messageInput.disabled = false;
-    messageForm.querySelector('button').disabled = false;
+    const loginPrompt = document.querySelector('.login-prompt');
+    if (loginPrompt) loginPrompt.style.display = 'none';
+    
+    if (messageInput) messageInput.disabled = false;
+    if (messageForm) messageForm.querySelector('button').disabled = false;
+    
+    updateUserPanel();
     
     // Show moderation panel for admins
     if (adminUsers.includes(currentUser.email)) {
-        moderationPanel.style.display = 'block';
+        if (moderationPanel) moderationPanel.style.display = 'block';
     }
+}
+
+// Update user panel
+function updateUserPanel() {
+    const userInfo = document.getElementById('user-info');
+    if (!userInfo) return;
+    
+    db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            if (doc.exists) {
+                const userData = doc.data();
+                userInfo.innerHTML = `
+                    <div class="user-profile">
+                        <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="user-avatar" alt="Avatar">
+                        <span class="user-name">${userData.username || 'User'}</span>
+                        ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                    </div>
+                    <button id="logout-btn">Logout</button>
+                `;
+                
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        auth.signOut();
+                    });
+                }
+            }
+        });
 }
 
 // Update UI for logged out user
 function updateUIForLoggedOutUser() {
-    document.querySelector('.login-prompt').style.display = 'block';
-    messageInput.disabled = true;
-    messageForm.querySelector('button').disabled = true;
-    moderationPanel.style.display = 'none';
+    const loginPrompt = document.querySelector('.login-prompt');
+    if (loginPrompt) loginPrompt.style.display = 'block';
+    
+    if (messageInput) messageInput.disabled = true;
+    if (messageForm) messageForm.querySelector('button').disabled = true;
+    if (moderationPanel) moderationPanel.style.display = 'none';
+    
+    const userInfo = document.getElementById('user-info');
+    if (userInfo) {
+        userInfo.innerHTML = `
+            <div class="login-prompt">
+                <button id="google-login">Login with Google</button>
+            </div>
+        `;
+        
+        const loginBtn = document.getElementById('google-login');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', signInWithGoogle);
+        }
+    }
 }
 
 // Update active channel UI
@@ -181,6 +254,7 @@ function updateActiveChannel() {
 // Load messages for current channel
 function loadMessages() {
     if (!currentUser) {
+        clearMessages();
         return;
     }
 
@@ -196,11 +270,15 @@ function loadMessages() {
                 }
             });
             scrollToBottom();
+        }, error => {
+            console.error('Error loading messages:', error);
         });
 }
 
 // Display a message
 function displayMessage(message) {
+    if (!messagesContainer) return;
+    
     // Skip if message is from a banned user
     if (message.isBanned) return;
 
@@ -213,6 +291,8 @@ function displayMessage(message) {
 
     const userDoc = db.collection('users').doc(message.userId);
     userDoc.get().then(doc => {
+        if (!doc.exists) return;
+        
         const userData = doc.data();
         
         messageElement.innerHTML = `
@@ -230,17 +310,22 @@ function displayMessage(message) {
         
         messagesContainer.appendChild(messageElement);
         scrollToBottom();
+    }).catch(error => {
+        console.error('Error loading user data:', error);
     });
 }
 
 // Format timestamp
 function formatTime(timestamp) {
+    if (!timestamp || !timestamp.toDate) return '';
     const date = timestamp.toDate();
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 // Clear messages
 function clearMessages() {
+    if (!messagesContainer) return;
+    
     messagesContainer.innerHTML = `
         <div class="welcome-message">
             <h2>Welcome to #${currentChannel}!</h2>
@@ -250,10 +335,8 @@ function clearMessages() {
 }
 
 // Send message
-function sendMessage(e) {
-    e.preventDefault();
-    
-    if (!currentUser || cooldownActive) return;
+function sendMessage() {
+    if (!currentUser || cooldownActive || !messageInput) return;
     
     const messageText = messageInput.value.trim();
     const isImageChannel = currentChannel === 'images';
@@ -279,7 +362,7 @@ function sendMessage(e) {
     // Get user data
     db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
-            const userData = doc.data();
+            if (!doc.exists) return;
             
             const message = {
                 text: isImageChannel && isValidImageUrl(messageText) ? '' : messageText,
@@ -294,7 +377,7 @@ function sendMessage(e) {
             return db.collection('messages').add(message);
         })
         .then(() => {
-            messageInput.value = '';
+            if (messageInput) messageInput.value = '';
         })
         .catch(error => {
             console.error('Error sending message:', error);
@@ -317,6 +400,11 @@ function isValidImageUrl(url) {
 
 // Show cooldown notice
 function showCooldownNotice() {
+    if (!messageForm) return;
+    
+    const existingNotice = messageForm.querySelector('.cooldown-notice');
+    if (existingNotice) return;
+    
     const notice = document.createElement('div');
     notice.classList.add('cooldown-notice');
     notice.textContent = 'Please wait 2.5 seconds before sending another message';
@@ -334,11 +422,11 @@ function showCooldownNotice() {
 // Start cooldown timer
 function startCooldown() {
     cooldownActive = true;
-    messageForm.querySelector('button').disabled = true;
+    if (messageForm) messageForm.querySelector('button').disabled = true;
     
     setTimeout(() => {
         cooldownActive = false;
-        if (currentUser) {
+        if (currentUser && messageForm) {
             messageForm.querySelector('button').disabled = false;
         }
     }, 2500);
@@ -360,6 +448,9 @@ function clearChat() {
             });
             return batch.commit();
         })
+        .then(() => {
+            console.log('Chat cleared successfully');
+        })
         .catch(error => {
             console.error('Error clearing chat:', error);
             alert('Error clearing chat: ' + error.message);
@@ -370,14 +461,20 @@ function clearChat() {
 function banUser() {
     if (!currentUser || !adminUsers.includes(currentUser.email)) return;
     
-    const lastMessage = messagesContainer.querySelector('.message:not(.current-user):last-child');
-    if (!lastMessage) {
+    const messages = messagesContainer.querySelectorAll('.message:not(.current-user)');
+    if (messages.length === 0) {
         alert('No messages to ban users from');
         return;
     }
     
+    const lastMessage = messages[messages.length - 1];
     const userId = lastMessage.dataset.userId;
     const userEmail = lastMessage.dataset.userEmail;
+    
+    if (!userId || !userEmail) {
+        alert('Could not identify user to ban');
+        return;
+    }
     
     if (!confirm(`Ban user ${userEmail}? All their messages will be hidden.`)) return;
     
@@ -406,51 +503,21 @@ function trackUserActivity() {
     if (!currentUser) return;
     
     const userStatusRef = db.collection('status').doc(currentUser.uid);
-    const isOfflineForFirestore = {
-        state: 'offline',
-        lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
-    };
-    
-    const isOnlineForFirestore = {
-        state: 'online',
-        lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
-    };
-    
-    // Set up realtime listener for user's own status
-    db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
-        if (doc.exists) {
-            const userData = doc.data();
-            document.getElementById('user-info').innerHTML = `
-                <div class="user-profile">
-                    <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" class="user-avatar" alt="Avatar">
-                    <span class="user-name">${userData.username || 'User'}</span>
-                </div>
-                <button id="logout-btn">Logout</button>
-            `;
-            
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                auth.signOut();
-            });
-        }
-    });
     
     // Set up presence detection
-    const userRef = db.collection('users').doc(currentUser.uid);
-    
-    db.collection('status').doc(currentUser.uid).onSnapshot(doc => {
-        if (doc.exists) {
-            console.log('Current status: ', doc.data().state);
-        }
-    });
-    
-    // Monitor connection state
     firebase.database().ref('.info/connected').on('value', (snapshot) => {
         if (snapshot.val() === false) {
             return;
         }
         
-        userStatusRef.onDisconnect().set(isOfflineForFirestore).then(() => {
-            userStatusRef.set(isOnlineForFirestore);
+        userStatusRef.set({
+            state: 'online',
+            lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        
+        userStatusRef.onDisconnect().set({
+            state: 'offline',
+            lastChanged: firebase.firestore.FieldValue.serverTimestamp(),
         });
     });
     
@@ -460,6 +527,8 @@ function trackUserActivity() {
 
 // Load active users
 function loadActiveUsers() {
+    if (!activeUsersList) return;
+    
     db.collection('status')
         .where('state', '==', 'online')
         .onSnapshot(snapshot => {
@@ -489,14 +558,16 @@ function loadActiveUsers() {
 
 // Load channels
 function loadChannels() {
-    // In a more complex app, you might load these from Firestore
     updateActiveChannel();
 }
 
 // Scroll to bottom of messages
 function scrollToBottom() {
+    if (!messagesContainer) return;
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Initialize the app
-init();
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+});
