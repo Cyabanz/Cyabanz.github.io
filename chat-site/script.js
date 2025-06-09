@@ -56,7 +56,6 @@ function setupEventListeners() {
         clearChatBtn, banUserBtn, messageForm, startDmBtn
     } = getDOM();
 
-    // Channel selection
     channels.forEach(channel => {
         channel.addEventListener('click', () => {
             currentChannel = channel.dataset.channel;
@@ -65,7 +64,6 @@ function setupEventListeners() {
         });
     });
 
-    // Message form
     if (messageForm) {
         messageForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -73,7 +71,6 @@ function setupEventListeners() {
         });
     }
 
-    // Profile modal
     if (closeModal) {
         closeModal.addEventListener('click', () => {
             profileModal.style.display = 'none';
@@ -116,7 +113,7 @@ function checkAuthState() {
             currentUser = user;
             checkUserProfile(user.uid);
             updateUIForLoggedInUser();
-            loadUserConversations(); // Load saved conversations
+            loadUserConversations();
             loadMessages();
             trackUserActivity();
         } else {
@@ -127,6 +124,7 @@ function checkAuthState() {
     });
 }
 
+// NEW: Load user's saved conversations from Firestore
 function loadUserConversations() {
     if (!currentUser) return;
     
@@ -144,11 +142,12 @@ function loadUserConversations() {
         });
 }
 
+// NEW: Render saved conversations in the DM list
 function renderSavedConversations() {
     const { dmList } = getDOM();
     if (!dmList) return;
     
-    dmList.innerHTML = ''; // Clear existing DMs
+    dmList.innerHTML = '';
     
     Object.keys(userConversations).forEach(dmId => {
         const username = userConversations[dmId];
@@ -156,6 +155,7 @@ function renderSavedConversations() {
     });
 }
 
+// NEW: Save conversation to Firestore
 function saveConversation(dmId, username) {
     if (!currentUser) return;
     
@@ -238,7 +238,6 @@ function updateUIForLoggedInUser() {
     if (messageForm) messageForm.querySelector('button').disabled = false;
     updateUserPanel();
 
-    // Show moderation panel for admins
     if (currentUser && adminUsers.includes(currentUser.email)) {
         if (moderationPanel) moderationPanel.style.display = 'block';
     } else if (moderationPanel) {
@@ -292,21 +291,18 @@ function updateUIForLoggedOutUser() {
 function updateActiveChannel() {
     const { channels, dmList } = getDOM();
     
-    // Clear active state from all channels
     if (channels) {
         channels.forEach(channel => {
             channel.classList.remove('active');
         });
     }
     
-    // Clear active state from all DMs
     if (dmList) {
         dmList.querySelectorAll('.dm-channel').forEach(dm => {
             dm.classList.remove('active');
         });
     }
     
-    // Set active state for current channel
     if (currentChannel.startsWith('dm_')) {
         const dmId = currentChannel.replace('dm_', '');
         const activeDm = dmList.querySelector(`[data-dm-id="${dmId}"]`);
@@ -334,7 +330,6 @@ function loadMessages() {
 
     let query;
     if (currentChannel.startsWith('dm_')) {
-        // For DMs, we need to check both possible channel IDs since they're sorted
         const dmId = currentChannel.replace('dm_', '');
         const [user1, user2] = dmId.split('_');
         const reverseDmId = `${user2}_${user1}`;
@@ -343,7 +338,6 @@ function loadMessages() {
             .where('channel', 'in', [`dm_${dmId}`, `dm_${reverseDmId}`])
             .orderBy('timestamp', 'asc');
     } else {
-        // Regular channel
         query = db.collection('messages')
             .where('channel', '==', currentChannel)
             .orderBy('timestamp', 'asc');
@@ -359,7 +353,7 @@ function loadMessages() {
             db.collection('users').doc(uid).get().then(userDoc => {
                 userDocs[uid] = userDoc.exists ? userDoc.data() : null;
             })
-        ));
+        );
 
         let html = '';
         docs.forEach(message => {
@@ -455,7 +449,7 @@ function sendMessage() {
         .then(() => {
             if (messageInput) messageInput.value = '';
             
-            // If this is a new DM, save the conversation
+            // NEW: Save conversation if it's a DM
             if (currentChannel.startsWith('dm_')) {
                 const dmId = currentChannel.replace('dm_', '');
                 const otherUserId = dmId.split('_').find(id => id !== currentUser.uid);
@@ -466,7 +460,6 @@ function sendMessage() {
                             if (!userConversations[dmId]) {
                                 saveConversation(dmId, username);
                             }
-                            addDMToList(dmId, username, false);
                         }
                     });
                 }
@@ -509,7 +502,7 @@ function startNewDM() {
             // Create a unique DM channel ID (sorted to ensure consistency)
             const dmId = [currentUser.uid, targetUserId].sort().join('_');
             
-            // Save this conversation
+            // NEW: Save this conversation
             saveConversation(dmId, username);
             
             // Switch to this DM channel
@@ -526,6 +519,7 @@ function startNewDM() {
         });
 }
 
+// NEW: Add DM to the list (with option to make it active)
 function addDMToList(dmId, username, makeActive) {
     const { dmList } = getDOM();
     
