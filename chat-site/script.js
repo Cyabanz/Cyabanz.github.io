@@ -12,8 +12,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-// For Realtime Database presence
 const rtdb = firebase.database();
 
 let currentUser = null;
@@ -22,6 +20,7 @@ let lastMessageTime = 0;
 let cooldownActive = false;
 let bannedWords = ['badword1', 'badword2', 'badword3'];
 let adminUsers = ['admin@example.com'];
+let userConversations = {};
 
 function getDOM() {
     return {
@@ -38,7 +37,10 @@ function getDOM() {
         activeUsersList: document.getElementById('active-users-list'),
         moderationPanel: document.getElementById('moderation-panel'),
         channels: document.querySelectorAll('.channel'),
-        userInfo: document.getElementById('user-info')
+        userInfo: document.getElementById('user-info'),
+        dmUserInput: document.getElementById('dm-user-input'),
+        startDmBtn: document.getElementById('start-dm-btn'),
+        dmList: document.getElementById('dm-list')
     };
 }
 
@@ -51,7 +53,7 @@ function init() {
 function setupEventListeners() {
     const {
         channels, profileModal, closeModal, saveProfileBtn,
-        clearChatBtn, banUserBtn, messageForm
+        clearChatBtn, banUserBtn, messageForm, startDmBtn
     } = getDOM();
 
     // Channel selection
@@ -86,6 +88,9 @@ function setupEventListeners() {
     if (banUserBtn) {
         banUserBtn.addEventListener('click', banUser);
     }
+    if (startDmBtn) {
+        startDmBtn.addEventListener('click', startNewDM);
+    }
 
     window.addEventListener('click', (e) => {
         if (e.target === profileModal) {
@@ -111,6 +116,7 @@ function checkAuthState() {
             currentUser = user;
             checkUserProfile(user.uid);
             updateUIForLoggedInUser();
+            loadUserConversations(); // Load saved conversations
             loadMessages();
             trackUserActivity();
         } else {
@@ -119,6 +125,52 @@ function checkAuthState() {
             clearMessages();
         }
     });
+}
+
+function loadUserConversations() {
+    if (!currentUser) return;
+    
+    db.collection('user_conversations')
+        .doc(currentUser.uid)
+        .get()
+        .then(doc => {
+            if (doc.exists) {
+                userConversations = doc.data().conversations || {};
+                renderSavedConversations();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading conversations:', error);
+        });
+}
+
+function renderSavedConversations() {
+    const { dmList } = getDOM();
+    if (!dmList) return;
+    
+    dmList.innerHTML = ''; // Clear existing DMs
+    
+    Object.keys(userConversations).forEach(dmId => {
+        const username = userConversations[dmId];
+        addDMToList(dmId, username, false);
+    });
+}
+
+function saveConversation(dmId, username) {
+    if (!currentUser) return;
+    
+    // Update local state
+    userConversations[dmId] = username;
+    
+    // Update Firestore
+    db.collection('user_conversations')
+        .doc(currentUser.uid)
+        .set({
+            conversations: userConversations
+        }, { merge: true })
+        .catch(error => {
+            console.error('Error saving conversation:', error);
+        });
 }
 
 function signInWithGoogle() {
@@ -238,13 +290,35 @@ function updateUIForLoggedOutUser() {
 }
 
 function updateActiveChannel() {
-    const { channels } = getDOM();
-    channels.forEach(channel => {
-        channel.classList.remove('active');
-        if (channel.dataset.channel === currentChannel) {
-            channel.classList.add('active');
+    const { channels, dmList } = getDOM();
+    
+    // Clear active state from all channels
+    if (channels) {
+        channels.forEach(channel => {
+            channel.classList.remove('active');
+        });
+    }
+    
+    // Clear active state from all DMs
+    if (dmList) {
+        dmList.querySelectorAll('.dm-channel').forEach(dm => {
+            dm.classList.remove('active');
+        });
+    }
+    
+    // Set active state for current channel
+    if (currentChannel.startsWith('dm_')) {
+        const dmId = currentChannel.replace('dm_', '');
+        const activeDm = dmList.querySelector(`[data-dm-id="${dmId}"]`);
+        if (activeDm) {
+            activeDm.classList.add('active');
         }
-    });
+    } else {
+        const activeChannel = document.querySelector(`.channel[data-channel="${currentChannel}"]`);
+        if (activeChannel) {
+            activeChannel.classList.add('active');
+        }
+    }
 }
 
 let unsubscribeMessages = null;
@@ -258,56 +332,70 @@ function loadMessages() {
 
     if (unsubscribeMessages) unsubscribeMessages();
 
-    unsubscribeMessages = db.collection('messages')
-        .where('channel', '==', currentChannel)
-        .orderBy('timestamp', 'asc')
-        .onSnapshot(async snapshot => {
-            const docs = [];
-            snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+    let query;
+    if (currentChannel.startsWith('dm_')) {
+        // For DMs, we need to check both possible channel IDs since they're sorted
+        const dmId = currentChannel.replace('dm_', '');
+        const [user1, user2] = dmId.split('_');
+        const reverseDmId = `${user2}_${user1}`;
+        
+        query = db.collection('messages')
+            .where('channel', 'in', [`dm_${dmId}`, `dm_${reverseDmId}`])
+            .orderBy('timestamp', 'asc');
+    } else {
+        // Regular channel
+        query = db.collection('messages')
+            .where('channel', '==', currentChannel)
+            .orderBy('timestamp', 'asc');
+    }
 
-            const userIds = Array.from(new Set(docs.map(m => m.userId))).filter(Boolean);
-            const userDocs = {};
-            await Promise.all(userIds.map(uid =>
-                db.collection('users').doc(uid).get().then(userDoc => {
-                    userDocs[uid] = userDoc.exists ? userDoc.data() : null;
-                })
-            ));
+    unsubscribeMessages = query.onSnapshot(async snapshot => {
+        const docs = [];
+        snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
 
-            let html = '';
-            docs.forEach(message => {
-                if (message.isBanned) return;
-                const userData = userDocs[message.userId] || {};
-                const isCurrentUser = currentUser && message.userId === currentUser.uid;
-                html += `
-                <div class="message ${isCurrentUser ? 'current-user' : ''}" 
-                     data-user-id="${message.userId || ''}" 
-                     data-user-email="${message.userEmail || ''}" 
-                     data-message-id="${message.id}">
-                    <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" 
-                         class="message-avatar" alt="Avatar">
-                    <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-username">${userData.username || 'Unknown'}</span>
-                            ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
-                            <span class="message-time">${formatTime(message.timestamp)}</span>
-                        </div>
-                        ${message.text ? `<div class="message-text">${message.text}</div>` : ''}
-                        ${message.imageUrl ? `<img src="${message.imageUrl}" class="message-image" alt="Uploaded image">` : ''}
+        const userIds = Array.from(new Set(docs.map(m => m.userId))).filter(Boolean);
+        const userDocs = {};
+        await Promise.all(userIds.map(uid =>
+            db.collection('users').doc(uid).get().then(userDoc => {
+                userDocs[uid] = userDoc.exists ? userDoc.data() : null;
+            })
+        ));
+
+        let html = '';
+        docs.forEach(message => {
+            if (message.isBanned) return;
+            const userData = userDocs[message.userId] || {};
+            const isCurrentUser = currentUser && message.userId === currentUser.uid;
+            html += `
+            <div class="message ${isCurrentUser ? 'current-user' : ''}" 
+                 data-user-id="${message.userId || ''}" 
+                 data-user-email="${message.userEmail || ''}" 
+                 data-message-id="${message.id}">
+                <img src="${userData.profilePic || 'https://via.placeholder.com/40'}" 
+                     class="message-avatar" alt="Avatar">
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-username">${userData.username || 'Unknown'}</span>
+                        ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                        <span class="message-time">${formatTime(message.timestamp)}</span>
                     </div>
+                    ${message.text ? `<div class="message-text">${message.text}</div>` : ''}
+                    ${message.imageUrl ? `<img src="${message.imageUrl}" class="message-image" alt="Uploaded image">` : ''}
                 </div>
-                `;
-            });
-
-            messagesContainer.innerHTML = html || `
-                <div class="welcome-message">
-                    <h2>Welcome to #${currentChannel}!</h2>
-                    <p>Start chatting in this channel.</p>
-                </div>
+            </div>
             `;
-            scrollToBottom();
-        }, error => {
-            console.error('Error loading messages:', error);
         });
+
+        messagesContainer.innerHTML = html || `
+            <div class="welcome-message">
+                <h2>${currentChannel.startsWith('dm_') ? 'Start a private conversation' : `Welcome to #${currentChannel}!`}</h2>
+                <p>${currentChannel.startsWith('dm_') ? 'Send a message to begin chatting' : 'Start chatting in this channel.'}</p>
+            </div>
+        `;
+        scrollToBottom();
+    }, error => {
+        console.error('Error loading messages:', error);
+    });
 }
 
 function formatTime(timestamp) {
@@ -366,11 +454,103 @@ function sendMessage() {
         })
         .then(() => {
             if (messageInput) messageInput.value = '';
+            
+            // If this is a new DM, save the conversation
+            if (currentChannel.startsWith('dm_')) {
+                const dmId = currentChannel.replace('dm_', '');
+                const otherUserId = dmId.split('_').find(id => id !== currentUser.uid);
+                if (otherUserId) {
+                    db.collection('users').doc(otherUserId).get().then(userDoc => {
+                        if (userDoc.exists) {
+                            const username = userDoc.data().username;
+                            if (!userConversations[dmId]) {
+                                saveConversation(dmId, username);
+                            }
+                            addDMToList(dmId, username, false);
+                        }
+                    });
+                }
+            }
         })
         .catch(error => {
             console.error('Error sending message:', error);
             alert('Error sending message: ' + error.message);
         });
+}
+
+function startNewDM() {
+    const { dmUserInput } = getDOM();
+    const username = dmUserInput.value.trim();
+    
+    if (!username) {
+        alert('Please enter a username');
+        return;
+    }
+    
+    // Find user by username
+    db.collection('users')
+        .where('username', '==', username)
+        .limit(1)
+        .get()
+        .then(snapshot => {
+            if (snapshot.empty) {
+                alert('User not found');
+                return;
+            }
+            
+            const userDoc = snapshot.docs[0];
+            const targetUserId = userDoc.id;
+            
+            if (targetUserId === currentUser.uid) {
+                alert('You cannot message yourself');
+                return;
+            }
+            
+            // Create a unique DM channel ID (sorted to ensure consistency)
+            const dmId = [currentUser.uid, targetUserId].sort().join('_');
+            
+            // Save this conversation
+            saveConversation(dmId, username);
+            
+            // Switch to this DM channel
+            currentChannel = `dm_${dmId}`;
+            updateActiveChannel();
+            loadMessages();
+            addDMToList(dmId, username, true);
+            
+            dmUserInput.value = '';
+        })
+        .catch(error => {
+            console.error('Error finding user:', error);
+            alert('Error finding user: ' + error.message);
+        });
+}
+
+function addDMToList(dmId, username, makeActive) {
+    const { dmList } = getDOM();
+    
+    // Check if this DM already exists in the list
+    const existingDm = dmList.querySelector(`[data-dm-id="${dmId}"]`);
+    if (existingDm) {
+        if (makeActive) {
+            existingDm.classList.add('active');
+        }
+        return;
+    }
+    
+    const dmItem = document.createElement('li');
+    dmItem.className = 'dm-channel' + (makeActive ? ' active' : '');
+    dmItem.dataset.dmId = dmId;
+    dmItem.dataset.channel = `dm_${dmId}`;
+    dmItem.textContent = `@${username}`;
+    
+    dmItem.addEventListener('click', () => {
+        currentChannel = `dm_${dmId}`;
+        updateActiveChannel();
+        loadMessages();
+    });
+    
+    dmList.appendChild(dmItem);
 }
 
 function containsBannedWords(text) {
@@ -476,7 +656,6 @@ function banUser() {
         });
 }
 
-// ----- FIXED PRESENCE CODE USING REALTIME DATABASE -----
 function trackUserActivity() {
     if (!currentUser) return;
     const userStatusDatabaseRef = rtdb.ref('/status/' + currentUser.uid);
