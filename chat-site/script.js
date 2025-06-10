@@ -20,9 +20,7 @@ let lastMessageTime = 0;
 let cooldownActive = false;
 let bannedWords = ['badword1', 'badword2', 'badword3'];
 let adminUsers = ['admin@example.com'];
-let userConversations = {};
-
-// Listen in realtime for changes to this user's DM list across all devices/tabs
+let userConversations = {}; // { dmId: username }
 let unsubscribeConversations = null;
 
 function getDOM() {
@@ -138,7 +136,7 @@ function checkAuthState() {
     });
 }
 
-// Realtime listen to user's saved DMs from Firestore (crossplatform, cross tab)
+// Listen to user's DM list in Firestore. This is cross-platform/cross-tab
 function listenUserConversations() {
     if (!currentUser) return;
 
@@ -157,7 +155,7 @@ function listenUserConversations() {
         });
 }
 
-// Render saved DMs in the DM list
+// Render DM list in sidebar. Cross-platform, always from Firestore.
 function renderSavedConversations() {
     const { dmList } = getDOM();
     if (!dmList) return;
@@ -169,7 +167,7 @@ function renderSavedConversations() {
     });
 }
 
-// Save DM to Firestore (triggers crossplatform updates)
+// Save DM to Firestore, triggers cross-device sync
 function saveConversation(dmId, username) {
     if (!currentUser) return;
 
@@ -516,7 +514,7 @@ function startNewDM() {
             // Create a unique DM channel ID (sorted to ensure consistency)
             const dmId = [currentUser.uid, targetUserId].sort().join('_');
 
-            // Save this conversation
+            // Save this conversation (persisted to Firestore, triggers cross-device sync)
             saveConversation(dmId, username);
 
             // Switch to this DM channel
