@@ -274,7 +274,7 @@ function updateUserPanel() {
                         <span class="user-name">${userData.username || 'User'}</span>
                         ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
                     </div>
-                    <button id="logout-btn">Logout</button>
+                    <button id="logout-btn">out</button>
                 `;
                 const logoutBtn = document.getElementById('logout-btn');
                 if (logoutBtn) {
