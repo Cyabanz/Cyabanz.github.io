@@ -5,7 +5,6 @@
 }
 
 :root {
-    /* Original color scheme converted to modern variables */
     --primary-color: #7289da;
     --secondary-color: #424549;
     --dark-color: #36393e;
@@ -14,8 +13,7 @@
     --error-color: #f04747;
     --success-color: #43b581;
     --dm-color: #4a5b6e;
-    
-    /* Modern design system extensions */
+
     --primary-bg: var(--darker-color);
     --secondary-bg: var(--secondary-color);
     --tertiary-bg: var(--dark-color);
@@ -57,7 +55,6 @@ body {
     overflow: hidden;
 }
 
-/* Sidebar Styling */
 .sidebar {
     background: var(--secondary-bg);
     border-right: 1px solid var(--border-color);
@@ -139,6 +136,8 @@ body {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    font-size: 14px;
+    min-height: 32px;
 }
 
 .channel::before {
@@ -184,7 +183,6 @@ body {
     border-radius: 0 2px 2px 0;
 }
 
-/* DM Section */
 .dm-input-container {
     display: flex;
     gap: 8px;
@@ -238,7 +236,6 @@ body {
     transform: translateY(0);
 }
 
-/* User Panel */
 .user-panel {
     margin-top: auto;
     padding: 16px;
@@ -317,19 +314,21 @@ body {
     color: white;
     border: none;
     border-radius: var(--border-radius-sm);
-    padding: 8px 14px;
+    padding: 4px 10px;
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 13px;
+    gap: 5px;
+    font-size: 12px;
     width: auto;
     min-width: 0;
     margin-top: 0;
     justify-content: flex-start;
     box-shadow: none;
+    height: 28px;
+    line-height: 1.2;
 }
 
 #logout-btn:hover {
@@ -340,10 +339,9 @@ body {
 
 #logout-btn::before {
     content: '🚪';
-    font-size: 16px;
+    font-size: 14px;
 }
 
-/* Main Content */
 .main-content {
     display: flex;
     flex-direction: column;
@@ -401,7 +399,6 @@ body {
     color: var(--secondary-text);
 }
 
-/* Message Styling */
 .message {
     display: flex;
     padding: 12px 16px;
@@ -491,7 +488,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Message Input */
 .message-input-container {
     padding: 20px;
     border-top: 1px solid var(--border-color);
@@ -564,7 +560,6 @@ body {
     font-weight: 500;
 }
 
-/* Moderation Panel */
 .moderation-panel {
     width: 300px;
     background: var(--secondary-bg);
@@ -693,7 +688,6 @@ body {
     flex-shrink: 0;
 }
 
-/* Modal Styling */
 .modal {
     position: fixed;
     top: 0;
@@ -790,7 +784,6 @@ body {
     box-shadow: var(--shadow);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .app-container {
         grid-template-columns: 1fr;
@@ -834,7 +827,6 @@ body {
     }
 }
 
-/* Animation for smooth transitions */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -850,14 +842,12 @@ body {
     animation: fadeIn 0.3s ease-out;
 }
 
-/* Focus indicators for accessibility */
 button:focus-visible,
 input:focus-visible {
     outline: 2px solid var(--accent-text);
     outline-offset: 2px;
 }
 
-/* Loading states */
 .loading {
     opacity: 0.6;
     pointer-events: none;
