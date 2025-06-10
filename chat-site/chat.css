@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Cord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #1a1a1a;
+            --secondary-bg: #2a2a2a;
+            --tertiary-bg: #363636;
+            --accent-bg: #404040;
+            --primary-text: #ffffff;
+            --secondary-text: #b0b0b0;
+            --accent-text: #4a9eff;
+            --success-color: #00d26a;
+            --warning-color: #faa61a;
+            --danger-color: #f04747;
+            --border-color: #404040;
+            --hover-bg: rgba(255, 255, 255, 0.05);
+            --active-bg: rgba(74, 158, 255, 0.15);
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --border-radius: 8px;
+            --border-radius-sm: 4px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--primary-bg);
+            color: var(--primary-text);
+            height: 100vh;
+            overflow: hidden;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr auto;
+            height: 100vh;
+            background: var(--primary-bg);
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background: var(--secondary-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .server-info {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--tertiary-bg);
+        }
+
+        .server-info h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .server-info h2::before {
+            content: '🔗';
+            font-size: 20px;
+        }
+
+        .channels {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .channels h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--secondary-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding: 0 8px;
+        }
+
+        .channels ul {
+            list-style: none;
+        }
+
+        .channel {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            color: var(--secondary-text);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .channel::before {
+            content: '#';
+            color: var(--secondary-text);
+            margin-right: 6px;
+            font-weight: 400;
+        }
+
+        .channel:hover {
+            background: var(--hover-bg);
+            color: var(--primary-text);
+        }
+
+        .channel.active {
+            background: var(--active-bg);
+            color: var(--accent-text);
+        }
+
+        .channel.active::before {
+            color: var(--accent-text);
+        }
+
+        /* DM Section */
+        .dm-input-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 0 8px;
+        }
+
+        #dm-user-input {
+            flex: 1;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 8px 12px;
+            color: var(--primary-text);
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        #dm-user-input:focus {
+            outline: none;
+            border-color: var(--accent-text);
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+        }
+
+        #start-dm-btn {
+            background: var(--accent-text);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #start-dm-btn:hover {
+            background: #3d8bdf;
+            transform: translateY(-1px);
+        }
+
+        /* User Panel */
+        .user-panel {
+            margin-top: auto;
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            background: var(--tertiary-bg);
+        }
+
+        .login-prompt {
+            display: flex;
+            justify-content: center;
+        }
+
+        #google-login {
+            background: var(--accent-text);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        #google-login:hover {
+            background: #3d8bdf;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        #google-login::before {
+            content: '🔐';
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            background: var(--primary-bg);
+            overflow: hidden;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-bg);
+        }
+
+        .welcome-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: var(--secondary-text);
+        }
+
+        .welcome-message h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-text);
+            margin-bottom: 12px;
+        }
+
+        .welcome-message p {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* Message Input */
+        .message-input-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--secondary-bg);
+        }
+
+        #message-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        #message-input {
+            flex: 1;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 12px 16px;
+            color: var(--primary-text);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        #message-input:focus {
+            outline: none;
+            border-color: var(--accent-text);
+            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+            background: var(--primary-bg);
+        }
+
+        #message-input::placeholder {
+            color: var(--secondary-text);
+        }
+
+        #message-form button[type="submit"] {
+            background: var(--accent-text);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px 16px;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            height: 48px;
+        }
+
+        #message-form button[type="submit"]:hover:not(:disabled) {
+            background: #3d8bdf;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        #message-form button[type="submit"]:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* Moderation Panel */
+        .moderation-panel {
+            width: 300px;
+            background: var(--secondary-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .moderation-panel h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary-text);
+        }
+
+        .mod-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .mod-tools button {
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            color: var(--primary-text);
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .mod-tools button:hover {
+            background: var(--accent-bg);
+            border-color: var(--accent-text);
+        }
+
+        #ban-user {
+            background: var(--danger-color) !important;
+            border-color: var(--danger-color) !important;
+        }
+
+        #ban-user:hover {
+            background: #d63031 !important;
+        }
+
+        .active-users h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--secondary-text);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #active-users-list {
+            list-style: none;
+        }
+
+        /* Modal Styling */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            max-width: 480px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary-text);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--primary-text);
+        }
+
+        .modal-content h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--primary-text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--primary-text);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 12px 14px;
+            color: var(--primary-text);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-text);
+            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+        }
+
+        #save-profile {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        #save-profile:hover {
+            background: #00b894;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+
+            .sidebar {
+                order: 2;
+                flex-direction: row;
+                overflow-x: auto;
+                border-right: none;
+                border-top: 1px solid var(--border-color);
+                height: auto;
+                max-height: 200px;
+            }
+
+            .main-content {
+                order: 1;
+            }
+
+            .moderation-panel {
+                display: none !important;
+            }
+
+            .channels {
+                display: flex;
+                gap: 12px;
+                border: none;
+                padding: 12px;
+            }
+
+            .channels h3 {
+                writing-mode: vertical-lr;
+                margin: 0;
+                margin-right: 8px;
+            }
+
+            .channels ul {
+                display: flex;
+                gap: 8px;
+            }
+        }
+
+        /* Animation for smooth transitions */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .channel, .mod-tools button, #google-login, #start-dm-btn, #save-profile {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Focus indicators for accessibility */
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--accent-text);
+            outline-offset: 2px;
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-text);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="server-info">
+                <h2>Widget Cord</h2>
+            </div>
+            <div class="channels">
+                <h3>Text Channels</h3>
+                <ul>
+                    <li class="channel active" data-channel="general"># general</li>
+                    <li class="channel" data-channel="gaming"># gaming</li>
+                    <li class="channel" data-channel="images"># images</li>
+                </ul>
+            </div>
+            <div class="channels">
+                <h3>Direct Messages</h3>
+                <ul id="dm-list">
+                    <!-- DMs will be added here dynamically -->
+                </ul>
+                <div class="dm-input-container">
+                    <input type="text" id="dm-user-input" placeholder="Start a conversation...">
+                    <button id="start-dm-btn">Start</button>
+                </div>
+            </div>
+            <div class="user-panel">
+                <div class="user-info" id="user-info">
+                    <div class="login-prompt">
+                        <button id="google-login">Login with Google</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="messages-container" id="messages-container">
+                <div class="welcome-message">
+                    <h2>Welcome to Widget Cord!</h2>
+                    <p>Please select a channel to start chatting.</p>
+                </div>
+            </div>
+            <div class="message-input-container">
+                <form id="message-form">
+                    <input type="text" id="message-input" placeholder="Type your message here..." disabled>
+                    <button type="submit" disabled><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="moderation-panel" id="moderation-panel" style="display:none;">
+            <h3>Moderation Tools</h3>
+            <div class="mod-tools">
+                <button id="clear-chat">Clear Chat</button>
+                <button id="ban-user">Ban User</button>
+            </div>
+            <div class="active-users">
+                <h4>Active Users</h4>
+                <ul id="active-users-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profile-modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Set Your Profile</h2>
+            <div class="profile-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label for="profile-pic">Profile Picture URL</label>
+                    <input type="text" id="profile-pic" placeholder="Enter image URL">
+                </div>
+                <button id="save-profile">Save Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        // Placeholder JavaScript - replace with your actual script
+        console.log('Widget Cord loaded successfully!');
+        
+        // Basic functionality for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            const channels = document.querySelectorAll('.channel');
+            const welcomeMessage = document.querySelector('.welcome-message');
+            const messageInput = document.getElementById('message-input');
+            const submitButton = document.querySelector('#message-form button[type="submit"]');
+            
+            channels.forEach(channel => {
+                channel.addEventListener('click', function() {
+                    // Remove active class from all channels
+                    channels.forEach(c => c.classList.remove('active'));
+                    // Add active class to clicked channel
+                    this.classList.add('active');
+                    
+                    // Enable message input
+                    messageInput.disabled = false;
+                    submitButton.disabled = false;
+                    
+                    // Hide welcome message
+                    welcomeMessage.style.display = 'none';
+                    
+                    // Update placeholder
+                    messageInput.placeholder = `Message #${this.dataset.channel}`;
+                });
+            });
+            
+            // Close modal functionality
+            const closeModal = document.querySelector('.close-modal');
+            const modal = document.getElementById('profile-modal');
+            
+            if (closeModal) {
+                closeModal.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+            }
+            
+            // Click outside modal to close
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
