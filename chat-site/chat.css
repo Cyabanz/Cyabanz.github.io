@@ -308,19 +308,19 @@ body {
     content: '🔐';
 }
 
-/* Smaller logout button */
+/* Smaller logout button, clear red background/border, white text, red on hover, red icon */
 #logout-btn {
     background: var(--error-color);
-    color: white;
-    border: none;
+    color: #fff;
+    border: 1.5px solid var(--error-color);
     border-radius: var(--border-radius-sm);
-    padding: 4px 10px;
+    padding: 4px 14px 4px 10px;
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     font-size: 12px;
     width: auto;
     min-width: 0;
@@ -333,6 +333,8 @@ body {
 
 #logout-btn:hover {
     background: #d84040;
+    border-color: #d84040;
+    color: #fff;
     transform: translateY(-1px);
     box-shadow: var(--shadow);
 }
@@ -340,6 +342,8 @@ body {
 #logout-btn::before {
     content: '🚪';
     font-size: 14px;
+    color: #fff;
+    margin-right: 2px;
 }
 
 .main-content {
