@@ -22,6 +22,9 @@ let bannedWords = ['badword1', 'badword2', 'badword3'];
 let adminUsers = ['admin@example.com'];
 let userConversations = {};
 
+// Listen in realtime for changes to this user's DM list across all devices/tabs
+let unsubscribeConversations = null;
+
 function getDOM() {
     return {
         messagesContainer: document.getElementById('messages-container'),
@@ -109,50 +112,48 @@ function attachLoginListener() {
 
 function checkAuthState() {
     auth.onAuthStateChanged(user => {
+        if (unsubscribeConversations) {
+            unsubscribeConversations();
+            unsubscribeConversations = null;
+        }
+
         if (user) {
             currentUser = user;
             checkUserProfile(user.uid);
             updateUIForLoggedInUser();
-            loadUserConversations(); // Load saved DMs
+            listenUserConversations(); // Listen cross-platform in realtime
             loadMessages();
             trackUserActivity();
         } else {
             currentUser = null;
             updateUIForLoggedOutUser();
             clearMessages();
+            userConversations = {};
+            renderSavedConversations();
+            if (unsubscribeConversations) {
+                unsubscribeConversations();
+                unsubscribeConversations = null;
+            }
         }
     });
 }
 
-// Load user's saved DMs from Firestore and LocalStorage
-function loadUserConversations() {
+// Realtime listen to user's saved DMs from Firestore (crossplatform, cross tab)
+function listenUserConversations() {
     if (!currentUser) return;
 
-    // Try loading from localStorage first for fast UI
-    const saved = localStorage.getItem('userConversations_' + currentUser.uid);
-    if (saved) {
-        try {
-            userConversations = JSON.parse(saved) || {};
-        } catch (e) {
-            userConversations = {};
-        }
-        renderSavedConversations();
-    }
-
-    // Always sync from Firestore for latest source of truth
-    db.collection('user_conversations')
+    unsubscribeConversations = db.collection('user_conversations')
         .doc(currentUser.uid)
-        .get()
-        .then(doc => {
+        .onSnapshot(doc => {
             if (doc.exists) {
                 userConversations = doc.data().conversations || {};
-                // Save to localStorage for persistence and fast reloads
-                localStorage.setItem('userConversations_' + currentUser.uid, JSON.stringify(userConversations));
+                renderSavedConversations();
+            } else {
+                userConversations = {};
                 renderSavedConversations();
             }
-        })
-        .catch(error => {
-            console.error('Error loading conversations:', error);
+        }, error => {
+            console.error('Error listening to conversations:', error);
         });
 }
 
@@ -168,14 +169,12 @@ function renderSavedConversations() {
     });
 }
 
-// Save DM to Firestore and LocalStorage
+// Save DM to Firestore (triggers crossplatform updates)
 function saveConversation(dmId, username) {
     if (!currentUser) return;
 
     // Update local state
     userConversations[dmId] = username;
-    // Save to localStorage for persistence
-    localStorage.setItem('userConversations_' + currentUser.uid, JSON.stringify(userConversations));
 
     // Update Firestore
     db.collection('user_conversations')
@@ -274,7 +273,7 @@ function updateUserPanel() {
                         <span class="user-name">${userData.username || 'User'}</span>
                         ${userData.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
                     </div>
-                    <button id="logout-btn">out</button>
+                    <button id="logout-btn">Logout</button>
                 `;
                 const logoutBtn = document.getElementById('logout-btn');
                 if (logoutBtn) {
@@ -474,7 +473,6 @@ function sendMessage() {
                             const username = userDoc.data().username;
                             if (!userConversations[dmId]) {
                                 saveConversation(dmId, username);
-                                renderSavedConversations();
                             }
                         }
                     });
@@ -520,7 +518,6 @@ function startNewDM() {
 
             // Save this conversation
             saveConversation(dmId, username);
-            renderSavedConversations();
 
             // Switch to this DM channel
             currentChannel = `dm_${dmId}`;
