@@ -113,7 +113,7 @@ function checkAuthState() {
             currentUser = user;
             checkUserProfile(user.uid);
             updateUIForLoggedInUser();
-            loadUserConversations();
+            loadUserConversations(); // Load saved DMs
             loadMessages();
             trackUserActivity();
         } else {
@@ -124,16 +124,30 @@ function checkAuthState() {
     });
 }
 
-// NEW: Load user's saved conversations from Firestore
+// Load user's saved DMs from Firestore and LocalStorage
 function loadUserConversations() {
     if (!currentUser) return;
-    
+
+    // Try loading from localStorage first for fast UI
+    const saved = localStorage.getItem('userConversations_' + currentUser.uid);
+    if (saved) {
+        try {
+            userConversations = JSON.parse(saved) || {};
+        } catch (e) {
+            userConversations = {};
+        }
+        renderSavedConversations();
+    }
+
+    // Always sync from Firestore for latest source of truth
     db.collection('user_conversations')
         .doc(currentUser.uid)
         .get()
         .then(doc => {
             if (doc.exists) {
                 userConversations = doc.data().conversations || {};
+                // Save to localStorage for persistence and fast reloads
+                localStorage.setItem('userConversations_' + currentUser.uid, JSON.stringify(userConversations));
                 renderSavedConversations();
             }
         })
@@ -142,26 +156,27 @@ function loadUserConversations() {
         });
 }
 
-// NEW: Render saved conversations in the DM list
+// Render saved DMs in the DM list
 function renderSavedConversations() {
     const { dmList } = getDOM();
     if (!dmList) return;
-    
+
     dmList.innerHTML = '';
-    
     Object.keys(userConversations).forEach(dmId => {
         const username = userConversations[dmId];
         addDMToList(dmId, username, false);
     });
 }
 
-// NEW: Save conversation to Firestore
+// Save DM to Firestore and LocalStorage
 function saveConversation(dmId, username) {
     if (!currentUser) return;
-    
+
     // Update local state
     userConversations[dmId] = username;
-    
+    // Save to localStorage for persistence
+    localStorage.setItem('userConversations_' + currentUser.uid, JSON.stringify(userConversations));
+
     // Update Firestore
     db.collection('user_conversations')
         .doc(currentUser.uid)
@@ -290,19 +305,19 @@ function updateUIForLoggedOutUser() {
 
 function updateActiveChannel() {
     const { channels, dmList } = getDOM();
-    
+
     if (channels) {
         channels.forEach(channel => {
             channel.classList.remove('active');
         });
     }
-    
+
     if (dmList) {
         dmList.querySelectorAll('.dm-channel').forEach(dm => {
             dm.classList.remove('active');
         });
     }
-    
+
     if (currentChannel.startsWith('dm_')) {
         const dmId = currentChannel.replace('dm_', '');
         const activeDm = dmList.querySelector(`[data-dm-id="${dmId}"]`);
@@ -333,7 +348,7 @@ function loadMessages() {
         const dmId = currentChannel.replace('dm_', '');
         const [user1, user2] = dmId.split('_');
         const reverseDmId = `${user2}_${user1}`;
-        
+
         query = db.collection('messages')
             .where('channel', 'in', [`dm_${dmId}`, `dm_${reverseDmId}`])
             .orderBy('timestamp', 'asc');
@@ -353,7 +368,7 @@ function loadMessages() {
             db.collection('users').doc(uid).get().then(userDoc => {
                 userDocs[uid] = userDoc.exists ? userDoc.data() : null;
             })
-        );
+        ));
 
         let html = '';
         docs.forEach(message => {
@@ -448,8 +463,8 @@ function sendMessage() {
         })
         .then(() => {
             if (messageInput) messageInput.value = '';
-            
-            // NEW: Save conversation if it's a DM
+
+            // Save DM if this is a DM channel
             if (currentChannel.startsWith('dm_')) {
                 const dmId = currentChannel.replace('dm_', '');
                 const otherUserId = dmId.split('_').find(id => id !== currentUser.uid);
@@ -459,6 +474,7 @@ function sendMessage() {
                             const username = userDoc.data().username;
                             if (!userConversations[dmId]) {
                                 saveConversation(dmId, username);
+                                renderSavedConversations();
                             }
                         }
                     });
@@ -474,12 +490,12 @@ function sendMessage() {
 function startNewDM() {
     const { dmUserInput } = getDOM();
     const username = dmUserInput.value.trim();
-    
+
     if (!username) {
         alert('Please enter a username');
         return;
     }
-    
+
     // Find user by username
     db.collection('users')
         .where('username', '==', username)
@@ -490,27 +506,28 @@ function startNewDM() {
                 alert('User not found');
                 return;
             }
-            
+
             const userDoc = snapshot.docs[0];
             const targetUserId = userDoc.id;
-            
+
             if (targetUserId === currentUser.uid) {
                 alert('You cannot message yourself');
                 return;
             }
-            
+
             // Create a unique DM channel ID (sorted to ensure consistency)
             const dmId = [currentUser.uid, targetUserId].sort().join('_');
-            
-            // NEW: Save this conversation
+
+            // Save this conversation
             saveConversation(dmId, username);
-            
+            renderSavedConversations();
+
             // Switch to this DM channel
             currentChannel = `dm_${dmId}`;
             updateActiveChannel();
             loadMessages();
             addDMToList(dmId, username, true);
-            
+
             dmUserInput.value = '';
         })
         .catch(error => {
@@ -519,10 +536,11 @@ function startNewDM() {
         });
 }
 
-// NEW: Add DM to the list (with option to make it active)
+// Add DM to the list (with option to make it active)
 function addDMToList(dmId, username, makeActive) {
     const { dmList } = getDOM();
-    
+    if (!dmList) return;
+
     // Check if this DM already exists in the list
     const existingDm = dmList.querySelector(`[data-dm-id="${dmId}"]`);
     if (existingDm) {
@@ -531,19 +549,19 @@ function addDMToList(dmId, username, makeActive) {
         }
         return;
     }
-    
+
     const dmItem = document.createElement('li');
     dmItem.className = 'dm-channel' + (makeActive ? ' active' : '');
     dmItem.dataset.dmId = dmId;
     dmItem.dataset.channel = `dm_${dmId}`;
     dmItem.textContent = `@${username}`;
-    
+
     dmItem.addEventListener('click', () => {
         currentChannel = `dm_${dmId}`;
         updateActiveChannel();
         loadMessages();
     });
-    
+
     dmList.appendChild(dmItem);
 }
 
