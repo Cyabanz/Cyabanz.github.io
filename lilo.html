@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles/defaults.css">
+  
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Inter", Arial, sans-serif;
+      background: #121212;
+      color: #ffffff;
+    }
+    .content {
+      padding: 30px 0 60px;
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+    .filter-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0 30px;
+      position: relative;
+    }
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      justify-content: center;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .search-input {
+      width: 500px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      background-color: rgba(30, 30, 30, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 18px;
+      outline: none;
+      color: #ffffff;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+    }
+    .search-input:focus {
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      background-color: rgba(40, 40, 40, 0.9);
+      transform: scale(1.02);
+    }
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      transition: opacity 0.3s ease;
+    }
+    .search-input:focus::placeholder {
+      opacity: 0.5;
+    }
+    .game {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2/3;
+      background-size: cover;
+      background-position: center;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .game:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.5) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+      );
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 20px;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .game:hover .overlay {
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.95) 0%,
+        rgba(0, 0, 0, 0.6) 50%,
+        rgba(0, 0, 0, 0.15) 100%
+      );
+    }
+    .movie-info {
+      transform: translateY(10px);
+      opacity: 1;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    .game:hover .movie-info {
+      transform: translateY(0);
+    }
+    .movie-title {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      width: 100%;
+    }
+    .movie-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      opacity: 0.9;
+      gap: 12px;
+      color: rgba(255, 255, 255, 0.9);
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .rating svg {
+      width: 16px;
+      height: 16px;
+      fill: #ffd700;
+    }
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -99;
+      background: #121212;
+    }
+    .loading {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.2rem;
+      margin-top: 40px;
+      grid-column: 1 / -1;
+    }
+    /* Favorite Section Styles */
+    .favorites-section, .recommendations-section {
+      max-width: 1200px;
+      margin: 0 auto 48px auto;
+      background: rgba(27, 27, 27, 0.85);
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.23);
+      padding: 27px 30px 32px 30px;
+      text-align: left;
+      position: relative;
+    }
+    .favorites-section h2, .recommendations-section h2 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffd700;
+      letter-spacing: 0.6px;
+    }
+    .favorites-list, .recommendations-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 22px;
+    }
+    .favorite-card, .recommendation-card {
+      background: rgba(22, 22, 22, 0.94);
+      border-radius: 9px;
+      box-shadow: 0 2px 7px rgba(0,0,0,0.19);
+      padding: 11px 13px 10px 13px;
+      min-width: 160px;
+      max-width: 185px;
+      flex: 1 0 155px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: box-shadow 0.25s, border-color 0.25s, transform 0.22s;
+    }
+    .favorite-card:hover, .recommendation-card:hover {
+      border-color: #ffd700;
+      box-shadow: 0 6px 19px rgba(0,0,0,0.33);
+      transform: translateY(-4px) scale(1.04);
+    }
+    .fav-poster, .rec-poster {
+      width: 100%;
+      max-width: 140px;
+      border-radius: 7px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      margin-bottom: 10px;
+      aspect-ratio: 2/3;
+      background-color: #232323;
+      object-fit: cover;
+    }
+    .fav-title, .rec-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 4px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.28);
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .remove-fav, .add-fav {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #232323;
+      color: #ffd700;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.88;
+      transition: background 0.2s, color 0.2s;
+    }
+    .remove-fav:hover, .add-fav:hover {
+      background: #ffd700;
+      color: #232323;
+      opacity: 1;
+    }
+  </style>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display: none;">
+    <symbol id="star" viewBox="0 0 24 24">
+      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+    </symbol>
+    <symbol id="fav" viewBox="0 0 24 24">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </symbol>
+    <symbol id="fav-fill" viewBox="0 0 24 24">
+      <path fill="#ffd700" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </symbol>
+  </svg>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script src="/scripts/particle.js"></script>
+</head>
+<body>
+  <div id="particles-js"></div>
+  <div class="content">
+    <div class="filter-container">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search for movies..." 
+        id="searchInput"
+        aria-label="Search movies"
+      >
+    </div>
+
+    <div class="favorites-section" id="favoritesSection" style="display:none;">
+      <h2>Favorite Movies</h2>
+      <div class="favorites-list" id="favoritesList"></div>
+    </div>
+
+    <div class="recommendations-section" id="recommendationsSection" style="display:none;">
+      <h2>Recommended For You</h2>
+      <div class="recommendations-list" id="recommendationsList"></div>
+    </div>
+    
+    <div class="game-grid" id="gameGrid">
+      <div class="loading">Loading movies...</div>
+    </div>
+  </div>
+  <script src="movies.js"></script>
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const gameGrid = document.getElementById("gameGrid");
+    const favoritesSection = document.getElementById("favoritesSection");
+    const favoritesList = document.getElementById("favoritesList");
+    const recommendationsSection = document.getElementById("recommendationsSection");
+    const recommendationsList = document.getElementById("recommendationsList");
+
+    let isLoading = false;
+    let favorites = JSON.parse(localStorage.getItem("favoriteMovies") || "[]");
+    let recommendations = [];
+
+    const movSec = window.movSec || ""; // Your TMDB API key here or exposed globally
+
+    function saveFavorites() {
+      localStorage.setItem("favoriteMovies", JSON.stringify(favorites));
+    }
+
+    function isFavorite(id) {
+      return favorites.some(fav => fav.id === id);
+    }
+
+    function updateFavoritesSection() {
+      if (favorites.length === 0) {
+        favoritesSection.style.display = "none";
+        return;
+      }
+      favoritesSection.style.display = "";
+      favoritesList.innerHTML = "";
+      favorites.forEach(movie => {
+        const card = document.createElement("div");
+        card.className = "favorite-card";
+        card.innerHTML = `
+          <img class="fav-poster" src="https://image.tmdb.org/t/p/w500${movie.poster_path || ''}" alt="${movie.title}">
+          <span class="fav-title">${movie.title || "Untitled"}</span>
+          <button class="remove-fav" title="Remove from Favorites" aria-label="Remove from Favorites">
+            <svg width="24" height="24"><use xlink:href="#fav-fill"/></svg>
+          </button>
+        `;
+        card.querySelector(".remove-fav").onclick = (e) => {
+          e.stopPropagation();
+          favorites = favorites.filter(f => f.id !== movie.id);
+          saveFavorites();
+          updateFavoritesSection();
+          displayMovies(currentMovies);
+        };
+        card.onclick = () => {
+          if (movie.id) window.location.href = `p.html#${movie.id}`;
+        };
+        favoritesList.appendChild(card);
+      });
+    }
+
+    function updateRecommendationsSection() {
+      if (recommendations.length === 0) {
+        recommendationsSection.style.display = "none";
+        return;
+      }
+      recommendationsSection.style.display = "";
+      recommendationsList.innerHTML = "";
+      recommendations.forEach(movie => {
+        const card = document.createElement("div");
+        card.className = "recommendation-card";
+        card.innerHTML = `
+          <img class="rec-poster" src="https://image.tmdb.org/t/p/w500${movie.poster_path || ''}" alt="${movie.title}">
+          <span class="rec-title">${movie.title || "Untitled"}</span>
+          <button class="add-fav" title="Add to Favorites" aria-label="Add to Favorites">
+            <svg width="22" height="22"><use xlink:href="${isFavorite(movie.id) ? "#fav-fill" : "#fav"}"/></svg>
+          </button>
+        `;
+        card.querySelector(".add-fav").onclick = (e) => {
+          e.stopPropagation();
+          if (!isFavorite(movie.id)) {
+            favorites.push(movie);
+            saveFavorites();
+            updateFavoritesSection();
+            updateRecommendationsSection();
+            displayMovies(currentMovies);
+          }
+        };
+        card.onclick = () => {
+          if (movie.id) window.location.href = `p.html#${movie.id}`;
+        };
+        recommendationsList.appendChild(card);
+      });
+    }
+
+    let currentMovies = [];
+
+    async function getPopularMovies() {
+      if (isLoading) return;
+      isLoading = true;
+      gameGrid.innerHTML = `<div class="loading">Loading movies...</div>`;
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/popular?api_key=${movSec}`
+        );
+        const data = await response.json();
+        currentMovies = Array.isArray(data.results) ? data.results : [];
+        displayMovies(currentMovies);
+        updateRecommendations();
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+        gameGrid.innerHTML = `<div class="loading">Failed to load movies. Please try again.</div>`;
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    async function searchMovies(query) {
+      if (isLoading) return;
+      isLoading = true;
+      gameGrid.innerHTML = `<div class="loading">Searching movies...</div>`;
+      try {
+        if (!query.trim()) {
+          getPopularMovies();
+          return;
+        }
+        const response = await fetch(
+          `https://api.themoviedb.org/3/search/movie?api_key=${movSec}&query=${encodeURIComponent(query)}`
+        );
+        const data = await response.json();
+        currentMovies = Array.isArray(data.results) ? data.results : [];
+        displayMovies(currentMovies);
+        updateRecommendations();
+      } catch (error) {
+        console.error("Error searching movies:", error);
+        gameGrid.innerHTML = `<div class="loading">Search failed. Please try again.</div>`;
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function displayMovies(movies) {
+      if (!movies || movies.length === 0) {
+        gameGrid.innerHTML = `<div class="loading">No movies found</div>`;
+        return;
+      }
+      gameGrid.innerHTML = "";
+      movies.forEach(movie => {
+        const gameCard = document.createElement("div");
+        gameCard.className = "game";
+        gameCard.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${movie.poster_path || ''})`;
+        const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
+        const rating = Math.round((movie.vote_average || 0) / 2);
+        gameCard.innerHTML = `
+          <div class="overlay">
+            <div class="movie-info">
+              <h3 class="movie-title">${movie.title || 'Untitled'}</h3>
+              <div class="movie-meta">
+                <span>${releaseYear}</span>
+                ${movie.vote_average ? `
+                <span class="rating">
+                  ${'<svg><use xlink:href="#star"/></svg>'.repeat(rating)}
+                  ${'<svg style="opacity:0.3"><use xlink:href="#star"/></svg>'.repeat(5 - rating)}
+                  <span style="margin-left:4px">${movie.vote_average.toFixed(1)}</span>
+                </span>
+                ` : ''}
+                <button class="add-fav" title="${isFavorite(movie.id) ? "Remove from Favorites" : "Add to Favorites"}" aria-label="${isFavorite(movie.id) ? "Remove from Favorites" : "Add to Favorites"}">
+                  <svg width="22" height="22"><use xlink:href="${isFavorite(movie.id) ? "#fav-fill" : "#fav"}"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        gameCard.querySelector(".add-fav").onclick = (e) => {
+          e.stopPropagation();
+          if (isFavorite(movie.id)) {
+            favorites = favorites.filter(f => f.id !== movie.id);
+          } else {
+            favorites.push(movie);
+          }
+          saveFavorites();
+          updateFavoritesSection();
+          updateRecommendationsSection();
+          displayMovies(currentMovies);
+        };
+        gameCard.addEventListener("click", () => {
+          if (movie.id) {
+            window.location.href = `p.html#${movie.id}`;
+          }
+        });
+        gameGrid.appendChild(gameCard);
+      });
+      updateFavoritesSection();
+    }
+
+    async function updateRecommendations() {
+      if (favorites.length === 0) {
+        recommendations = [];
+        updateRecommendationsSection();
+        return;
+      }
+      // Get recommendations for the most recently added favorite (could be improved to merge recommendations)
+      const lastFav = favorites[favorites.length - 1];
+      try {
+        const resp = await fetch(`https://api.themoviedb.org/3/movie/${lastFav.id}/recommendations?api_key=${movSec}`);
+        const data = await resp.json();
+        recommendations = (data.results || []).filter(m => !isFavorite(m.id)).slice(0, 10);
+        updateRecommendationsSection();
+      } catch (e) {
+        recommendations = [];
+        updateRecommendationsSection();
+      }
+    }
+
+    let searchTimeout;
+    searchInput.addEventListener("input", function(event) {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const query = searchInput.value.trim();
+        query ? searchMovies(query) : getPopularMovies();
+      }, 500);
+    });
+    searchInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        clearTimeout(searchTimeout);
+        const query = searchInput.value.trim();
+        query ? searchMovies(query) : getPopularMovies();
+      }
+    });
+
+    // Initial load
+    updateFavoritesSection();
+    updateRecommendationsSection();
+    getPopularMovies();
+  </script>
+</body>
+</html>
