@@ -175,14 +175,14 @@
       <div class="source-selector">
         <button class="selector-button" id="sourceButton">
           <i class="fas fa-cloud"></i>
-          <span id="currentSource">123Embed</span>
+          <span id="currentSource">VidSrc</span>
         </button>
         <div class="dropdown-menu" id="dropdownMenu">
-          <div class="dropdown-option active" data-source="premium">
+          <div class="dropdown-option" data-source="premium">
             <div class="option-title">123Embed</div>
             <div class="option-description">High quality • No ads • Most content</div>
           </div>
-          <div class="dropdown-option" data-source="vidsrc">
+          <div class="dropdown-option active" data-source="vidsrc">
             <div class="option-title">VidSrc</div>
             <div class="option-description">Good quality • No ads • Less content</div>
           </div>
@@ -211,7 +211,7 @@
           moviesapi: "https://moviesapi.club/movie/MOVIE_ID"
         };
         
-        this.currentSource = 'premium';
+        this.currentSource = 'vidsrc';
         this.currentMovieId = null;
         
         this.init();
