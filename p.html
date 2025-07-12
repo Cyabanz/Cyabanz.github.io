@@ -1,101 +1,324 @@
-<!DOCTYPE html><!--
-  Hi skidders
--->
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://vaporon.top/styles/defaults.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Player</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-      /**
-      * Hi skidders
-      */
-    body,       html {         margin: 0;         padding: 0;         width: 100%;         height: 100%;         overflow: hidden;         font-family: "Inter";       }       iframe {         width: 100%;         height: 100%;         border: 0;       }       .dropdown-container {         position: fixed;         top: 10px;         left: 10px;         z-index: 1000;       }       .dropdown {         background-color: var(--fourth-bg);         color: #fff;         padding: 12px 16px;         border: 0;         border-radius: 12px;         font-size: 14px;         cursor: pointer;         transition: 0.15s ease;         display: flex;         align-items: center;         gap: 8px;         opacity: 0.3;       }       .dropdown:hover {         background: var(--third-bg);         opacity: 1;       }       .dropdown-menu {         display: none;         position: absolute;         background-color: var(--fourth-bg);         min-width: 160px;         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);         z-index: 1001;         margin-top: 6px;         border-radius: 10px;         animation: showMenu 0.15s ease;       }       @keyframes showMenu {         from {           opacity: 0;           transform: scale(0.94);         }       }       .dropdown-menu div {         padding: 8px 16px;         cursor: pointer;         transition: 0.15s ease;         border-radius: 10px;       }       .dropdown-menu div:hover {         background: var(--third-bg);       }       .dropdown-menu .selected {         background: rgba(255, 255, 255, 0.1);         font-weight: bold;       }       .note {         font-size: 11px;         color: #aaa;         font-weight: normal;         display: block;       }
+    :root {
+      --primary-bg: #1a1a1a;
+      --secondary-bg: #2d2d2d;
+      --tertiary-bg: #3d3d3d;
+      --quaternary-bg: #4d4d4d;
+      --text-primary: #ffffff;
+      --text-secondary: #aaaaaa;
+      --accent: #a4b8db;
+      --hover-bg: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--primary-bg);
+      color: var(--text-primary);
+    }
+
+    .player-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .player-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background-color: var(--primary-bg);
+    }
+
+    .controls-overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+    }
+
+    .source-selector {
+      position: relative;
+      display: inline-block;
+    }
+
+    .selector-button {
+      background-color: var(--quaternary-bg);
+      color: var(--text-primary);
+      border: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      opacity: 0.7;
+      backdrop-filter: blur(10px);
+    }
+
+    .selector-button:hover {
+      background-color: var(--tertiary-bg);
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    .selector-button i {
+      font-size: 16px;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      background-color: var(--quaternary-bg);
+      min-width: 200px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px) scale(0.95);
+      transition: all 0.2s ease;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .dropdown-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-radius: 8px;
+      margin: 4px;
+    }
+
+    .dropdown-option:hover {
+      background-color: var(--tertiary-bg);
+    }
+
+    .dropdown-option.active {
+      background-color: var(--hover-bg);
+      font-weight: 600;
+    }
+
+    .option-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .option-description {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+
+    .loading-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--text-secondary);
+      font-size: 18px;
+      z-index: 999;
+    }
+
+    .loading-indicator.hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .controls-overlay {
+        top: 12px;
+        left: 12px;
+      }
+      
+      .selector-button {
+        padding: 10px 14px;
+        font-size: 13px;
+      }
+      
+      .dropdown-menu {
+        min-width: 180px;
+      }
+    }
   </style>
 </head>
-
 <body>
-  <div class="dropdown-container">
-    <button class="dropdown" data-player="default">
-      <i class="fas fa-cloud"></i>
-    </button>
-    <div class="dropdown-menu">
-      <div class="selected" data-player="default">
-        Default<br /><small class="note">Lots of Movies - No ads</small>
-      </div>
-      <div data-player="vidsrc">
-        Vidsrc<br /><small class="note">Less movies – No ads</small>
-      </div>
-      <div data-player="embednet">
-        123embed<br /><small class="note">Less movies – No ads</small>
-      </div>
-      <div data-player="moviesapiclub">
-        MoviesAPI<br /><small class="note">Less movies – Has ads</small>
+  <div class="player-container">
+    <div class="loading-indicator" id="loadingIndicator">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    
+    <div class="controls-overlay">
+      <div class="source-selector">
+        <button class="selector-button" id="sourceButton">
+          <i class="fas fa-cloud"></i>
+          <span id="currentSource">Premium</span>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu">
+          <div class="dropdown-option active" data-source="premium">
+            <div class="option-title">Premium</div>
+            <div class="option-description">High quality • No ads • Most content</div>
+          </div>
+          <div class="dropdown-option" data-source="vidsrc">
+            <div class="option-title">VidSrc</div>
+            <div class="option-description">Good quality • No ads • Less content</div>
+          </div>
+          <div class="dropdown-option" data-source="embed123">
+            <div class="option-title">123Embed</div>
+            <div class="option-description">Standard quality • No ads • Limited content</div>
+          </div>
+          <div class="dropdown-option" data-source="moviesapi">
+            <div class="option-title">MoviesAPI</div>
+            <div class="option-description">Variable quality • Has ads • More content</div>
+          </div>
+        </div>
       </div>
     </div>
+    
+    <iframe class="player-iframe" id="playerFrame" src=""></iframe>
   </div>
 
-  <iframe id="player-iframe" src=""></iframe>
-
   <script>
-    /**
-    * Hi skidders
-    */
-
-    const playerUrls = {
-      default:
-        "https://vidora.su/movie/TMDB_ID?colour=a4b8db&autoplay=true&autonextepisode=true&backbutton=https%3A%2F%2Fcyabanz.github.io&pausescreen=true&logo=https%3A%2F%2Fvaporon.top%2F_a%2Flogo.new.png",
-      vidsrc: "https://vidsrc.su/embed/movie/TMDB_ID",
-      embednet: "https://play2.123embed.net/movie/TMDB_ID",
-      moviesapiclub: "https://moviesapi.club/movie/TMDB_ID",
-    };
-
-    function gH() {
-      const e = window.location.hash.substring(1);
-      return e || null;
-    }
-    function uPS(e) {
-      const o = document
-        .querySelector(".dropdown")
-        .getAttribute("data-player");
-      const t = playerUrls[o];
-      if (t && e) {
-        const n = t.replace("TMDB_ID", e);
-        document.getElementById("player-iframe").src = n;
-      } else {
-        console.error("Invalid TMDB ID or player configuration.");
+    class MoviePlayer {
+      constructor() {
+        this.sources = {
+          premium: "https://vidora.su/movie/MOVIE_ID?colour=a4b8db&autoplay=true&autonextepisode=true&backbutton=https%3A%2F%2Fcyabanz.github.io&pausescreen=true&logo=https%3A%2F%2Fvaporon.top%2F_a%2Flogo.new.png",
+          vidsrc: "https://vidsrc.su/embed/movie/MOVIE_ID",
+          embed123: "https://play2.123embed.net/movie/MOVIE_ID",
+          moviesapi: "https://moviesapi.club/movie/MOVIE_ID"
+        };
+        
+        this.currentSource = 'premium';
+        this.currentMovieId = null;
+        
+        this.init();
       }
-    }
-    document.querySelector(".dropdown").addEventListener("click", () => {
-      const e = document.querySelector(".dropdown-menu");
-      e.style.display = e.style.display === "block" ? "none" : "block";
-    });
-    document.querySelectorAll(".dropdown-menu div").forEach((t) => {
-      t.addEventListener("click", () => {
-        const e = t.getAttribute("data-player");
-        document.querySelector(".dropdown").setAttribute("data-player", e);
-        document.querySelectorAll(".dropdown-menu div").forEach((e) => {
-          e.classList.remove("selected");
+      
+      init() {
+        this.bindEvents();
+        this.loadMovieFromHash();
+      }
+      
+      bindEvents() {
+        // Source selector button click
+        document.getElementById('sourceButton').addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown();
         });
-        t.classList.add("selected");
-        const o = gH();
-        if (o) {
-          uPS(o);
+        
+        // Dropdown option clicks
+        document.querySelectorAll('.dropdown-option').forEach(option => {
+          option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const source = option.getAttribute('data-source');
+            this.changeSource(source);
+          });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+          this.closeDropdown();
+        });
+        
+        // Hash change listener
+        window.addEventListener('hashchange', () => {
+          this.loadMovieFromHash();
+        });
+        
+        // Iframe load event
+        document.getElementById('playerFrame').addEventListener('load', () => {
+          this.hideLoading();
+        });
+      }
+      
+      toggleDropdown() {
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('show');
+      }
+      
+      closeDropdown() {
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.remove('show');
+      }
+      
+      changeSource(source) {
+        if (this.sources[source]) {
+          this.currentSource = source;
+          
+          // Update UI
+          document.getElementById('currentSource').textContent = 
+            document.querySelector(`[data-source="${source}"] .option-title`).textContent;
+          
+          // Update active state
+          document.querySelectorAll('.dropdown-option').forEach(opt => {
+            opt.classList.remove('active');
+          });
+          document.querySelector(`[data-source="${source}"]`).classList.add('active');
+          
+          // Reload current movie with new source
+          if (this.currentMovieId) {
+            this.loadMovie(this.currentMovieId);
+          }
+          
+          this.closeDropdown();
         }
-        document.querySelector(".dropdown-menu").style.display = "none";
-      });
-    });
-    window.addEventListener("hashchange", () => {
-      const e = gH();
-      if (e) {
-        uPS(e);
       }
-    });
-    document.addEventListener("DOMContentLoaded", () => {
-      const e = gH();
-      if (e) {
-        uPS(e);
+      
+      loadMovieFromHash() {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+          this.loadMovie(hash);
+        }
       }
+      
+      loadMovie(movieId) {
+        if (!movieId || !this.sources[this.currentSource]) {
+          console.error('Invalid movie ID or source configuration');
+          return;
+        }
+        
+        this.currentMovieId = movieId;
+        this.showLoading();
+        
+        const url = this.sources[this.currentSource].replace('MOVIE_ID', movieId);
+        document.getElementById('playerFrame').src = url;
+      }
+      
+      showLoading() {
+        document.getElementById('loadingIndicator').classList.remove('hidden');
+      }
+      
+      hideLoading() {
+        document.getElementById('loadingIndicator').classList.add('hidden');
+      }
+    }
+    
+    // Initialize the player when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      new MoviePlayer();
     });
   </script>
 </body>
